@@ -6,10 +6,10 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 // OnBase / OnConnect integration. Set these in Vercel (and .env.local for dev):
 //   ONBASE_API_KEY   — an API key generated in the OnWood OnBase tenant (Admin → API keys)
 //   ONBASE_API_URL   — OnBase base URL (defaults to production)
-//   ONBASE_SIGNUP_TAG — the tag applied to every website signup (defaults to "#Comingsoon")
+//   ONBASE_SIGNUP_TAG — the tag applied to every website signup (defaults to "Coming Soon")
 const ONBASE_API_URL = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const ONBASE_API_KEY = process.env.ONBASE_API_KEY;
-const SIGNUP_TAG = process.env.ONBASE_SIGNUP_TAG || "#Comingsoon";
+const SIGNUP_TAG = process.env.ONBASE_SIGNUP_TAG || "Coming Soon";
 
 export async function POST(request: Request) {
   let email = "";
