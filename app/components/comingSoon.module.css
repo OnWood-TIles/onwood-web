@@ -38,15 +38,12 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 11px;
   color: #fff;
 }
 
-.brandName {
-  font-family: var(--font-archivo), sans-serif;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  font-size: 17px;
+.brandLogo {
+  height: 46px;
+  width: auto;
 }
 
 .status {
@@ -210,15 +207,20 @@
 /* ---- email capture ---- */
 .form {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   max-width: 440px;
   margin: 0 auto;
+}
+
+.formRow {
+  display: flex;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.email {
-  flex: 1;
-  min-width: 200px;
+.field {
+  width: 100%;
   padding: 15px 18px;
   border-radius: 100px;
   border: 1.5px solid rgba(255, 255, 255, 0.4);
@@ -230,12 +232,18 @@
   outline: none;
 }
 
-.email::placeholder {
+.field::placeholder {
   color: rgba(255, 255, 255, 0.72);
 }
 
-.email:focus {
+.field:focus {
   border-color: rgba(208, 106, 69, 0.8);
+}
+
+.emailField {
+  flex: 1;
+  min-width: 200px;
+  width: auto;
 }
 
 .submit {
@@ -339,11 +347,11 @@
     margin: 0 16px;
   }
 
-  .form {
+  .formRow {
     flex-direction: column;
   }
 
-  .email,
+  .emailField,
   .submit {
     width: 100%;
     min-width: 0;

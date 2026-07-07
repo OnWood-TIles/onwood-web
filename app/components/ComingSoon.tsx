@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import MosaicCanvas from "./MosaicCanvas";
 import styles from "./comingSoon.module.css";
 
@@ -9,6 +10,7 @@ type Note = { text: string; kind: "ok" | "error" } | null;
 export default function ComingSoon() {
   const hostRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [note, setNote] = useState<Note>(null);
@@ -45,7 +47,7 @@ export default function ComingSoon() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ name, email }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -56,6 +58,7 @@ export default function ComingSoon() {
           text: "✓ You’re on the list — we’ll be in touch.",
           kind: "ok",
         });
+        setName("");
         setEmail("");
       } else {
         setNote({
@@ -83,19 +86,14 @@ export default function ComingSoon() {
       {/* top bar */}
       <div className={styles.topbar}>
         <div className={styles.brand}>
-          <svg viewBox="0 0 100 74" width="30" height="24" aria-hidden="true">
-            <path
-              d="M8 44 L50 8 L92 44"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <rect x="20" y="52" width="60" height="8" rx="4" fill="var(--accent)" />
-            <rect x="28" y="66" width="44" height="7" rx="3.5" fill="var(--sea)" />
-          </svg>
-          <span className={styles.brandName}>ONWOOD</span>
+          <Image
+            src="/onwood-logo-white.png"
+            alt="OnWood Tiles"
+            width={131}
+            height={48}
+            priority
+            className={styles.brandLogo}
+          />
         </div>
         <div className={styles.status}>
           <span className={styles.statusDot} />
@@ -149,26 +147,39 @@ export default function ComingSoon() {
         {/* email capture */}
         <form
           onSubmit={onSubmit}
-          className={styles.rise}
-          style={{ animationDelay: "0.46s", display: "flex", gap: 10, maxWidth: 440, margin: "0 auto", flexWrap: "wrap" }}
+          className={`${styles.rise} ${styles.form}`}
+          style={{ animationDelay: "0.46s" }}
         >
           <input
-            type="email"
+            type="text"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email for first access"
-            aria-label="Email address for first access"
-            className={styles.email}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name"
+            aria-label="Your name"
+            autoComplete="name"
+            className={styles.field}
           />
-          <button
-            ref={buttonRef}
-            type="submit"
-            disabled={submitting}
-            className={styles.submit}
-          >
-            {submitting ? "Adding…" : "Notify me →"}
-          </button>
+          <div className={styles.formRow}>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email for first access"
+              aria-label="Email address for first access"
+              autoComplete="email"
+              className={`${styles.field} ${styles.emailField}`}
+            />
+            <button
+              ref={buttonRef}
+              type="submit"
+              disabled={submitting}
+              className={styles.submit}
+            >
+              {submitting ? "Adding…" : "Notify me →"}
+            </button>
+          </div>
         </form>
         <div
           role="status"
