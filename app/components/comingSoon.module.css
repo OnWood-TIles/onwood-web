@@ -76,11 +76,11 @@
   margin: 0 22px;
   padding: 46px 44px 40px;
   border-radius: 26px;
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(11, 20, 26, 0.62);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55);
   text-align: center;
 }
 
