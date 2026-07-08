@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Manrope, Newsreader } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider, themeNoFlashScript } from "./components/ui/ThemeProvider";
 
 // Headings / labels
 const archivo = Archivo({
@@ -18,7 +19,7 @@ const manrope = Manrope({
   display: "swap",
 });
 
-// Italic accent word ("soon.")
+// Italic accent word ("soon.", shine words)
 const newsreader = Newsreader({
   subsets: ["latin"],
   weight: ["400"],
@@ -29,19 +30,45 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://onwoodtiles.com.au"),
-  title: "OnWood Flooring & Tiles — Coming Soon",
+  title: {
+    default: "OnWood Tiles - Sunshine Coast Tile Shop",
+    template: "%s | OnWood Tiles",
+  },
   description:
-    "The Sunshine Coast's new home for all things tiles. Our new showroom & website are almost ready. Sign up for first access.",
+    "The Sunshine Coast's new home for all things tiles. Quality floor, wall and outdoor tiles in Baringa.",
   openGraph: {
-    title: "OnWood Flooring & Tiles — Coming Soon",
-    description:
-      "The Sunshine Coast's new home for all things tiles. Our showroom & website are almost ready.",
+    title: "OnWood Tiles",
+    description: "The Sunshine Coast's new home for all things tiles.",
     url: "https://onwoodtiles.com.au",
-    siteName: "OnWood Flooring & Tiles",
+    siteName: "OnWood Tiles",
     locale: "en_AU",
     type: "website",
   },
-  robots: { index: true, follow: true },
+};
+
+// LocalBusiness structured data (site-wide).
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HomeGoodsStore",
+  name: "OnWood Tiles",
+  description:
+    "The Sunshine Coast's new home for all things tiles. Quality floor, wall and outdoor tiles in Baringa.",
+  url: "https://onwoodtiles.com.au",
+  email: "sales@onwoodtiles.com.au",
+  image: "https://onwoodtiles.com.au/onwood-logo-white.png",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "2/11 Packer Street",
+    addressLocality: "Baringa",
+    addressRegion: "QLD",
+    postalCode: "4551",
+    addressCountry: "AU",
+  },
+  areaServed: "Sunshine Coast, Queensland",
+  sameAs: [
+    "https://www.instagram.com/onwood_tiles",
+    "https://www.facebook.com/share/18qX1BsNrf/",
+  ],
 };
 
 export default function RootLayout({
@@ -52,7 +79,16 @@ export default function RootLayout({
       lang="en-AU"
       className={`${archivo.variable} ${manrope.variable} ${newsreader.variable} antialiased`}
     >
-      <body>{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

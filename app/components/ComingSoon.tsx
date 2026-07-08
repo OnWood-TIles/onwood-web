@@ -55,20 +55,20 @@ export default function ComingSoon() {
       };
       if (res.ok && data.ok) {
         setNote({
-          text: "✓ You’re on the list — we’ll be in touch.",
+          text: "✓ You’re on the list, we’ll be in touch.",
           kind: "ok",
         });
         setName("");
         setEmail("");
       } else {
         setNote({
-          text: data.error || "Something went wrong — please try again.",
+          text: data.error || "Something went wrong, please try again.",
           kind: "error",
         });
       }
     } catch {
       setNote({
-        text: "Couldn’t reach the server — please try again.",
+        text: "Couldn’t reach the server, please try again.",
         kind: "error",
       });
     } finally {
@@ -139,7 +139,7 @@ export default function ComingSoon() {
               <div className={styles.progressFill} />
             </div>
             <div className={styles.progressCaption}>
-              Foundations laid — the build has begun.
+              Foundations laid, the build has begun.
             </div>
           </div>
         </div>
@@ -203,10 +203,41 @@ export default function ComingSoon() {
             </a>
           </span>
         </div>
+
+        {/* social links */}
+        <div
+          className={`${styles.rise} ${styles.socials}`}
+          style={{ animationDelay: "0.62s" }}
+        >
+          <a
+            href="https://www.instagram.com/onwood_tiles"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="OnWood Tiles on Instagram"
+            className={styles.socialLink}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.8}>
+              <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+              <circle cx="12" cy="12" r="4.2" />
+              <circle cx="17.6" cy="6.4" r="1.15" fill="currentColor" stroke="none" />
+            </svg>
+          </a>
+          <a
+            href="https://www.facebook.com/share/18qX1BsNrf/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="OnWood Tiles on Facebook"
+            className={styles.socialLink}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z" />
+            </svg>
+          </a>
+        </div>
       </div>
 
       <div className={styles.footnote}>
-        Tap the wall to lay your own tile · © 2026 OnWood Flooring &amp; Tiles
+        Tap the wall to lay your own tile · © 2026 OnWood Tiles
       </div>
     </div>
   );

@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+
+// SMTP send needs the Node.js runtime (nodemailer opens a TCP socket).
+export const runtime = "nodejs";
 
 // Basic, permissive email shape check (the input[type=email] does the rest client-side).
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -11,15 +15,20 @@ const ONBASE_API_URL = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const ONBASE_API_KEY = process.env.ONBASE_API_KEY;
 const SIGNUP_TAG = process.env.ONBASE_SIGNUP_TAG || "Coming Soon";
 
-// Optional welcome email — DORMANT until OnWood's own Resend is set up.
-// When ready: create a Resend account under admin@onwoodtiles.com.au, verify the
-// onwoodtiles.com.au domain, then set these in Vercel:
-//   RESEND_API_KEY  — the Resend API key
-//   RESEND_FROM     — e.g. "OnWood Tiles <sales@onwoodtiles.com.au>"
-// Until RESEND_API_KEY exists, the welcome email is simply skipped.
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM =
-  process.env.RESEND_FROM || "OnWood Tiles <sales@onwoodtiles.com.au>";
+// Optional welcome email — sent through OnWood's existing Zoho mailbox over SMTP.
+// DORMANT until the SMTP credentials are set in Vercel (and .env.local for dev):
+//   ZOHO_SMTP_USER  — the mailbox, e.g. sales@onwoodtiles.com.au
+//   ZOHO_SMTP_PASS  — an app-specific password (Zoho → Security → App Passwords)
+//   ZOHO_SMTP_HOST  — optional, defaults to smtp.zoho.com.au (AU data centre)
+//   ZOHO_SMTP_PORT  — optional, defaults to 465 (SSL)
+//   MAIL_FROM       — optional display From, defaults to the mailbox
+// Until ZOHO_SMTP_PASS exists, the welcome email is simply skipped.
+const ZOHO_SMTP_USER = process.env.ZOHO_SMTP_USER || "sales@onwoodtiles.com.au";
+const ZOHO_SMTP_PASS = process.env.ZOHO_SMTP_PASS;
+const ZOHO_SMTP_HOST = process.env.ZOHO_SMTP_HOST || "smtp.zoho.com.au";
+const ZOHO_SMTP_PORT = Number(process.env.ZOHO_SMTP_PORT) || 465;
+const MAIL_FROM =
+  process.env.MAIL_FROM || `OnWood Tiles <${ZOHO_SMTP_USER}>`;
 
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) =>
@@ -80,30 +89,24 @@ export async function POST(request: Request) {
     );
   }
 
-  // 2) Send a welcome email — only once OnWood's Resend is configured. Fails-open.
-  if (RESEND_API_KEY) {
+  // 2) Send a welcome email via Zoho SMTP — only once credentials are set. Fails-open:
+  //    a mail hiccup must never fail the signup (they're already saved in OnConnect).
+  if (ZOHO_SMTP_PASS) {
     try {
-      const r = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: RESEND_FROM,
-          to: email,
-          subject: "You're on the list — OnWood Tiles",
-          html: welcomeEmailHtml(firstName),
-        }),
+      const transporter = nodemailer.createTransport({
+        host: ZOHO_SMTP_HOST,
+        port: ZOHO_SMTP_PORT,
+        secure: ZOHO_SMTP_PORT === 465, // SSL on 465, STARTTLS otherwise
+        auth: { user: ZOHO_SMTP_USER, pass: ZOHO_SMTP_PASS },
       });
-      if (!r.ok) {
-        const detail = await r.text().catch(() => "");
-        console.error(
-          `[subscribe] Resend welcome failed ${r.status} for ${email}: ${detail}`,
-        );
-      }
+      await transporter.sendMail({
+        from: MAIL_FROM,
+        to: email,
+        subject: "You're on the list - OnWood Tiles",
+        html: welcomeEmailHtml(firstName),
+      });
     } catch (err) {
-      console.error(`[subscribe] Resend welcome request failed for ${email}:`, err);
+      console.error(`[subscribe] Zoho welcome email failed for ${email}:`, err);
     }
   }
 
@@ -118,17 +121,16 @@ function welcomeEmailHtml(firstName?: string): string {
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0e1a20;padding:40px 16px;">
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#fbfaf6;border-radius:20px;overflow:hidden;">
-        <tr><td style="background:#20303a;padding:34px 40px;">
-          <span style="font-size:20px;font-weight:800;letter-spacing:2px;color:#ffffff;">ONWOOD</span>
-          <span style="font-size:13px;color:#4cb0c0;letter-spacing:1px;"> &nbsp;FLOORING &amp; TILES</span>
+        <tr><td style="background:#20303a;padding:30px 40px;">
+          <img src="https://onwoodtiles.com.au/onwood-logo-white.png" alt="OnWood Tiles" width="131" height="48" style="display:block;border:0;outline:none;text-decoration:none;width:131px;height:48px;" />
         </td></tr>
         <tr><td style="padding:40px;">
           <h1 style="margin:0 0 16px;font-size:24px;font-weight:800;color:#20303a;">${hi}</h1>
           <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#3a4b54;">
-            Thanks for signing up &mdash; you&rsquo;re officially on the list for <strong style="color:#d06a45;">first access</strong> to OnWood Tiles.
+            Thanks for signing up, you&rsquo;re officially on the list for <strong style="color:#d06a45;">first access</strong> to OnWood Tiles.
           </p>
           <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#3a4b54;">
-            We&rsquo;re building the Sunshine Coast&rsquo;s new home for all things tiles &mdash; a brand-new showroom and website. We&rsquo;ll be in touch the moment the doors open, and you&rsquo;ll be first to know.
+            We&rsquo;re building the Sunshine Coast&rsquo;s new home for all things tiles, with a brand-new showroom and website. We&rsquo;ll be in touch the moment the doors open, and you&rsquo;ll be first to know.
           </p>
           <p style="margin:0;font-size:16px;line-height:1.7;color:#3a4b54;">Talk soon,<br /><strong style="color:#20303a;">The OnWood Tiles team</strong></p>
         </td></tr>

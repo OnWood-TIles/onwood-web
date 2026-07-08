@@ -327,6 +327,31 @@
   color: #fff;
 }
 
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.socialLink {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.1);
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.85);
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4),
+    background 0.25s ease, color 0.25s ease;
+}
+
+.socialLink:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: translateY(-3px);
+}
+
 .footnote {
   position: absolute;
   bottom: 18px;

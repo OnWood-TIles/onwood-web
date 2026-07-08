@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
+/*
+  OnWood Tiles design tokens.
+  - Legacy vars (--bg/--ink/--accent...) are kept so the existing coming-soon
+    page (comingSoon.module.css) renders unchanged.
+  - Brand semantic vars (--brand-*) are theme-overridable via [data-theme].
+  - @theme inline maps Tailwind utilities to the runtime vars so bg-primary,
+    text-ink, font-display etc. follow the active theme.
+*/
 :root {
+  /* legacy coming-soon palette (do not remove) */
   --bg: #fbfaf6;
   --ink: #20303a;
   --muted: #6b7a80;
@@ -9,10 +18,77 @@
   --sea: #1e7a8c;
   --aqua: #4cb0c0;
   --deep: #0e1a20;
+
+  /* brand semantic (Terracotta = default theme) */
+  --brand-bg: #fbfaf6;
+  --brand-surface: #ffffff;
+  --brand-ink: #20303a;
+  --brand-muted: #6b7a80;
+  --brand-primary: #d06a45; /* terracotta */
+  --brand-primary-tint: #e79070;
+  --brand-secondary: #1e7a8c; /* aegean */
+  --brand-secondary-bright: #4cb0c0;
+  --brand-walnut: #7a4a28;
+  --brand-clay: #c57b4c;
+  --brand-deep: #0e1a20;
+  --brand-line: rgba(32, 48, 58, 0.12);
+}
+
+/* Santorini - whitewash + blue */
+[data-theme="santorini"] {
+  --brand-bg: #ffffff;
+  --brand-surface: #f5fafb;
+  --brand-ink: #14303a;
+  --brand-primary: #1e7a8c;
+  --brand-primary-tint: #4cb0c0;
+  --brand-secondary: #d06a45;
+  --brand-secondary-bright: #e79070;
+  --brand-line: rgba(20, 48, 58, 0.12);
+}
+
+/* Olive Grove - warm green + terracotta */
+[data-theme="olive"] {
+  --brand-bg: #f8f7ef;
+  --brand-surface: #ffffff;
+  --brand-ink: #2c3223;
+  --brand-primary: #6f7d3f;
+  --brand-primary-tint: #97a45f;
+  --brand-secondary: #b0623a;
+  --brand-secondary-bright: #cf8a54;
+  --brand-line: rgba(44, 50, 35, 0.12);
+}
+
+@theme inline {
+  --color-bg: var(--brand-bg);
+  --color-surface: var(--brand-surface);
+  --color-ink: var(--brand-ink);
+  --color-muted: var(--brand-muted);
+  --color-primary: var(--brand-primary);
+  --color-primary-tint: var(--brand-primary-tint);
+  --color-secondary: var(--brand-secondary);
+  --color-secondary-bright: var(--brand-secondary-bright);
+  --color-walnut: var(--brand-walnut);
+  --color-clay: var(--brand-clay);
+  --color-deep: var(--brand-deep);
+  --color-line: var(--brand-line);
+
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-body: var(--font-manrope), system-ui, sans-serif;
+  --font-accent: var(--font-newsreader), Georgia, serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 html,
@@ -21,13 +97,16 @@ body {
   padding: 0;
 }
 
+/* body stays deep so the dark coming-soon page is unaffected;
+   light marketing pages paint their own bg-bg container over it. */
 body {
   background: var(--deep);
-  color: var(--ink);
+  color: var(--brand-ink);
   font-family: var(--font-manrope), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--brand-primary);
   color: #fff;
 }
