@@ -106,30 +106,7 @@ export default function Showroom() {
         </div>
       </div>
 
-      {/* Vision-board head */}
-      <div style={{ textAlign: "center", marginBottom: 22 }}>
-        <Reveal>
-          <div style={EYEBROW_ACCENT}>{SHOWROOM.visionEyebrow}</div>
-        </Reveal>
-        <Reveal delay={0.05}>
-          <h3
-            style={{
-              fontFamily: "var(--font-archivo)",
-              fontWeight: 800,
-              fontSize: "clamp(24px,3vw,38px)",
-              letterSpacing: "-.02em",
-              margin: "10px 0 4px",
-            }}
-          >
-            {SHOWROOM.visionTitle}
-          </h3>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <p style={SUB_STYLE}>{SHOWROOM.visionSub}</p>
-        </Reveal>
-      </div>
-
-      {/* Interactive vision board (client) */}
+      {/* Interactive vision board (client) - renders its own heading */}
       <VisionBoard />
     </section>
   );

@@ -37,11 +37,14 @@ export const SHOP: ShopDetails = {
   },
 };
 
+// Root-relative so the nav works from BOTH the homepage and /specials
+// (bare "#id" only scrolls on the homepage). On the homepage "/#id" still
+// same-document-scrolls.
 export const NAV_LINKS = [
-  { href: "#collections", label: "Collections" },
-  { href: "#visualize", label: "Visualiser" },
-  { href: "#showroom", label: "Showroom" },
-  { href: "#story", label: "Why OnWood" },
+  { href: "/#collections", label: "Collections" },
+  { href: "/#visualize", label: "Visualiser" },
+  { href: "/#showroom", label: "Showroom" },
+  { href: "/#story", label: "Why OnWood" },
 ];
 
 export const HERO = {
@@ -164,7 +167,7 @@ export const SHOWROOM = {
   sub: "Our Baringa showroom, full-size boards, big-format samples and honest Sunshine Coast light. Real tile photography drops straight into these niches.",
   visionEyebrow: "Vision board",
   visionTitle: "Build the look on a Caesarstone benchtop.",
-  visionSub: "Pick paint, flooring, tiles, benchtops and a little decor from the tabs, then drag each piece to arrange your board.",
+  visionSub: "Pick paint, wood-look, tiles, benchtops and a little decor from the tabs, then drag each piece to arrange your board.",
 };
 
 // Vision-board swatch rails per tab (colour chips for v1).

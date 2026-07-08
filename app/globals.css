@@ -109,6 +109,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* offset anchor jumps so targets clear the fixed marketing header */
+  scroll-padding-top: 84px;
 }
 
 @media (prefers-reduced-motion: reduce) {

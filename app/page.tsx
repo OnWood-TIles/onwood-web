@@ -16,7 +16,7 @@ import MarketingFooter from "./components/marketing/MarketingFooter";
 // reference. Sections in reference order.
 export default function Home() {
   return (
-    <div style={{ background: "var(--bg)", color: "var(--ink)" }}>
+    <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
       <main>
         <Hero />

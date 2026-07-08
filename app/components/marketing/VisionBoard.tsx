@@ -26,11 +26,11 @@ const DEFAULT_TABS: VisionTabs = {
     { name: "Sand", color: "#d8c8ac" },
     { name: "Terracotta", color: "#d06a45" },
   ],
-  flooring: [
+  woodlook: [
     { name: "Coastal Oak", color: "#C8894B" },
-    { name: "Walnut", color: "#7A4A28" },
-    { name: "Ash", color: "#d3cabb" },
-    { name: "Spotted Gum", color: "#a89372" },
+    { name: "Smoked Oak", color: "#7A4A28" },
+    { name: "Pale Ash", color: "#d3cabb" },
+    { name: "Blackbutt", color: "#a89372" },
   ],
   tiles: [
     { name: "Zellige", color: "#3f97a6" },
@@ -56,10 +56,13 @@ const DEFAULT_TABS: VisionTabs = {
 const DEFAULT_HEAD: VisionHead = {
   eyebrow: "Vision board",
   title: "Build the look on a Caesarstone benchtop.",
-  sub: "Pick paint, flooring, tiles, benchtops and a little decor from the tabs, then drag each piece to arrange your board.",
+  sub: "Pick paint, wood-look, tiles, benchtops and a little decor from the tabs, then drag each piece to arrange your board.",
 };
 
-const TAB_ORDER = ["paint", "flooring", "tiles", "benchtops", "decor"];
+const TAB_ORDER = ["paint", "woodlook", "tiles", "benchtops", "decor"];
+
+// Pretty tab labels for keys that don't title-case cleanly.
+const TAB_LABELS: Record<string, string> = { woodlook: "Wood-look" };
 
 // Deterministic drop offsets (Math.random is unavailable). Cycled + drifted by a
 // counter so successive drops fan out around the benchtop centre without stacking.
@@ -83,7 +86,8 @@ type Piece = { id: number; color: string; name: string; x: number; y: number };
 const clamp = (lo: number, v: number, hi: number) =>
   Math.max(lo, Math.min(v, hi));
 
-const label = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
+const label = (k: string) =>
+  TAB_LABELS[k] || k.charAt(0).toUpperCase() + k.slice(1);
 
 export default function VisionBoard({
   tabs = DEFAULT_TABS,

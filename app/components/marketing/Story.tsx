@@ -47,7 +47,7 @@ const statNumStyle: React.CSSProperties = {
 
 const statLabelStyle: React.CSSProperties = {
   fontSize: "13px",
-  color: "rgba(255,255,255,.6)",
+  color: "rgba(255,255,255,.74)",
   marginTop: "2px",
 };
 

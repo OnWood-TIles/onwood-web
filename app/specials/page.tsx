@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function SpecialsPage() {
   return (
-    <div style={{ background: "var(--bg)", color: "var(--ink)" }}>
+    <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
       <main>
         <SpecialsHero />

@@ -20,6 +20,16 @@ export default function MarketingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close the mobile menu on Escape.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const linkStyle: React.CSSProperties = {
     textDecoration: "none",
     color: "inherit",
@@ -54,7 +64,7 @@ export default function MarketingNav() {
     >
       {/* Brand: roof mark + ONWOOD wordmark */}
       <a
-        href="#home"
+        href="/"
         aria-label="OnWood Tiles home"
         style={{
           display: "flex",
@@ -111,7 +121,7 @@ export default function MarketingNav() {
           Specials
         </Link>
         <a
-          href="#contact"
+          href="/#contact"
           style={{
             textDecoration: "none",
             color: "#fff",
@@ -178,7 +188,7 @@ export default function MarketingNav() {
             Specials
           </Link>
           <a
-            href="#contact"
+            href="/#contact"
             className={styles.mobileLink}
             onClick={() => setOpen(false)}
             style={{

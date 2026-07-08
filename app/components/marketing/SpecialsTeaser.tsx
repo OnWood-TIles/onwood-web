@@ -73,7 +73,7 @@ export default function SpecialsTeaser() {
                 fontWeight: 700,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,.85)",
+                color: "rgba(255,255,255,.95)",
               }}
             >
               <span
