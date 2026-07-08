@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import StaffLoginForm from "./StaffLoginForm";
 
 export const metadata: Metadata = {
   title: "Staff Preview - OnWood Tiles",
@@ -69,43 +70,7 @@ export default async function StaffLoginPage({
           Staff access to the site under construction.
         </p>
 
-        <form action="/api/preview-login" method="post">
-          <input type="hidden" name="next" value={next || "/"} />
-          <input
-            type="password"
-            name="password"
-            required
-            autoFocus
-            placeholder="Preview password"
-            aria-label="Preview password"
-            style={{
-              width: "100%",
-              padding: "13px 16px",
-              borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.16)",
-              background: "rgba(255,255,255,0.06)",
-              color: "#fff",
-              fontSize: 15,
-              marginBottom: 12,
-            }}
-          />
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "13px 16px",
-              borderRadius: 12,
-              border: "none",
-              background: "var(--accent)",
-              color: "#fff",
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Enter preview
-          </button>
-        </form>
+        <StaffLoginForm next={next || "/"} />
 
         {error ? (
           <p
