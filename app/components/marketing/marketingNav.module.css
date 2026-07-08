@@ -1,0 +1,69 @@
+/* Responsive show/hide for the fixed marketing header. Media queries can't
+   override inline `display`, so the desktop nav / burger visibility lives here
+   while exact colours, spacing and radii stay inline for fidelity. */
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: inherit;
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  cursor: pointer;
+}
+.burger:hover {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+}
+
+.mobileMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 20px 18px;
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.mobileLink {
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 10px;
+  border-radius: 10px;
+}
+.mobileLink:hover {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+}
+.mobileSpecials {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .desktopNav {
+    display: none;
+  }
+  .burger {
+    display: inline-flex;
+  }
+}
+@media (min-width: 861px) {
+  .mobileMenu {
+    display: none;
+  }
+}

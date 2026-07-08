@@ -1,0 +1,30 @@
+<section id="home" data-screen-label="Hero" style="position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden;">
+    <canvas data-woodgrain="" style="position:absolute; inset:0; width:100%; height:100%; display:block;"></canvas>
+    <div style="position:absolute; inset:0; background:radial-gradient(120% 90% at 70% 30%, transparent 55%, rgba(32,48,58,.05) 100%); pointer-events:none;"></div>
+    <div style="position:relative; z-index:3; width:100%; max-width:1240px; margin:0 auto; padding:120px 40px 80px; display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center;">
+      <div>
+        <div data-reveal="" style="display:inline-flex; align-items:center; gap:9px; padding:7px 14px; border-radius:100px; background:rgba(255,255,255,.7); border:1px solid var(--line); color:var(--ink); font-size:12.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; backdrop-filter:blur(6px); box-shadow:0 6px 20px rgba(32,48,58,.06);">
+          <span style="width:7px; height:7px; border-radius:50%; background:var(--sea);"></span> Sunshine Coast · Flooring &amp; Tiles
+        </div>
+        <h1 data-reveal="" style="font-family:'Archivo'; font-weight:900; color:var(--ink); font-size:clamp(44px,6.4vw,92px); line-height:.96; letter-spacing:-.02em; margin:22px 0 0;">
+          The floor is the<br>first thing<br>you <span style="color:var(--sea); font-family:'Newsreader'; font-style:italic; font-weight:400;">feel.</span>
+        </h1>
+        <p data-reveal="" style="max-width:480px; color:var(--muted); font-size:clamp(16px,1.5vw,19px); line-height:1.6; margin:26px 0 34px;">
+          OnWood crafts timber and tile floors for Sunshine Coast homes, studios and builds — measured, designed and laid by hand.
+        </p>
+        <div data-reveal="" style="display:flex; gap:14px; flex-wrap:wrap;">
+          <a href="#collections" data-nav="" data-target="#collections" onclick="{{ navTo }}" data-magnetic="" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none; background:var(--accent); color:#fff; font-weight:800; padding:15px 26px; border-radius:100px; font-size:15px; box-shadow:0 14px 40px rgba(208,106,69,.34);">Explore collections →</a>
+          <a href="#visualize" data-nav="" data-target="#visualize" onclick="{{ navTo }}" data-magnetic="" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none; background:var(--surface); color:var(--ink); border:1.5px solid var(--line); font-weight:700; padding:15px 26px; border-radius:100px; font-size:15px; box-shadow:0 8px 24px rgba(32,48,58,.06);">See it on your floor</a>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:center;">
+        <div style="position:relative; width:min(400px,90%); aspect-ratio:3/4; border-radius:200px 200px 24px 24px; overflow:hidden; box-shadow:0 40px 90px rgba(32,48,58,.16);">
+          <x-import component-from-global-scope="image-slot" from="d0c17fca-4e5d-40a1-a11c-ceedd3e03a94#/image-slot.js" id="hero-photo" shape="rect" placeholder="Drop a hero image" style="position:absolute; inset:0; width:100%; height:100%; display:block;" hint-size="100%,100%"></x-import>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute; bottom:26px; left:50%; transform:translateX(-50%); z-index:3; display:flex; flex-direction:column; align-items:center; gap:7px; color:var(--muted); font-size:11px; letter-spacing:.2em; text-transform:uppercase;">
+      Scroll
+      <svg width="16" height="22" viewBox="0 0 16 22" style="animation:owDown 1.6s ease-in-out infinite;"><path d="M8 2 V18 M2 12 L8 18 L14 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </div>
+  </section>

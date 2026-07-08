@@ -1,0 +1,31 @@
+/* Contact section. Two-column grid (copy + enquiry form) that stacks on narrow
+   screens, and a name/suburb sub-row that stacks on very small screens.
+   Transcribed from .refwork/tiles-sections/11-section-contact.html. */
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 860px) {
+  .wrap {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 620px) {
+  .nameRow {
+    grid-template-columns: 1fr;
+  }
+}
