@@ -1,7 +1,18 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
 import Reveal from "../ui/Reveal";
+import { PaintChipFace } from "./PaintChip";
+import { MetalDiscFace, metalDiscStyle } from "./MetalDisc";
+import { DULUX_COLOURS } from "../../../lib/dulux";
+import { METALS, type MetalFinish } from "../../../lib/metals";
 
 // The Caesarstone-benchtop "Vision board" (bottom half of the showroom section).
 // Tap a swatch to drop a draggable colour chip onto the benchtop, then drag each
@@ -17,15 +28,9 @@ export type VisionTabs = Record<string, VisionSwatch[]>;
 export type VisionHead = { eyebrow: string; title: string; sub: string };
 
 // Defaults mirror lib/content.ts (VISION_TABS + SHOWROOM vision copy).
+// The "paint" tab is handled specially (a searchable Dulux picker), so it is
+// NOT listed here - only the material chip rails are.
 const DEFAULT_TABS: VisionTabs = {
-  paint: [
-    { name: "Chalk", color: "#efece5" },
-    { name: "Clay", color: "#c57b4c" },
-    { name: "Ink", color: "#20303a" },
-    { name: "Sea", color: "#1e7a8c" },
-    { name: "Sand", color: "#d8c8ac" },
-    { name: "Terracotta", color: "#d06a45" },
-  ],
   woodlook: [
     { name: "Coastal Oak", color: "#C8894B" },
     { name: "Smoked Oak", color: "#7A4A28" },
@@ -62,7 +67,10 @@ const DEFAULT_HEAD: VisionHead = {
 const TAB_ORDER = ["paint", "woodlook", "tiles", "benchtops", "decor"];
 
 // Pretty tab labels for keys that don't title-case cleanly.
-const TAB_LABELS: Record<string, string> = { woodlook: "Wood-look" };
+const TAB_LABELS: Record<string, string> = {
+  woodlook: "Wood-look",
+  metals: "Metals",
+};
 
 // Deterministic drop offsets (Math.random is unavailable). Cycled + drifted by a
 // counter so successive drops fan out around the benchtop centre without stacking.
@@ -79,9 +87,34 @@ const DROP_OFFSETS: [number, number][] = [
   [44, -2],
 ];
 
-const PIECE = 64;
+const PIECE = 64; // material chip (square)
+const PAINT_W = 120; // Dulux paint chip
+const PAINT_H = 168;
+const METAL_W = 104; // circular metal disc + label
+const METAL_H = 132;
+const BIN_SIZE = 58;
+const BIN_MARGIN = 14;
+const MAX_TILT = 15; // max sway angle (deg)
+const TILT_K = 0.7; // velocity -> tilt gain
 
-type Piece = { id: number; color: string; name: string; x: number; y: number };
+type PieceKind = "chip" | "paint" | "metal";
+type Piece = {
+  id: number;
+  color: string;
+  name: string;
+  kind: PieceKind;
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  rot: number; // current sway angle (deg)
+  z: number; // stacking order (last-touched on top)
+  finish?: MetalFinish; // metal finish
+  light?: string; // metal tones
+  mid?: string;
+  dark?: string;
+  texture?: string; // metal real texture
+};
 
 const clamp = (lo: number, v: number, hi: number) =>
   Math.max(lo, Math.min(v, hi));
@@ -96,32 +129,118 @@ export default function VisionBoard({
   tabs?: VisionTabs;
   head?: VisionHead;
 }) {
-  const tabKeys = TAB_ORDER.filter((k) => tabs[k]?.length).concat(
+  // "paint" (Dulux picker) and "metals" (metal finishes) are special pickers,
+  // always first; the material chip tabs follow.
+  const materialKeys = TAB_ORDER.filter(
+    (k) => k !== "paint" && k !== "metals" && tabs[k]?.length,
+  ).concat(
     Object.keys(tabs).filter((k) => !TAB_ORDER.includes(k) && tabs[k]?.length),
   );
+  const tabKeys = ["paint", "metals", ...materialKeys];
 
-  const [activeTab, setActiveTab] = useState(tabKeys[0] ?? "paint");
+  const [activeTab, setActiveTab] = useState("paint");
   const [pieces, setPieces] = useState<Piece[]>([]);
+  const [query, setQuery] = useState("");
+  const [showLabels, setShowLabels] = useState(true);
+  const zTopRef = useRef(10); // rising stack counter (last-touched on top)
+
+  const duluxResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return DULUX_COLOURS;
+    return DULUX_COLOURS.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.collection.toLowerCase().includes(q),
+    );
+  }, [query]);
+
+  const [metalQuery, setMetalQuery] = useState("");
+  const metalResults = useMemo(() => {
+    const q = metalQuery.trim().toLowerCase();
+    if (!q) return METALS;
+    return METALS.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) || m.finish.toLowerCase().includes(q),
+    );
+  }, [metalQuery]);
 
   const boardRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(0);
   const dropCountRef = useRef(0);
-  const dragRef = useRef<{ id: number; grabX: number; grabY: number } | null>(
-    null,
-  );
+  const dragRef = useRef<{
+    id: number;
+    grabX: number;
+    grabY: number;
+    w: number;
+    h: number;
+  } | null>(null);
+  // Physics-sway drag: rAF loop reads the latest pointer + eases position and a
+  // velocity-based tilt so pieces lean into the motion, then settle upright.
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const appliedRef = useRef({ x: 0, y: 0 });
+  const velRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const reduceRef = useRef(false);
+  const [draggingId, setDraggingId] = useState<number | null>(null);
+  const [settleId, setSettleId] = useState<number | null>(null);
+  // Drag-to-delete bin (bottom-right corner of the board).
+  const overBinRef = useRef(false);
+  const [binHot, setBinHot] = useState(false);
 
-  const addPiece = (sw: VisionSwatch) => {
+  // Is the CURSOR over the bin drop-zone (bottom-right corner)? Pointer-based so
+  // it works for any piece size (a tall paint chip can't push its centre into
+  // the corner). The bin lights up as feedback before release.
+  const isOverBin = () => {
     const el = boardRef.current;
-    const w = el?.clientWidth ?? 600;
-    const h = el?.clientHeight ?? 480;
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    const px = pointerRef.current.x - rect.left;
+    const py = pointerRef.current.y - rect.top;
+    const zone = BIN_SIZE + BIN_MARGIN + 20; // generous catch area
+    return px >= el.clientWidth - zone && py >= el.clientHeight - zone;
+  };
+
+  const addPiece = (
+    kind: PieceKind,
+    name: string,
+    opts: {
+      color?: string;
+      finish?: MetalFinish;
+      light?: string;
+      mid?: string;
+      dark?: string;
+      texture?: string;
+    },
+  ) => {
+    const el = boardRef.current;
+    const bw = el?.clientWidth ?? 600;
+    const bh = el?.clientHeight ?? 480;
+    const pw = kind === "paint" ? PAINT_W : kind === "metal" ? METAL_W : PIECE;
+    const ph = kind === "paint" ? PAINT_H : kind === "metal" ? METAL_H : PIECE;
     const n = dropCountRef.current++;
     const [ox, oy] = DROP_OFFSETS[n % DROP_OFFSETS.length];
     const drift = Math.floor(n / DROP_OFFSETS.length) * 16;
-    const x = clamp(0, w / 2 - PIECE / 2 + ox + drift, Math.max(0, w - PIECE));
-    const y = clamp(0, h / 2 - PIECE / 2 + oy + drift, Math.max(0, h - PIECE));
+    const x = clamp(0, bw / 2 - pw / 2 + ox + drift, Math.max(0, bw - pw));
+    const y = clamp(0, bh / 2 - ph / 2 + oy + drift, Math.max(0, bh - ph));
     setPieces((prev) => [
       ...prev,
-      { id: idRef.current++, color: sw.color, name: sw.name, x, y },
+      {
+        id: idRef.current++,
+        name,
+        kind,
+        w: pw,
+        h: ph,
+        x,
+        y,
+        rot: 0,
+        z: zTopRef.current++,
+        color: opts.color ?? "",
+        finish: opts.finish,
+        light: opts.light,
+        mid: opts.mid,
+        dark: opts.dark,
+        texture: opts.texture,
+      },
     ]);
   };
 
@@ -130,35 +249,71 @@ export default function VisionBoard({
     dropCountRef.current = 0;
   };
 
+  // Per-frame: ease the piece toward the pointer and tilt it by its horizontal
+  // velocity (leans into the motion, decays to upright when the pointer stops).
+  const step = () => {
+    const drag = dragRef.current;
+    const el = boardRef.current;
+    if (!drag || !el) {
+      rafRef.current = null;
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    const tx = clamp(
+      0,
+      pointerRef.current.x - rect.left - drag.grabX,
+      Math.max(0, rect.width - drag.w),
+    );
+    const ty = clamp(
+      0,
+      pointerRef.current.y - rect.top - drag.grabY,
+      Math.max(0, rect.height - drag.h),
+    );
+    const dx = tx - appliedRef.current.x;
+    velRef.current = velRef.current * 0.78 + dx * 0.22; // smoothed velocity
+    const rot = reduceRef.current
+      ? 0
+      : clamp(-MAX_TILT, velRef.current * TILT_K, MAX_TILT);
+    appliedRef.current = { x: tx, y: ty };
+    setPieces((prev) =>
+      prev.map((p) => (p.id === drag.id ? { ...p, x: tx, y: ty, rot } : p)),
+    );
+    const over = isOverBin();
+    if (over !== overBinRef.current) {
+      overBinRef.current = over;
+      setBinHot(over);
+    }
+    rafRef.current = requestAnimationFrame(step);
+  };
+
   const onPieceDown = (e: PointerEvent<HTMLDivElement>, piece: Piece) => {
     e.preventDefault();
-    const board = boardRef.current?.getBoundingClientRect();
-    if (!board) return;
+    const rect = boardRef.current?.getBoundingClientRect();
+    if (!rect) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     dragRef.current = {
       id: piece.id,
-      grabX: e.clientX - board.left - piece.x,
-      grabY: e.clientY - board.top - piece.y,
+      grabX: e.clientX - rect.left - piece.x,
+      grabY: e.clientY - rect.top - piece.y,
+      w: piece.w,
+      h: piece.h,
     };
+    pointerRef.current = { x: e.clientX, y: e.clientY };
+    appliedRef.current = { x: piece.x, y: piece.y };
+    velRef.current = 0;
+    // Bring the touched piece to the top of the stack.
+    const newZ = zTopRef.current++;
+    setPieces((prev) =>
+      prev.map((p) => (p.id === piece.id ? { ...p, z: newZ } : p)),
+    );
+    setDraggingId(piece.id);
+    setSettleId(null);
+    if (rafRef.current == null) rafRef.current = requestAnimationFrame(step);
   };
 
   const onPieceMove = (e: PointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    const board = boardRef.current?.getBoundingClientRect();
-    if (!drag || !board) return;
-    const nx = clamp(
-      0,
-      e.clientX - board.left - drag.grabX,
-      Math.max(0, board.width - PIECE),
-    );
-    const ny = clamp(
-      0,
-      e.clientY - board.top - drag.grabY,
-      Math.max(0, board.height - PIECE),
-    );
-    setPieces((prev) =>
-      prev.map((p) => (p.id === drag.id ? { ...p, x: nx, y: ny } : p)),
-    );
+    if (!dragRef.current) return;
+    pointerRef.current = { x: e.clientX, y: e.clientY };
   };
 
   const onPieceUp = (e: PointerEvent<HTMLDivElement>) => {
@@ -167,8 +322,41 @@ export default function VisionBoard({
     } catch {
       /* pointer already released */
     }
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    const drag = dragRef.current;
+    if (drag && (overBinRef.current || isOverBin())) {
+      // Dropped over the bin -> delete the piece.
+      setPieces((prev) => prev.filter((p) => p.id !== drag.id));
+    } else if (drag) {
+      // Settle upright with a springy transition.
+      const id = drag.id;
+      setPieces((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, rot: 0 } : p)),
+      );
+      setSettleId(id);
+      window.setTimeout(
+        () => setSettleId((cur) => (cur === id ? null : cur)),
+        600,
+      );
+    }
     dragRef.current = null;
+    overBinRef.current = false;
+    setBinHot(false);
+    setDraggingId(null);
   };
+
+  // Respect reduced-motion (disables the sway tilt) + cancel rAF on unmount.
+  useEffect(() => {
+    reduceRef.current = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   const rail = tabs[activeTab] ?? [];
 
@@ -219,30 +407,28 @@ export default function VisionBoard({
       {/* Board */}
       <Reveal delay={0.05}>
         <div style={{ position: "relative" }}>
-          <button
-            type="button"
-            onClick={clearBoard}
+          <div
             style={{
               position: "absolute",
               top: 14,
               right: 14,
-              zIndex: 6,
-              background: "rgba(255,255,255,.85)",
-              border: "1px solid rgba(0,0,0,.08)",
-              color: "#20303A",
-              fontWeight: 700,
-              fontSize: 12.5,
-              padding: "8px 14px",
-              borderRadius: 100,
-              cursor: "pointer",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              boxShadow: "0 6px 16px rgba(0,0,0,.1)",
-              fontFamily: "inherit",
+              zIndex: 901,
+              display: "flex",
+              gap: 8,
             }}
           >
-            Clear board
-          </button>
+            <button
+              type="button"
+              onClick={() => setShowLabels((v) => !v)}
+              aria-pressed={!showLabels}
+              style={boardBtnStyle}
+            >
+              {showLabels ? "Hide labels" : "Show labels"}
+            </button>
+            <button type="button" onClick={clearBoard} style={boardBtnStyle}>
+              Clear board
+            </button>
+          </div>
 
           <div
             ref={boardRef}
@@ -253,9 +439,12 @@ export default function VisionBoard({
               overflow: "hidden",
               touchAction: "none",
               backgroundColor: "#efece5",
+              // Real Calacatta marble benchtop; soft top highlight + edge shade
+              // for depth so it reads as a physical slab.
               backgroundImage:
-                "radial-gradient(rgba(120,110,95,.11) 1px, transparent 1.6px), linear-gradient(118deg, transparent 43%, rgba(150,140,120,.16) 46%, transparent 49%), linear-gradient(127deg, transparent 61%, rgba(110,110,110,.11) 63%, transparent 67%), linear-gradient(180deg, rgba(255,255,255,.55), rgba(0,0,0,.035))",
-              backgroundSize: "8px 8px, auto, auto, auto",
+                "linear-gradient(180deg, rgba(255,255,255,.28), rgba(0,0,0,.05)), url(/images/colour-board.jpg)",
+              backgroundSize: "auto, cover",
+              backgroundPosition: "center, center",
               boxShadow:
                 "inset 0 2px 0 rgba(255,255,255,.7), inset 0 -18px 40px rgba(0,0,0,.06), 0 30px 70px rgba(0,0,0,.16)",
               border: "1px solid rgba(0,0,0,.06)",
@@ -282,31 +471,115 @@ export default function VisionBoard({
               </div>
             ) : null}
 
-            {pieces.map((p) => (
+            {/* Drag-to-delete bin (bottom-right). Purely a visual drop-zone;
+                the dragged piece holds pointer capture, so pointerEvents:none. */}
+            {pieces.length > 0 ? (
               <div
-                key={p.id}
-                role="img"
-                aria-label={`${p.name} swatch, drag to reposition`}
-                onPointerDown={(e) => onPieceDown(e, p)}
-                onPointerMove={onPieceMove}
-                onPointerUp={onPieceUp}
-                onPointerCancel={onPieceUp}
+                aria-hidden
                 style={{
                   position: "absolute",
-                  left: p.x,
-                  top: p.y,
-                  width: PIECE,
-                  height: PIECE,
-                  borderRadius: 14,
-                  background: p.color,
-                  cursor: "grab",
-                  touchAction: "none",
-                  border: "1px solid rgba(0,0,0,.14)",
-                  boxShadow:
-                    "0 10px 24px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.5)",
+                  right: BIN_MARGIN,
+                  bottom: BIN_MARGIN,
+                  width: BIN_SIZE,
+                  height: BIN_SIZE,
+                  zIndex: 900,
+                  borderRadius: 16,
+                  display: "grid",
+                  placeItems: "center",
+                  pointerEvents: "none",
+                  background: binHot
+                    ? "rgba(208,106,69,.92)"
+                    : "rgba(255,255,255,.82)",
+                  border: binHot
+                    ? "1px solid rgba(208,106,69,1)"
+                    : "1px dashed rgba(32,48,58,.32)",
+                  color: binHot ? "#fff" : "#6b7a80",
+                  boxShadow: binHot
+                    ? "0 12px 26px rgba(208,106,69,.4)"
+                    : "0 6px 16px rgba(0,0,0,.1)",
+                  backdropFilter: "blur(6px)",
+                  WebkitBackdropFilter: "blur(6px)",
+                  transform: binHot ? "scale(1.12)" : "scale(1)",
+                  transition: "all .18s ease",
                 }}
-              />
-            ))}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.9}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 7h16" />
+                  <path d="M10 4h4a1 1 0 0 1 1 1v2H9V5a1 1 0 0 1 1-1z" />
+                  <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+                  <path d="M10 11v6M14 11v6" />
+                </svg>
+              </div>
+            ) : null}
+
+            {pieces.map((p) => {
+              const dragging = p.id === draggingId;
+              const settling = p.id === settleId;
+              return (
+                <div
+                  key={p.id}
+                  role="img"
+                  aria-label={`${p.name} ${p.kind === "paint" ? "paint chip" : "swatch"}, drag to reposition or drag to the bin to remove`}
+                  onPointerDown={(e) => onPieceDown(e, p)}
+                  onPointerMove={onPieceMove}
+                  onPointerUp={onPieceUp}
+                  onPointerCancel={onPieceUp}
+                  style={{
+                    position: "absolute",
+                    left: p.x,
+                    top: p.y,
+                    width: p.w,
+                    height: p.h,
+                    cursor: dragging ? "grabbing" : "grab",
+                    touchAction: "none",
+                    zIndex: p.z,
+                    transform: `rotate(${p.rot}deg)${dragging ? " scale(1.05)" : ""}`,
+                    transformOrigin: "center",
+                    transition: settling
+                      ? "transform .6s cubic-bezier(.2,1.5,.35,1)"
+                      : dragging
+                        ? "none"
+                        : "transform .25s ease-out",
+                    ...(p.kind === "chip"
+                      ? {
+                          borderRadius: 14,
+                          background: p.color,
+                          border: "1px solid rgba(0,0,0,.14)",
+                          boxShadow:
+                            "0 10px 24px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.5)",
+                        }
+                      : {}),
+                  }}
+                >
+                  {p.kind === "paint" ? (
+                    <PaintChipFace
+                      name={p.name}
+                      hex={p.color}
+                      showLabel={showLabels}
+                    />
+                  ) : p.kind === "metal" ? (
+                    <MetalDiscFace
+                      name={p.name}
+                      finish={p.finish!}
+                      light={p.light!}
+                      mid={p.mid!}
+                      dark={p.dark!}
+                      texture={p.texture}
+                      showLabel={showLabels}
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         </div>
       </Reveal>
@@ -349,53 +622,292 @@ export default function VisionBoard({
 
       {/* Active rail */}
       <div>
-        <div
-          role="group"
-          aria-label={`${label(activeTab)} swatches`}
-          style={{
-            display: "flex",
-            gap: 12,
-            overflowX: "auto",
-            padding: "8px 2px 12px",
-          }}
-        >
-          {rail.map((sw) => (
-            <button
-              key={sw.name}
-              type="button"
-              onClick={() => addPiece(sw)}
-              aria-label={`Add ${sw.name} to the board`}
-              style={chipStyle}
-            >
-              <span
-                aria-hidden
+        {activeTab === "paint" ? (
+          <div>
+            {/* Search */}
+            <div style={{ maxWidth: 420, margin: "0 auto 16px" }}>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search Dulux colours (e.g. Natural White, Colorbond)"
+                aria-label="Search Dulux colours"
                 style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 12,
-                  background: sw.color,
-                  border: "1px solid rgba(0,0,0,.1)",
-                  boxShadow:
-                    "inset 0 1px 0 rgba(255,255,255,.4), 0 4px 12px rgba(0,0,0,.12)",
+                  width: "100%",
+                  padding: "12px 16px",
+                  borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: "var(--surface)",
+                  fontFamily: "inherit",
+                  fontSize: 14,
+                  color: "var(--ink)",
+                  outline: "none",
                 }}
               />
-              <span
+            </div>
+            {/* Results grid (scrollable) */}
+            <div
+              role="group"
+              aria-label="Dulux colours"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(88px, 1fr))",
+                gap: 12,
+                maxHeight: 300,
+                overflowY: "auto",
+                padding: "6px 4px 10px",
+              }}
+            >
+              {duluxResults.map((c) => (
+                <button
+                  key={c.name}
+                  type="button"
+                  onClick={() => addPiece("paint", c.name, { color: c.hex })}
+                  aria-label={`Add ${c.name} to the board`}
+                  title={`${c.name} - ${c.collection}`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                    padding: 0,
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: "100%",
+                      aspectRatio: "1 / 1",
+                      borderRadius: 10,
+                      background: c.hex,
+                      border: "1px solid rgba(0,0,0,.12)",
+                      boxShadow:
+                        "inset 0 1px 0 rgba(255,255,255,.4), 0 3px 10px rgba(0,0,0,.1)",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      color: "var(--ink)",
+                      lineHeight: 1.15,
+                      textAlign: "center",
+                    }}
+                  >
+                    {c.name}
+                  </span>
+                </button>
+              ))}
+              {duluxResults.length === 0 ? (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    textAlign: "center",
+                    color: "var(--muted)",
+                    fontSize: 14,
+                    padding: "24px 0",
+                  }}
+                >
+                  No colours match &ldquo;{query}&rdquo;.
+                </div>
+              ) : null}
+            </div>
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--muted)",
+                fontSize: 12,
+                margin: "12px auto 0",
+                maxWidth: 560,
+              }}
+            >
+              {duluxResults.length} Dulux &amp; Colorbond colours. Screen colours
+              are a guide only, see a physical sample in-store for a true match.
+            </p>
+          </div>
+        ) : activeTab === "metals" ? (
+          <div>
+            {/* Search */}
+            <div style={{ maxWidth: 420, margin: "0 auto 16px" }}>
+              <input
+                type="search"
+                value={metalQuery}
+                onChange={(e) => setMetalQuery(e.target.value)}
+                placeholder="Search metals (e.g. brass, brushed, antique)"
+                aria-label="Search metal finishes"
                 style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "var(--muted)",
-                  whiteSpace: "nowrap",
+                  width: "100%",
+                  padding: "12px 16px",
+                  borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: "var(--surface)",
+                  fontFamily: "inherit",
+                  fontSize: 14,
+                  color: "var(--ink)",
+                  outline: "none",
                 }}
+              />
+            </div>
+            <div
+              role="group"
+              aria-label="Metal finishes"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(92px, 1fr))",
+                gap: 16,
+                maxHeight: 300,
+                overflowY: "auto",
+                padding: "6px 4px 10px",
+              }}
+            >
+              {metalResults.map((m) => (
+                <button
+                  key={m.name}
+                  type="button"
+                  onClick={() =>
+                    addPiece("metal", m.name, {
+                      finish: m.finish,
+                      light: m.light,
+                      mid: m.mid,
+                      dark: m.dark,
+                      texture: m.texture,
+                    })
+                  }
+                  aria-label={`Add ${m.name} to the board`}
+                  title={`${m.name} - ${m.finish}`}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: 0,
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: "100%",
+                      aspectRatio: "1 / 1",
+                      ...metalDiscStyle(
+                        m.finish,
+                        m.light,
+                        m.mid,
+                        m.dark,
+                        m.texture,
+                      ),
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      color: "var(--ink)",
+                      lineHeight: 1.15,
+                      textAlign: "center",
+                    }}
+                  >
+                    {m.name}
+                  </span>
+                </button>
+              ))}
+              {metalResults.length === 0 ? (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    textAlign: "center",
+                    color: "var(--muted)",
+                    fontSize: 14,
+                    padding: "24px 0",
+                  }}
+                >
+                  No metals match &ldquo;{metalQuery}&rdquo;.
+                </div>
+              ) : null}
+            </div>
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--muted)",
+                fontSize: 12,
+                margin: "12px auto 0",
+                maxWidth: 560,
+              }}
+            >
+              {metalResults.length} finishes for tapware, handles, lighting &amp;
+              hardware. Screen colours are a guide only.
+            </p>
+          </div>
+        ) : (
+          <div
+            role="group"
+            aria-label={`${label(activeTab)} swatches`}
+            style={{
+              display: "flex",
+              gap: 12,
+              overflowX: "auto",
+              padding: "8px 2px 12px",
+            }}
+          >
+            {rail.map((sw) => (
+              <button
+                key={sw.name}
+                type="button"
+                onClick={() => addPiece("chip", sw.name, { color: sw.color })}
+                aria-label={`Add ${sw.name} to the board`}
+                style={chipStyle}
               >
-                {sw.name}
-              </span>
-            </button>
-          ))}
-        </div>
+                <span
+                  aria-hidden
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 12,
+                    background: sw.color,
+                    border: "1px solid rgba(0,0,0,.1)",
+                    boxShadow:
+                      "inset 0 1px 0 rgba(255,255,255,.4), 0 4px 12px rgba(0,0,0,.12)",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "var(--muted)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {sw.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
 }
+
+const boardBtnStyle: CSSProperties = {
+  background: "rgba(255,255,255,.85)",
+  border: "1px solid rgba(0,0,0,.08)",
+  color: "#20303A",
+  fontWeight: 700,
+  fontSize: 12.5,
+  padding: "8px 14px",
+  borderRadius: 100,
+  cursor: "pointer",
+  backdropFilter: "blur(6px)",
+  WebkitBackdropFilter: "blur(6px)",
+  boxShadow: "0 6px 16px rgba(0,0,0,.1)",
+  fontFamily: "inherit",
+};
 
 const chipStyle: CSSProperties = {
   flex: "0 0 auto",

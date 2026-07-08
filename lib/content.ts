@@ -170,21 +170,14 @@ export const SHOWROOM = {
   visionSub: "Pick paint, wood-look, tiles, benchtops and a little decor from the tabs, then drag each piece to arrange your board.",
 };
 
-// Vision-board swatch rails per tab (colour chips for v1).
+// Vision-board material rails per tab (colour chips for v1). Paint is handled
+// separately in VisionBoard as a searchable Dulux picker, so it is not here.
 export const VISION_TABS: Record<string, { name: string; color: string }[]> = {
-  paint: [
-    { name: "Chalk", color: "#efece5" },
-    { name: "Clay", color: "#c57b4c" },
-    { name: "Ink", color: "#20303a" },
-    { name: "Sea", color: "#1e7a8c" },
-    { name: "Sand", color: "#d8c8ac" },
-    { name: "Terracotta", color: "#d06a45" },
-  ],
-  flooring: [
+  woodlook: [
     { name: "Coastal Oak", color: "#C8894B" },
-    { name: "Walnut", color: "#7A4A28" },
-    { name: "Ash", color: "#d3cabb" },
-    { name: "Spotted Gum", color: "#a89372" },
+    { name: "Smoked Oak", color: "#7A4A28" },
+    { name: "Pale Ash", color: "#d3cabb" },
+    { name: "Blackbutt", color: "#a89372" },
   ],
   tiles: [
     { name: "Zellige", color: "#3f97a6" },
