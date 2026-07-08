@@ -11,8 +11,10 @@ import {
 import Reveal from "../ui/Reveal";
 import { PaintChipFace } from "./PaintChip";
 import { MetalDiscFace, metalDiscStyle } from "./MetalDisc";
+import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
 import { DULUX_COLOURS } from "../../../lib/dulux";
 import { METALS, type MetalFinish } from "../../../lib/metals";
+import type { CarpetSwatchItem } from "../../../lib/carpet";
 
 // The Caesarstone-benchtop "Vision board" (bottom half of the showroom section).
 // Tap a swatch to drop a draggable colour chip onto the benchtop, then drag each
@@ -92,12 +94,14 @@ const PAINT_W = 120; // Dulux paint chip
 const PAINT_H = 168;
 const METAL_W = 104; // circular metal disc + label
 const METAL_H = 132;
+const CARPET_W = 210; // carpet swatch + label (~2x)
+const CARPET_H = 262;
 const BIN_SIZE = 58;
 const BIN_MARGIN = 14;
 const MAX_TILT = 15; // max sway angle (deg)
 const TILT_K = 0.7; // velocity -> tilt gain
 
-type PieceKind = "chip" | "paint" | "metal";
+type PieceKind = "chip" | "paint" | "metal" | "carpet";
 type Piece = {
   id: number;
   color: string;
@@ -113,7 +117,9 @@ type Piece = {
   light?: string; // metal tones
   mid?: string;
   dark?: string;
-  texture?: string; // metal real texture
+  texture?: string; // metal/carpet real texture (image url)
+  sub?: string; // secondary label (carpet range)
+  brandLogo?: string; // carpet brand badge
 };
 
 const clamp = (lo: number, v: number, hi: number) =>
@@ -129,14 +135,15 @@ export default function VisionBoard({
   tabs?: VisionTabs;
   head?: VisionHead;
 }) {
-  // "paint" (Dulux picker) and "metals" (metal finishes) are special pickers,
-  // always first; the material chip tabs follow.
+  // "paint" (Dulux), "metals" and "carpet" (Feltex) are special searchable
+  // pickers, always first; the material chip tabs follow.
+  const SPECIAL = ["paint", "metals", "carpet"];
   const materialKeys = TAB_ORDER.filter(
-    (k) => k !== "paint" && k !== "metals" && tabs[k]?.length,
+    (k) => !SPECIAL.includes(k) && tabs[k]?.length,
   ).concat(
     Object.keys(tabs).filter((k) => !TAB_ORDER.includes(k) && tabs[k]?.length),
   );
-  const tabKeys = ["paint", "metals", ...materialKeys];
+  const tabKeys = [...SPECIAL, ...materialKeys];
 
   const [activeTab, setActiveTab] = useState("paint");
   const [pieces, setPieces] = useState<Piece[]>([]);
@@ -164,6 +171,42 @@ export default function VisionBoard({
     );
   }, [metalQuery]);
 
+  const [carpetQuery, setCarpetQuery] = useState("");
+  const [carpetData, setCarpetData] = useState<CarpetSwatchItem[] | null>(null);
+  const CARPET_PAGE = 90;
+  const [carpetLimit, setCarpetLimit] = useState(CARPET_PAGE);
+
+  // Fetch the carpet catalogue JSON on first open of the Carpet tab. Kept OUT
+  // of the JS bundle so it scales to thousands of swatches without slowing the
+  // initial page load. (Later this same fetch can point at the OnBase API.)
+  useEffect(() => {
+    if (activeTab === "carpet" && carpetData === null) {
+      fetch("/data/carpet.json")
+        .then((r) => r.json())
+        .then((d: CarpetSwatchItem[]) => setCarpetData(d))
+        .catch(() => setCarpetData([]));
+    }
+  }, [activeTab, carpetData]);
+
+  const carpetResults = useMemo(() => {
+    const all = carpetData ?? [];
+    const q = carpetQuery.trim().toLowerCase();
+    if (!q) return all;
+    return all.filter(
+      (s) =>
+        s.colour.toLowerCase().includes(q) ||
+        s.range.toLowerCase().includes(q) ||
+        s.brand.toLowerCase().includes(q) ||
+        s.category.toLowerCase().includes(q),
+    );
+  }, [carpetData, carpetQuery]);
+
+  // Reset the render cap whenever the search changes (search-first + paged
+  // rendering: only ~90 tiles in the DOM at once, no matter how big the list).
+  useEffect(() => {
+    setCarpetLimit(CARPET_PAGE);
+  }, [carpetQuery]);
+
   const boardRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(0);
   const dropCountRef = useRef(0);
@@ -186,6 +229,17 @@ export default function VisionBoard({
   // Drag-to-delete bin (bottom-right corner of the board).
   const overBinRef = useRef(false);
   const [binHot, setBinHot] = useState(false);
+
+  // Mobile tuning: bigger board + smaller dropped samples for a practical
+  // touch experience. Desktop is left exactly as-is (isMobile = false).
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const upd = () => setIsMobile(mq.matches);
+    upd();
+    mq.addEventListener("change", upd);
+    return () => mq.removeEventListener("change", upd);
+  }, []);
 
   // Is the CURSOR over the bin drop-zone (bottom-right corner)? Pointer-based so
   // it works for any piece size (a tall paint chip can't push its centre into
@@ -210,13 +264,33 @@ export default function VisionBoard({
       mid?: string;
       dark?: string;
       texture?: string;
+      sub?: string;
+      brandLogo?: string;
     },
   ) => {
     const el = boardRef.current;
     const bw = el?.clientWidth ?? 600;
     const bh = el?.clientHeight ?? 480;
-    const pw = kind === "paint" ? PAINT_W : kind === "metal" ? METAL_W : PIECE;
-    const ph = kind === "paint" ? PAINT_H : kind === "metal" ? METAL_H : PIECE;
+    const baseW =
+      kind === "paint"
+        ? PAINT_W
+        : kind === "metal"
+          ? METAL_W
+          : kind === "carpet"
+            ? CARPET_W
+            : PIECE;
+    const baseH =
+      kind === "paint"
+        ? PAINT_H
+        : kind === "metal"
+          ? METAL_H
+          : kind === "carpet"
+            ? CARPET_H
+            : PIECE;
+    // Drop smaller on mobile so several samples fit + can be arranged.
+    const scale = isMobile ? 0.62 : 1;
+    const pw = Math.round(baseW * scale);
+    const ph = Math.round(baseH * scale);
     const n = dropCountRef.current++;
     const [ox, oy] = DROP_OFFSETS[n % DROP_OFFSETS.length];
     const drift = Math.floor(n / DROP_OFFSETS.length) * 16;
@@ -240,6 +314,8 @@ export default function VisionBoard({
         mid: opts.mid,
         dark: opts.dark,
         texture: opts.texture,
+        sub: opts.sub,
+        brandLogo: opts.brandLogo,
       },
     ]);
   };
@@ -434,7 +510,9 @@ export default function VisionBoard({
             ref={boardRef}
             style={{
               position: "relative",
-              height: "clamp(430px,52vw,560px)",
+              height: isMobile
+                ? "clamp(500px, 74vh, 680px)"
+                : "clamp(430px,52vw,560px)",
               borderRadius: 22,
               overflow: "hidden",
               touchAction: "none",
@@ -574,6 +652,14 @@ export default function VisionBoard({
                       mid={p.mid!}
                       dark={p.dark!}
                       texture={p.texture}
+                      showLabel={showLabels}
+                    />
+                  ) : p.kind === "carpet" ? (
+                    <CarpetSwatchFace
+                      colour={p.name}
+                      range={p.sub || ""}
+                      url={p.texture || ""}
+                      brandLogo={p.brandLogo}
                       showLabel={showLabels}
                     />
                   ) : null}
@@ -842,6 +928,170 @@ export default function VisionBoard({
             >
               {metalResults.length} finishes for tapware, handles, lighting &amp;
               hardware. Screen colours are a guide only.
+            </p>
+          </div>
+        ) : activeTab === "carpet" ? (
+          <div>
+            {/* Search */}
+            <div style={{ maxWidth: 420, margin: "0 auto 16px" }}>
+              <input
+                type="search"
+                value={carpetQuery}
+                onChange={(e) => setCarpetQuery(e.target.value)}
+                placeholder="Search Feltex carpet (colour or range, e.g. Spinifex)"
+                aria-label="Search Feltex carpet"
+                style={{
+                  width: "100%",
+                  padding: "12px 16px",
+                  borderRadius: 100,
+                  border: "1.5px solid var(--line)",
+                  background: "var(--surface)",
+                  fontFamily: "inherit",
+                  fontSize: 14,
+                  color: "var(--ink)",
+                  outline: "none",
+                }}
+              />
+            </div>
+            <div
+              role="group"
+              aria-label="Carpet colours"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))",
+                gap: 14,
+                maxHeight: 340,
+                overflowY: "auto",
+                padding: "6px 4px 10px",
+              }}
+            >
+              {carpetData === null ? (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    textAlign: "center",
+                    color: "var(--muted)",
+                    fontSize: 14,
+                    padding: "24px 0",
+                  }}
+                >
+                  Loading carpet colours...
+                </div>
+              ) : (
+                carpetResults.slice(0, carpetLimit).map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() =>
+                      addPiece("carpet", s.colour, {
+                        texture: s.url,
+                        sub: s.range,
+                        brandLogo: s.brandLogo,
+                      })
+                    }
+                    aria-label={`Add ${s.colour} (${s.range}, ${s.brand}) to the board`}
+                    title={`${s.colour} - ${s.range} (${s.brand})`}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                      padding: 0,
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        aspectRatio: "1 / 1",
+                        borderRadius: 9,
+                        overflow: "hidden",
+                        border: "1px solid rgba(0,0,0,.14)",
+                        boxShadow: "0 3px 10px rgba(0,0,0,.14)",
+                        background: "#efece5",
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={s.url}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
+                      {s.brandLogo ? (
+                        <BrandBadge logo={s.brandLogo} h={9} />
+                      ) : null}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "var(--ink)",
+                        lineHeight: 1.1,
+                        textAlign: "center",
+                      }}
+                    >
+                      {s.colour}
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: 9,
+                          fontWeight: 500,
+                          color: "var(--muted)",
+                        }}
+                      >
+                        {s.range}
+                      </span>
+                    </span>
+                  </button>
+                ))
+              )}
+              {carpetData !== null && carpetResults.length === 0 ? (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    textAlign: "center",
+                    color: "var(--muted)",
+                    fontSize: 14,
+                    padding: "24px 0",
+                  }}
+                >
+                  No carpet matches &ldquo;{carpetQuery}&rdquo;.
+                </div>
+              ) : null}
+            </div>
+            {carpetResults.length > carpetLimit ? (
+              <div style={{ textAlign: "center", marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setCarpetLimit((n) => n + CARPET_PAGE)}
+                  style={boardBtnStyle}
+                >
+                  Load more ({carpetResults.length - carpetLimit} more)
+                </button>
+              </div>
+            ) : null}
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--muted)",
+                fontSize: 12,
+                margin: "12px auto 0",
+                maxWidth: 560,
+              }}
+            >
+              {carpetData === null
+                ? ""
+                : `${carpetResults.length} carpet colours across ${new Set(carpetResults.map((s) => s.range)).size} ranges. Swatches are a guide only.`}
             </p>
           </div>
         ) : (
