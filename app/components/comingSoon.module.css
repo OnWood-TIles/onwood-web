@@ -365,6 +365,21 @@
   pointer-events: none;
 }
 
+/* The Staff link must be individually clickable even though the footnote as a
+   whole is click-through (so the mosaic tap interaction works beneath it). */
+.footnoteLink {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.75;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.footnoteLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 /* ---- responsive: stack the email field under the button, tighten the card ---- */
 @media (max-width: 480px) {
   .card {
