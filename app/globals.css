@@ -58,6 +58,29 @@
   --brand-line: rgba(44, 50, 35, 0.12);
 }
 
+/*
+  Explicit semantic aliases in :root. These are the vars our CSS modules use
+  (var(--color-*)). Defining them here (not only via @theme) guarantees they
+  resolve - Tailwind v4 tree-shakes @theme tokens it can't see referenced, and
+  it cannot see CSS-module usage. They map to --brand-* so theme switching
+  (which overrides --brand-* per [data-theme]) flows through automatically.
+*/
+:root {
+  --color-bg: var(--brand-bg);
+  --color-surface: var(--brand-surface);
+  --color-ink: var(--brand-ink);
+  --color-muted: var(--brand-muted);
+  --color-primary: var(--brand-primary);
+  --color-primary-tint: var(--brand-primary-tint);
+  --color-secondary: var(--brand-secondary);
+  --color-secondary-bright: var(--brand-secondary-bright);
+  --color-walnut: var(--brand-walnut);
+  --color-clay: var(--brand-clay);
+  --color-deep: var(--brand-deep);
+  --color-line: var(--brand-line);
+}
+
+/* Also register the colours + fonts with Tailwind for utility classes. */
 @theme inline {
   --color-bg: var(--brand-bg);
   --color-surface: var(--brand-surface);

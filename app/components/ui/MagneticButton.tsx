@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import styles from "./ui.module.css";
 
 // Button/link that leans toward the cursor and springs back. Extracted from the
@@ -46,6 +47,14 @@ export default function MagneticButton({
 
   const cls = `${styles.magnetic} ${variant === "ghost" ? styles.magneticGhost : ""}`;
 
+  // Internal routes -> client-side Link (no full reload / theme flash).
+  if (href && href.startsWith("/")) {
+    return (
+      <Link ref={ref} href={href} className={cls} onClick={onClick}>
+        {children}
+      </Link>
+    );
+  }
   if (href) {
     return (
       <a ref={ref} href={href} className={cls} onClick={onClick}>

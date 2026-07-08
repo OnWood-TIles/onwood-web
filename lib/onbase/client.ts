@@ -16,13 +16,17 @@ const KEY = process.env.ONBASE_API_KEY;
 const TTL_CATALOGUE = 300;
 const TTL_STOCK = 30;
 
+// Matches the OnBase /api/v1/website read shape (see the catalogue spec):
+// availability is exactly "in_stock" | "low" | "out"; a swatch can carry
+// multiple images (first = hero).
 export type Swatch = {
   colour: string;
   code?: string;
   swatchHex?: string;
   image?: string;
+  images?: string[];
   description?: string;
-  availability?: "in-stock" | "low" | "out";
+  availability?: "in_stock" | "low" | "out";
 };
 
 export type WebsiteRange = {
@@ -55,7 +59,14 @@ async function onbaseGet<T>(
       console.error(`[onbase] GET ${path} -> ${res.status}`);
       return fallback;
     }
-    return (await res.json()) as T;
+    // The read API wraps lists in { data, meta }; single resources are bare.
+    // Unwrap defensively so a shape change can never crash a page render.
+    const json = await res.json();
+    const payload =
+      json && typeof json === "object" && "data" in json
+        ? (json as { data: unknown }).data
+        : json;
+    return (payload ?? fallback) as T;
   } catch (err) {
     console.error(`[onbase] GET ${path} failed:`, err);
     return fallback;

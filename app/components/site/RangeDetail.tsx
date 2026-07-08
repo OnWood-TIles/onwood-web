@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Niche from "../ui/Niche";
 import Eyebrow from "../ui/Eyebrow";
 import Pill from "../ui/Pill";
@@ -9,15 +10,16 @@ import type { WebsiteRange } from "../../../lib/onbase/client";
 import styles from "./rangeDetail.module.css";
 
 const AVAIL_LABEL: Record<string, string> = {
-  "in-stock": "In stock",
+  in_stock: "In stock",
   low: "Low stock",
   out: "Out of stock",
 };
 
 export default function RangeDetail({ range }: { range: WebsiteRange }) {
   const [active, setActive] = useState(0);
-  const swatch = range.swatches[active];
-  const heroImage = swatch?.image || range.heroImage;
+  const swatches = range.swatches ?? [];
+  const swatch = swatches[active];
+  const heroImage = swatch?.image || swatch?.images?.[0] || range.heroImage;
 
   return (
     <section className={styles.wrap}>
@@ -32,7 +34,7 @@ export default function RangeDetail({ range }: { range: WebsiteRange }) {
           <p className={styles.desc}>{range.description}</p>
         ) : null}
 
-        {range.swatches.length > 0 ? (
+        {swatches.length > 0 ? (
           <div className={styles.swatchBlock}>
             <div className={styles.swatchLabel}>
               Colour
@@ -47,7 +49,7 @@ export default function RangeDetail({ range }: { range: WebsiteRange }) {
               ) : null}
             </div>
             <div className={styles.swatches}>
-              {range.swatches.map((s, i) => (
+              {swatches.map((s, i) => (
                 <button
                   key={s.colour + i}
                   className={`${styles.swatch} ${i === active ? styles.swatchActive : ""}`}
@@ -73,9 +75,9 @@ export default function RangeDetail({ range }: { range: WebsiteRange }) {
           </dl>
         ) : null}
 
-        <a href="/contact" className={styles.enquire}>
+        <Link href="/contact" className={styles.enquire}>
           Enquire about this range
-        </a>
+        </Link>
       </div>
     </section>
   );

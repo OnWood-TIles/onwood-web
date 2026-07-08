@@ -77,10 +77,15 @@ export default function RootLayout({
   return (
     <html
       lang="en-AU"
+      suppressHydrationWarning
       className={`${archivo.variable} ${manrope.variable} ${newsreader.variable} antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
+        {/* No-JS fallback: scroll-reveal elements must not stay invisible. */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

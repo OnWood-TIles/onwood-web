@@ -66,8 +66,8 @@ export default async function Home() {
                   <h3 className={styles.cardTitle}>{r.name}</h3>
                   <p className={styles.cardMeta}>
                     {r.category ? `${r.category} - ` : ""}
-                    {r.swatches.length} colour
-                    {r.swatches.length === 1 ? "" : "s"}
+                    {r.swatches?.length ?? 0} colour
+                    {(r.swatches?.length ?? 0) === 1 ? "" : "s"}
                   </p>
                 </div>
               </Reveal>

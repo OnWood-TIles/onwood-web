@@ -41,6 +41,7 @@ export default function Reveal({
     <Tag
       // @ts-expect-error - ref typing across the union of tags is fine at runtime
       ref={ref}
+      data-reveal=""
       className={`${styles.reveal} ${shown ? styles.revealIn : ""} ${className}`}
       style={{ transitionDelay: `${delay}s` }}
     >

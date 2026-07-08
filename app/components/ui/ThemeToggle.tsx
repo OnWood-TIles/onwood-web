@@ -14,7 +14,7 @@ export default function ThemeToggle() {
 
   return (
     <div
-      role="radiogroup"
+      role="group"
       aria-label="Colour theme"
       style={{ display: "inline-flex", gap: 6, alignItems: "center" }}
     >
@@ -23,8 +23,8 @@ export default function ThemeToggle() {
         return (
           <button
             key={t}
-            role="radio"
-            aria-checked={active}
+            type="button"
+            aria-pressed={active}
             aria-label={THEME_LABELS[t]}
             title={THEME_LABELS[t]}
             onClick={() => setTheme(t)}

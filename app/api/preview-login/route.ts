@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+// Only allow same-site relative redirects (no protocol-relative //host, no
+// backslash tricks, no absolute URLs) to close an open-redirect vector.
+function safeNext(v: unknown): string {
+  return typeof v === "string" &&
+    v.startsWith("/") &&
+    !v.startsWith("//") &&
+    !v.startsWith("/\\")
+    ? v
+    : "/";
+}
+
 // Exchanges the shared staff password for a preview cookie that the proxy gate
 // recognises. On success -> redirect to the site; on failure -> back to /staff.
 export async function POST(request: Request) {
@@ -15,12 +26,11 @@ export async function POST(request: Request) {
     if (contentType.includes("application/json")) {
       const body = (await request.json()) as { password?: string; next?: string };
       submitted = typeof body.password === "string" ? body.password : "";
-      if (typeof body.next === "string") next = body.next;
+      next = safeNext(body.next);
     } else {
       const form = await request.formData();
       submitted = String(form.get("password") || "");
-      const n = form.get("next");
-      if (typeof n === "string" && n.startsWith("/")) next = n;
+      next = safeNext(form.get("next"));
     }
   } catch {
     // fall through to failure
