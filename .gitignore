@@ -44,3 +44,7 @@ next-env.d.ts
 .vercel
 
 .vercel
+
+# reference extraction working files (local only)
+.refwork/
+.refextract*.mjs
