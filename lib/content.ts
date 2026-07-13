@@ -25,7 +25,7 @@ export type ShopDetails = {
 
 export const SHOP: ShopDetails = {
   name: "OnWood Tiles",
-  street: "2/11 Packer Street",
+  street: "2/11 Packer Road",
   suburb: "Baringa",
   state: "QLD",
   postcode: "4551",
@@ -167,37 +167,21 @@ export const SHOWROOM = {
   sub: "Our Baringa showroom, full-size boards, big-format samples and honest Sunshine Coast light. Real tile photography drops straight into these niches.",
   visionEyebrow: "Vision board",
   visionTitle: "Build the look on a Caesarstone benchtop.",
-  visionSub: "Pick paint, wood-look, tiles, benchtops and a little decor from the tabs, then drag each piece to arrange your board.",
+  visionSub: "Pick paint, tiles, flooring, cabinetry, benchtops and styling from the tabs, then drag each piece to arrange your board.",
 };
 
 // Vision-board material rails per tab (colour chips for v1). Paint is handled
 // separately in VisionBoard as a searchable Dulux picker, so it is not here.
 export const VISION_TABS: Record<string, { name: string; color: string }[]> = {
-  woodlook: [
-    { name: "Coastal Oak", color: "#C8894B" },
-    { name: "Smoked Oak", color: "#7A4A28" },
-    { name: "Pale Ash", color: "#d3cabb" },
-    { name: "Blackbutt", color: "#a89372" },
-  ],
-  tiles: [
-    { name: "Zellige", color: "#3f97a6" },
-    { name: "Terracotta", color: "#c15a30" },
-    { name: "Carrara", color: "#efe9e0" },
-    { name: "Travertine", color: "#d8c8ac" },
-    { name: "Limestone", color: "#efece5" },
-  ],
+  // "tiles" is now a GlowTile searchable picker + "benchtops" the Caesarstone
+  // picker - both handled specially in VisionBoard, so no colour chips here.
   benchtops: [
     { name: "Calacatta", color: "#f4f1ea" },
     { name: "Pietra Grey", color: "#4a4d52" },
     { name: "Cloudburst", color: "#6b7178" },
     { name: "Raw Concrete", color: "#b8b2a6" },
   ],
-  decor: [
-    { name: "Olive", color: "#6b7a3f" },
-    { name: "Rattan", color: "#c9a36b" },
-    { name: "Brass", color: "#b98e42" },
-    { name: "Linen", color: "#e7e1d6" },
-  ],
+  // "decor" standalone tab removed 2026-07-10 - Decor now lives under the Styling tab.
 };
 
 export const STORY = {

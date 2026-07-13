@@ -58,7 +58,7 @@ const jsonLd = {
   image: "https://onwoodtiles.com.au/onwood-logo-white.png",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "2/11 Packer Street",
+    streetAddress: "2/11 Packer Road",
     addressLocality: "Baringa",
     addressRegion: "QLD",
     postalCode: "4551",

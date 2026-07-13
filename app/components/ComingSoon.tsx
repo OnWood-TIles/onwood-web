@@ -194,7 +194,7 @@ export default function ComingSoon() {
         {/* footer row */}
         <div className={`${styles.rise} ${styles.cardFooter}`} style={{ animationDelay: "0.56s" }}>
           <span className={styles.footerItem}>
-            <span className={styles.footerIcon}>◎</span> 2/11 Packer Street, Baringa
+            <span className={styles.footerIcon}>◎</span> 2/11 Packer Road, Baringa
           </span>
           <span className={styles.footerItem}>
             <span className={styles.footerIcon}>@</span>

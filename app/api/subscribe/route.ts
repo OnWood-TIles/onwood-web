@@ -136,7 +136,7 @@ function welcomeEmailHtml(firstName?: string): string {
         </td></tr>
         <tr><td style="padding:22px 40px;border-top:1px solid #e6e2d8;">
           <p style="margin:0;font-size:12px;color:#8a959b;">
-            2/11 Packer Street, Baringa &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a>
+            2/11 Packer Road, Baringa &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a>
           </p>
         </td></tr>
       </table>

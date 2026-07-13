@@ -20,6 +20,7 @@ const CARPET_RANGES = eval(literal);
 const LOGOS = {
   Feltex: "/images/carpet/feltex-logo.svg",
   Redbook: "/images/carpet/redbook-logo.svg",
+  "Godfrey Hirst": "/images/carpet/godfreyhirst-logo.svg",
 };
 
 // Feltex + Redbook share the same Cloudinary "gh" swatch pattern.
