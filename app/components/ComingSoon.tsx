@@ -237,7 +237,10 @@ export default function ComingSoon() {
       </div>
 
       <div className={styles.footnote}>
-        Tap the wall to lay your own tile · © 2026 OnWood Tiles
+        © 2026 OnWood Tiles ·{" "}
+        <a href="/staff" className={styles.footnoteLink}>
+          Staff
+        </a>
       </div>
     </div>
   );
