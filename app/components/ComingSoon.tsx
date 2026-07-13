@@ -90,7 +90,7 @@ export default function ComingSoon() {
             src="/onwood-logo-rect.png"
             alt="OnWood Tiles"
             width={475}
-            height={197}
+            height={181}
             priority
             className={styles.brandLogo}
           />
