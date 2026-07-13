@@ -357,10 +357,7 @@
   bottom: 18px;
   left: 0;
   right: 0;
-  /* Above the card (z-index 6) so the Staff link isn't covered by the card's
-     overlapping bottom edge. The footnote itself is click-through; only the
-     link re-enables pointer events (below). */
-  z-index: 20;
+  z-index: 5;
   text-align: center;
   color: rgba(255, 255, 255, 0.4);
   font-size: 11px;
@@ -369,7 +366,7 @@
 }
 
 /* The Staff link must be individually clickable even though the footnote as a
-   whole is click-through (so the mosaic tap interaction works beneath it). */
+   whole is click-through (so the mosaic tap interaction still works beneath it). */
 .footnoteLink {
   color: var(--aqua);
   text-decoration: underline;

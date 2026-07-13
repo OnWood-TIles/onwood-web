@@ -55,20 +55,20 @@ export default function ComingSoon() {
       };
       if (res.ok && data.ok) {
         setNote({
-          text: "✓ You’re on the list, we’ll be in touch.",
+          text: "✓ You’re on the list — we’ll be in touch.",
           kind: "ok",
         });
         setName("");
         setEmail("");
       } else {
         setNote({
-          text: data.error || "Something went wrong, please try again.",
+          text: data.error || "Something went wrong — please try again.",
           kind: "error",
         });
       }
     } catch {
       setNote({
-        text: "Couldn’t reach the server, please try again.",
+        text: "Couldn’t reach the server — please try again.",
         kind: "error",
       });
     } finally {
@@ -87,10 +87,10 @@ export default function ComingSoon() {
       <div className={styles.topbar}>
         <div className={styles.brand}>
           <Image
-            src="/onwood-logo-white.png"
+            src="/onwood-logo-rect.png"
             alt="OnWood Tiles"
-            width={131}
-            height={48}
+            width={475}
+            height={174}
             priority
             className={styles.brandLogo}
           />
@@ -139,7 +139,7 @@ export default function ComingSoon() {
               <div className={styles.progressFill} />
             </div>
             <div className={styles.progressCaption}>
-              Foundations laid, the build has begun.
+              Foundations laid — the build has begun.
             </div>
           </div>
         </div>
