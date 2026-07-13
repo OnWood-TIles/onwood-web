@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Reveal from "../ui/Reveal";
 import MagneticButton from "../ui/MagneticButton";
 import { HERO } from "../../../lib/content";
+import HeroBoardConveyor from "./HeroBoardConveyor";
 
 // Full-height hero. Behind the copy sits a lightweight canvas that draws soft,
 // gently drifting horizontal wood-grain lines in warm tones (accent + walnut on
@@ -232,31 +233,7 @@ export default function Hero() {
         </div>
 
         <div className="ow-hero-art" style={{ display: "flex", justifyContent: "center" }}>
-          <div
-            role="img"
-            aria-label="OnWood Tiles floor, wall and outdoor tiles"
-            style={{
-              position: "relative",
-              width: "min(400px,90%)",
-              aspectRatio: "3 / 4",
-              borderRadius: "200px 200px 24px 24px",
-              overflow: "hidden",
-              boxShadow: "0 40px 90px rgba(32,48,58,.16)",
-              background:
-                "linear-gradient(155deg,#EAD8BE 0%,#C99B6B 45%,#7A4A28 100%)",
-            }}
-          >
-            <span
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "radial-gradient(120% 70% at 30% 18%, rgba(255,255,255,.28), transparent 60%)",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
+          <HeroBoardConveyor />
         </div>
       </div>
 
