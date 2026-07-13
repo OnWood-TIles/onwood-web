@@ -87,10 +87,10 @@ export default function ComingSoon() {
       <div className={styles.topbar}>
         <div className={styles.brand}>
           <Image
-            src="/onwood-logo-white.png"
+            src="/onwood-logo-rect.png"
             alt="OnWood Tiles"
-            width={131}
-            height={48}
+            width={475}
+            height={197}
             priority
             className={styles.brandLogo}
           />

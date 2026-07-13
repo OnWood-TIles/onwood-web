@@ -42,7 +42,7 @@
 }
 
 .brandLogo {
-  height: 300px;
+  height: 150px;
   width: auto;
 }
 
@@ -72,8 +72,9 @@
   width: min(640px, 92vw);
   margin: 0 22px;
   padding: 46px 44px 40px;
-  /* Reagan: content scaled up ~56% (mosaic tiles behind stay the same). */
-  transform: scale(1.56);
+  /* Reagan: content scaled up (mosaic tiles behind stay the same). Capped so the
+     card doesn't run off the top/bottom of a standard laptop screen. */
+  transform: scale(1.4);
   transform-origin: center center;
   border-radius: 26px;
   background: rgba(11, 20, 26, 0.62);
@@ -383,9 +384,9 @@
   opacity: 1;
 }
 
-/* Below ~1024px the enlarged card scale would overflow the viewport, so drop it
+/* Below ~980px the enlarged card scale would overflow the viewport, so drop it
    there (the card is already near full-width on small screens). */
-@media (max-width: 1024px) {
+@media (max-width: 980px) {
   .card {
     transform: none;
   }
