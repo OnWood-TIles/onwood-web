@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Reveal from "../ui/Reveal";
 import MagneticButton from "../ui/MagneticButton";
 import { HERO } from "../../../lib/content";
-import HeroBoardConveyor from "./HeroBoardConveyor";
+import AmbientDriftBoard from "./AmbientDriftBoard";
 
 // Full-height hero. Behind the copy sits a lightweight canvas that draws soft,
 // gently drifting horizontal wood-grain lines in warm tones (accent + walnut on
@@ -233,7 +233,7 @@ export default function Hero() {
         </div>
 
         <div className="ow-hero-art" style={{ display: "flex", justifyContent: "center" }}>
-          <HeroBoardConveyor />
+          <AmbientDriftBoard />
         </div>
       </div>
 
