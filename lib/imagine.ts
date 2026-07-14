@@ -169,6 +169,21 @@ export function describeColour(hex?: string): string {
   return `${light} ${sat} ${hue}`.replace(/\s+/g, " ").trim();
 }
 
+// Cabinetry finish from the sample NAME first, measured colour as fallback.
+// The swatch AVERAGE under-reads a finish (grain streaks darken a whitewash to
+// tan) and describeColour's timber bands are coarse - Whitewashed, Golden and
+// Classic Oak all collapsed to "warm tan", so every render got the same warm
+// cabinets. Finish words in the name are the truth; let them lead.
+export function describeTimberFinish(name?: string, color?: string): string {
+  const n = (name || "").toLowerCase();
+  if (/white ?wash|lime ?wash|bleach/.test(n)) return "pale whitewashed, washed-out blonde";
+  if (/white|snow|chalk/.test(n)) return "crisp white painted";
+  if (/charred|smoked|burnt|ebony|carbon|black/.test(n)) return "very dark charred, almost black";
+  if (/golden|honey/.test(n)) return "golden honey-toned";
+  if (/grey|gray/.test(n)) return "cool grey-toned";
+  return describeColour(color);
+}
+
 // Classify a GlowTile sample by the role it should play in the render, so the
 // prompt can place it correctly:
 //  - "large-format": porcelain floor tile (600x600, 600x1200, planks) -> the FLOOR
@@ -255,8 +270,10 @@ export function buildImaginePrompt(req: ImagineRequest): string {
     }
   }
 
-  for (const t of uniq("timber"))
-    palette.push(`${cp(t.color)}${t.name} cabinetry and joinery`);
+  for (const t of uniq("timber")) {
+    const finish = describeTimberFinish(t.name, t.color);
+    palette.push(`${finish ? `${finish} ` : ""}${t.name} cabinetry and joinery`);
+  }
 
   if (req.benchtop)
     palette.push(`${cp(req.benchtopColor)}${req.benchtop} natural stone benchtops`);
@@ -269,11 +286,18 @@ export function buildImaginePrompt(req: ImagineRequest): string {
       `${cp(t.color)}${t.name} tiles used only as a splashback or feature wall, never on the floor`,
     );
 
-  // Stacked natural-stone samples read as a feature-wall cladding.
-  for (const t of stoneTiles)
+  // Natural-stone samples read as a feature-wall cladding. Flux renders the
+  // generic phrase "stacked stone" as thin pencil-like ledgestone strips, so
+  // describe each product's REAL format instead (crazy pave = irregular flat
+  // polygons; loose body = chunky dry-stacked random pieces).
+  for (const t of stoneTiles) {
+    const n = (t.name || "").toLowerCase();
     palette.push(
-      `${cp(t.color)}${t.name} stacked natural stone cladding as a feature wall`,
+      /crazy ?pave/.test(n)
+        ? `${cp(t.color)}${t.name} natural stone crazy-paving cladding as a feature wall - large irregular polygonal flat travertine pieces with visible mortar joints, random organic shapes, NOT thin stacked ledgestone strips`
+        : `${cp(t.color)}${t.name} dry-stacked natural stone feature wall - chunky irregular rounded stone pieces of varying sizes, rustic and organic, NOT thin pencil-like ledgestone strips`,
     );
+  }
 
   const metal = namesOf("metal");
   if (metal.length) palette.push(`${metal.join(" and ")} metal tapware and hardware`);

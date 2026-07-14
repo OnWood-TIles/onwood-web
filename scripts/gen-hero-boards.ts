@@ -1,5 +1,7 @@
-// Proof-of-concept: pre-generate AI room renders for curated hero mood-boards,
-// reusing the site's own buildImaginePrompt (colour-accurate + style-cued).
+// Pre-generate AI room renders for the curated hero mood-boards, reusing the
+// site's own buildImaginePrompt (colour-accurate + tile-role-aware, Phase B).
+// Board recipes reference products BY NAME; URLs are resolved from the data
+// files so a typo fails loudly instead of shipping a wrong swatch.
 // Run from the repo root: npx tsx scripts/gen-hero-boards.ts
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
@@ -27,18 +29,31 @@ mkdirSync(OUT, { recursive: true });
 const COLOUR_KINDS = new Set(["flooring", "carpet", "timber", "tile"]);
 const VARIANTS = 4;
 
+// ---- product data (resolve URLs by name) -----------------------------------
+type Named = { name: string; url: string; type?: string };
+const load = (p: string) => JSON.parse(readFileSync(join(PUBLIC, p), "utf8"));
+const TILES = load("data/tiles.json") as { name: string; type: string; url: string }[];
+const STONE = load("data/stone.json") as { name: string; url: string }[];
+const TIMBER = load("data/timber.json") as { name: string; url: string }[];
+const CARPET = load("data/carpet.json") as { colour: string; url: string }[];
+
+const tile = (name: string) => { const t = TILES.find((x) => x.name === name); if (!t) throw new Error(`tile not found: ${name}`); return t; };
+const stone = (name: string) => { const s = STONE.find((x) => x.name === name); if (!s) throw new Error(`stone not found: ${name}`); return s; };
+const timber = (name: string) => { const t = TIMBER.find((x) => x.name === name); if (!t) throw new Error(`timber not found: ${name}`); return t; };
+const carpet = (colour: string) => { const c = CARPET.find((x) => x.colour === colour); if (!c) throw new Error(`carpet not found: ${colour}`); return c; };
+
 async function swatchHex(url?: string): Promise<string | null> {
   if (!url) return null;
   try {
     let buf: Buffer;
-    if (url.startsWith("/")) {
-      buf = readFileSync(join(PUBLIC, url.split("?")[0]));
-    } else {
+    if (url.startsWith("/")) buf = readFileSync(join(PUBLIC, url.split("?")[0]));
+    else {
       const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://onwoodtiles.com.au/" } });
       if (!r.ok) return null;
       buf = Buffer.from(await r.arrayBuffer());
     }
-    const c = (await sharp(buf).stats()).channels;
+    // flatten onto white so transparent mosaic cutouts read their true colour
+    const c = (await sharp(buf).flatten({ background: "#ffffff" }).stats()).channels;
     if (!c || c.length < 3) return null;
     const h = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
     return `#${h(c[0].mean)}${h(c[1].mean)}${h(c[2].mean)}`;
@@ -54,133 +69,74 @@ async function generateOne(prompt: string): Promise<string | null> {
     });
     if (!res.ok) { console.error("  CF " + res.status + ": " + (await res.text().catch(() => "")).slice(0, 160)); return null; }
     const ct = res.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      const d = (await res.json()) as { result?: { image?: string } };
-      return d?.result?.image || null;
-    }
+    if (ct.includes("application/json")) { const d = (await res.json()) as { result?: { image?: string } }; return d?.result?.image || null; }
     return Buffer.from(await res.arrayBuffer()).toString("base64");
   } catch (e) { console.error("  gen error", e); return null; }
 }
 
-type Preset = { id: string; label: string; room: string; style: string; note?: string; hero: string; items: ImagineItem[]; benchtop?: string; benchtopUrl?: string };
+// ---- the 6 boards (Phase C structure) --------------------------------------
+type Paint = { name: string; hex: string };
+type Preset = {
+  id: string; label: string; room: string; style: string; note?: string;
+  floorTile: string; wallTile?: string; stackstone?: string;
+  cabinetry?: string; benchtop?: string; carpet?: string;
+  metal: string; paints: Paint[]; styling: string[];
+};
 
 const PRESETS: Preset[] = [
-  {
-    id: "coastal-hamptons",
-    label: "Coastal Hamptons",
-    room: "Kitchen",
-    style: "Hamptons",
-    hero: "BIANCO Carrara In & Out",
-    benchtop: "Calacatta Nuvo",
-    benchtopUrl: "/images/stone/5131.webp?v=2",
-    items: [
-      { kind: "paint", name: "Natural White", color: "#EFE9DB" },
-      { kind: "flooring", name: "Classic oak natural", url: "https://cdn3.quick-step.com/-/media/imported%20assets/flooring/6/8/0/im1848topshotjpg256677/square%20lr.ashx?rev=c55cd6281b7a436f92a814bdeefb36a5&mw=414&hash=AB2E15CC499ED0778627C7410B87B554" },
-      { kind: "timber", name: "Whitewashed Oak", url: "/images/timber/AU1007480.webp" },
-      { kind: "tile", name: "BIANCO Carrara In & Out", sub: "BIANCO CARRARA", url: "https://cdn.shopify.com/s/files/1/0626/3370/5561/files/BiancoCarraraIn_Out600x600.jpg?width=600" },
-      { kind: "metal", name: "Brushed Brass" },
-      { kind: "styling", name: "Olive Tree" },
-    ],
-  },
-  {
-    id: "industrial-luxe",
-    label: "Industrial Luxe",
-    room: "Kitchen",
-    style: "Industrial",
-    hero: "LAVIDA Dark Grey Matt",
-    benchtop: "Raw Concrete",
-    benchtopUrl: "/images/stone/4004.webp?v=2",
-    items: [
-      { kind: "paint", name: "Milton Moon", color: "#A19D91" },
-      { kind: "flooring", name: "Patina oak grey", url: "https://cdn3.quick-step.com/-/media/imported%20assets/flooring/5/6/7/pen4752topshotjpg257681/square%20lr.ashx?rev=d9ab5280d31548a19d64d46365a99ce7&mw=414&hash=5A5DD2FA3A1BB58A371F7F73DC83235C" },
-      { kind: "timber", name: "Charred Oak", url: "/images/timber/AU1004571.webp" },
-      { kind: "tile", name: "LAVIDA Dark Grey Matt", sub: "LAVIDA", url: "https://cdn.shopify.com/s/files/1/0626/3370/5561/files/LavidaDarkGreyMatt600x600.jpg?width=600" },
-      { kind: "metal", name: "Matte Black" },
-      { kind: "styling", name: "Native Berry Eucalypt Bunch" },
-    ],
-  },
-  {
-    id: "japandi-calm",
-    label: "Japandi Calm",
-    room: "Living room",
-    style: "Japandi",
-    hero: "LIMESTONE 2.0 Cotton Matt",
-    benchtop: "Organic White",
-    benchtopUrl: "/images/stone/4600.webp?v=2",
-    items: [
-      { kind: "paint", name: "Hog Bristle Quarter", color: "#E4DDC8" },
-      { kind: "flooring", name: "Brushed oak natural", url: "https://cdn3.quick-step.com/-/media/imported%20assets/flooring/c/6/d/pen4763topshotjpg255026/square%20lr.ashx?rev=8e177600ff4e4480bbfac3396ac0933e&mw=414&hash=82E7F8D6AD3D9C7AF3A9E17F6E88E7F3" },
-      { kind: "timber", name: "Natural Oak", url: "/images/timber/AU1004667.webp" },
-      { kind: "tile", name: "LIMESTONE 2.0 Cotton Matt", sub: "LIMESTONE", url: "https://cdn.shopify.com/s/files/1/0626/3370/5561/files/Limestone2.0CottonMatt600x600.jpg?width=600" },
-      { kind: "metal", name: "Brushed Nickel" },
-      { kind: "styling", name: "Potted Orchid" },
-    ],
-  },
-  {
-    id: "contemporary-mono",
-    label: "Contemporary Monochrome",
-    room: "Kitchen",
-    style: "Contemporary",
-    hero: "ROMANTIC CARRARA Matt",
-    benchtop: "Jet Black",
-    benchtopUrl: "/images/stone/3100.webp?v=2",
-    items: [
-      { kind: "paint", name: "Lexicon Half", color: "#EDEFEE" },
-      { kind: "flooring", name: "Brushed oak grey", url: "https://cdn3.quick-step.com/-/media/imported%20assets/flooring/4/1/1/pen4765topshotjpg244481/square%20lr.ashx?rev=d9d7ebf58ec2450289481f04cc5c956e&mw=414&hash=61464627141212765CA56BDD82E3FE22" },
-      { kind: "timber", name: "Silver Riftwood", url: "/images/timber/AU1004708.webp" },
-      { kind: "tile", name: "ROMANTIC CARRARA Matt", sub: "ROMANTIC CARRARA", url: "https://cdn.shopify.com/s/files/1/0626/3370/5561/files/RomanticCarraraMatt600x1200.jpg?width=600" },
-      { kind: "metal", name: "Brushed Gunmetal" },
-      { kind: "styling", name: "Green Skimmia Stem" },
-    ],
-  },
-  {
-    id: "mediterranean-warm",
-    label: "Mediterranean Warmth",
-    room: "Kitchen",
-    style: "Mediterranean",
-    hero: "TRAVERTINE 3D CROSSCUT Warm",
-    benchtop: "Taj Whisper",
-    benchtopUrl: "/images/stone/8251.webp?v=2",
-    items: [
-      { kind: "paint", name: "Antique White U.S.A.", color: "#E6DECC" },
-      { kind: "flooring", name: "Cinnamon oak", url: "https://cdn3.quick-step.com/-/media/imported%20assets/flooring/f/0/c/imd8244topshotjpg281039/square%20lr.ashx?rev=87a5953b68724b61b3a015465c938f0a&mw=414&hash=98CA2446F8D602028C3C8DAC692D1542" },
-      { kind: "timber", name: "Golden Oak", url: "/images/timber/AU1006823.webp" },
-      { kind: "tile", name: "TRAVERTINE 3D CROSSCUT Warm In & Out", sub: "TRAVERTINE", url: "https://cdn.shopify.com/s/files/1/0626/3370/5561/files/Travertine3DCross-cutCrossCutWarmIn_Out600x600_4464205c-d2d9-407a-bb81-e12e94a4d1e3.jpg?width=600" },
-      { kind: "metal", name: "Tumbled Aged Brass" },
-      { kind: "styling", name: "Lemon Stem" },
-    ],
-  },
-  {
-    id: "scandi-green",
-    label: "Scandi Green Ensuite",
-    room: "Bathroom",
-    style: "Scandinavian",
-    hero: "Shadow Green Gloss Kit Kat",
-    benchtop: "Snow",
-    benchtopUrl: "/images/stone/2141.webp?v=2",
-    items: [
-      { kind: "paint", name: "Lexicon Quarter", color: "#F2F4F3" },
-      { kind: "flooring", name: "Painted oak white", url: "https://cdn3.quick-step.com/-/media/imported%20assets/flooring/6/2/7/pen4753topshotjpg243507/square%20lr.ashx?rev=f9271a19258743b5b72f571085425696&mw=414&hash=0A60310C906ADD2C495AF2C30EBAAB44" },
-      { kind: "timber", name: "White Painted Wood", url: "/images/timber/AU1003791.webp" },
-      { kind: "tile", name: "Shadow Green Gloss Kit Kat", sub: "Feature Tiles", color: "#6f9457", url: "https://cdn.shopify.com/s/files/1/0626/3370/5561/files/4_536a24e9-6ba0-4136-9eea-5b16ab9e7e77.webp?width=600" },
-      { kind: "metal", name: "Brushed Brass" },
-      { kind: "styling", name: "Potted Hydrangea Flower" },
-    ],
-  },
+  { id: "bath-coastal-white", label: "Bath · Coastal White", room: "Bathroom", style: "Hamptons",
+    floorTile: "BIANCO Carrara In & Out", wallTile: "White Gloss Penny Round",
+    cabinetry: "Whitewashed Oak", benchtop: "Calacatta Nuvo", metal: "Brushed Nickel",
+    paints: [{ name: "Natural White", hex: "#EFE9DB" }], styling: ["Green Skimmia Stem", "Juniper Decorative Bowl"] },
+  { id: "bath-warm-stone", label: "Bath · Warm Stone Spa", room: "Bathroom", style: "Contemporary",
+    floorTile: "TRAVERTINE 3D CROSSCUT Warm In & Out", wallTile: "Roman Travertine Mini Arch Mosaic",
+    cabinetry: "Golden Oak", benchtop: "Taj Whisper", metal: "Tumbled Aged Brass",
+    paints: [{ name: "Antique White", hex: "#E6DECC" }], styling: ["Willow Twig Stem", "Woodland Book Box Set"] },
+  { id: "kitchen-hamptons-white", label: "Kitchen · Hamptons White", room: "Kitchen", style: "Hamptons",
+    floorTile: "LIMESTONE 2.0 Cotton Matt", wallTile: "Hampton White Matt Handmade",
+    cabinetry: "White Painted Wood", benchtop: "Calacatta Nuvo", metal: "Brushed Brass",
+    paints: [{ name: "Natural White", hex: "#EFE9DB" }], styling: ["Lemon Stem", "Silver Mist Book Box Set"] },
+  { id: "kitchen-industrial-charcoal", label: "Kitchen · Industrial Charcoal", room: "Kitchen", style: "Industrial",
+    floorTile: "LAVIDA Dark Grey Matt", wallTile: "Stack Bond Tundra",
+    cabinetry: "Charred Oak", benchtop: "Raw Concrete", metal: "Matte Black",
+    paints: [{ name: "Milton Moon", hex: "#A19D91" }], styling: ["Native Berry Eucalypt Bunch", "Surrey Atom Decoration"] },
+  { id: "living-japandi-warm", label: "Living · Japandi Warmth", room: "Living room", style: "Japandi",
+    floorTile: "Ever Timber Natural Matt", carpet: "Cotswold Stone", metal: "Brushed Brass",
+    paints: [{ name: "Hog Bristle", hex: "#E4DDC8" }, { name: "Timeless Grey", hex: "#B6B3AA" }],
+    styling: ["Ember Luxe Cushion 55x55", "Olive Stem", "Woodland Book Box Set"] },
+  { id: "outdoor-alfresco-stone", label: "Outdoor · Alfresco Stone", room: "Alfresco / outdoor", style: "Mediterranean",
+    note: "an outdoor kitchen BBQ island clad in the same porcelain tile and irregular crazy-pave stone (no timber cabinetry)",
+    floorTile: "ACACIA Beige External", stackstone: "Crazy Pave", metal: "Stainless Steel",
+    paints: [{ name: "Golden Sand", hex: "#E1CD99" }, { name: "Antique White", hex: "#E6DECC" }],
+    styling: ["Olive Stem", "Flowering Gum Stem"] },
 ];
+
+function buildItems(p: Preset): ImagineItem[] {
+  const items: ImagineItem[] = [];
+  for (const pt of p.paints) items.push({ kind: "paint", name: pt.name, color: pt.hex });
+  const ft = tile(p.floorTile); items.push({ kind: "tile", name: p.floorTile, sub: ft.type, url: ft.url });
+  if (p.wallTile) { const w = tile(p.wallTile); items.push({ kind: "tile", name: p.wallTile, sub: w.type, url: w.url }); }
+  if (p.stackstone) { const s = tile(p.stackstone); items.push({ kind: "tile", name: p.stackstone, sub: s.type, url: s.url }); }
+  if (p.cabinetry) { const c = timber(p.cabinetry); items.push({ kind: "timber", name: p.cabinetry, url: c.url }); }
+  if (p.carpet) { const c = carpet(p.carpet); items.push({ kind: "carpet", name: p.carpet, url: c.url }); }
+  items.push({ kind: "metal", name: p.metal });
+  for (const s of p.styling) items.push({ kind: "styling", name: s });
+  return items;
+}
 
 async function main() {
   if (!ACCOUNT || !TOKEN) { console.error("Missing CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_AI_TOKEN in .env.local"); process.exit(1); }
   for (const p of PRESETS) {
     if (existsSync(join(OUT, p.id + "-sheet.jpg"))) { console.log("skip (already generated) " + p.id); continue; }
-    await Promise.all(p.items.map(async (it) => {
+    const items = buildItems(p);
+    await Promise.all(items.map(async (it) => {
       if (!it.color && it.url && COLOUR_KINDS.has(it.kind)) { const hex = await swatchHex(it.url); if (hex) it.color = hex; }
     }));
-    let benchtopColor: string | undefined;
-    if (p.benchtop && p.benchtopUrl) { const hex = await swatchHex(p.benchtopUrl); if (hex) benchtopColor = hex; }
-    const req: ImagineRequest = { items: p.items, benchtop: p.benchtop ?? null, benchtopColor, benchtopUrl: p.benchtopUrl, room: p.room, style: p.style, note: p.note };
+    let benchtopColor: string | undefined, benchtopUrl: string | undefined;
+    if (p.benchtop) { const s = stone(p.benchtop); benchtopUrl = s.url; const hex = await swatchHex(s.url); if (hex) benchtopColor = hex; }
+    const req: ImagineRequest = { items, benchtop: p.benchtop ?? null, benchtopColor, benchtopUrl, room: p.room, style: p.style, note: p.note };
     const prompt = buildImaginePrompt(req);
-    console.log("\n=== " + p.label + " (hero tile: " + p.hero + ") ===");
+    console.log("\n=== " + p.label + " ===");
     console.log(prompt + "\n");
     const tiles: Buffer[] = [];
     for (let n = 0; n < VARIANTS; n++) {
@@ -192,10 +148,8 @@ async function main() {
         console.log("  saved " + p.id + "-" + n + ".jpg");
       } else console.log("  variant " + n + " failed");
     }
-    // 2x2 contact sheet for quick review
     if (tiles.length) {
-      const G = 12, S = 400;
-      const cols = 2, rows = Math.ceil(tiles.length / cols);
+      const G = 12, S = 400, cols = 2, rows = Math.ceil(tiles.length / cols);
       const W = cols * S + (cols + 1) * G, H = rows * S + (rows + 1) * G;
       const comp = tiles.map((b, i) => ({ input: b, left: G + (i % cols) * (S + G), top: G + Math.floor(i / cols) * (S + G) }));
       await sharp({ create: { width: W, height: H, channels: 3, background: "#E4E0D6" } }).composite(comp).jpeg({ quality: 85 }).toFile(join(OUT, p.id + "-sheet.jpg"));
