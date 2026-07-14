@@ -2,12 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BOARD_H, BOARD_W, HERO_BOARDS, type BoardPiece } from "../../../lib/heroBoards";
+import { PaintChipFace } from "./PaintChip";
+import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
+import { FloorSwatchFace } from "./FloorSwatch";
 
 // "Ambient Drift" hero showcase (ported from the Claude Design handoff): each
 // board's samples float in like dust, magnetise into the assembled vision
 // board, hold, then release back into the drift as the next board floats in.
-// The hero + feature slots sit in the same spot on every board; everything
-// else repositions per board (see lib/heroBoards.ts).
+// Pieces are the REAL Vision Board tool samples (PaintChipFace fan-deck chips,
+// FloorSwatchFace tiles, CarpetSwatchFace, ABI metal discs) at the tool's
+// design sizes - see lib/heroBoards.ts. The hero + feature slots sit in the
+// same spot on every board; everything else repositions per board.
 //
 // All pieces of all boards render once; the engine mutates transform/opacity
 // directly on the nodes inside rAF (compositor-only, no React re-renders).
@@ -20,6 +25,13 @@ const X_DUR = 1.15; // per-piece release duration (s)
 const X_STAG = 0.08;
 const DRAMA = 1;    // 0.6 calm … 1.5 wild
 const CB = { x: BOARD_W / 2, y: BOARD_H / 2 + 30 }; // drift-ring centre
+
+// the tool's design sizes (render at these, scale to the piece box - keeps
+// punch holes / pills / badges in proportion, same trick as VisionBoard)
+const PAINT_W = 120, PAINT_H = 168;
+const METAL_W = 112, METAL_H = 142;
+const CARPET_W = 210, CARPET_H = 262;
+const TILE_EDGE = 176;
 
 const N_MAX = Math.max(...HERO_BOARDS.map((b) => b.pieces.length));
 const E_TOTAL = E_DUR + E_STAG * (N_MAX - 1);
@@ -56,7 +68,6 @@ type Pose = { x: number; y: number; rot: number; op: number; lift: number };
 
 function pose(
   slot: BoardPiece,
-  pi: number,
   phase: "enter" | "idle" | "exit",
   p: number,
   seed: number,
@@ -71,7 +82,7 @@ function pose(
   }
   if (phase === "idle") {
     // gentle breathing while assembled
-    const amp = (slot.kind === "plant" ? 2.6 : 1.7) * DRAMA;
+    const amp = (slot.kind === "styling" ? 2.6 : 1.7) * DRAMA;
     x += Math.sin(now * 0.00058 + (seed % 7)) * amp;
     y += Math.cos(now * 0.00047 + (seed % 11)) * amp * 1.2;
     rot += Math.sin(now * 0.00035 + (seed % 5)) * 0.45 * DRAMA;
@@ -105,32 +116,141 @@ function pose(
   return { x, y, rot, op, lift };
 }
 
-function pieceStyle(piece: BoardPiece): React.CSSProperties {
-  const base: React.CSSProperties = {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    width: piece.w,
-    height: piece.h,
-    zIndex: piece.z,
-    opacity: 0,
-    pointerEvents: "none",
-    willChange: "transform, opacity",
-  };
-  if (piece.kind === "plant" || piece.kind === "metal") {
-    return { ...base, filter: "drop-shadow(0 14px 16px rgba(29,42,50,.24))" };
+// Design-size wrapper: render the face at its tool design size, scale to the
+// piece box so pills/punch holes/badges keep their proportions.
+function Scaled({
+  dw,
+  dh,
+  w,
+  children,
+}: {
+  dw: number;
+  dh: number;
+  w: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ width: dw, height: dh, transform: `scale(${w / dw})`, transformOrigin: "top left" }}>
+      {children}
+    </div>
+  );
+}
+
+// One piece, rendered exactly like the Vision Board tool renders it.
+function PieceFace({ piece }: { piece: BoardPiece }) {
+  switch (piece.kind) {
+    case "photo":
+      // the tool's "render" piece: white photo frame
+      return (
+        <div
+          style={{
+            position: "relative", width: "100%", height: "100%", padding: 6,
+            background: "#fff", borderRadius: 8,
+            boxShadow: "0 14px 30px rgba(0,0,0,.34)", boxSizing: "border-box",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={piece.src} alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: 4 }}
+          />
+        </div>
+      );
+    case "paint":
+      return (
+        <Scaled dw={PAINT_W} dh={PAINT_H} w={piece.w}>
+          <PaintChipFace name={piece.name} hex={piece.color || "#ccc"} />
+        </Scaled>
+      );
+    case "timber":
+      return (
+        <Scaled dw={PAINT_W} dh={PAINT_H} w={piece.w}>
+          <PaintChipFace name={piece.name} hex="#cbb79a" image={piece.src} brandLogo={piece.brandLogo} />
+        </Scaled>
+      );
+    case "tile":
+    case "stone":
+      return (
+        <Scaled dw={TILE_EDGE} dh={TILE_EDGE} w={piece.w}>
+          <FloorSwatchFace
+            name={piece.name}
+            range={piece.sub || ""}
+            url={piece.src || ""}
+            radius={piece.radius ?? (piece.kind === "tile" ? 2 : 10)}
+          />
+        </Scaled>
+      );
+    case "carpet":
+      return (
+        <Scaled dw={CARPET_W} dh={CARPET_H} w={piece.w}>
+          <CarpetSwatchFace
+            colour={piece.name}
+            range={piece.sub || ""}
+            url={piece.src || ""}
+            brandLogo={piece.brandLogo}
+          />
+        </Scaled>
+      );
+    case "metal":
+      // the tool's ABI disc + brand badge + name pill
+      return (
+        <Scaled dw={METAL_W} dh={METAL_H} w={piece.w}>
+          <div
+            style={{
+              width: "100%", height: "100%", display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "flex-start", gap: 6,
+            }}
+          >
+            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={piece.src} alt={piece.name}
+                style={{
+                  width: "100%", height: "100%", objectFit: "contain", display: "block",
+                  filter: "drop-shadow(0 6px 10px rgba(0,0,0,.34))",
+                }}
+              />
+              {piece.brandLogo ? <BrandBadge logo={piece.brandLogo} h={11} /> : null}
+            </div>
+            <div
+              style={{
+                background: "#fff", borderRadius: 8, padding: "3px 8px",
+                boxShadow: "0 4px 12px rgba(0,0,0,.2)", maxWidth: "100%",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11, fontWeight: 700, color: "#20303a", textAlign: "center",
+                  lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden",
+                  textOverflow: "ellipsis", maxWidth: "100%",
+                }}
+              >
+                {piece.name}
+              </div>
+            </div>
+          </div>
+        </Scaled>
+      );
+    case "styling":
+      // background-removed cutout - florals render LARGER here than in the
+      // tool on purpose (colour + vibe on the front page)
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={piece.src} alt=""
+          style={{
+            width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom",
+            display: "block", filter: "drop-shadow(0 8px 12px rgba(0,0,0,.34))",
+          }}
+        />
+      );
   }
-  const shadow =
-    piece.id === "hero"
-      ? "0 26px 54px -10px rgba(32,48,58,.46)"
-      : "0 15px 32px -8px rgba(32,48,58,.30)";
-  return { ...base, borderRadius: piece.radius ?? 16, boxShadow: shadow, background: piece.color || "#E6E1D4" };
 }
 
 export default function AmbientDriftBoard() {
   const boards = HERO_BOARDS;
   const wrapRef = useRef<HTMLDivElement>(null);
-  const nodeRefs = useRef<(HTMLDivElement | HTMLImageElement | null)[]>([]);
+  const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [scale, setScale] = useState(1);
 
   // scale the fixed 520x600 board space to the container width
@@ -149,6 +269,23 @@ export default function AmbientDriftBoard() {
     // flat piece list mirroring the render order below
     const flat: { bi: number; pi: number; piece: BoardPiece }[] = [];
     boards.forEach((b, bi) => b.pieces.forEach((piece, pi) => flat.push({ bi, pi, piece })));
+
+    // ?heroBoard=N freezes board N fully assembled (screenshots / debugging)
+    const dbg = new URLSearchParams(window.location.search).get("heroBoard");
+    if (dbg !== null) {
+      const bi = Math.max(0, Math.min(boards.length - 1, parseInt(dbg, 10) || 0));
+      flat.forEach(({ bi: b, piece }, i) => {
+        const node = nodeRefs.current[i];
+        if (!node) return;
+        if (b === bi) {
+          node.style.transform = `translate(${piece.x}px,${piece.y}px) rotate(${piece.rot}deg)`;
+          node.style.opacity = "1";
+        } else {
+          node.style.opacity = "0";
+        }
+      });
+      return;
+    }
 
     let t0 = performance.now();
     let hiddenAt = 0;
@@ -193,7 +330,7 @@ export default function AmbientDriftBoard() {
           phase = "exit";
           p = clamp((tl - E_TOTAL - HOLD - oi * X_STAG) / X_DUR);
         }
-        const ps = pose(piece, pi, phase, p, seed, now, reduced);
+        const ps = pose(piece, phase, p, seed, now, reduced);
         const tr = `translate(${ps.x.toFixed(2)}px,${ps.y.toFixed(2)}px) rotate(${ps.rot.toFixed(2)}deg) scale(${(1 + 0.05 * ps.lift).toFixed(3)})`;
         const sig = `${tr}|${ps.op.toFixed(3)}`;
         if (cache[i] === sig) continue;
@@ -254,28 +391,24 @@ export default function AmbientDriftBoard() {
           b.pieces.map((piece) => {
             flatIdx++;
             const i = flatIdx;
-            if (piece.kind === "paint") {
-              return (
-                <div
-                  key={`${b.id}-${piece.id}`}
-                  ref={(el) => { nodeRefs.current[i] = el; }}
-                  style={pieceStyle(piece)}
-                />
-              );
-            }
             return (
-              <img
+              <div
                 key={`${b.id}-${piece.id}`}
                 ref={(el) => { nodeRefs.current[i] = el; }}
-                src={piece.src}
-                alt=""
-                loading="eager"
                 style={{
-                  ...pieceStyle(piece),
-                  objectFit: piece.kind === "plant" || piece.kind === "metal" ? "contain" : "cover",
-                  objectPosition: piece.kind === "plant" ? "bottom" : "center",
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: piece.w,
+                  height: piece.h,
+                  zIndex: piece.z,
+                  opacity: 0,
+                  pointerEvents: "none",
+                  willChange: "transform, opacity",
                 }}
-              />
+              >
+                <PieceFace piece={piece} />
+              </div>
             );
           }),
         )}
