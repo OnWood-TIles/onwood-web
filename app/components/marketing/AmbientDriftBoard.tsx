@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { BOARD_H, BOARD_W, HERO_BOARDS, type BoardPiece } from "../../../lib/heroBoards";
 import { PaintChipFace } from "./PaintChip";
-import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
+import { CarpetSwatchFace } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
 
 // "Ambient Drift" hero showcase (ported from the Claude Design handoff): each
@@ -29,8 +29,8 @@ const CB = { x: BOARD_W / 2, y: BOARD_H / 2 + 30 }; // drift-ring centre
 // the tool's design sizes (render at these, scale to the piece box - keeps
 // punch holes / pills / badges in proportion, same trick as VisionBoard)
 const PAINT_W = 120, PAINT_H = 168;
-const METAL_W = 112, METAL_H = 142;
-const CARPET_W = 210, CARPET_H = 262;
+const METAL_W = 112;
+const CARPET_W = 210;
 const TILE_EDGE = 176;
 
 const N_MAX = Math.max(...HERO_BOARDS.map((b) => b.pieces.length));
@@ -170,65 +170,42 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
       );
     case "tile":
     case "stone":
+      // labels off (Reagan: only cabinetry + paint keep theirs)
       return (
         <Scaled dw={TILE_EDGE} dh={TILE_EDGE} w={piece.w}>
           <FloorSwatchFace
             name={piece.name}
             range={piece.sub || ""}
             url={piece.src || ""}
+            showLabel={false}
             radius={piece.radius ?? (piece.kind === "tile" ? 2 : 10)}
           />
         </Scaled>
       );
     case "carpet":
       return (
-        <Scaled dw={CARPET_W} dh={CARPET_H} w={piece.w}>
+        <Scaled dw={CARPET_W} dh={CARPET_W} w={piece.w}>
           <CarpetSwatchFace
             colour={piece.name}
             range={piece.sub || ""}
             url={piece.src || ""}
             brandLogo={piece.brandLogo}
+            showLabel={false}
           />
         </Scaled>
       );
     case "metal":
-      // the tool's ABI disc + brand badge + name pill
+      // the ABI disc alone - the embossed ABI branding lives in the photo
       return (
-        <Scaled dw={METAL_W} dh={METAL_H} w={piece.w}>
-          <div
+        <Scaled dw={METAL_W} dh={METAL_W} w={piece.w}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={piece.src} alt={piece.name}
             style={{
-              width: "100%", height: "100%", display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "flex-start", gap: 6,
+              width: "100%", height: "100%", objectFit: "contain", display: "block",
+              filter: "drop-shadow(0 6px 10px rgba(0,0,0,.34))",
             }}
-          >
-            <div style={{ position: "relative", width: "100%", aspectRatio: "1 / 1" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={piece.src} alt={piece.name}
-                style={{
-                  width: "100%", height: "100%", objectFit: "contain", display: "block",
-                  filter: "drop-shadow(0 6px 10px rgba(0,0,0,.34))",
-                }}
-              />
-              {piece.brandLogo ? <BrandBadge logo={piece.brandLogo} h={11} /> : null}
-            </div>
-            <div
-              style={{
-                background: "#fff", borderRadius: 8, padding: "3px 8px",
-                boxShadow: "0 4px 12px rgba(0,0,0,.2)", maxWidth: "100%",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 11, fontWeight: 700, color: "#20303a", textAlign: "center",
-                  lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden",
-                  textOverflow: "ellipsis", maxWidth: "100%",
-                }}
-              >
-                {piece.name}
-              </div>
-            </div>
-          </div>
+          />
         </Scaled>
       );
     case "styling":

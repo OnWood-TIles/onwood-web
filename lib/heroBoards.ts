@@ -65,7 +65,7 @@ const timber = (name: string, code: string, x: number, y: number, rot: number, z
 const paint = (id: string, name: string, hex: string, x: number, y: number, rot: number, z: number): BoardPiece =>
   ({ id, kind: "paint", name, color: hex, x, y, w: 120, h: 168, rot, z });
 const metal = (name: string, file: string, x: number, y: number, rot: number, z: number): BoardPiece =>
-  ({ id: "metal", kind: "metal", name, src: `/images/metals/abi/${file}.webp`, brandLogo: ABI, x, y, w: 112, h: 142, rot, z });
+  ({ id: "metal", kind: "metal", name, src: `/images/metals/abi/${file}.webp`, brandLogo: ABI, x, y, w: 112, h: 112, rot, z });
 const styling = (id: string, name: string, file: string, x: number, y: number, w: number, h: number, z: number): BoardPiece =>
   ({ id, kind: "styling", name, src: `/images/styling/${file}.webp`, x, y, w, h, rot: 0, z });
 
@@ -134,7 +134,7 @@ export const HERO_BOARDS: HeroBoard[] = [
       feature({
         kind: "carpet", name: "Cotswold Stone", sub: "Stonefields", brandLogo: "/images/carpet/feltex-logo.svg",
         src: "https://res.cloudinary.com/gh/image/upload/d_variants:0203600500:floods:flat-web.jpg/ar_1:1,c_crop,g_center,w_400/f_auto/q_auto:good/v1/variants/0203600500/swatches/1",
-        w: 176, h: 220,
+        w: 176, h: 176,
       }),
       styling("cushion", "Ember Luxe Cushion", "cushion-ember-luxe-cushion-55x55", 14, 296, 160, 159, 3),
       metal("Brushed Brass", "brushed-brass", 64, 432, 0, 5),
