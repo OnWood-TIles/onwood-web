@@ -169,6 +169,29 @@ export function describeColour(hex?: string): string {
   return `${light} ${sat} ${hue}`.replace(/\s+/g, " ").trim();
 }
 
+// Classify a GlowTile sample by the role it should play in the render, so the
+// prompt can place it correctly:
+//  - "large-format": porcelain floor tile (600x600, 600x1200, planks) -> the FLOOR
+//    (priority 1 - a large-format tile beats a plank "flooring" sample for the floor)
+//  - "mosaic" / "feature": mosaic, penny-round, kit-kat, stack-bond, subway, brick
+//    or wall tile -> splashback / feature wall ONLY, never the floor
+//  - "stone": the loose stacked-stone samples -> natural-stone feature-wall cladding
+export function classifyTile(
+  name?: string,
+  sub?: string,
+): "large-format" | "mosaic" | "feature" | "stone" {
+  const s = `${name || ""} ${sub || ""}`.toLowerCase();
+  if (/clay stone|cloudy grey|crazy pave/.test(s)) return "stone";
+  if (/mosaic|kit ?kat|penny ?round|stack ?bond|mini ?arch|cobble|piccolo|riverblend/.test(s))
+    return "mosaic";
+  if (/subway|hampton|mille|maestro|penny|\bwall\b|22x145|75x225|75x300|76x302|100x100|62\.5x125/.test(s))
+    return "feature";
+  // Dimension-driven: a largest face under 300mm reads as a small wall/feature tile.
+  const m = s.match(/(\d{2,4})\s*[x×]\s*(\d{2,4})/);
+  if (m && Math.max(Number(m[1]), Number(m[2])) < 300) return "feature";
+  return "large-format";
+}
+
 // Build a photographer-grade interior prompt from the placed pieces + benchtop.
 export function buildImaginePrompt(req: ImagineRequest): string {
   const items = Array.isArray(req.items) ? req.items : [];
@@ -199,16 +222,37 @@ export function buildImaginePrompt(req: ImagineRequest): string {
   for (const p of uniq("paint"))
     palette.push(`${cp(p.color)}walls${p.name ? ` (${p.name})` : ""}`);
 
-  for (const f of uniq("flooring")) {
-    const meta = `${f.name} ${f.sub || ""}`;
-    const pattern = /herringbone/i.test(meta)
-      ? " laid in a herringbone pattern"
-      : /chevron|chevy/i.test(meta)
-        ? " laid in a chevron pattern"
-        : "";
-    // Lead with the colour + "floor" (not the "oak" name) so a charcoal floor
-    // renders charcoal, not warm timber.
-    palette.push(`${cp(f.color)}floor${pattern} (${f.name})`);
+  // Tiles are split by role (see classifyTile). A LARGE-FORMAT tile is the hero
+  // floor and takes priority 1 - it beats a plank "flooring" sample for the floor.
+  const tiles = uniq("tile");
+  const floorTiles = tiles.filter((t) => classifyTile(t.name, t.sub) === "large-format");
+  const stoneTiles = tiles.filter((t) => classifyTile(t.name, t.sub) === "stone");
+  const wallTiles = [
+    ...floorTiles.slice(1), // any extra large-format tiles become the splashback
+    ...tiles.filter((t) => {
+      const c = classifyTile(t.name, t.sub);
+      return c === "mosaic" || c === "feature";
+    }),
+  ];
+
+  // FLOOR: a large-format tile wins; otherwise fall back to the plank flooring.
+  if (floorTiles[0]) {
+    const f = floorTiles[0];
+    palette.push(
+      `${cp(f.color)}large-format ${f.name} porcelain floor tiles across the whole floor`,
+    );
+  } else {
+    for (const f of uniq("flooring")) {
+      const meta = `${f.name} ${f.sub || ""}`;
+      const pattern = /herringbone/i.test(meta)
+        ? " laid in a herringbone pattern"
+        : /chevron|chevy/i.test(meta)
+          ? " laid in a chevron pattern"
+          : "";
+      // Lead with the colour + "floor" (not the "oak" name) so a charcoal floor
+      // renders charcoal, not warm timber.
+      palette.push(`${cp(f.color)}floor${pattern} (${f.name})`);
+    }
   }
 
   for (const t of uniq("timber"))
@@ -217,10 +261,19 @@ export function buildImaginePrompt(req: ImagineRequest): string {
   if (req.benchtop)
     palette.push(`${cp(req.benchtopColor)}${req.benchtop} natural stone benchtops`);
 
-  for (const c of uniq("carpet")) palette.push(`${cp(c.color)}${c.name} carpet`);
+  for (const c of uniq("carpet")) palette.push(`${cp(c.color)}${c.name} carpet as an area rug`);
 
-  // GlowTile tiles - a tiled feature surface (splashback / feature wall / floor).
-  for (const t of uniq("tile")) palette.push(`${cp(t.color)}${t.name} tiles`);
+  // Splashback / feature-wall tiles - explicitly NEVER on the floor.
+  for (const t of wallTiles)
+    palette.push(
+      `${cp(t.color)}${t.name} tiles used only as a splashback or feature wall, never on the floor`,
+    );
+
+  // Stacked natural-stone samples read as a feature-wall cladding.
+  for (const t of stoneTiles)
+    palette.push(
+      `${cp(t.color)}${t.name} stacked natural stone cladding as a feature wall`,
+    );
 
   const metal = namesOf("metal");
   if (metal.length) palette.push(`${metal.join(" and ")} metal tapware and hardware`);
