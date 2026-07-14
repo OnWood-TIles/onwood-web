@@ -41,6 +41,7 @@ export const SHOP: ShopDetails = {
 // (bare "#id" only scrolls on the homepage). On the homepage "/#id" still
 // same-document-scrolls.
 export const NAV_LINKS = [
+  { href: "/shop", label: "Shop" },
   { href: "/#collections", label: "Collections" },
   { href: "/#visualize", label: "Visualiser" },
   { href: "/#showroom", label: "Showroom" },

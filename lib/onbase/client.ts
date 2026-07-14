@@ -1,5 +1,6 @@
-// Server-only client for OnBase's public API. Reads the curated Website
-// Catalogue (products/stock/ranges) server-to-server via a Bearer API key.
+// Server-only client for OnBase's public Website Catalogue API. Reads the
+// curated catalogue (ranges/products/stock buckets/taxonomy) server-to-server
+// via a Bearer API key.
 //
 // Design rules (from the build plan + red-team):
 //   - Server-only: the key never reaches the browser.
@@ -16,36 +17,43 @@ const KEY = process.env.ONBASE_API_KEY;
 const TTL_CATALOGUE = 300;
 const TTL_STOCK = 30;
 
-// Matches the OnBase /api/v1/website read shape (see the catalogue spec):
-// availability is exactly "in_stock" | "low" | "out"; a swatch can carry
-// multiple images (first = hero).
+// ── Shapes (mirror OnBase lib/websiteFeed.ts + /api/v1/website/taxonomy) ─────
+export type Availability = "in_stock" | "low" | "out";
+
 export type Swatch = {
   colour: string;
-  code?: string;
-  swatchHex?: string;
-  image?: string;
+  swatchHex?: string | null;
+  image?: string | null;
   images?: string[];
-  description?: string;
-  availability?: "in_stock" | "low" | "out";
+  description?: string | null;
+  availability: Availability;
+  qty?: number;
+  special?: { price: number | null; was: number | null } | null;
+  /** Range-member swatches: the member's own page slug when it has one. */
+  slug?: string | null;
 };
 
 export type WebsiteRange = {
+  id: string; // opaque rng_/prod_
   slug: string;
   name: string;
-  category?: string;
-  description?: string;
-  specs?: Record<string, string>;
-  heroImage?: string;
+  department?: string | null;
+  categories: string[];
+  description?: string | null;
+  specs: { label: string; value: string }[];
+  heroImage?: string | null;
+  images: string[];
+  special?: { price: number | null; was: number | null } | null;
+  availability: Availability;
   swatches: Swatch[];
 };
 
+export type WebsiteCategory = { slug: string; label: string };
+export type WebsiteDepartment = { slug: string; label: string; categories: WebsiteCategory[] };
+
 type FetchOpts = { revalidate: number; tags?: string[] };
 
-async function onbaseGet<T>(
-  path: string,
-  opts: FetchOpts,
-  fallback: T,
-): Promise<T> {
+async function onbaseGet<T>(path: string, opts: FetchOpts, fallback: T): Promise<T> {
   if (!KEY) {
     console.error(`[onbase] ONBASE_API_KEY not set - skipping GET ${path}`);
     return fallback;
@@ -63,9 +71,7 @@ async function onbaseGet<T>(
     // Unwrap defensively so a shape change can never crash a page render.
     const json = await res.json();
     const payload =
-      json && typeof json === "object" && "data" in json
-        ? (json as { data: unknown }).data
-        : json;
+      json && typeof json === "object" && "data" in json ? (json as { data: unknown }).data : json;
     return (payload ?? fallback) as T;
   } catch (err) {
     console.error(`[onbase] GET ${path} failed:`, err);
@@ -73,20 +79,58 @@ async function onbaseGet<T>(
   }
 }
 
-// --- Website Catalogue reads (endpoints land with the OnBase-side feature) ---
+// OnBase local-dev uploads come back as relative "/uploads/..." paths -
+// absolutize against the API origin so <img> works from the website.
+const abs = (u?: string | null): string | null | undefined =>
+  u && u.startsWith("/") ? `${BASE}${u}` : u;
 
-export function listRanges(): Promise<WebsiteRange[]> {
-  return onbaseGet<WebsiteRange[]>(
-    "/api/v1/website/ranges",
-    { revalidate: TTL_CATALOGUE, tags: ["ranges"] },
+function normalizeRange(r: WebsiteRange): WebsiteRange {
+  return {
+    ...r,
+    heroImage: abs(r.heroImage) ?? null,
+    images: (r.images ?? []).map((i) => abs(i) as string),
+    swatches: (r.swatches ?? []).map((s) => ({
+      ...s,
+      image: abs(s.image) ?? null,
+      images: s.images?.map((i) => abs(i) as string),
+    })),
+  };
+}
+
+// ── Reads ─────────────────────────────────────────────────────────────────────
+
+/** The tenant's storefront taxonomy - drives the shop navigation. */
+export function getTaxonomy(): Promise<WebsiteDepartment[]> {
+  return onbaseGet<WebsiteDepartment[]>(
+    "/api/v1/website/taxonomy",
+    { revalidate: TTL_CATALOGUE, tags: ["taxonomy"] },
     [],
   );
 }
 
+/** Published ranges, optionally filtered by department/category/specials. */
+export function listRanges(params?: {
+  department?: string;
+  category?: string;
+  specialsOnly?: boolean;
+}): Promise<WebsiteRange[]> {
+  const qs = new URLSearchParams();
+  if (params?.department) qs.set("department", params.department);
+  if (params?.category) qs.set("category", params.category);
+  if (params?.specialsOnly) qs.set("specialsOnly", "1");
+  qs.set("limit", "100");
+  return onbaseGet<WebsiteRange[]>(
+    `/api/v1/website/ranges?${qs.toString()}`,
+    { revalidate: TTL_STOCK, tags: ["ranges"] },
+    [],
+  ).then((ranges) => (Array.isArray(ranges) ? ranges.map(normalizeRange) : []));
+}
+
+/** One range (or standalone product) by slug. */
 export function getRange(slug: string): Promise<WebsiteRange | null> {
   return onbaseGet<WebsiteRange | null>(
     `/api/v1/website/ranges/${encodeURIComponent(slug)}`,
     { revalidate: TTL_STOCK, tags: ["ranges", `range:${slug}`] },
     null,
-  );
+  ).then((r) => (r ? normalizeRange(r) : null));
 }
