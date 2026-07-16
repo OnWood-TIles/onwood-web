@@ -39,6 +39,8 @@ export type WebsiteRange = {
   name: string;
   department?: string | null;
   categories: string[];
+  /** Ticked filter values by group slug (union across a range's members). */
+  filters?: Record<string, string[]>;
   description?: string | null;
   specs: { label: string; value: string }[];
   heroImage?: string | null;
@@ -50,6 +52,8 @@ export type WebsiteRange = {
 
 export type WebsiteCategory = { slug: string; label: string };
 export type WebsiteDepartment = { slug: string; label: string; categories: WebsiteCategory[] };
+export type FilterValue = { slug: string; label: string };
+export type FilterGroup = { slug: string; label: string; values: FilterValue[]; departments?: string[] };
 
 type FetchOpts = { revalidate: number; tags?: string[] };
 
@@ -108,16 +112,38 @@ export function getTaxonomy(): Promise<WebsiteDepartment[]> {
   );
 }
 
-/** Published ranges, optionally filtered by department/category/specials. */
+/** The tenant's filter groups (the taxonomy endpoint carries them beside `data`). */
+export async function getFilterGroups(): Promise<FilterGroup[]> {
+  if (!KEY) return [];
+  try {
+    const res = await fetch(`${BASE}/api/v1/website/taxonomy`, {
+      headers: { Authorization: `Bearer ${KEY}` },
+      next: { revalidate: TTL_CATALOGUE, tags: ["taxonomy"] },
+    });
+    if (!res.ok) return [];
+    const json = (await res.json()) as { filters?: unknown };
+    return Array.isArray(json?.filters) ? (json.filters as FilterGroup[]) : [];
+  } catch (err) {
+    console.error("[onbase] GET taxonomy filters failed:", err);
+    return [];
+  }
+}
+
+/** Published ranges, optionally narrowed by department/category/specials and
+ *  attribute filters ({ colour: ["green"] } -> ?f=colour:green; OR within a
+ *  group, AND across groups). */
 export function listRanges(params?: {
   department?: string;
   category?: string;
   specialsOnly?: boolean;
+  filters?: Record<string, string[]>;
 }): Promise<WebsiteRange[]> {
   const qs = new URLSearchParams();
   if (params?.department) qs.set("department", params.department);
   if (params?.category) qs.set("category", params.category);
   if (params?.specialsOnly) qs.set("specialsOnly", "1");
+  for (const [group, vals] of Object.entries(params?.filters ?? {}))
+    for (const v of vals) qs.append("f", `${group}:${v}`);
   qs.set("limit", "100");
   return onbaseGet<WebsiteRange[]>(
     `/api/v1/website/ranges?${qs.toString()}`,
