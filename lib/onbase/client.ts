@@ -31,6 +31,8 @@ export type Swatch = {
   special?: { price: number | null; was: number | null } | null;
   /** Range-member swatches: the member's own page slug when it has one. */
   slug?: string | null;
+  /** Colour-filter value slugs this colourway answers to. */
+  colours?: string[];
 };
 
 export type WebsiteRange = {

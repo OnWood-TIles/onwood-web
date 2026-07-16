@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getTaxonomy, getFilterGroups, listRanges } from "../../../lib/onbase/client";
-import { EmptyCatalogue, RangeCard } from "../../components/shop/shared";
+import { ColourwayCard, EmptyCatalogue, RangeCard } from "../../components/shop/shared";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +74,19 @@ export default async function DepartmentPage({
   const ranges = await listRanges({ department, category: activeCategory, ...(hasActive ? { filters: active } : {}) });
   const labelMap: Record<string, string> = {};
   for (const t of taxonomy) for (const c of t.categories) labelMap[c.slug] = c.label;
+
+  // Colour filter active -> EXPLODE ranges into one card per matching
+  // colourway, so a shopper filtering Beige sees every beige option (a range
+  // showing its grey hero can never hide its three beige colourways).
+  const colourSel = active["colour"] ?? [];
+  const colourways = colourSel.length
+    ? ranges.flatMap((r) =>
+        r.swatches
+          .filter((s) => (s.colours ?? []).some((c) => colourSel.includes(c)))
+          .map((s) => ({ range: r, swatch: s })),
+      )
+    : [];
+  const exploded = colourSel.length > 0 && colourways.length > 0;
 
   const chip = (label: string, href: string, active: boolean) => (
     <Link
@@ -201,6 +214,17 @@ export default async function DepartmentPage({
                   : undefined
             }
           />
+        ) : exploded ? (
+          <>
+            <p style={{ fontSize: 13, color: "#8a8577", margin: "0 0 14px" }}>
+              Showing every matching colour - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {ranges.length} product{ranges.length === 1 ? "" : "s"}.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 18 }}>
+              {colourways.map(({ range, swatch }) => (
+                <ColourwayCard key={`${range.id}-${swatch.colour}`} range={range} swatch={swatch} />
+              ))}
+            </div>
+          </>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 18 }}>
             {ranges.map((r) => (

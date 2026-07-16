@@ -14,13 +14,19 @@ export default function ProductView({
   deptLabel,
   deptSlug,
   catLabels,
+  initialColour,
 }: {
   range: WebsiteRange;
   deptLabel: string | null;
   deptSlug: string | null;
   catLabels: string[];
+  /** Pre-select this colourway (from ?c= deep links, e.g. colour-filter cards). */
+  initialColour?: string | null;
 }) {
-  const [selected, setSelected] = useState(0);
+  const initialIdx = initialColour
+    ? Math.max(0, range.swatches.findIndex((s) => s.colour.toLowerCase() === initialColour.toLowerCase()))
+    : 0;
+  const [selected, setSelected] = useState(initialIdx);
   const swatch: Swatch | undefined = range.swatches[selected];
 
   // Gallery = selected option's photo first, then the range gallery.

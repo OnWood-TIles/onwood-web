@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Availability, WebsiteRange } from "../../../lib/onbase/client";
+import type { Availability, Swatch, WebsiteRange } from "../../../lib/onbase/client";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
 
@@ -130,6 +130,77 @@ export function RangeCard({ range, categoryLabels }: { range: WebsiteRange; cate
         <p style={{ margin: "4px 0 0", fontSize: 13, color: "#8a8577" }}>
           {colourCount > 1 ? `${colourCount} options` : "1 option"}
           {cats.length ? ` · ${cats.join(" · ")}` : ""}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+// One card per COLOURWAY - the grid "explodes" into these when a colour
+// filter is active, so a shopper filtering Beige sees every beige colourway
+// as its own card (never hidden inside a range). Links straight to the
+// product page with the colour pre-selected.
+export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: Swatch }) {
+  const image = swatch.image || range.heroImage || null;
+  const special = swatch.special ?? range.special ?? null;
+  const href = `/product/${swatch.slug || range.slug}?c=${encodeURIComponent(swatch.colour)}`;
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "block",
+        textDecoration: "none",
+        color: "inherit",
+        borderRadius: 18,
+        overflow: "hidden",
+        background: "#fff",
+        border: "1px solid var(--line)",
+        boxShadow: "0 10px 30px -18px rgba(32,48,58,.25)",
+        transition: "transform .25s ease, box-shadow .25s ease",
+      }}
+      className="ow-range-card"
+    >
+      <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#efece5", overflow: "hidden" }}>
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={image}
+            alt={`${range.name} - ${swatch.colour}`}
+            loading="lazy"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: swatch.swatchHex || "#d8d3c7" }} />
+        )}
+        {special && (
+          <div style={{ position: "absolute", top: 10, left: 10 }}>
+            <SpecialBadge special={special} />
+          </div>
+        )}
+      </div>
+      <div style={{ padding: "14px 16px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <h3
+            style={{
+              margin: 0,
+              fontFamily: "var(--font-archivo)",
+              fontWeight: 800,
+              fontSize: 16.5,
+              letterSpacing: "-.01em",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {range.name}
+          </h3>
+          <AvailabilityPill availability={swatch.availability} />
+        </div>
+        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#8a8577", display: "flex", alignItems: "center", gap: 7 }}>
+          {swatch.swatchHex && (
+            <span style={{ width: 12, height: 12, borderRadius: "50%", background: swatch.swatchHex, border: "1px solid var(--line)", display: "inline-block" }} />
+          )}
+          {swatch.colour}
         </p>
       </div>
     </Link>

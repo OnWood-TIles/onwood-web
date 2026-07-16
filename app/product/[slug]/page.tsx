@@ -21,8 +21,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-export default async function ProductPage({ params }: { params: Promise<Params> }) {
+export default async function ProductPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>;
+  searchParams: Promise<{ c?: string }>;
+}) {
   const { slug } = await params;
+  const { c } = await searchParams;
   const [range, taxonomy] = await Promise.all([getRange(slug), getTaxonomy()]);
   if (!range) notFound();
 
@@ -35,7 +42,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
-        <ProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} catLabels={catLabels} />
+        <ProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} catLabels={catLabels} initialColour={c ?? null} />
       </main>
       <MarketingFooter />
     </div>
