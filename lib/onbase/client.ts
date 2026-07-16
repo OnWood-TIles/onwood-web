@@ -56,6 +56,8 @@ export type WebsiteCategory = { slug: string; label: string };
 export type WebsiteDepartment = { slug: string; label: string; categories: WebsiteCategory[] };
 export type FilterValue = { slug: string; label: string };
 export type FilterGroup = { slug: string; label: string; values: FilterValue[]; departments?: string[] };
+export type NavChild = { label: string; href: string };
+export type NavItem = { label: string; href?: string; children?: NavChild[] };
 
 type FetchOpts = { revalidate: number; tags?: string[] };
 
@@ -129,6 +131,29 @@ export async function getFilterGroups(): Promise<FilterGroup[]> {
     console.error("[onbase] GET taxonomy filters failed:", err);
     return [];
   }
+}
+
+/** The storefront navigation designed on /admin. Empty = use the built-in nav. */
+export function getNav(): Promise<NavItem[]> {
+  return onbaseGet<NavItem[]>(
+    "/api/v1/website/nav",
+    { revalidate: TTL_CATALOGUE, tags: ["nav"] },
+    [],
+  ).then((items) => (Array.isArray(items) ? items : []));
+}
+
+/** Save the navigation design (server-to-server; called by the /admin API). WRITES fail closed. */
+export async function saveNav(items: NavItem[]): Promise<NavItem[]> {
+  if (!KEY) throw new Error("ONBASE_API_KEY not configured");
+  const res = await fetch(`${BASE}/api/v1/website/nav`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Nav save failed (${res.status})`);
+  const json = (await res.json()) as { data?: NavItem[] };
+  return Array.isArray(json?.data) ? json.data : [];
 }
 
 /** Published ranges, optionally narrowed by department/category/specials and

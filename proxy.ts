@@ -28,7 +28,7 @@ const ALLOWLIST = [
 ];
 
 // Internal-only paths: require the preview cookie in ALL modes (incl. live).
-const ALWAYS_GATED = ["/debug", "/kitchen-sink"];
+const ALWAYS_GATED = ["/debug", "/kitchen-sink", "/admin", "/api/admin"];
 
 function matches(pathname: string, list: string[]): boolean {
   return list.some((p) => pathname === p || pathname.startsWith(p + "/"));

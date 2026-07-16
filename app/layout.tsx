@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Archivo, Manrope, Newsreader } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, themeNoFlashScript } from "./components/ui/ThemeProvider";
+import { NavConfigProvider } from "./components/marketing/NavConfigProvider";
+import { getNav } from "../lib/onbase/client";
 
 // Headings / labels
 const archivo = Archivo({
@@ -71,9 +73,11 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // /admin-designed navigation (cached ~5 min; [] -> built-in nav fallback).
+  const navItems = await getNav();
   return (
     <html
       lang="en-AU"
@@ -92,7 +96,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <NavConfigProvider items={navItems}>{children}</NavConfigProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,17 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { NAV_LINKS } from "../../../lib/content";
+import { useNavConfig } from "./NavConfigProvider";
+import type { NavItem } from "../../../lib/onbase/client";
 import styles from "./marketingNav.module.css";
 
 // Fixed marketing header transcribed from .refwork/tiles-sections/00-header-header.html.
 // Adds a scrolled state (background/blur intensify past 12px) and a mobile
 // hamburger that toggles a dropdown of the same links. Anchor links scroll the
 // current page; /specials is an internal route via next/link.
+// The link set comes from the /admin nav designer (NavConfigProvider); until
+// something is designed there, the built-in NAV_LINKS + Specials render.
 export default function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const designed = useNavConfig();
+  const items: NavItem[] = designed.length
+    ? designed
+    : [...NAV_LINKS.map((l) => ({ label: l.label, href: l.href })), { label: "Specials", href: "/specials" }];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -102,24 +109,34 @@ export default function MarketingNav() {
 
       {/* Desktop nav */}
       <nav className={styles.desktopNav} aria-label="Primary">
-        {NAV_LINKS.map((l) => (
-          <a key={l.href} href={l.href} style={linkStyle}>
-            {l.label}
-          </a>
-        ))}
-        <Link
-          href="/specials"
-          style={{
-            textDecoration: "none",
-            color: "var(--accent)",
-            fontWeight: 700,
-            fontSize: 14,
-            padding: "8px 12px",
-            borderRadius: 9,
-          }}
-        >
-          Specials
-        </Link>
+        {items.map((item) =>
+          item.children?.length ? (
+            // Popup item: hover/focus opens a dropdown of its children.
+            <div key={item.label} className={styles.popupWrap}>
+              <a href={item.href || item.children[0].href} style={{ ...linkStyle, ...(item.label === "Specials" ? { color: "var(--accent)", fontWeight: 700, opacity: 1 } : {}) }}>
+                {item.label}
+                <svg viewBox="0 0 12 8" width="9" height="6" aria-hidden="true" style={{ marginLeft: 5, opacity: 0.55 }}>
+                  <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+              <div className={styles.popupMenu}>
+                {item.children.map((c) => (
+                  <a key={`${c.label}-${c.href}`} href={c.href} className={styles.popupLink}>
+                    {c.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <a
+              key={item.label}
+              href={item.href || "/"}
+              style={{ ...linkStyle, ...(item.label === "Specials" ? { color: "var(--accent)", fontWeight: 700, opacity: 1 } : {}) }}
+            >
+              {item.label}
+            </a>
+          ),
+        )}
         <a
           href="/#contact"
           style={{
@@ -170,23 +187,28 @@ export default function MarketingNav() {
       {/* Mobile dropdown */}
       {open ? (
         <div className={styles.mobileMenu}>
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className={styles.mobileLink}
-              onClick={() => setOpen(false)}
-            >
-              {l.label}
-            </a>
+          {items.map((item) => (
+            <div key={item.label}>
+              <a
+                href={item.href || item.children?.[0]?.href || "/"}
+                className={`${styles.mobileLink} ${item.label === "Specials" ? styles.mobileSpecials : ""}`}
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </a>
+              {item.children?.map((c) => (
+                <a
+                  key={`${c.label}-${c.href}`}
+                  href={c.href}
+                  className={styles.mobileLink}
+                  style={{ paddingLeft: 28, fontSize: 14, opacity: 0.8 }}
+                  onClick={() => setOpen(false)}
+                >
+                  {c.label}
+                </a>
+              ))}
+            </div>
           ))}
-          <Link
-            href="/specials"
-            className={`${styles.mobileLink} ${styles.mobileSpecials}`}
-            onClick={() => setOpen(false)}
-          >
-            Specials
-          </Link>
           <a
             href="/#contact"
             className={styles.mobileLink}
