@@ -289,12 +289,9 @@ export function PairsWellWith({
 // specs, then the full spec list. No invented content (no PDF buttons/origin).
 export function TechnicalSpecs({ specs, material }: { specs: { label: string; value: string }[]; material?: string | null }) {
   if (!specs?.length) return null;
-  const find = (re: RegExp) => specs.find((s) => re.test(s.label));
-  const hero = [
-    { label: "Format", spec: find(/size|format|dimension/i) },
-    { label: "Thickness", spec: find(/thick/i) },
-    { label: "Coverage", spec: find(/coverage|per\s*(sqm|m2|m²)|sheets?\s*per|pcs|m²\s*per/i) },
-  ].filter((h) => h.spec) as { label: string; spec: { label: string; value: string } }[];
+  // Top 3 listed specs lead as hero stats; the rest sit below - no duplication.
+  const hero = specs.slice(0, 3);
+  const rest = specs.slice(3);
 
   const cream = "#fff6ee";
   const muted = "rgba(255,246,238,.6)";
@@ -315,30 +312,33 @@ export function TechnicalSpecs({ specs, material }: { specs: { label: string; va
 
         {hero.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, marginTop: 26 }}>
-            {hero.map((h) => (
-              <div key={h.label}>
-                <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 820, fontSize: "clamp(26px,3.4vw,40px)", letterSpacing: "-.02em", lineHeight: 1.05 }}>
-                  {h.spec.value}
+            {hero.map((s, i) => (
+              <div key={`hero-${i}`}>
+                <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 820, fontSize: "clamp(23px,2.9vw,37px)", letterSpacing: "-.02em", lineHeight: 1.08 }}>
+                  {s.value}
                 </div>
-                <div style={{ ...eyebrow, marginTop: 6 }}>{h.label}</div>
+                <div style={{ ...eyebrow, marginTop: 6 }}>{s.label}</div>
               </div>
             ))}
           </div>
         )}
 
-        <div style={{ height: 1, background: line, margin: hero.length ? "30px 0 26px" : "22px 0" }} />
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2px 40px" }}>
-          {specs.map((s, i) => (
-            <div
-              key={`${s.label}-${i}`}
-              style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 14, padding: "11px 0", borderBottom: `1px solid ${line}` }}
-            >
-              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: muted, flexShrink: 0 }}>{s.label}</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: cream, textAlign: "right" }}>{s.value}</span>
+        {rest.length > 0 && (
+          <>
+            <div style={{ height: 1, background: line, margin: "30px 0 26px" }} />
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2px 40px" }}>
+              {rest.map((s, i) => (
+                <div
+                  key={`${s.label}-${i}`}
+                  style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 14, padding: "11px 0", borderBottom: `1px solid ${line}` }}
+                >
+                  <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: muted, flexShrink: 0 }}>{s.label}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: cream, textAlign: "right" }}>{s.value}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </section>
   );
