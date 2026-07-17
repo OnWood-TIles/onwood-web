@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
-import { getRange, getTaxonomy } from "../../../lib/onbase/client";
+import { getRange, getTaxonomy, listRanges } from "../../../lib/onbase/client";
+import { pickPairs } from "../../../lib/pairs";
 import ProductView from "../../components/shop/ProductView";
+import { PairsWellWith } from "../../components/shop/shared";
 
 export const dynamic = "force-dynamic";
 
@@ -30,19 +32,23 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const { c } = await searchParams;
-  const [range, taxonomy] = await Promise.all([getRange(slug), getTaxonomy()]);
+  const [range, taxonomy, allRanges] = await Promise.all([getRange(slug), getTaxonomy(), listRanges()]);
   if (!range) notFound();
 
   const dept = taxonomy.find((d) => d.slug === range.department);
   const catLabels = range.categories
     .map((c) => dept?.categories.find((x) => x.slug === c)?.label || c)
     .filter(Boolean);
+  const labelMap: Record<string, string> = {};
+  for (const d of taxonomy) for (const cat of d.categories) labelMap[cat.slug] = cat.label;
+  const pairs = pickPairs(range, allRanges, dept?.label);
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
         <ProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} catLabels={catLabels} initialColour={c ?? null} />
+        <PairsWellWith pairs={pairs} categoryLabels={labelMap} />
       </main>
       <MarketingFooter />
     </div>

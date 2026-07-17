@@ -207,6 +207,59 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
   );
 }
 
+// "Pairs well with" - complementary products chosen by surface, tone and use
+// (see lib/pairs.ts). Each card carries a short reason chip so the shopper can
+// see WHY it was suggested. Renders nothing when there is nothing worth showing.
+export function PairsWellWith({
+  pairs,
+  categoryLabels,
+}: {
+  pairs: { range: WebsiteRange; reason: string }[];
+  categoryLabels?: Record<string, string>;
+}) {
+  if (!pairs.length) return null;
+  return (
+    <section style={{ marginTop: 66 }}>
+      <h2
+        style={{
+          fontFamily: "var(--font-archivo)",
+          fontWeight: 820,
+          fontSize: "clamp(24px,3vw,30px)",
+          letterSpacing: "-.015em",
+          margin: "0 0 4px",
+        }}
+      >
+        Pairs well with<span style={{ color: "var(--accent)" }}>.</span>
+      </h2>
+      <p style={{ color: "#8a8577", fontSize: 14, margin: "0 0 22px" }}>
+        Chosen to complement what you are looking at - by surface, tone and where it is used.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
+        {pairs.map(({ range, reason }) => (
+          <div key={range.id}>
+            <div style={{ marginBottom: 8 }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "4px 11px",
+                  borderRadius: 99,
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  background: "color-mix(in oklab, var(--accent) 13%, transparent)",
+                  color: "var(--accent)",
+                }}
+              >
+                {reason}
+              </span>
+            </div>
+            <RangeCard range={range} categoryLabels={categoryLabels} />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function EmptyCatalogue({ note }: { note?: string }) {
   return (
     <div
