@@ -27,6 +27,7 @@ export default function ProductView({
     ? Math.max(0, range.swatches.findIndex((s) => s.colour.toLowerCase() === initialColour.toLowerCase()))
     : 0;
   const [selected, setSelected] = useState(initialIdx);
+  const [view, setView] = useState<"tile" | "room">("tile");
   const swatch: Swatch | undefined = range.swatches[selected];
 
   // Gallery = selected option's photo first, then the range gallery.
@@ -40,6 +41,8 @@ export default function ProductView({
   }, [range, swatch]);
   const [mainIdx, setMainIdx] = useState(0);
   const main = gallery[Math.min(mainIdx, Math.max(0, gallery.length - 1))] ?? null;
+  const installed = swatch?.installedImage ?? null;
+  const displayMain = view === "room" && installed ? installed : main;
 
   const special = swatch?.special ?? range.special ?? null;
 
@@ -83,9 +86,9 @@ export default function ProductView({
               border: "1px solid var(--line)",
             }}
           >
-            {main ? (
+            {displayMain ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={main} alt={`${range.name}${swatch ? ` - ${swatch.colour}` : ""}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src={displayMain} alt={`${range.name}${swatch ? ` - ${swatch.colour}` : ""}${view === "room" ? " installed" : ""}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             ) : (
               <div
                 style={{
@@ -102,6 +105,48 @@ export default function ProductView({
                 Photos coming soon
               </div>
             )}
+            {installed && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: 12,
+                  bottom: 12,
+                  display: "flex",
+                  gap: 4,
+                  padding: 4,
+                  borderRadius: 999,
+                  background: "rgba(20,38,42,.72)",
+                  backdropFilter: "blur(6px)",
+                  WebkitBackdropFilter: "blur(6px)",
+                }}
+              >
+                {(["tile", "room"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => {
+                      setView(mode);
+                      if (mode === "tile") setMainIdx(0);
+                    }}
+                    style={{
+                      appearance: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      borderRadius: 999,
+                      padding: "6px 13px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      fontFamily: "inherit",
+                      color: view === mode ? "var(--ink)" : "#fff",
+                      background: view === mode ? "#fff" : "transparent",
+                      transition: "all .2s ease",
+                    }}
+                  >
+                    {mode === "tile" ? "Tile" : "See it installed"}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {gallery.length > 1 && (
             <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
@@ -109,7 +154,10 @@ export default function ProductView({
                 <button
                   key={img}
                   type="button"
-                  onClick={() => setMainIdx(i)}
+                  onClick={() => {
+                    setView("tile");
+                    setMainIdx(i);
+                  }}
                   style={{
                     width: 76,
                     height: 58,
@@ -202,6 +250,7 @@ export default function ProductView({
                     onClick={() => {
                       setSelected(i);
                       setMainIdx(0);
+                      setView("tile");
                     }}
                     title={`${s.colour}${s.availability === "out" ? " (order in)" : ""}`}
                     style={{

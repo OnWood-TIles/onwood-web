@@ -24,6 +24,8 @@ export type Swatch = {
   colour: string;
   swatchHex?: string | null;
   image?: string | null;
+  /** "See it installed" room photo for this colour, when the tenant added one. */
+  installedImage?: string | null;
   images?: string[];
   description?: string | null;
   availability: Availability;
@@ -100,6 +102,7 @@ function normalizeRange(r: WebsiteRange): WebsiteRange {
     swatches: (r.swatches ?? []).map((s) => ({
       ...s,
       image: abs(s.image) ?? null,
+      installedImage: abs(s.installedImage) ?? null,
       images: s.images?.map((i) => abs(i) as string),
     })),
   };
