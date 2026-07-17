@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import type { Availability, Swatch, WebsiteRange } from "../../../lib/onbase/client";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
@@ -62,6 +63,8 @@ export function SpecialBadge({ special }: { special: { price: number | null; was
 // categoryLabels maps category slugs -> display labels (from the taxonomy).
 export function RangeCard({ range, categoryLabels }: { range: WebsiteRange; categoryLabels?: Record<string, string> }) {
   const image = range.heroImage || range.swatches.find((s) => s.image)?.image || null;
+  // Hover reveals the "see it installed" room shot (hero/lead colour's).
+  const roomShot = range.swatches.find((s) => s.installedImage)?.installedImage || null;
   const colourCount = range.swatches.length;
   const cats = range.categories.map((c) => categoryLabels?.[c] || c);
   return (
@@ -103,6 +106,16 @@ export function RangeCard({ range, categoryLabels }: { range: WebsiteRange; cate
             ))}
           </div>
         )}
+        {roomShot && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={roomShot}
+            alt=""
+            loading="lazy"
+            className="ow-room-shot"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        )}
         {range.special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
             <SpecialBadge special={range.special} />
@@ -142,6 +155,7 @@ export function RangeCard({ range, categoryLabels }: { range: WebsiteRange; cate
 // product page with the colour pre-selected.
 export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: Swatch }) {
   const image = swatch.image || range.heroImage || null;
+  const roomShot = swatch.installedImage || null;
   const special = swatch.special ?? range.special ?? null;
   const href = `/product/${swatch.slug || range.slug}?c=${encodeURIComponent(swatch.colour)}`;
   return (
@@ -171,6 +185,16 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
           />
         ) : (
           <div style={{ position: "absolute", inset: 0, background: swatch.swatchHex || "#d8d3c7" }} />
+        )}
+        {roomShot && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={roomShot}
+            alt=""
+            loading="lazy"
+            className="ow-room-shot"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
         )}
         {special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
@@ -255,6 +279,66 @@ export function PairsWellWith({
             <RangeCard range={range} categoryLabels={categoryLabels} />
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+// Full-width "Technical" spec panel (adapted from the Claude Design), on a
+// terracotta ground instead of dark. Three hero stats pulled from the real
+// specs, then the full spec list. No invented content (no PDF buttons/origin).
+export function TechnicalSpecs({ specs, material }: { specs: { label: string; value: string }[]; material?: string | null }) {
+  if (!specs?.length) return null;
+  const find = (re: RegExp) => specs.find((s) => re.test(s.label));
+  const hero = [
+    { label: "Format", spec: find(/size|format|dimension/i) },
+    { label: "Thickness", spec: find(/thick/i) },
+    { label: "Coverage", spec: find(/coverage|per\s*(sqm|m2|m²)|sheets?\s*per|pcs|m²\s*per/i) },
+  ].filter((h) => h.spec) as { label: string; spec: { label: string; value: string } }[];
+
+  const cream = "#fff6ee";
+  const muted = "rgba(255,246,238,.6)";
+  const line = "rgba(255,246,238,.18)";
+  const eyebrow: CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: muted };
+
+  return (
+    <section style={{ marginTop: 64 }}>
+      <div
+        style={{
+          borderRadius: 24,
+          padding: "clamp(26px,4vw,44px)",
+          background: "color-mix(in oklab, var(--accent) 88%, #1a0d07)",
+          color: cream,
+        }}
+      >
+        <div style={eyebrow}>Technical{material ? ` — ${material}` : ""}</div>
+
+        {hero.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, marginTop: 26 }}>
+            {hero.map((h) => (
+              <div key={h.label}>
+                <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 820, fontSize: "clamp(26px,3.4vw,40px)", letterSpacing: "-.02em", lineHeight: 1.05 }}>
+                  {h.spec.value}
+                </div>
+                <div style={{ ...eyebrow, marginTop: 6 }}>{h.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div style={{ height: 1, background: line, margin: hero.length ? "30px 0 26px" : "22px 0" }} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2px 40px" }}>
+          {specs.map((s, i) => (
+            <div
+              key={`${s.label}-${i}`}
+              style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 14, padding: "11px 0", borderBottom: `1px solid ${line}` }}
+            >
+              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: muted, flexShrink: 0 }}>{s.label}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: cream, textAlign: "right" }}>{s.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

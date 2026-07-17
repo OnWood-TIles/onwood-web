@@ -5,7 +5,7 @@ import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getRange, getTaxonomy, listRanges } from "../../../lib/onbase/client";
 import { pickPairs } from "../../../lib/pairs";
 import ProductView from "../../components/shop/ProductView";
-import { PairsWellWith } from "../../components/shop/shared";
+import { PairsWellWith, TechnicalSpecs } from "../../components/shop/shared";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +48,7 @@ export default async function ProductPage({
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
         <ProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} catLabels={catLabels} initialColour={c ?? null} />
+        <TechnicalSpecs specs={range.specs} material={range.specs.find((s) => /material/i.test(s.label))?.value ?? null} />
         <PairsWellWith pairs={pairs} categoryLabels={labelMap} />
       </main>
       <MarketingFooter />

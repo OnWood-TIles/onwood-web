@@ -265,31 +265,6 @@ export default function ProductView({
             </div>
           )}
 
-          {/* specs */}
-          {range.specs.length > 0 && (
-            <div style={{ marginTop: 30 }}>
-              <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 700 }}>Specifications</p>
-              <div style={{ borderRadius: 14, border: "1px solid var(--line)", overflow: "hidden" }}>
-                {range.specs.map((s, i) => (
-                  <div
-                    key={`${s.label}-${i}`}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "160px 1fr",
-                      gap: 12,
-                      padding: "10px 16px",
-                      fontSize: 14,
-                      background: i % 2 ? "transparent" : "color-mix(in oklab, var(--bg) 55%, #fff)",
-                    }}
-                  >
-                    <span style={{ fontWeight: 700, color: "#3a4750" }}>{s.label}</span>
-                    <span style={{ color: "#5a6067" }}>{s.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* CTAs */}
           <div style={{ display: "flex", gap: 12, marginTop: 32, flexWrap: "wrap" }}>
             <Link

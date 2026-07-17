@@ -19,9 +19,14 @@ export default function MarketingNav() {
   const [open, setOpen] = useState(false);
   const designed = useNavConfig();
   const shopDepts = useShopMenu();
-  const items: NavItem[] = designed.length
+  const rawItems: NavItem[] = designed.length
     ? designed
     : [...NAV_LINKS.map((l) => ({ label: l.label, href: l.href })), { label: "Specials", href: "/specials" }];
+  // The Shop mega-menu is always rendered as the shop entry, so drop any "Shop"
+  // item from the designed/built-in list to avoid a duplicate Shop button.
+  const items: NavItem[] = rawItems.filter(
+    (i) => (i.label || "").trim().toLowerCase() !== "shop" && i.href !== "/shop",
+  );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);

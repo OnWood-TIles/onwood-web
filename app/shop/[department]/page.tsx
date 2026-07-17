@@ -5,6 +5,7 @@ import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getTaxonomy, getFilterGroups, listRanges } from "../../../lib/onbase/client";
 import { ColourwayCard, EmptyCatalogue, RangeCard } from "../../components/shop/shared";
+import { FilterBar } from "../../components/shop/FilterBar";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +103,28 @@ export default async function DepartmentPage({
     : [];
   const exploded = colourSel.length > 0 && colourways.length > 0;
 
+  // Top filter bar view-models: the size group gets a proportional diagram, the
+  // colour group gets swatch dots. Values navigate via the shareable ?f= URLs.
+  const isSizeGroup = (g: { slug: string; label: string }) => /size/i.test(g.slug) || /size/i.test(g.label);
+  const parseSize = (label: string): { w: number; h: number } | null => {
+    const m = (label || "").match(/(\d{2,4})\s*[x×]\s*(\d{2,4})/);
+    return m ? { w: Number(m[1]), h: Number(m[2]) } : null;
+  };
+  const filterGroupsVM = filterGroups.map((g) => ({
+    slug: g.slug,
+    label: g.label,
+    activeCount: (active[g.slug] ?? []).length,
+    values: g.values.map((v) => ({
+      slug: v.slug,
+      label: v.label,
+      active: (active[g.slug] ?? []).includes(v.slug),
+      href: toggleHref(g.slug, v.slug),
+      hex: g.slug === "colour" ? colourHex(v) : null,
+      size: isSizeGroup(g) ? parseSize(v.label) : null,
+    })),
+  }));
+  const clearAllHref = hrefWith((next) => { for (const k of Object.keys(next)) next[k] = []; });
+
   const chip = (label: string, href: string, active: boolean) => (
     <Link
       key={href}
@@ -152,145 +175,36 @@ export default async function DepartmentPage({
           </div>
         )}
 
-        <div
-          className="ow-shop-layout"
-          style={{
-            display: "grid",
-            gridTemplateColumns: filterGroups.length ? "244px minmax(0, 1fr)" : "minmax(0, 1fr)",
-            gap: 30,
-            alignItems: "start",
-          }}
-        >
-          {filterGroups.length > 0 && (
-            <aside
-              className="ow-refine"
-              style={{
-                position: "sticky",
-                top: 110,
-                border: "1px solid var(--line)",
-                borderRadius: 16,
-                padding: "18px 18px 20px",
-                background: "#fff",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <span
-                  style={{
-                    fontFamily: "var(--font-archivo)",
-                    fontSize: 11,
-                    fontWeight: 800,
-                    letterSpacing: ".18em",
-                    textTransform: "uppercase",
-                    color: "var(--accent2)",
-                  }}
-                >
-                  Refine results
-                </span>
-                {hasActive && (
-                  <Link
-                    href={hrefWith((next) => {
-                      for (const k of Object.keys(next)) next[k] = [];
-                    })}
-                    style={{ fontSize: 11.5, fontWeight: 700, color: "var(--accent)", textDecoration: "none" }}
-                  >
-                    Clear all
-                  </Link>
-                )}
-              </div>
-              <div style={{ display: "grid", gap: 20 }}>
-                {filterGroups.map((g) => (
-                  <div key={g.slug}>
-                    <div
-                      style={{
-                        fontSize: 10.5,
-                        fontWeight: 800,
-                        letterSpacing: ".16em",
-                        textTransform: "uppercase",
-                        color: "#8a8577",
-                        marginBottom: 10,
-                      }}
-                    >
-                      {g.label}
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-                      {g.values.map((v) => {
-                        const isOn = (active[g.slug] ?? []).includes(v.slug);
-                        const hex = g.slug === "colour" ? colourHex(v) : null;
-                        return (
-                          <Link
-                            key={v.slug}
-                            href={toggleHref(g.slug, v.slug)}
-                            style={{
-                              textDecoration: "none",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 6,
-                              padding: "5px 11px",
-                              borderRadius: 99,
-                              fontSize: 12.5,
-                              fontWeight: isOn ? 700 : 600,
-                              border: `1px solid ${isOn ? "var(--accent)" : "var(--line)"}`,
-                              background: isOn ? "var(--accent)" : "transparent",
-                              color: isOn ? "#fff6ee" : "var(--ink)",
-                              transition: "all .2s ease",
-                            }}
-                          >
-                            {hex && (
-                              <span
-                                style={{
-                                  width: 11,
-                                  height: 11,
-                                  borderRadius: "50%",
-                                  background: hex,
-                                  border: "1px solid rgba(0,0,0,.15)",
-                                  display: "inline-block",
-                                }}
-                              />
-                            )}
-                            {v.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </aside>
-          )}
+        <FilterBar groups={filterGroupsVM} clearAllHref={clearAllHref} hasActive={hasActive} />
 
-          <div>
-            {ranges.length === 0 ? (
-              <EmptyCatalogue
-                note={
-                  hasActive
-                    ? "Nothing matches those filters just yet. Try clearing a filter or two, or visit the showroom - the full range is in store."
-                    : activeCategory
-                      ? "Nothing in this category just yet. Try Shop All, or visit the showroom - the full range is in store."
-                      : undefined
-                }
-              />
-            ) : exploded ? (
-              <>
-                <p style={{ fontSize: 13, color: "#8a8577", margin: "0 0 14px" }}>
-                  Showing every matching colour - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {ranges.length} product{ranges.length === 1 ? "" : "s"}.
-                </p>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
-                  {colourways.map(({ range, swatch }) => (
-                    <ColourwayCard key={`${range.id}-${swatch.colour}`} range={range} swatch={swatch} />
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
-                {ranges.map((r) => (
-                  <RangeCard key={r.id} range={r} categoryLabels={labelMap} />
-                ))}
-              </div>
-            )}
+        {ranges.length === 0 ? (
+          <EmptyCatalogue
+            note={
+              hasActive
+                ? "Nothing matches those filters just yet. Try clearing a filter or two, or visit the showroom - the full range is in store."
+                : activeCategory
+                  ? "Nothing in this category just yet. Try Shop All, or visit the showroom - the full range is in store."
+                  : undefined
+            }
+          />
+        ) : exploded ? (
+          <>
+            <p style={{ fontSize: 13, color: "#8a8577", margin: "0 0 14px" }}>
+              Showing every matching colour - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {ranges.length} product{ranges.length === 1 ? "" : "s"}.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
+              {colourways.map(({ range, swatch }) => (
+                <ColourwayCard key={`${range.id}-${swatch.colour}`} range={range} swatch={swatch} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
+            {ranges.map((r) => (
+              <RangeCard key={r.id} range={r} categoryLabels={labelMap} />
+            ))}
           </div>
-        </div>
-
-        <style>{`@media (max-width: 860px){.ow-shop-layout{grid-template-columns:1fr !important}.ow-refine{position:static !important}}`}</style>
+        )}
       </main>
       <MarketingFooter />
     </div>

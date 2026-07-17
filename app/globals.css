@@ -201,3 +201,12 @@ body {
   transform: translateY(-3px);
   box-shadow: 0 18px 44px -18px rgba(32, 48, 58, 0.35);
 }
+
+/* Room shot ("see it installed") cross-fades in when hovering a product card. */
+.ow-room-shot {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.ow-range-card:hover .ow-room-shot {
+  opacity: 1;
+}
