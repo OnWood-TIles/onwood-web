@@ -8,6 +8,20 @@ import { ColourwayCard, EmptyCatalogue, RangeCard } from "../../components/shop/
 
 export const dynamic = "force-dynamic";
 
+// Small swatch dots for the Colour filter group. Best-effort: a known colour
+// name renders a dot, anything else just shows the label. Keeps the editorial
+// look without needing per-value hex data on the tenant's filter values.
+const COLOUR_HEX: Record<string, string> = {
+  white: "#f4f1ea", cream: "#efe7d6", ivory: "#f0e9d8", beige: "#e3d7c0", sand: "#e0cfa8", tan: "#d8c3a0",
+  brown: "#8a5a3b", timber: "#b07a4e", terracotta: "#c46a44", rust: "#b0563a", clay: "#c17a53",
+  grey: "#9aa0a2", gray: "#9aa0a2", silver: "#c3c6c4", charcoal: "#3f4547", black: "#20282b",
+  green: "#7e9678", sage: "#a6b8a0", olive: "#8a8b5c", blue: "#5b7c99", navy: "#2f4356", teal: "#3f6b6b",
+  stone: "#c9c1b2", natural: "#d8cdb6", oatmeal: "#e5dcc7", pink: "#e0b8ad", blush: "#e8cfc6",
+};
+function colourHex(v: { slug: string; label: string }): string | null {
+  return COLOUR_HEX[(v.slug || "").toLowerCase()] ?? COLOUR_HEX[(v.label || "").toLowerCase()] ?? null;
+}
+
 type Params = { department: string };
 type Search = { c?: string; f?: string | string[] };
 
@@ -138,100 +152,145 @@ export default async function DepartmentPage({
           </div>
         )}
 
-        {filterGroups.length > 0 && (
-          <div
-            style={{
-              border: "1px solid var(--line)",
-              borderRadius: 14,
-              padding: "14px 18px",
-              marginBottom: 30,
-              background: "#fff",
-              display: "grid",
-              gap: 10,
-            }}
-          >
-            {filterGroups.map((g) => (
-              <div key={g.slug} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+        <div
+          className="ow-shop-layout"
+          style={{
+            display: "grid",
+            gridTemplateColumns: filterGroups.length ? "244px minmax(0, 1fr)" : "minmax(0, 1fr)",
+            gap: 30,
+            alignItems: "start",
+          }}
+        >
+          {filterGroups.length > 0 && (
+            <aside
+              className="ow-refine"
+              style={{
+                position: "sticky",
+                top: 110,
+                border: "1px solid var(--line)",
+                borderRadius: 16,
+                padding: "18px 18px 20px",
+                background: "#fff",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                 <span
                   style={{
+                    fontFamily: "var(--font-archivo)",
                     fontSize: 11,
                     fontWeight: 800,
+                    letterSpacing: ".18em",
                     textTransform: "uppercase",
-                    letterSpacing: ".08em",
-                    color: "#8a8577",
-                    width: 110,
-                    flexShrink: 0,
+                    color: "var(--accent2)",
                   }}
                 >
-                  {g.label}
+                  Refine results
                 </span>
-                {g.values.map((v) => {
-                  const isOn = (active[g.slug] ?? []).includes(v.slug);
-                  return (
-                    <Link
-                      key={v.slug}
-                      href={toggleHref(g.slug, v.slug)}
+                {hasActive && (
+                  <Link
+                    href={hrefWith((next) => {
+                      for (const k of Object.keys(next)) next[k] = [];
+                    })}
+                    style={{ fontSize: 11.5, fontWeight: 700, color: "var(--accent)", textDecoration: "none" }}
+                  >
+                    Clear all
+                  </Link>
+                )}
+              </div>
+              <div style={{ display: "grid", gap: 20 }}>
+                {filterGroups.map((g) => (
+                  <div key={g.slug}>
+                    <div
                       style={{
-                        textDecoration: "none",
-                        padding: "4px 12px",
-                        borderRadius: 99,
-                        fontSize: 12.5,
-                        fontWeight: 600,
-                        border: `1px solid ${isOn ? "var(--accent)" : "var(--line)"}`,
-                        background: isOn ? "var(--accent)" : "transparent",
-                        color: isOn ? "#fff6ee" : "var(--ink)",
-                        transition: "all .2s ease",
+                        fontSize: 10.5,
+                        fontWeight: 800,
+                        letterSpacing: ".16em",
+                        textTransform: "uppercase",
+                        color: "#8a8577",
+                        marginBottom: 10,
                       }}
                     >
-                      {v.label}
-                    </Link>
-                  );
-                })}
+                      {g.label}
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                      {g.values.map((v) => {
+                        const isOn = (active[g.slug] ?? []).includes(v.slug);
+                        const hex = g.slug === "colour" ? colourHex(v) : null;
+                        return (
+                          <Link
+                            key={v.slug}
+                            href={toggleHref(g.slug, v.slug)}
+                            style={{
+                              textDecoration: "none",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
+                              padding: "5px 11px",
+                              borderRadius: 99,
+                              fontSize: 12.5,
+                              fontWeight: isOn ? 700 : 600,
+                              border: `1px solid ${isOn ? "var(--accent)" : "var(--line)"}`,
+                              background: isOn ? "var(--accent)" : "transparent",
+                              color: isOn ? "#fff6ee" : "var(--ink)",
+                              transition: "all .2s ease",
+                            }}
+                          >
+                            {hex && (
+                              <span
+                                style={{
+                                  width: 11,
+                                  height: 11,
+                                  borderRadius: "50%",
+                                  background: hex,
+                                  border: "1px solid rgba(0,0,0,.15)",
+                                  display: "inline-block",
+                                }}
+                              />
+                            )}
+                            {v.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-            {hasActive && (
-              <div>
-                <Link
-                  href={hrefWith((next) => {
-                    for (const k of Object.keys(next)) next[k] = [];
-                  })}
-                  style={{ fontSize: 12.5, fontWeight: 700, color: "var(--accent)", textDecoration: "none" }}
-                >
-                  Clear filters ✕
-                </Link>
+            </aside>
+          )}
+
+          <div>
+            {ranges.length === 0 ? (
+              <EmptyCatalogue
+                note={
+                  hasActive
+                    ? "Nothing matches those filters just yet. Try clearing a filter or two, or visit the showroom - the full range is in store."
+                    : activeCategory
+                      ? "Nothing in this category just yet. Try Shop All, or visit the showroom - the full range is in store."
+                      : undefined
+                }
+              />
+            ) : exploded ? (
+              <>
+                <p style={{ fontSize: 13, color: "#8a8577", margin: "0 0 14px" }}>
+                  Showing every matching colour - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {ranges.length} product{ranges.length === 1 ? "" : "s"}.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
+                  {colourways.map(({ range, swatch }) => (
+                    <ColourwayCard key={`${range.id}-${swatch.colour}`} range={range} swatch={swatch} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
+                {ranges.map((r) => (
+                  <RangeCard key={r.id} range={r} categoryLabels={labelMap} />
+                ))}
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {ranges.length === 0 ? (
-          <EmptyCatalogue
-            note={
-              hasActive
-                ? "Nothing matches those filters just yet. Try clearing a filter or two, or visit the showroom - the full range is in store."
-                : activeCategory
-                  ? "Nothing in this category just yet. Try Shop All, or visit the showroom - the full range is in store."
-                  : undefined
-            }
-          />
-        ) : exploded ? (
-          <>
-            <p style={{ fontSize: 13, color: "#8a8577", margin: "0 0 14px" }}>
-              Showing every matching colour - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {ranges.length} product{ranges.length === 1 ? "" : "s"}.
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 18 }}>
-              {colourways.map(({ range, swatch }) => (
-                <ColourwayCard key={`${range.id}-${swatch.colour}`} range={range} swatch={swatch} />
-              ))}
-            </div>
-          </>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 18 }}>
-            {ranges.map((r) => (
-              <RangeCard key={r.id} range={r} categoryLabels={labelMap} />
-            ))}
-          </div>
-        )}
+        <style>{`@media (max-width: 860px){.ow-shop-layout{grid-template-columns:1fr !important}.ow-refine{position:static !important}}`}</style>
       </main>
       <MarketingFooter />
     </div>
