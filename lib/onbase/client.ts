@@ -187,3 +187,38 @@ export function getRange(slug: string): Promise<WebsiteRange | null> {
     null,
   ).then((r) => (r ? normalizeRange(r) : null));
 }
+
+// ── Shop mega-menu ──────────────────────────────────────────────────────────
+export type ShopMenuCategory = { slug: string; label: string; count: number };
+export type ShopMenuDept = {
+  slug: string;
+  label: string;
+  count: number;
+  image: string | null;
+  categories: ShopMenuCategory[];
+};
+
+/** Departments (with live product counts, a preview image and their populated
+ *  sub-categories) that drive the Shop mega-menu. Built from the taxonomy plus
+ *  the range feed so counts and imagery always reflect what is published. */
+export async function getShopMenu(): Promise<ShopMenuDept[]> {
+  const [taxonomy, ranges] = await Promise.all([getTaxonomy(), listRanges()]);
+  const byDept = new Map<string, WebsiteRange[]>();
+  for (const r of ranges) {
+    const key = r.department || "other";
+    const list = byDept.get(key);
+    if (list) list.push(r);
+    else byDept.set(key, [r]);
+  }
+  return taxonomy
+    .map((d) => {
+      const list = byDept.get(d.slug) ?? [];
+      const image =
+        list.map((r) => r.heroImage || r.swatches.find((s) => s.image)?.image || null).find(Boolean) ?? null;
+      const categories = d.categories
+        .map((c) => ({ slug: c.slug, label: c.label, count: list.filter((r) => r.categories.includes(c.slug)).length }))
+        .filter((c) => c.count > 0);
+      return { slug: d.slug, label: d.label, count: list.length, image, categories };
+    })
+    .filter((d) => d.count > 0);
+}

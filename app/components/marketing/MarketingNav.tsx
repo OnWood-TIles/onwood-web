@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { NAV_LINKS } from "../../../lib/content";
 import { useNavConfig } from "./NavConfigProvider";
+import { useShopMenu } from "./ShopMenuProvider";
+import ShopMegaMenu from "./ShopMegaMenu";
 import type { NavItem } from "../../../lib/onbase/client";
 import styles from "./marketingNav.module.css";
 
@@ -16,6 +18,7 @@ export default function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const designed = useNavConfig();
+  const shopDepts = useShopMenu();
   const items: NavItem[] = designed.length
     ? designed
     : [...NAV_LINKS.map((l) => ({ label: l.label, href: l.href })), { label: "Specials", href: "/specials" }];
@@ -109,6 +112,7 @@ export default function MarketingNav() {
 
       {/* Desktop nav */}
       <nav className={styles.desktopNav} aria-label="Primary">
+        <ShopMegaMenu depts={shopDepts} />
         {items.map((item) =>
           item.children?.length ? (
             // Popup item: hover/focus opens a dropdown of its children.
@@ -187,6 +191,24 @@ export default function MarketingNav() {
       {/* Mobile dropdown */}
       {open ? (
         <div className={styles.mobileMenu}>
+          {shopDepts.length > 0 && (
+            <div>
+              <a href="/shop" className={styles.mobileLink} onClick={() => setOpen(false)} style={{ fontWeight: 800 }}>
+                Shop
+              </a>
+              {shopDepts.map((d) => (
+                <a
+                  key={d.slug}
+                  href={`/shop/${d.slug}`}
+                  className={styles.mobileLink}
+                  style={{ paddingLeft: 28, fontSize: 14, opacity: 0.8 }}
+                  onClick={() => setOpen(false)}
+                >
+                  {d.label} <span style={{ opacity: 0.5 }}>({d.count})</span>
+                </a>
+              ))}
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.label}>
               <a

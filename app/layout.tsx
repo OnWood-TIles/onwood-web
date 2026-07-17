@@ -3,7 +3,8 @@ import { Archivo, Manrope, Newsreader } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, themeNoFlashScript } from "./components/ui/ThemeProvider";
 import { NavConfigProvider } from "./components/marketing/NavConfigProvider";
-import { getNav } from "../lib/onbase/client";
+import { ShopMenuProvider } from "./components/marketing/ShopMenuProvider";
+import { getNav, getShopMenu } from "../lib/onbase/client";
 
 // Headings / labels
 const archivo = Archivo({
@@ -76,8 +77,9 @@ const jsonLd = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // /admin-designed navigation (cached ~5 min; [] -> built-in nav fallback).
-  const navItems = await getNav();
+  // /admin-designed navigation (cached ~5 min; [] -> built-in nav fallback) +
+  // the shop taxonomy that drives the Shop mega-menu.
+  const [navItems, shopDepts] = await Promise.all([getNav(), getShopMenu()]);
   return (
     <html
       lang="en-AU"
@@ -97,7 +99,9 @@ export default async function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <NavConfigProvider items={navItems}>{children}</NavConfigProvider>
+          <NavConfigProvider items={navItems}>
+            <ShopMenuProvider depts={shopDepts}>{children}</ShopMenuProvider>
+          </NavConfigProvider>
         </ThemeProvider>
       </body>
     </html>
