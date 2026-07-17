@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
 import { AvailabilityPill } from "./shared";
@@ -30,17 +30,10 @@ export default function ProductView({
   const [view, setView] = useState<"tile" | "room">("tile");
   const swatch: Swatch | undefined = range.swatches[selected];
 
-  // Gallery = selected option's photo first, then the range gallery.
-  const gallery = useMemo(() => {
-    const imgs: string[] = [];
-    if (swatch?.image) imgs.push(swatch.image);
-    for (const i of swatch?.images ?? []) if (!imgs.includes(i)) imgs.push(i);
-    for (const i of range.images) if (!imgs.includes(i)) imgs.push(i);
-    if (range.heroImage && !imgs.includes(range.heroImage)) imgs.push(range.heroImage);
-    return imgs;
-  }, [range, swatch]);
-  const [mainIdx, setMainIdx] = useState(0);
-  const main = gallery[Math.min(mainIdx, Math.max(0, gallery.length - 1))] ?? null;
+  // Single main image = the selected colour's photo, falling back to the range
+  // hero. No thumbnail strip: colours switch via the swatch selector below and
+  // tile/room via the "See it installed" toggle.
+  const main = swatch?.image ?? swatch?.images?.[0] ?? range.heroImage ?? range.images[0] ?? null;
   const installed = swatch?.installedImage ?? null;
   const displayMain = view === "room" && installed ? installed : main;
 
@@ -124,10 +117,7 @@ export default function ProductView({
                   <button
                     key={mode}
                     type="button"
-                    onClick={() => {
-                      setView(mode);
-                      if (mode === "tile") setMainIdx(0);
-                    }}
+                    onClick={() => setView(mode)}
                     style={{
                       appearance: "none",
                       border: "none",
@@ -148,34 +138,6 @@ export default function ProductView({
               </div>
             )}
           </div>
-          {gallery.length > 1 && (
-            <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-              {gallery.map((img, i) => (
-                <button
-                  key={img}
-                  type="button"
-                  onClick={() => {
-                    setView("tile");
-                    setMainIdx(i);
-                  }}
-                  style={{
-                    width: 76,
-                    height: 58,
-                    borderRadius: 10,
-                    overflow: "hidden",
-                    padding: 0,
-                    cursor: "pointer",
-                    border: i === mainIdx ? "2px solid var(--accent)" : "1px solid var(--line)",
-                    background: "#efece5",
-                  }}
-                  aria-label={`Photo ${i + 1}`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* identity + options */}
@@ -249,7 +211,6 @@ export default function ProductView({
                     type="button"
                     onClick={() => {
                       setSelected(i);
-                      setMainIdx(0);
                       setView("tile");
                     }}
                     title={`${s.colour}${s.availability === "out" ? " (order in)" : ""}`}
