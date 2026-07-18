@@ -47,6 +47,10 @@ export type WebsiteRange = {
   filters?: Record<string, string[]>;
   description?: string | null;
   specs: { label: string; value: string }[];
+  /** Sold unit (m², LM, Per Unit…) and, for per-sheet goods, the m² one unit
+   *  covers - drives "sold per sheet · ~11 per m²" copy on the product page. */
+  unit?: string | null;
+  coverageM2?: number | null;
   heroImage?: string | null;
   images: string[];
   special?: { price: number | null; was: number | null } | null;

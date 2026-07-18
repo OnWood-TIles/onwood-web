@@ -188,6 +188,13 @@ export default function ProductView({
             )}
           </div>
 
+          {/* Per-sheet goods (mosaics): help the shopper size the job in m². */}
+          {range.coverageM2 != null && range.coverageM2 > 0 && (
+            <p style={{ marginTop: 12, fontSize: 13.5, color: "#5a6067" }}>
+              Sold per sheet · about <strong>{Math.round(1 / range.coverageM2)}</strong> sheets per m² ({range.coverageM2} m² per sheet)
+            </p>
+          )}
+
           {range.description && (
             <p style={{ marginTop: 18, fontSize: 15.5, lineHeight: 1.7, color: "#3a4750" }}>{range.description}</p>
           )}
