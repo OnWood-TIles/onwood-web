@@ -228,3 +228,21 @@ export async function getShopMenu(): Promise<ShopMenuDept[]> {
     })
     .filter((d) => d.count > 0);
 }
+
+// ── Business info + structured opening hours ─────────────────────────────────
+export type DayHours = { day: string; closed: boolean; open: string; close: string };
+export type Business = {
+  businessName: string;
+  phone: string;
+  email: string;
+  addressLine1: string;
+  addressLine2: string;
+  openHours: DayHours[];
+  openHoursSummary: string;
+};
+
+/** Business name/contact/address + structured opening hours (drives the footer,
+ *  showroom panels and the Book-a-Visit page's available times). */
+export function getBusiness(): Promise<Business | null> {
+  return onbaseGet<Business | null>("/api/v1/business", { revalidate: TTL_CATALOGUE, tags: ["business"] }, null);
+}
