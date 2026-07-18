@@ -147,7 +147,7 @@ export default function MarketingNav() {
           ),
         )}
         <a
-          href="/#contact"
+          href="/book"
           style={{
             textDecoration: "none",
             color: "#fff",
@@ -237,7 +237,7 @@ export default function MarketingNav() {
             </div>
           ))}
           <a
-            href="/#contact"
+            href="/book"
             className={styles.mobileLink}
             onClick={() => setOpen(false)}
             style={{
