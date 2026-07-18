@@ -62,11 +62,9 @@ export default function BookAVisit({ business }: { business: Business | null }) 
 
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
 
-  const dayStatus = (d: Date): "closed" | "half" | "open" => {
+  const dayStatus = (d: Date): "closed" | "open" => {
     const h = hours[monIndex(d)];
-    if (!h || h.closed) return "closed";
-    const span = minutes(h.close) - minutes(h.open);
-    return span <= 270 ? "half" : "open"; // <= 4.5h reads as a half day
+    return !h || h.closed ? "closed" : "open";
   };
 
   // Calendar grid for the displayed month (Mon-first).
@@ -80,20 +78,20 @@ export default function BookAVisit({ business }: { business: Business | null }) 
     return cells;
   }, [month]);
 
-  const slotGroups = useMemo(() => {
-    if (!date) return [];
+  // Hour options for the selected day; the customer then picks the minute
+  // (quarter/half hours), so any time within opening hours is bookable.
+  const hourOptions = useMemo(() => {
+    if (!date) return { morning: [] as number[], afternoon: [] as number[] };
     const h = hours[monIndex(date)];
-    if (!h || h.closed) return [];
-    const start = minutes(h.open), end = minutes(h.close);
-    const all: string[] = [];
-    for (let t = start; t + 30 <= end; t += 60) all.push(`${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`);
-    const morning = all.filter((t) => minutes(t) < 12 * 60);
-    const arvo = all.filter((t) => minutes(t) >= 12 * 60);
-    return [
-      ...(morning.length ? [{ label: "MORNING", slots: morning }] : []),
-      ...(arvo.length ? [{ label: "AFTERNOON", slots: arvo }] : []),
-    ];
+    if (!h || h.closed) return { morning: [] as number[], afternoon: [] as number[] };
+    const openH = Math.floor(minutes(h.open) / 60);
+    const closeH = Math.floor(minutes(h.close) / 60);
+    const all: number[] = [];
+    for (let hr = openH; hr < closeH; hr++) all.push(hr);
+    return { morning: all.filter((hr) => hr < 12), afternoon: all.filter((hr) => hr >= 12) };
   }, [date, hours]);
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  const fmtHour = (hr: number) => `${hr % 12 || 12}${hr < 12 ? "am" : "pm"}`;
 
   const passDate = date ? date.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" }) : "—";
   const passTime = slot ? fmt(slot) : "—";
@@ -168,7 +166,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
           {/* 01 purpose */}
           <div>
             {sectionNum("01", "What brings you in?")}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(215px,1fr))", gap: 12 }}>
+            <div className="ow-purpose-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 12 }}>
               {PURPOSES.map((p) => {
                 const on = purpose === p.key;
                 return (
@@ -206,7 +204,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
                     const st = dayStatus(d);
                     const disabled = past || st === "closed";
                     const sel = date && d.toDateString() === date.toDateString();
-                    const dot = st === "open" ? "#5C8A5E" : st === "half" ? "#C79A3F" : "transparent";
+                    const dot = st === "open" ? "#5C8A5E" : "transparent";
                     return (
                       <div key={i} style={{ aspectRatio: "1/1" }}>
                         <button type="button" disabled={disabled} onClick={() => { setDate(d); setSlot(null); }}
@@ -226,7 +224,6 @@ export default function BookAVisit({ business }: { business: Business | null }) 
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 14, ...mono(9, 0.08) }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#5C8A5E" }} />OPEN</span>
-                  <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: "#C79A3F" }} />HALF DAY</span>
                   <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: ACCENT }} />SELECTED</span>
                 </div>
               </div>
@@ -234,22 +231,41 @@ export default function BookAVisit({ business }: { business: Business | null }) 
               <div>
                 {date ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                    {slotGroups.map((g) => (
-                      <div key={g.label}>
-                        <div style={{ ...mono(9, 0.18), marginBottom: 10 }}>{g.label}</div>
+                    {(["morning", "afternoon"] as const).map((part) =>
+                      hourOptions[part].length ? (
+                        <div key={part}>
+                          <div style={{ ...mono(9, 0.18), marginBottom: 10 }}>{part.toUpperCase()}</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                            {hourOptions[part].map((hr) => {
+                              const on = !!slot && Number(slot.slice(0, 2)) === hr;
+                              return (
+                                <button key={hr} type="button" onClick={() => setSlot(`${pad2(hr)}:${slot ? slot.slice(3) : "00"}`)}
+                                  style={{ appearance: "none", cursor: "pointer", border: `1px solid ${on ? ACCENT : "rgba(23,40,43,.18)"}`, background: on ? ACCENT : "#fff", color: on ? CREAM : "#17282B", borderRadius: 10, padding: "11px 15px", ...mono(11.5, 0.04, on ? CREAM : "#17282B"), transition: "all .18s" }}>
+                                  {fmtHour(hr)}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : null
+                    )}
+                    {slot && (
+                      <div>
+                        <div style={{ ...mono(9, 0.18), marginBottom: 10 }}>MINUTES</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                          {g.slots.map((s) => {
-                            const on = slot === s;
+                          {["00", "15", "30", "45"].map((m) => {
+                            const on = slot.slice(3) === m;
                             return (
-                              <button key={s} type="button" onClick={() => setSlot(s)}
+                              <button key={m} type="button" onClick={() => setSlot(`${slot.slice(0, 2)}:${m}`)}
                                 style={{ appearance: "none", cursor: "pointer", border: `1px solid ${on ? ACCENT : "rgba(23,40,43,.18)"}`, background: on ? ACCENT : "#fff", color: on ? CREAM : "#17282B", borderRadius: 10, padding: "11px 15px", ...mono(11.5, 0.04, on ? CREAM : "#17282B"), transition: "all .18s" }}>
-                                {fmt(s)}
+                                :{m}
                               </button>
                             );
                           })}
                         </div>
+                        <div style={{ ...mono(10, 0.06, "rgba(23,40,43,.55)"), marginTop: 12 }}>SELECTED &nbsp;{fmt(slot)}</div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 ) : (
                   <div style={{ minHeight: 190, border: "1px dashed rgba(23,40,43,.2)", borderRadius: 20, display: "grid", placeItems: "center", textAlign: "center", padding: 24 }}>
@@ -282,32 +298,36 @@ export default function BookAVisit({ business }: { business: Business | null }) 
             </div>
           </div>
 
-          {/* Visit pass */}
-          <div style={{ background: INK, color: CREAM, borderRadius: 20, padding: 22, position: "relative", overflow: "hidden" }}>
+          {/* Visit pass - compact ticket */}
+          <div style={{ background: INK, color: CREAM, borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 9, height: 9, background: ACCENT, borderRadius: 2, transform: "rotate(45deg)" }} />
-                <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 850, letterSpacing: ".12em", fontSize: 12 }}>ONWOOD</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ width: 8, height: 8, background: ACCENT, borderRadius: 2, transform: "rotate(45deg)" }} />
+                <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 850, letterSpacing: ".12em", fontSize: 11 }}>ONWOOD</span>
               </span>
-              <span style={{ ...mono(9, 0.2, "rgba(246,241,232,.5)") }}>VISIT PASS</span>
+              <span style={{ ...mono(8.5, 0.2, "rgba(246,241,232,.5)") }}>VISIT PASS</span>
             </div>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginTop: 20 }}>
-              <div><div style={{ ...mono(9, 0.16, "rgba(246,241,232,.5)") }}>DATE</div><div style={{ fontSize: 22, fontWeight: 800, marginTop: 3 }}>{passDate}</div></div>
-              <div style={{ textAlign: "right" }}><div style={{ ...mono(9, 0.16, "rgba(246,241,232,.5)") }}>TIME</div><div style={{ fontSize: 22, fontWeight: 800, marginTop: 3 }}>{passTime}</div></div>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginTop: 12 }}>
+              <div><div style={{ ...mono(8, 0.16, "rgba(246,241,232,.5)") }}>DATE</div><div style={{ fontSize: 17, fontWeight: 800, marginTop: 2 }}>{passDate}</div></div>
+              <div style={{ textAlign: "right" }}><div style={{ ...mono(8, 0.16, "rgba(246,241,232,.5)") }}>TIME</div><div style={{ fontSize: 17, fontWeight: 800, marginTop: 2 }}>{passTime}</div></div>
             </div>
-            <div style={{ marginTop: 16 }}><div style={{ ...mono(9, 0.16, "rgba(246,241,232,.5)") }}>VISIT</div><div style={{ fontSize: 13, fontWeight: 650, marginTop: 3 }}>{passType}</div></div>
-            <div style={{ ...mono(10, 0.04, "rgba(246,241,232,.7)"), lineHeight: 1.55, marginTop: 14 }}>Stay as long as you like - there&apos;s no clock on good design.</div>
-            <div style={{ position: "relative", margin: "20px -22px 0", borderTop: "1.5px dashed rgba(246,241,232,.25)" }}>
-              <span style={{ position: "absolute", left: -11, top: -11, width: 22, height: 22, borderRadius: "50%", background: CARD }} />
-              <span style={{ position: "absolute", right: -11, top: -11, width: 22, height: 22, borderRadius: "50%", background: CARD }} />
+            <div style={{ position: "relative", margin: "12px -16px 0", borderTop: "1.5px dashed rgba(246,241,232,.25)" }}>
+              <span style={{ position: "absolute", left: -9, top: -9, width: 18, height: 18, borderRadius: "50%", background: CARD }} />
+              <span style={{ position: "absolute", right: -9, top: -9, width: 18, height: 18, borderRadius: "50%", background: CARD }} />
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 18 }}>
-              <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 30 }}>
-                {Array.from({ length: 26 }).map((_, i) => (
-                  <span key={i} style={{ width: i % 3 === 0 ? 3 : 1.5, height: "100%", background: CREAM, opacity: (i * 7) % 5 === 0 ? 0.4 : 0.85 }} />
-                ))}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 12 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ ...mono(8, 0.16, "rgba(246,241,232,.5)") }}>VISIT</div>
+                <div style={{ fontSize: 12, fontWeight: 650, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{passType}</div>
               </div>
-              <span style={{ ...mono(9, 0.14, ready ? "#8fca8f" : "rgba(246,241,232,.55)") }}>{ready ? "READY" : "PENDING"}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 1.5, height: 22 }}>
+                  {Array.from({ length: 18 }).map((_, i) => (
+                    <span key={i} style={{ width: i % 3 === 0 ? 2.5 : 1.5, height: "100%", background: CREAM, opacity: (i * 7) % 5 === 0 ? 0.4 : 0.85 }} />
+                  ))}
+                </div>
+                <span style={{ ...mono(8, 0.14, ready ? "#8fca8f" : "rgba(246,241,232,.55)") }}>{ready ? "READY" : "PENDING"}</span>
+              </div>
             </div>
           </div>
 
@@ -343,7 +363,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
         </div>
       )}
 
-      <style>{`@media (max-width: 900px){.ow-book-grid{grid-template-columns:1fr !important}.ow-book-rail{position:static !important}.ow-book-cal{grid-template-columns:1fr !important}}`}</style>
+      <style>{`@media (max-width: 900px){.ow-book-grid{grid-template-columns:1fr !important}.ow-book-rail{position:static !important}.ow-book-cal{grid-template-columns:1fr !important}}@media (max-width: 460px){.ow-purpose-grid{grid-template-columns:1fr !important}}`}</style>
     </div>
   );
 }
