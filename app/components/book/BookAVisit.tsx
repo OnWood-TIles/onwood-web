@@ -124,10 +124,13 @@ export default function BookAVisit({ business }: { business: Business | null }) 
     if (!ready || booking) return;
     setBooking(true); setError(null);
     try {
+      const start = new Date(date!); start.setHours(+slot!.slice(0, 2), +slot!.slice(3), 0, 0);
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
       const res = await fetch("/api/book", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          purpose: passType, date: date?.toISOString(), time: slot, when: `${passDate} at ${passTime}`,
+          purpose: passType, when: `${passDate} at ${passTime}`,
+          startISO: start.toISOString(), endISO: end.toISOString(),
           name: name.trim(), email: email.trim(), phone: tel.trim(), notes: notes.trim(),
         }),
       });
