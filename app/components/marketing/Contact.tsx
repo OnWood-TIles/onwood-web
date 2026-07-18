@@ -55,7 +55,7 @@ function onBlurField(e: React.FocusEvent<HTMLElement>) {
   e.currentTarget.style.borderColor = "var(--line)";
 }
 
-export default function Contact() {
+export default function Contact({ hours }: { hours?: string }) {
   const [status, setStatus] = useState<Status>(null);
   const [busy, setBusy] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -184,7 +184,7 @@ export default function Contact() {
                   <path d="M12 7v5l3 2" />
                 </svg>
               </span>
-              Visit us {SHOP.hours}
+              Visit us {hours || SHOP.hours}
             </div>
             <div style={rowStyle}>
               <span style={chip("var(--ink)", "var(--surface)")} aria-hidden>

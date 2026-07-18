@@ -11,10 +11,12 @@ import Testimonials from "./components/marketing/Testimonials";
 import Team from "./components/marketing/Team";
 import Contact from "./components/marketing/Contact";
 import MarketingFooter from "./components/marketing/MarketingFooter";
+import { getBusiness } from "../lib/onbase/client";
 
 // The OnWood Tiles homepage, rebuilt faithfully from the Claude Design
 // reference. Sections in reference order.
-export default function Home() {
+export default async function Home() {
+  const business = await getBusiness();
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
@@ -29,7 +31,7 @@ export default function Home() {
         <Story />
         <Testimonials />
         <Team />
-        <Contact />
+        <Contact hours={business?.openHoursSummary} />
       </main>
       <MarketingFooter />
     </div>
