@@ -287,8 +287,16 @@ export function PairsWellWith({
 // Full-width "Technical" spec panel (adapted from the Claude Design), on a
 // terracotta ground instead of dark. Three hero stats pulled from the real
 // specs, then the full spec list. No invented content (no PDF buttons/origin).
-export function TechnicalSpecs({ specs, material }: { specs: { label: string; value: string }[]; material?: string | null }) {
-  if (!specs?.length) return null;
+export function TechnicalSpecs({
+  specs,
+  material,
+  documents,
+}: {
+  specs: { label: string; value: string }[];
+  material?: string | null;
+  documents?: { name: string; type: string | null; url: string; isExternal: boolean }[];
+}) {
+  if (!specs?.length && !documents?.length) return null;
   // Top 3 listed specs lead as hero stats; the rest sit below - no duplication.
   const hero = specs.slice(0, 3);
   const rest = specs.slice(3);
@@ -335,6 +343,37 @@ export function TechnicalSpecs({ specs, material }: { specs: { label: string; va
                   <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: muted, flexShrink: 0 }}>{s.label}</span>
                   <span style={{ fontSize: 14, fontWeight: 700, color: cream, textAlign: "right" }}>{s.value}</span>
                 </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {documents && documents.length > 0 && (
+          <>
+            <div style={{ height: 1, background: line, margin: hero.length || rest.length ? "28px 0 22px" : "0 0 22px" }} />
+            <div style={{ ...eyebrow, marginBottom: 14 }}>Downloads</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+              {documents.map((d, i) => (
+                <a
+                  key={i}
+                  href={d.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 11, textDecoration: "none", color: cream, border: `1px solid ${line}`, borderRadius: 12, padding: "11px 15px", background: "rgba(255,246,238,.06)" }}
+                >
+                  <span style={{ display: "grid", placeItems: "center", width: 30, height: 30, borderRadius: 8, background: "rgba(255,246,238,.12)", flexShrink: 0 }}>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke={cream} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 3v5h5" />
+                      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    </svg>
+                  </span>
+                  <span>
+                    <span style={{ display: "block", fontWeight: 700, fontSize: 13.5 }}>{d.name}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: muted }}>
+                      {d.type || "Document"} {d.isExternal ? "· Supplier ↗" : "· Download ↓"}
+                    </span>
+                  </span>
+                </a>
               ))}
             </div>
           </>

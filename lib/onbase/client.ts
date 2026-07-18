@@ -52,6 +52,8 @@ export type WebsiteRange = {
   special?: { price: number | null; was: number | null } | null;
   availability: Availability;
   swatches: Swatch[];
+  /** Downloadable documents (fire ratings, warranties, install guides…). */
+  documents?: { name: string; type: string | null; url: string; isExternal: boolean }[];
 };
 
 export type WebsiteCategory = { slug: string; label: string };
@@ -105,6 +107,7 @@ function normalizeRange(r: WebsiteRange): WebsiteRange {
       installedImage: abs(s.installedImage) ?? null,
       images: s.images?.map((i) => abs(i) as string),
     })),
+    documents: (r.documents ?? []).map((d) => ({ ...d, url: abs(d.url) as string })),
   };
 }
 

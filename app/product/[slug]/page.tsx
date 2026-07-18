@@ -48,7 +48,11 @@ export default async function ProductPage({
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
         <ProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} catLabels={catLabels} initialColour={c ?? null} />
-        <TechnicalSpecs specs={range.specs} material={range.specs.find((s) => /material/i.test(s.label))?.value ?? null} />
+        <TechnicalSpecs
+          specs={range.specs}
+          material={range.specs.find((s) => /material|construction/i.test(s.label))?.value ?? null}
+          documents={range.documents}
+        />
         <PairsWellWith pairs={pairs} categoryLabels={labelMap} />
       </main>
       <MarketingFooter />
