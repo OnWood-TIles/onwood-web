@@ -28,15 +28,18 @@ function usesOf(r: WebsiteRange): string[] {
 }
 
 function surfaceOf(r: WebsiteRange): "wall" | "floor" | "both" | "other" {
-  const f = r.categories.includes("floor");
-  const w = r.categories.includes("wall");
+  // Floor/Wall now live on the location-use filter (categories removed).
+  const use = r.filters?.["location-use"] ?? [];
+  const f = r.categories.includes("floor") || use.includes("floor");
+  const w = r.categories.includes("wall") || use.includes("wall");
   if (f && w) return "both";
   if (f) return "floor";
   if (w) return "wall";
   return "other";
 }
 
-const isMosaic = (r: WebsiteRange): boolean => /mosaic/i.test(r.name) || r.categories.includes("feature");
+const isMosaic = (r: WebsiteRange): boolean =>
+  /mosaic/i.test(r.name) || r.categories.includes("feature") || (r.filters?.["size"] ?? []).includes("mosaic");
 const hasImage = (r: WebsiteRange): boolean => !!(r.heroImage || r.swatches.some((s) => s.image));
 const cap = (n: number, max: number) => Math.min(n, max);
 const title = (s: string) => s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
