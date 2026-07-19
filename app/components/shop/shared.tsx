@@ -33,28 +33,61 @@ export function AvailabilityPill({ availability, size = "sm" }: { availability: 
 }
 
 export function SpecialBadge({ special }: { special: { price: number | null; was: number | null } }) {
+  // Sits over the thumbnail, so it uses a SOLID accent ground + cream text (not a
+  // translucent tint) to stay legible on any image behind it.
   return (
     <span
       style={{
         display: "inline-flex",
         alignItems: "baseline",
         gap: 7,
-        padding: "3px 10px",
+        padding: "4px 11px",
         borderRadius: 99,
-        background: "color-mix(in oklab, var(--accent) 14%, transparent)",
-        color: "var(--accent)",
+        background: "var(--accent)",
+        color: "#fff6ee",
         fontSize: 12,
         fontWeight: 800,
+        boxShadow: "0 2px 8px rgba(20,20,20,.25)",
       }}
     >
       SPECIAL
       {special.price != null && <span style={{ fontSize: 13 }}>${special.price.toFixed(2)}</span>}
       {special.was != null && (
-        <span style={{ textDecoration: "line-through", opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>
+        <span style={{ textDecoration: "line-through", opacity: 0.72, fontWeight: 600, fontSize: 11.5 }}>
           ${special.was.toFixed(2)}
         </span>
       )}
     </span>
+  );
+}
+
+// Brand watermark overlaid on product photos when a product opts in (OnBase
+// Website tab -> "Watermark website photos"). White logo, bottom-right, with a
+// soft shadow so it reads on both light and dark images. Non-interactive.
+export function Watermark() {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/onwood-logo-white.png"
+      alt=""
+      aria-hidden
+      loading="lazy"
+      style={{
+        position: "absolute",
+        right: "4%",
+        bottom: "4.5%",
+        width: "32%",
+        maxWidth: 148,
+        minWidth: 78,
+        opacity: 0.9,
+        // Double shadow: the tight one defines the white outline on light images,
+        // the soft one lifts it off busy/dark ones.
+        filter: "drop-shadow(0 0 1px rgba(0,0,0,.55)) drop-shadow(0 2px 6px rgba(0,0,0,.55))",
+        pointerEvents: "none",
+        userSelect: "none",
+        zIndex: 2,
+      }}
+    />
   );
 }
 
@@ -116,6 +149,7 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         )}
+        {range.watermark && <Watermark />}
         {range.special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
             <SpecialBadge special={range.special} />
@@ -192,6 +226,7 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         )}
+        {(swatch.watermark ?? range.watermark) && <Watermark />}
         {special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
             <SpecialBadge special={special} />

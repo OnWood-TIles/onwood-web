@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
-import { AvailabilityPill } from "./shared";
+import { AvailabilityPill, Watermark } from "./shared";
 
 // ABI-inspired product page: sticky gallery on the left, identity + option
 // selector + specs on the right. "Options" are the range's swatches - colours
@@ -36,6 +36,8 @@ export default function ProductView({
   const main = swatch?.image ?? swatch?.images?.[0] ?? range.heroImage ?? range.images[0] ?? null;
   const installed = swatch?.installedImage ?? null;
   const displayMain = view === "room" && installed ? installed : main;
+  // Brand watermark follows the selected colour (falls back to the range flag).
+  const watermarked = (swatch?.watermark ?? range.watermark) ?? false;
 
   const special = swatch?.special ?? range.special ?? null;
 
@@ -137,6 +139,7 @@ export default function ProductView({
                 ))}
               </div>
             )}
+            {watermarked && <Watermark />}
           </div>
         </div>
 
