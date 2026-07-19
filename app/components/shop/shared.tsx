@@ -120,7 +120,7 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
       }}
       className="ow-range-card"
     >
-      <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#efece5", overflow: "hidden" }}>
+      <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -209,7 +209,7 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
       }}
       className="ow-range-card"
     >
-      <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#efece5", overflow: "hidden" }}>
+      <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

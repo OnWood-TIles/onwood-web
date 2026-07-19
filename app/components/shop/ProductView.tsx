@@ -80,7 +80,9 @@ export default function ProductView({
               aspectRatio: "4 / 3",
               borderRadius: 22,
               overflow: "hidden",
-              background: "#efece5",
+              // White so transparent product PNGs (many ABI hardware/tapware
+              // finishes) sit on white like in OnBase, not a beige placeholder.
+              background: "#fff",
               border: "1px solid var(--line)",
             }}
           >
