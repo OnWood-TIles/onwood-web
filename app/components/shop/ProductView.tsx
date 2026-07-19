@@ -216,10 +216,9 @@ export default function ProductView({
                   <button
                     key={`${s.colour}-${i}`}
                     type="button"
-                    onClick={() => {
-                      setSelected(i);
-                      setView("tile");
-                    }}
+                    // Keep the Tile / See-it-installed view when switching colours -
+                    // so browsing "installed" across the range stays in that view.
+                    onClick={() => setSelected(i)}
                     title={`${s.colour}${s.availability === "out" ? " (order in)" : ""}`}
                     style={{
                       display: "flex",
