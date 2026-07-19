@@ -61,10 +61,15 @@ export function SpecialBadge({ special }: { special: { price: number | null; was
   );
 }
 
-// Brand watermark overlaid on product photos when a product opts in (OnBase
-// Website tab -> "Watermark website photos"). White logo, bottom-right, with a
-// soft shadow so it reads on both light and dark images. Non-interactive.
-export function Watermark() {
+// Brand watermark overlaid on a product photo when the product opts in (OnBase
+// Website tab). Deliberately GHOSTLY (low opacity + soft shadow) so it brands
+// without dominating. Non-interactive. `mode` handles the card cross-fade:
+//   "static" - always visible (product page, or a card with no room shot)
+//   "yield"  - visible, fades OUT on card hover (primary WM stepping aside for
+//              the installed image)
+//   "room"   - hidden, fades IN on card hover (watermarks the installed image)
+export function Watermark({ mode = "static" }: { mode?: "static" | "yield" | "room" }) {
+  const cls = mode === "yield" ? "ow-wm ow-wm-yield" : mode === "room" ? "ow-wm ow-wm-room" : "ow-wm";
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -72,17 +77,16 @@ export function Watermark() {
       alt=""
       aria-hidden
       loading="lazy"
+      className={cls}
       style={{
         position: "absolute",
         right: "4%",
         bottom: "4.5%",
-        width: "32%",
-        maxWidth: 148,
-        minWidth: 78,
-        opacity: 0.9,
-        // Double shadow: the tight one defines the white outline on light images,
-        // the soft one lifts it off busy/dark ones.
-        filter: "drop-shadow(0 0 1px rgba(0,0,0,.55)) drop-shadow(0 2px 6px rgba(0,0,0,.55))",
+        width: "30%",
+        maxWidth: 140,
+        minWidth: 74,
+        // Soft shadow only - just enough to read on light images without a hard edge.
+        filter: "drop-shadow(0 1px 4px rgba(0,0,0,.35))",
         pointerEvents: "none",
         userSelect: "none",
         zIndex: 2,
@@ -149,7 +153,8 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         )}
-        {range.watermark && <Watermark />}
+        {range.watermarkPrimary && <Watermark mode={roomShot ? "yield" : "static"} />}
+        {range.watermarkSecondary && roomShot && <Watermark mode="room" />}
         {range.special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
             <SpecialBadge special={range.special} />
@@ -226,7 +231,8 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         )}
-        {(swatch.watermark ?? range.watermark) && <Watermark />}
+        {(swatch.watermarkPrimary ?? range.watermarkPrimary) && <Watermark mode={roomShot ? "yield" : "static"} />}
+        {(swatch.watermarkSecondary ?? range.watermarkSecondary) && roomShot && <Watermark mode="room" />}
         {special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
             <SpecialBadge special={special} />

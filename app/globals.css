@@ -210,3 +210,19 @@ body {
 .ow-range-card:hover .ow-room-shot {
   opacity: 1;
 }
+
+/* Ghostly brand watermark. Base is faint; "yield" hides on card hover (primary
+   photo stepping aside for the installed one), "room" fades in on hover. */
+.ow-wm {
+  opacity: 0.4;
+  transition: opacity 0.45s ease;
+}
+.ow-range-card:hover .ow-wm-yield {
+  opacity: 0;
+}
+.ow-wm-room {
+  opacity: 0;
+}
+.ow-range-card:hover .ow-wm-room {
+  opacity: 0.4;
+}

@@ -31,8 +31,10 @@ export type Swatch = {
   availability: Availability;
   qty?: number;
   special?: { price: number | null; was: number | null } | null;
-  /** Overlay the brand logo on this colourway's product + installed photos. */
-  watermark?: boolean;
+  /** Overlay the brand logo on the primary product photo / the secondary
+   *  "see it installed" photo (independent). */
+  watermarkPrimary?: boolean;
+  watermarkSecondary?: boolean;
   /** Range-member swatches: the member's own page slug when it has one. */
   slug?: string | null;
   /** Colour-filter value slugs this colourway answers to. */
@@ -56,8 +58,9 @@ export type WebsiteRange = {
   heroImage?: string | null;
   images: string[];
   special?: { price: number | null; was: number | null } | null;
-  /** Overlay the brand logo on this range's hero + installed photos. */
-  watermark?: boolean;
+  /** Overlay the brand logo on the range hero (primary) / installed (secondary). */
+  watermarkPrimary?: boolean;
+  watermarkSecondary?: boolean;
   availability: Availability;
   swatches: Swatch[];
   /** Downloadable documents (fire ratings, warranties, install guides…). */

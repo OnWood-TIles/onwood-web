@@ -36,8 +36,11 @@ export default function ProductView({
   const main = swatch?.image ?? swatch?.images?.[0] ?? range.heroImage ?? range.images[0] ?? null;
   const installed = swatch?.installedImage ?? null;
   const displayMain = view === "room" && installed ? installed : main;
-  // Brand watermark follows the selected colour (falls back to the range flag).
-  const watermarked = (swatch?.watermark ?? range.watermark) ?? false;
+  // Brand watermark follows the selected colour (falls back to the range flag),
+  // and the PRIMARY vs SECONDARY toggle depends on which image is showing.
+  const wmPrimary = (swatch?.watermarkPrimary ?? range.watermarkPrimary) ?? false;
+  const wmSecondary = (swatch?.watermarkSecondary ?? range.watermarkSecondary) ?? false;
+  const watermarked = view === "room" && installed ? wmSecondary : wmPrimary;
 
   const special = swatch?.special ?? range.special ?? null;
 
