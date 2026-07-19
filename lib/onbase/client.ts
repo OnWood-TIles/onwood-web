@@ -209,6 +209,12 @@ export type ShopMenuDept = {
   label: string;
   count: number;
   image: string | null;
+  /** "In focus" featured product: its SECONDARY ("see it installed") photo, the
+   *  product name, and the slug to link straight to it. Null when no product in
+   *  the department has an installed photo yet. */
+  focusImage: string | null;
+  focusSlug: string | null;
+  focusName: string | null;
   categories: ShopMenuCategory[];
 };
 
@@ -229,10 +235,29 @@ export async function getShopMenu(): Promise<ShopMenuDept[]> {
       const list = byDept.get(d.slug) ?? [];
       const image =
         list.map((r) => r.heroImage || r.swatches.find((s) => s.image)?.image || null).find(Boolean) ?? null;
+      // "In focus" features a real product using ONLY its secondary ("see it
+      // installed") photo, linking straight to that product. Pick the first
+      // product in the department that has an installed photo.
+      const focus =
+        list
+          .map((r) => {
+            const installed = r.swatches[0]?.installedImage || r.swatches.find((s) => s.installedImage)?.installedImage || null;
+            return installed ? { image: installed, slug: r.slug, name: r.name } : null;
+          })
+          .find(Boolean) ?? null;
       const categories = d.categories
         .map((c) => ({ slug: c.slug, label: c.label, count: list.filter((r) => r.categories.includes(c.slug)).length }))
         .filter((c) => c.count > 0);
-      return { slug: d.slug, label: d.label, count: list.length, image, categories };
+      return {
+        slug: d.slug,
+        label: d.label,
+        count: list.length,
+        image,
+        focusImage: focus?.image ?? null,
+        focusSlug: focus?.slug ?? null,
+        focusName: focus?.name ?? null,
+        categories,
+      };
     })
     .filter((d) => d.count > 0);
 }

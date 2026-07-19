@@ -153,24 +153,31 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
             </div>
           </div>
 
-          {/* Right: IN FOCUS preview */}
+          {/* Right: IN FOCUS preview - a real product shown via its SECONDARY
+              ("see it installed") photo; the image links straight to it. */}
           <div>
-            <div style={eyebrow}>In focus — {active.label}</div>
-            <div style={{ position: "relative", height: 260, borderRadius: 16, overflow: "hidden", background: "#efece5", border: "1px solid var(--line)" }}>
-              {active.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
+            <div style={eyebrow}>In focus — {active.focusName ?? active.label}</div>
+            {active.focusImage && active.focusSlug ? (
+              <Link
+                href={`/product/${active.focusSlug}`}
+                onClick={() => setOpen(false)}
+                style={{ display: "block", position: "relative", height: 260, borderRadius: 16, overflow: "hidden", background: "#efece5", border: "1px solid var(--line)", textDecoration: "none" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  key={active.slug}
-                  src={active.image}
-                  alt={active.label}
+                  key={active.focusSlug}
+                  src={active.focusImage}
+                  alt={active.focusName ?? active.label}
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", animation: "owMegaFade .5s ease" }}
                 />
-              ) : (
+              </Link>
+            ) : (
+              <div style={{ position: "relative", height: 260, borderRadius: 16, overflow: "hidden", background: "#efece5", border: "1px solid var(--line)" }}>
                 <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#8a8577", fontSize: 13 }}>
                   Photos coming soon
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             {active.categories.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
                 {active.categories.map((c) => (
