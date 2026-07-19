@@ -65,16 +65,21 @@ export function DepartmentShop({
     [allRanges, active],
   );
 
-  // Colour filter active -> explode into one card per matching colourway.
-  const colourSel = active["colour"] ?? [];
-  const colourways = colourSel.length
+  // Per-colourway filter active -> explode into one card per matching colourway.
+  // The per-colourway group (Colour for tiles, Metal for tapware) is whichever
+  // active group's selected values live on the swatches themselves - detected
+  // generically so any such filter explodes, not just "colour".
+  const colourwaySel = Object.entries(active)
+    .filter(([, vals]) => vals.length && filtered.some((r) => r.swatches.some((s) => (s.colours ?? []).some((c) => vals.includes(c)))))
+    .flatMap(([, vals]) => vals);
+  const colourways = colourwaySel.length
     ? filtered.flatMap((r) =>
         r.swatches
-          .filter((s) => (s.colours ?? []).some((c) => colourSel.includes(c)))
+          .filter((s) => (s.colours ?? []).some((c) => colourwaySel.includes(c)))
           .map((s) => ({ range: r, swatch: s })),
       )
     : [];
-  const exploded = colourSel.length > 0 && colourways.length > 0;
+  const exploded = colourwaySel.length > 0 && colourways.length > 0;
 
   return (
     <>
@@ -85,7 +90,7 @@ export function DepartmentShop({
       ) : exploded ? (
         <>
           <p style={{ fontSize: 13, color: "#8a8577", margin: "0 0 14px" }}>
-            Showing every matching colour - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {filtered.length} product{filtered.length === 1 ? "" : "s"}.
+            Showing every matching option - {colourways.length} colourway{colourways.length === 1 ? "" : "s"} across {filtered.length} product{filtered.length === 1 ? "" : "s"}.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
             {colourways.map(({ range, swatch }) => (
