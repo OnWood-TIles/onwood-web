@@ -63,8 +63,9 @@ export function SpecialBadge({ special }: { special: { price: number | null; was
 // categoryLabels maps category slugs -> display labels (from the taxonomy).
 export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Record<string, string> }) {
   const image = range.heroImage || range.swatches.find((s) => s.image)?.image || null;
-  // Hover reveals the "see it installed" room shot (hero/lead colour's).
-  const roomShot = range.swatches.find((s) => s.installedImage)?.installedImage || null;
+  // Hover reveals the LEAD colour's "see it installed" room shot (swatches are
+  // lead-first) so it always matches the hero, never another colour's room.
+  const roomShot = range.swatches[0]?.installedImage || null;
   const colourCount = range.swatches.length;
   return (
     <Link
