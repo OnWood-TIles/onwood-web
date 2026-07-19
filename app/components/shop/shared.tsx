@@ -61,12 +61,11 @@ export function SpecialBadge({ special }: { special: { price: number | null; was
 // A range card for the shop grids: hero image (or swatch fallback), name,
 // colour count + availability. Whole card links to the product page.
 // categoryLabels maps category slugs -> display labels (from the taxonomy).
-export function RangeCard({ range, categoryLabels }: { range: WebsiteRange; categoryLabels?: Record<string, string> }) {
+export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Record<string, string> }) {
   const image = range.heroImage || range.swatches.find((s) => s.image)?.image || null;
   // Hover reveals the "see it installed" room shot (hero/lead colour's).
   const roomShot = range.swatches.find((s) => s.installedImage)?.installedImage || null;
   const colourCount = range.swatches.length;
-  const cats = range.categories.map((c) => categoryLabels?.[c] || c);
   return (
     <Link
       href={`/product/${range.slug}`}
@@ -123,26 +122,22 @@ export function RangeCard({ range, categoryLabels }: { range: WebsiteRange; cate
         )}
       </div>
       <div style={{ padding: "14px 16px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <h3
-            style={{
-              margin: 0,
-              fontFamily: "var(--font-archivo)",
-              fontWeight: 800,
-              fontSize: 16.5,
-              letterSpacing: "-.01em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {range.name}
-          </h3>
-          <AvailabilityPill availability={range.availability} />
-        </div>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#8a8577" }}>
+        {/* Full name shown in full (wraps) at a uniform, slightly smaller size so
+            even the longest product name stays readable. No availability pill. */}
+        <h3
+          style={{
+            margin: 0,
+            fontFamily: "var(--font-archivo)",
+            fontWeight: 800,
+            fontSize: 15,
+            letterSpacing: "-.01em",
+            lineHeight: 1.25,
+          }}
+        >
+          {range.name}
+        </h3>
+        <p style={{ margin: "6px 0 0", fontSize: 13, color: "#8a8577" }}>
           {colourCount > 1 ? `${colourCount} options` : "1 option"}
-          {cats.length ? ` · ${cats.join(" · ")}` : ""}
         </p>
       </div>
     </Link>
@@ -203,24 +198,20 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
         )}
       </div>
       <div style={{ padding: "14px 16px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <h3
-            style={{
-              margin: 0,
-              fontFamily: "var(--font-archivo)",
-              fontWeight: 800,
-              fontSize: 16.5,
-              letterSpacing: "-.01em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {range.name}
-          </h3>
-          <AvailabilityPill availability={swatch.availability} />
-        </div>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#8a8577", display: "flex", alignItems: "center", gap: 7 }}>
+        {/* Full name shown in full (wraps) at a uniform, slightly smaller size. No availability pill. */}
+        <h3
+          style={{
+            margin: 0,
+            fontFamily: "var(--font-archivo)",
+            fontWeight: 800,
+            fontSize: 15,
+            letterSpacing: "-.01em",
+            lineHeight: 1.25,
+          }}
+        >
+          {range.name}
+        </h3>
+        <p style={{ margin: "6px 0 0", fontSize: 13, color: "#8a8577", display: "flex", alignItems: "center", gap: 7 }}>
           {swatch.swatchHex && (
             <span style={{ width: 12, height: 12, borderRadius: "50%", background: swatch.swatchHex, border: "1px solid var(--line)", display: "inline-block" }} />
           )}

@@ -25,6 +25,7 @@ const ALLOWLIST = [
   "/api/enquiry",
   "/api/preview-login",
   "/api/preview-logout",
+  "/api/revalidate", // secret-gated OnBase -> storefront cache purge (server-to-server)
 ];
 
 // Internal-only paths: require the preview cookie in ALL modes (incl. live).
