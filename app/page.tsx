@@ -2,7 +2,7 @@ import MarketingNav from "./components/marketing/MarketingNav";
 import Hero from "./components/marketing/Hero";
 import Marquee from "./components/marketing/Marquee";
 import TileGrid from "./components/marketing/TileGrid";
-import Collections from "./components/marketing/Collections";
+import FeaturedProducts from "./components/marketing/FeaturedProducts";
 import SpecialsTeaser from "./components/marketing/SpecialsTeaser";
 import Visualiser from "./components/marketing/Visualiser";
 import Showroom from "./components/marketing/Showroom";
@@ -24,7 +24,7 @@ export default async function Home() {
         <Hero />
         <Marquee />
         <TileGrid />
-        <Collections />
+        <FeaturedProducts />
         <SpecialsTeaser />
         <Visualiser />
         <Showroom />

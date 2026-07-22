@@ -16,6 +16,7 @@ import type { NextRequest } from "next/server";
 // behind the cookie is hidden from search.
 
 const PREVIEW_COOKIE = "owp_preview";
+const TRADE_COOKIE = "ow_trade";
 
 // Reachable by the public even while gated (assets handled by the matcher).
 const ALLOWLIST = [
@@ -26,6 +27,21 @@ const ALLOWLIST = [
   "/api/preview-login",
   "/api/preview-logout",
   "/api/revalidate", // secret-gated OnBase -> storefront cache purge (server-to-server)
+];
+
+// The Trade Partner portal is a SELF-CONTAINED customer area with its own OnBase-backed
+// login. It must work even while the marketing site is coming-soon-gated (trade
+// users must never bounce to /soon), so it lives OUTSIDE the preview gate.
+//   - TRADE_PUBLIC  : reachable by anyone (login, password reset + their APIs).
+//   - other /trade/* + /api/trade/* : require the ow_trade cookie's PRESENCE.
+//     Real token validation happens in the trade layout via tradeMe(); here we
+//     only check the cookie exists and, if not, send them to the login page.
+const TRADE_PUBLIC = [
+  "/trade/login",
+  "/trade/set-password",
+  "/api/trade/login",
+  "/api/trade/forgot",
+  "/api/trade/set-password",
 ];
 
 // Internal-only paths: require the preview cookie in ALL modes (incl. live).
@@ -51,6 +67,24 @@ export function proxy(request: NextRequest) {
     url.pathname = "/soon";
     return NextResponse.rewrite(url);
   };
+
+  // ── Trade Partner portal (handled BEFORE the coming-soon gate) ────────────────────
+  // Trade customers sign in independently of the preview cookie, so the portal
+  // is reachable in every SITE_MODE and never bounces to /soon.
+  if (pathname === "/trade" || pathname.startsWith("/trade/") || pathname.startsWith("/api/trade/")) {
+    // Public trade paths (login, reset + their APIs) are always reachable.
+    if (matches(pathname, TRADE_PUBLIC)) return noindex(NextResponse.next());
+    // Everything else needs the session cookie present (real check is tradeMe()).
+    if (request.cookies.get(TRADE_COOKIE)?.value) return noindex(NextResponse.next());
+    // Missing cookie: APIs get a 401, pages redirect to the trade login.
+    if (pathname.startsWith("/api/trade/")) {
+      return noindex(NextResponse.json({ error: "Not signed in" }, { status: 401 }));
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = "/trade/login";
+    url.search = "";
+    return noindex(NextResponse.redirect(url));
+  }
 
   // Internal tools: cookie required regardless of mode.
   if (matches(pathname, ALWAYS_GATED)) {

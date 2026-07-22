@@ -48,3 +48,5 @@ next-env.d.ts
 # reference extraction working files (local only)
 .refwork/
 .refextract*.mjs
+
+.env*

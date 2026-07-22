@@ -42,10 +42,48 @@ export const SHOP: ShopDetails = {
 // same-document-scrolls.
 export const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
-  { href: "/#collections", label: "Collections" },
+  { href: "/#featured", label: "On Trend" },
   { href: "/#visualize", label: "Visualiser" },
   { href: "/#showroom", label: "Showroom" },
-  { href: "/#story", label: "Why OnWood" },
+  { href: "/why", label: "Why OnWood" },
+  { href: "/contact", label: "Contact" },
+];
+
+// Footer directory columns (the bottom-banner link groups). Edit here to add or
+// reorder links as the site grows - the footer renders whatever is listed. Keep
+// hrefs pointing at real routes so nothing dead-links. Company details, logo and
+// open hours are added by MarketingFooter separately (live from OnBase).
+export type FooterLink = { href: string; label: string };
+export type FooterColumn = { title: string; links: FooterLink[] };
+
+export const FOOTER_COLUMNS: FooterColumn[] = [
+  {
+    title: "Shop",
+    links: [
+      { href: "/shop", label: "Shop All Tiles" },
+      { href: "/#featured", label: "Currently On Trend" },
+      { href: "/specials", label: "Monthly Specials" },
+      { href: "/book", label: "Book a Visit" },
+    ],
+  },
+  {
+    title: "Explore",
+    links: [
+      { href: "/#visualize", label: "Live Visualiser" },
+      { href: "/#showroom", label: "Vision Board" },
+      { href: "/#showroom", label: "The Showroom" },
+      { href: "/why", label: "Why OnWood" },
+    ],
+  },
+  {
+    title: "Help",
+    links: [
+      { href: "/contact", label: "Contact Us" },
+      { href: "/terms", label: "Terms & Conditions" },
+      { href: "/website-terms", label: "Website Terms of Use" },
+      { href: "/trade/login", label: "Trade Partner Login" },
+    ],
+  },
 ];
 
 export const HERO = {
@@ -55,8 +93,8 @@ export const HERO = {
   headB: "first thing",
   headC: "you ",
   headAccent: "feel.",
-  sub: "OnWood brings beautiful floor, wall and outdoor tiles to Sunshine Coast homes, studios and builds, chosen and matched with care, supplied and installed by hand.",
-  ctaPrimary: { label: "Explore collections", href: "#collections" },
+  sub: "OnWood brings beautiful floor, wall and outdoor tiles to Sunshine Coast homes, studios and builds, chosen and matched with care by a local family team.",
+  ctaPrimary: { label: "See what's on trend", href: "#featured" },
   ctaSecondary: { label: "See it on your floor", href: "#visualize" },
 };
 
@@ -83,6 +121,14 @@ export const COLLECTIONS_HEAD = {
   eyebrow: "Collections",
   title: "Six ranges. One obsession with the perfect surface.",
   cta: { label: "Request full sample box", href: "#contact" },
+};
+
+// Head copy for the homepage "Currently On Trend" featured-products section.
+// Wording lives here so it's easy to tweak (e.g. "Featured Products").
+export const FEATURED_HEAD = {
+  eyebrow: "Currently on trend",
+  title: "The pieces turning heads right now.",
+  cta: { label: "Shop the full range", href: "/shop" },
 };
 
 export const COLLECTIONS: Collection[] = [
@@ -189,7 +235,7 @@ export const STORY = {
   eyebrow: "Why OnWood",
   headA: "We don't just sell tiles.",
   headB: "We help you get the whole room right.",
-  p1: "Every OnWood project starts with your space, your light and your budget. We help you choose, match and lay out the tile so the pattern runs the way the room wants it to, and we can arrange supply and install from start to finish.",
+  p1: "Every OnWood project starts with your space, your light and your budget. We help you choose, match and lay out the tile so the pattern runs the way the room wants it to, and we finish the look with the accessories, tapware and trims to match.",
   p2: "Coolum to Caloundra, we've spent years learning what humidity, salt air and Queensland sun do to a surface, so yours lasts.",
   stats: [
     { to: 100, suffix: "s", label: "Colours & finishes" },
@@ -265,7 +311,7 @@ export const SPECIALS_PAGE = {
   eyebrow: "While stocks last",
   title: "Seasonal specials",
   titleAccent: ".",
-  sub: "Clearance runs, end-of-line stone and whole-home packages from the Baringa showroom. Prices held until the counter hits zero.",
+  sub: "Clearance runs, end-of-line stone and tile bundles from the Baringa showroom. Prices held until the counter hits zero.",
   items: [
     { pct: "40% OFF", tag: "Wood-look porcelain", name: "Coastal Oak", was: "$59", now: "$41/m²", note: "End of line · ~300m² left", swatch: "linear-gradient(160deg,#d09a5f,#96632f)" },
     { pct: "30% OFF", tag: "Polished porcelain", name: "Carrara Statuario", was: "$74", now: "$52/m²", note: "Showroom clearance", swatch: "linear-gradient(150deg,#efe9e0,#d9d2c6)" },
@@ -275,18 +321,16 @@ export const SPECIALS_PAGE = {
     { pct: "30% OFF", tag: "Sun-baked terracotta", name: "Baked Terracotta", was: "$105", now: "$74/m²", note: "Discontinued colour", swatch: "linear-gradient(160deg,#c15a30,#8a3d22)" },
   ] as Special[],
   package: {
-    eyebrow: "Package deal",
-    title: "Whole-home tiles, supplied & laid.",
-    sub: "Pick any range and we'll handle the lot, measure, old-floor removal, premium underlay and hand-set install. One price, no surprises.",
+    eyebrow: "Bundle & save",
+    title: "The whole tile job, in one supply package.",
+    sub: "Found a tile you love? We can bundle it with the adhesive, grout, trims and accessories your tiler needs, matched to your job and priced as one. Supply only, ready for your installer to lay.",
     features: [
-      "Free on-site measure & dry-lay",
-      "Premium acoustic underlay included",
-      "Old-floor removal & disposal",
-      "25-year residential warranty",
+      "Your tiles plus matched adhesive, grout and trims",
+      "Coverage worked out for your space, with wastage allowed",
+      "Supplied from one batch wherever possible",
+      "Delivered to site, or ready for collection at Baringa",
     ],
-    from: "$79",
-    fromNote: "/m² supplied & installed",
-    cta: "Get my package quote",
+    cta: "Ask about a bundle",
   },
   reserve: {
     title: "Seen one you like?",
@@ -294,7 +338,7 @@ export const SPECIALS_PAGE = {
     cta: "Reserve & enquire",
   },
   disclaimer:
-    "Prices shown are per square metre, GST inclusive, supply-only unless stated. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer. Sunshine Coast delivery zones apply.",
+    "Prices shown are per square metre, GST inclusive, supply only. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer. Sunshine Coast delivery zones apply.",
 };
 
 // ---- async getters (constants today, CMS/OnBase later) ----

@@ -80,30 +80,6 @@ export default function PackageDeal() {
               ))}
             </ul>
           </Reveal>
-          <Reveal delay={0.18}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 12,
-                marginBottom: 26,
-              }}
-            >
-              <span style={{ fontSize: 15, color: "rgba(255,255,255,.7)" }}>from</span>
-              <span
-                style={{
-                  fontFamily: "var(--font-archivo)",
-                  fontWeight: 900,
-                  fontSize: "clamp(38px,5vw,58px)",
-                  color: "#fff",
-                  lineHeight: 1,
-                }}
-              >
-                {p.from}
-              </span>
-              <span style={{ fontSize: 16, color: "rgba(255,255,255,.7)" }}>{p.fromNote}</span>
-            </div>
-          </Reveal>
           <Reveal delay={0.22}>
             <a
               href="/#contact"

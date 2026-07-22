@@ -66,7 +66,7 @@ export default function MarketingNav() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "18px 28px",
+        padding: "14px 28px",
         background: scrolled
           ? "color-mix(in oklab, var(--bg) 88%, transparent)"
           : "color-mix(in oklab, var(--bg) 62%, transparent)",
@@ -89,30 +89,8 @@ export default function MarketingNav() {
           color: "inherit",
         }}
       >
-        <span style={{ display: "grid", placeItems: "center", width: 34, height: 34 }}>
-          <svg viewBox="0 0 100 74" width="30" height="24" aria-hidden="true">
-            <path
-              d="M8 44 L50 8 L92 44"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="9"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <rect x="20" y="52" width="60" height="8" rx="4" fill="var(--accent2)" />
-            <rect x="28" y="66" width="44" height="7" rx="3.5" fill="var(--accent)" />
-          </svg>
-        </span>
-        <span
-          style={{
-            fontFamily: "var(--font-archivo)",
-            fontWeight: 900,
-            letterSpacing: "0.14em",
-            fontSize: 18,
-          }}
-        >
-          ONWOOD
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/onwood-logo-ink-tight.png" alt="OnWood Tiles" style={{ height: 44, width: "auto", display: "block" }} />
       </a>
 
       {/* Desktop nav */}
