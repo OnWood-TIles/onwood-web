@@ -27,6 +27,7 @@ export function DepartmentShop({
   activeCategory?: string;
 }) {
   const [active, setActive] = useState<Record<string, string[]>>(initialActive);
+  const [search, setSearch] = useState("");
 
   function syncUrl(a: Record<string, string[]>) {
     const qs = new URLSearchParams();
@@ -52,18 +53,22 @@ export function DepartmentShop({
   const hasActive = Object.values(active).some((v) => v.length);
 
   // AND across groups, OR within a group.
-  const filtered = useMemo(
-    () =>
-      allRanges.filter((r) => {
-        for (const [g, vals] of Object.entries(active)) {
-          if (!vals.length) continue;
-          const rv = r.filters?.[g] ?? [];
-          if (!vals.some((v) => rv.includes(v))) return false;
-        }
-        return true;
-      }),
-    [allRanges, active],
-  );
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return allRanges.filter((r) => {
+      for (const [g, vals] of Object.entries(active)) {
+        if (!vals.length) continue;
+        const rv = r.filters?.[g] ?? [];
+        if (!vals.some((v) => rv.includes(v))) return false;
+      }
+      if (q && !(
+        r.name.toLowerCase().includes(q) ||
+        (r.description ?? "").toLowerCase().includes(q) ||
+        r.swatches.some((s) => s.colour.toLowerCase().includes(q))
+      )) return false;
+      return true;
+    });
+  }, [allRanges, active, search]);
 
   // Per-colourway filter active -> explode into one card per matching colourway.
   // The per-colourway group (Colour for tiles, Metal for tapware) is whichever
@@ -83,7 +88,7 @@ export function DepartmentShop({
 
   return (
     <>
-      <FilterBar groups={groups} active={active} onToggle={toggle} onClearAll={clearAll} />
+      <FilterBar groups={groups} active={active} onToggle={toggle} onClearAll={clearAll} search={search} onSearchChange={setSearch} />
 
       {filtered.length === 0 ? (
         <EmptyCatalogue note={hasActive ? "Nothing matches those filters just yet. Try clearing a filter or two, or visit the showroom - the full range is in store." : undefined} />

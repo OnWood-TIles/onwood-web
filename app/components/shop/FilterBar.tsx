@@ -32,11 +32,15 @@ export function FilterBar({
   active,
   onToggle,
   onClearAll,
+  search,
+  onSearchChange,
 }: {
   groups: FilterGroupVM[];
   active: Record<string, string[]>;
   onToggle: (group: string, value: string) => void;
   onClearAll: () => void;
+  search?: string;
+  onSearchChange?: (v: string) => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -51,7 +55,7 @@ export function FilterBar({
     return () => { window.removeEventListener("mousedown", onDown); window.removeEventListener("keydown", onKey); };
   }, [open]);
 
-  if (!groups.length) return null;
+  if (!groups.length && !onSearchChange) return null;
 
   return (
     <div
@@ -64,6 +68,18 @@ export function FilterBar({
       <span style={{ fontFamily: "var(--font-archivo)", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--accent2)", padding: "0 6px" }}>
         Refine
       </span>
+      {onSearchChange && (
+        <div style={{ position: "relative", flex: "1 1 180px", maxWidth: 260 }}>
+          <input
+            type="search"
+            value={search ?? ""}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search products…"
+            aria-label="Search products by name"
+            style={{ width: "100%", padding: "8px 14px", borderRadius: 99, border: "1px solid var(--line)", background: "#fff", fontSize: 13.5, fontWeight: 600, color: "var(--ink)", fontFamily: "inherit" }}
+          />
+        </div>
+      )}
       {groups.map((g) => {
         const on = open === g.slug;
         const count = active[g.slug]?.length ?? 0;
