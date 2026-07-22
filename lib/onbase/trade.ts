@@ -12,7 +12,7 @@
 //     unlike the catalogue reads in client.ts which fail-open into a page render.
 import "server-only";
 import { cookies } from "next/headers";
-import type { Availability } from "./client";
+import type { Availability, WebsiteRange } from "./client";
 
 const BASE = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const KEY = process.env.ONBASE_API_KEY;
@@ -259,6 +259,39 @@ export async function tradeCatalogue(): Promise<{ rrpLevel: string; items: Catal
     colours: (it.colours ?? []).map((c) => ({ ...c, image: abs(c.image) })),
   }));
   return { rrpLevel: json?.meta?.rrpLevel ?? "SELL", items: mapped };
+}
+
+// Absolutize any relative /uploads image paths on a range (mirrors client.ts).
+function normalizeTradeRange(r: WebsiteRange): WebsiteRange {
+  return {
+    ...r,
+    heroImage: abs(r.heroImage) ?? null,
+    images: (r.images ?? []).map((i) => abs(i) as string).filter(Boolean),
+    swatches: (r.swatches ?? []).map((s) => ({
+      ...s,
+      image: abs(s.image) ?? null,
+      installedImage: abs(s.installedImage) ?? null,
+      images: s.images?.map((i) => abs(i) as string).filter(Boolean),
+    })),
+  };
+}
+
+/** The customer's catalogue in the SHOP's range/colourway shape, each swatch
+ *  carrying their trade pricing. Drives the shop-parity trade portal - same
+ *  department/category/filter (?f=group:value) contract as the public feed. */
+export async function tradeRanges(params?: {
+  department?: string;
+  category?: string;
+  f?: string[];
+}): Promise<{ rrpLevel: string; ranges: WebsiteRange[] }> {
+  const qs = new URLSearchParams();
+  if (params?.department) qs.set("department", params.department);
+  if (params?.category) qs.set("category", params.category);
+  for (const f of params?.f ?? []) qs.append("f", f);
+  const q = qs.toString();
+  const json = await tradeAuthed<{ data: WebsiteRange[]; meta?: { rrpLevel?: string } }>(`/ranges${q ? `?${q}` : ""}`);
+  const ranges = (Array.isArray(json?.data) ? json.data : []).map(normalizeTradeRange);
+  return { rrpLevel: json?.meta?.rrpLevel ?? "SELL", ranges };
 }
 
 /** The customer's order history (summaries). */

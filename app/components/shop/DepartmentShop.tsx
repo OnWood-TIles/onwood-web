@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { WebsiteRange } from "../../../lib/onbase/client";
+import { Fragment, useMemo, useState, type ReactNode } from "react";
+import type { Swatch, WebsiteRange } from "../../../lib/onbase/client";
 import { ColourwayCard, EmptyCatalogue, RangeCard } from "./shared";
 import { FilterBar } from "./FilterBar";
 
@@ -18,6 +18,9 @@ export function DepartmentShop({
   initialActive,
   deptSlug,
   activeCategory,
+  basePath = "/shop",
+  renderCard,
+  renderColourway,
 }: {
   allRanges: WebsiteRange[];
   groups: FilterGroupVM[];
@@ -25,6 +28,12 @@ export function DepartmentShop({
   initialActive: Record<string, string[]>;
   deptSlug: string;
   activeCategory?: string;
+  /** URL prefix for the shareable filter state (default the public shop). */
+  basePath?: string;
+  /** Override the range/colourway cards (the trade portal renders priced,
+   *  add-to-cart cards; the public shop uses the defaults). */
+  renderCard?: (range: WebsiteRange) => ReactNode;
+  renderColourway?: (range: WebsiteRange, swatch: Swatch) => ReactNode;
 }) {
   const [active, setActive] = useState<Record<string, string[]>>(initialActive);
   const [search, setSearch] = useState("");
@@ -34,7 +43,7 @@ export function DepartmentShop({
     if (activeCategory) qs.set("c", activeCategory);
     for (const [g, vals] of Object.entries(a)) for (const v of vals) qs.append("f", `${g}:${v}`);
     const s = qs.toString();
-    if (typeof window !== "undefined") window.history.replaceState(null, "", `/shop/${deptSlug}${s ? `?${s}` : ""}`);
+    if (typeof window !== "undefined") window.history.replaceState(null, "", `${basePath}/${deptSlug}${s ? `?${s}` : ""}`);
   }
 
   const toggle = (group: string, value: string) =>
@@ -99,14 +108,18 @@ export function DepartmentShop({
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
             {colourways.map(({ range, swatch }) => (
-              <ColourwayCard key={`${range.id}-${swatch.colour}`} range={range} swatch={swatch} />
+              <Fragment key={`${range.id}-${swatch.colour}`}>
+                {renderColourway ? renderColourway(range, swatch) : <ColourwayCard range={range} swatch={swatch} />}
+              </Fragment>
             ))}
           </div>
         </>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
           {filtered.map((r) => (
-            <RangeCard key={r.id} range={r} categoryLabels={labelMap} />
+            <Fragment key={r.id}>
+              {renderCard ? renderCard(r) : <RangeCard range={r} categoryLabels={labelMap} />}
+            </Fragment>
           ))}
         </div>
       )}

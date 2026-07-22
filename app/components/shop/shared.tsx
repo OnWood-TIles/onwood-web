@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import type { Availability, Swatch, WebsiteRange } from "../../../lib/onbase/client";
+import type { Availability, ShopMenuDept, Swatch, WebsiteRange } from "../../../lib/onbase/client";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
 
@@ -413,6 +413,148 @@ export function TechnicalSpecs({
         )}
       </div>
     </section>
+  );
+}
+
+// Hover/reveal CSS for the department tablets. Exported so any page rendering
+// DepartmentTablet can drop it into a <style> block (shop + trade portal).
+export const DEPT_TABLET_CSS = `
+  .ow-dept { transition: transform .32s ease, box-shadow .32s ease; }
+  .ow-dept:hover { transform: translateY(-6px); box-shadow: 0 30px 56px -26px rgba(32,48,58,.52); }
+  .ow-dept-img { transition: transform .7s cubic-bezier(.2,.6,.2,1); }
+  .ow-dept:hover .ow-dept-img { transform: scale(1.07); }
+  .ow-dept-cta { transition: gap .25s ease, opacity .25s ease; opacity: .92; }
+  .ow-dept:hover .ow-dept-cta { opacity: 1; gap: 12px; }
+  .ow-dept-bar { transform: scaleX(0); transform-origin: left; transition: transform .4s cubic-bezier(.2,.6,.2,1); }
+  .ow-dept:hover .ow-dept-bar { transform: scaleX(1); }
+`;
+
+// One department "tablet": full-bleed hero image (prefers an installed room shot
+// for lifestyle appeal), a legibility scrim, the department name, a live product
+// count, category hints and an Explore call-to-action. Links into the department.
+// `basePath` lets the trade portal reuse it (links to /trade/catalogue/… instead
+// of /shop/…) while looking identical to the public shop.
+export function DepartmentTablet({
+  dept,
+  priority,
+  basePath = "/shop",
+}: {
+  dept: ShopMenuDept;
+  priority: boolean;
+  basePath?: string;
+}) {
+  const img = dept.focusImage || dept.image;
+  const cats = dept.categories.slice(0, 4);
+  const countLabel = `${dept.count} ${dept.count === 1 ? "product" : "products"}`;
+
+  return (
+    <Link
+      href={`${basePath}/${dept.slug}`}
+      className="ow-dept"
+      style={{
+        display: "block",
+        textDecoration: "none",
+        color: "inherit",
+        borderRadius: 22,
+        overflow: "hidden",
+        border: "1px solid var(--line)",
+        background: "#efece5",
+        boxShadow: "0 14px 36px -22px rgba(32,48,58,.4)",
+      }}
+    >
+      <div style={{ position: "relative", aspectRatio: "4 / 5", overflow: "hidden" }}>
+        {img ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={img}
+            alt={dept.label}
+            loading={priority ? "eager" : "lazy"}
+            className="ow-dept-img"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, var(--accent), var(--accent2))" }} />
+        )}
+
+        {/* accent reveal bar + legibility scrim */}
+        <span className="ow-dept-bar" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "var(--accent)", zIndex: 3 }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to top, rgba(14,20,24,.86) 0%, rgba(14,20,24,.30) 44%, rgba(14,20,24,0) 70%)",
+          }}
+        />
+
+        {/* live count pill */}
+        <span
+          style={{
+            position: "absolute",
+            top: 14,
+            right: 14,
+            padding: "5px 11px",
+            borderRadius: 99,
+            background: "rgba(255,246,238,.92)",
+            color: "var(--ink)",
+            fontSize: 11.5,
+            fontWeight: 800,
+            letterSpacing: ".01em",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+          }}
+        >
+          {countLabel}
+        </span>
+
+        {/* identity */}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "24px 22px 20px", color: "#fff6ee" }}>
+          <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(255,246,238,.72)" }}>
+            Department
+          </div>
+          <h2
+            style={{
+              fontFamily: "var(--font-archivo)",
+              fontWeight: 820,
+              fontSize: "clamp(25px,2.5vw,32px)",
+              letterSpacing: "-.02em",
+              lineHeight: 1.05,
+              margin: "5px 0 0",
+            }}
+          >
+            {dept.label}
+          </h2>
+
+          {cats.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
+              {cats.map((c) => (
+                <span
+                  key={c.slug}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "3px 9px",
+                    borderRadius: 99,
+                    color: "#fff6ee",
+                    background: "rgba(255,246,238,.16)",
+                    border: "1px solid rgba(255,246,238,.24)",
+                  }}
+                >
+                  {c.label}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <span
+            className="ow-dept-cta"
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 14, fontWeight: 800, fontSize: 13.5 }}
+          >
+            Explore the range
+            <span aria-hidden style={{ fontSize: 15 }}>→</span>
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }
 

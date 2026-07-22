@@ -20,6 +20,21 @@ const TTL_STOCK = 30;
 // ── Shapes (mirror OnBase lib/websiteFeed.ts + /api/v1/website/taxonomy) ─────
 export type Availability = "in_stock" | "low" | "out";
 
+export type PriceDisplayGst = "NO_GST" | "INCLUDE_GST" | "EXCLUDE_GST";
+
+// Per-swatch trade pricing (present ONLY on the authenticated trade feed, never
+// the public shop). Carries the sold-unit maths the cart needs (box multiples).
+export type TradeSwatchInfo = {
+  productId: string;
+  rrpPrice: number; // struck-through RRP
+  tradePrice: number | null; // "Your Price"; null = not priced (browse-only)
+  priceLevel: string | null;
+  priceDisplayGst: PriceDisplayGst;
+  boxQuantity: number; // order qty snaps up to whole multiples of this
+  coverageM2: number | null; // m² one sold unit covers
+  unit: string; // sold unit (m², LM, Per Unit…)
+};
+
 export type Swatch = {
   colour: string;
   swatchHex?: string | null;
@@ -39,6 +54,10 @@ export type Swatch = {
   slug?: string | null;
   /** Colour-filter value slugs this colourway answers to. */
   colours?: string[];
+  /** The product this swatch orders (trade feed only). */
+  productId?: string;
+  /** This swatch's trade pricing (trade feed only; absent on the public shop). */
+  trade?: TradeSwatchInfo | null;
 };
 
 export type WebsiteRange = {

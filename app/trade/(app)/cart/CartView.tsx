@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "../CartProvider";
+import { boxesFor, hasBoxes, roundUpToBox, stepQty, unitLabel } from "../../../../lib/boxQty";
 
 function money(n: number): string {
   return `$${(n ?? 0).toLocaleString("en-AU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -109,22 +110,26 @@ export default function CartView() {
               {l.colour && <div style={{ color: "#8a8577", fontSize: 13, marginTop: 2 }}>{l.colour}</div>}
               <div style={{ color: "#8a8577", fontSize: 12.5, marginTop: 3 }}>
                 {money(l.unitPrice)}
-                {l.unit ? ` / ${l.unit}` : ""} <span style={{ opacity: 0.7 }}>(indicative)</span>
+                {l.unit ? ` / ${unitLabel(l.unit)}` : ""} <span style={{ opacity: 0.7 }}>(indicative)</span>
+                {hasBoxes(l.boxQuantity) && (
+                  <span style={{ opacity: 0.9 }}> &middot; {boxesFor(l.quantity, l.boxQuantity)} box{boxesFor(l.quantity, l.boxQuantity) === 1 ? "" : "es"}</span>
+                )}
               </div>
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", border: "1px solid var(--line)", borderRadius: 10, overflow: "hidden" }}>
-              <button type="button" onClick={() => setQty(l.productId, l.colour, l.quantity - 1)} aria-label="Decrease quantity" style={stepBtn}>
+              <button type="button" onClick={() => setQty(l.productId, l.colour, stepQty(l.quantity, l.boxQuantity, -1))} aria-label="Decrease quantity" style={stepBtn}>
                 &minus;
               </button>
               <input
                 type="number"
-                min={1}
+                min={0}
                 value={l.quantity}
-                onChange={(e) => setQty(l.productId, l.colour, Math.max(1, Math.round(Number(e.target.value) || 1)))}
+                onChange={(e) => setQty(l.productId, l.colour, Math.max(0, Number(e.target.value) || 0))}
+                onBlur={() => setQty(l.productId, l.colour, roundUpToBox(l.quantity, l.boxQuantity))}
                 aria-label={`Quantity of ${l.name}`}
-                style={{ width: 42, textAlign: "center", border: "none", fontSize: 14, fontWeight: 700, color: "var(--ink)", background: "transparent" }}
+                style={{ width: 52, textAlign: "center", border: "none", fontSize: 14, fontWeight: 700, color: "var(--ink)", background: "transparent" }}
               />
-              <button type="button" onClick={() => setQty(l.productId, l.colour, l.quantity + 1)} aria-label="Increase quantity" style={stepBtn}>
+              <button type="button" onClick={() => setQty(l.productId, l.colour, stepQty(l.quantity, l.boxQuantity, 1))} aria-label="Increase quantity" style={stepBtn}>
                 +
               </button>
             </div>

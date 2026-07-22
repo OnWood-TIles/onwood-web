@@ -20,7 +20,7 @@ export default async function TradeDashboard() {
   const quickLinks = [
     { href: "/trade/catalogue", title: "Browse the catalogue", note: "Your pricing and live stock", accent: true },
     { href: "/trade/orders", title: "Your orders", note: "Track what is on the way" },
-    { href: "/trade/pricelist", title: "Price list", note: "Your full trade price list" },
+    { href: "/trade/cart", title: "Your order request", note: "Review and submit your cart" },
   ];
 
   return (

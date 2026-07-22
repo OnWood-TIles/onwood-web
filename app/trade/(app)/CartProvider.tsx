@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { round3, roundUpToBox } from "../../../lib/boxQty";
 
 // Client-only cart, persisted in localStorage. It holds ONLY the identity of what
 // the customer wants (product + optional colour + quantity + a display snapshot);
@@ -16,6 +17,8 @@ export type CartLine = {
   unitPrice: number;
   image: string | null;
   quantity: number;
+  /** "Sold in multiples of" - quantities snap to whole boxes of this. */
+  boxQuantity?: number;
 };
 
 type CartContextValue = {
@@ -65,12 +68,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [lines, ready]);
 
   const add = useCallback((line: Omit<CartLine, "quantity">, quantity: number) => {
-    const qty = Math.max(1, Math.round(quantity));
+    // Snap to a whole box (m²/sheets can be fractional, so no integer rounding).
+    const qty = roundUpToBox(quantity, line.boxQuantity);
     setLines((prev) => {
       const i = prev.findIndex((l) => sameLine(l, line));
       if (i >= 0) {
         const next = [...prev];
-        next[i] = { ...next[i], ...line, quantity: next[i].quantity + qty };
+        next[i] = { ...next[i], ...line, quantity: round3(next[i].quantity + qty) };
         return next;
       }
       return [...prev, { ...line, quantity: qty }];
@@ -78,7 +82,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setQty = useCallback((productId: string, colour: string | undefined, quantity: number) => {
-    const qty = Math.max(0, Math.round(quantity));
+    const qty = Math.max(0, round3(quantity));
     setLines((prev) =>
       qty === 0
         ? prev.filter((l) => !sameLine(l, { productId, colour }))
@@ -92,7 +96,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clear = useCallback(() => setLines([]), []);
 
-  const count = useMemo(() => lines.reduce((n, l) => n + l.quantity, 0), [lines]);
+  // Number of distinct line items (quantities can be fractional m²/LM, so the
+  // badge counts items, not summed units).
+  const count = useMemo(() => lines.length, [lines]);
 
   const value = useMemo<CartContextValue>(
     () => ({ lines, count, add, setQty, remove, clear, ready }),
