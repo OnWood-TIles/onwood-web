@@ -9,6 +9,7 @@ import {
   type PointerEvent,
 } from "react";
 import Reveal from "../ui/Reveal";
+import ImageDisclosure from "../legal/ImageDisclosure";
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
@@ -18,7 +19,9 @@ import type { CarpetSwatchItem } from "../../../lib/carpet";
 import {
   IMAGINE_ROOMS,
   IMAGINE_STYLES,
+  defaultTileSurface,
   type ImagineItem,
+  type TileSurface,
 } from "../../../lib/imagine";
 
 // The Caesarstone-benchtop "Vision board" (bottom half of the showroom section).
@@ -117,12 +120,12 @@ const FLOOR_H = 248;
 const TILE_EDGE = 176; // GlowTile tile: square swatch (~carpet/flooring scale)
 const STYLE_MAX = 178; // styling cutout: long-edge target (aspect preserved per item)
 const STYLE_MAX_BIG = 340; // florals drop ~2x larger than cushions (wispy stems need height)
-const STYLE_MAX_DECOR = 150; // decor accents (bowls/planters/boxes) drop small, near swatch size
-const RENDER_MAX = 300; // AI room render default size (medium; user resizes S/M/L)
+const STYLE_MAX_DECOR = 248; // decor (vases/urns/lanterns): a touch under floral size
+const RENDER_MAX = 440; // AI room render default drop size (~medium; user resizes S/M/L)
 const RENDER_SIZES: { label: string; edge: number }[] = [
-  { label: "S", edge: 190 },
-  { label: "M", edge: 300 },
-  { label: "L", edge: 440 },
+  { label: "S", edge: 300 },
+  { label: "M", edge: 440 },
+  { label: "L", edge: 520 },
 ];
 const BIN_SIZE = 58;
 const BIN_MARGIN = 14;
@@ -379,7 +382,7 @@ export default function VisionBoard({
     setFloorLimit(FLOOR_PAGE);
   }, [floorQuery, floorType]);
 
-  // Styling (Provincial Home Living cutouts) - Cushion / Floral / Decor sub-tabs.
+  // Styling (OnWood's own AI styling range) - Cushion / Floral / Decor sub-tabs.
   const [stylingCat, setStylingCat] = useState<string>("Cushion");
   const [stylingQuery, setStylingQuery] = useState("");
   const [stylingData, setStylingData] = useState<StylingItem[] | null>(null);
@@ -590,6 +593,40 @@ export default function VisionBoard({
   const [imgError, setImgError] = useState<string | null>(null);
   const [imgPrompt, setImgPrompt] = useState<string | null>(null);
   const [imgNote, setImgNote] = useState("");
+  // Room visuals are AI-generated (Gemini) and capped per visitor per day; the
+  // API returns how many are left so we can show it and disable at 0.
+  const [imgRemaining, setImgRemaining] = useState<number | null>(null);
+  // Per-tile surface placement for the render (floor / wall / feature - a tile can
+  // be several at once). Overrides the auto-classification for a truer visual.
+  const [tilePlace, setTilePlace] = useState<Record<string, TileSurface[]>>({});
+  // Full wide room, or a close-up "feature" hero shot of the products.
+  const [imgMode, setImgMode] = useState<"room" | "feature">("room");
+  const boardTiles = useMemo(() => {
+    const seen = new Set<string>();
+    return pieces
+      .filter((p) => p.kind === "tile" && p.name)
+      .filter((p) => {
+        const n = p.name.trim().toLowerCase();
+        if (seen.has(n)) return false;
+        seen.add(n);
+        return true;
+      });
+  }, [pieces]);
+  // Seed a sensible default surface for any newly added tile.
+  useEffect(() => {
+    setTilePlace((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const t of boardTiles) {
+        const key = t.name.trim();
+        if (!next[key]) {
+          next[key] = [defaultTileSurface(t.name, t.sub)];
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [boardTiles]);
 
   // "Share" - capture the customer's details, then POST the board (finishes +
   // arrangement) to /api/share, which emails a branded Mood Board PDF, files an
@@ -624,7 +661,7 @@ export default function VisionBoard({
           sub: p.sub || undefined,
           url: p.texture || undefined,
         }));
-      const res = await fetch("/api/imagine", {
+      const res = await fetch("/api/room-visual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -634,10 +671,13 @@ export default function VisionBoard({
           room: imgRoom,
           style: imgStyle,
           note: imgNote.trim() || undefined,
+          tilePlacements: tilePlace,
+          imageMode: imgMode,
           count: 1,
         }),
       });
       const data = await res.json();
+      if (typeof data.remaining === "number") setImgRemaining(data.remaining);
       if (!res.ok || !data.ok) throw new Error(data.error || "Generation failed.");
       const imgs: string[] =
         (data.images as string[]) || (data.image ? [data.image as string] : []);
@@ -679,7 +719,7 @@ export default function VisionBoard({
         if (!ctx) return resolve(src);
         ctx.drawImage(im, 0, 0, w, h);
         try {
-          resolve(cv.toDataURL("image/jpeg", 0.82));
+          resolve(cv.toDataURL("image/jpeg", 0.9));
         } catch {
           resolve(src);
         }
@@ -704,7 +744,9 @@ export default function VisionBoard({
         pieces.map(async (p) => {
           let url = p.texture || undefined;
           if (p.kind === "render" && url && url.startsWith("data:")) {
-            url = await downscaleDataUrl(url, 900);
+            // Keep near-full resolution so the PDF's page-2 room shots stay sharp
+            // (Gemini output is ~1024-1290px; 1400 avoids extra downscaling).
+            url = await downscaleDataUrl(url, 1400);
           }
           return {
             kind: p.kind,
@@ -735,7 +777,13 @@ export default function VisionBoard({
             w: boardW,
             h: boardH,
             stoneName: boardStone?.name ?? null,
-            stoneUrl: boardStone?.url ?? null,
+            // Send the SAME oriented benchtop image the customer is looking at
+            // (portrait on mobile). Otherwise the PDF composites the wide landscape
+            // image into the tall mobile board via cover -> a cropped ~3.5x upscaled
+            // strip that looks stretched and extremely blurry.
+            stoneUrl: boardStone
+              ? (isMobile ? boardStone.urlP : boardStone.url)
+              : null,
           },
           pieces: outPieces,
         }),
@@ -930,6 +978,8 @@ export default function VisionBoard({
             {head.sub}
           </p>
         </Reveal>
+        {/* Imagery disclosure for the inspiration board (rendered swatches + AI room visuals). */}
+        <ImageDisclosure variant="full" style={{ maxWidth: 560, margin: "10px auto 0" }} />
       </div>
 
       {/* Board */}
@@ -958,7 +1008,7 @@ export default function VisionBoard({
                 }}
                 style={shareBtnStyle}
               >
-                📤 Share
+                📤 Send me my selection
               </button>
             ) : null}
             <button
@@ -1091,15 +1141,20 @@ export default function VisionBoard({
                   onPointerCancel={onPieceUp}
                   style={{
                     position: "absolute",
-                    left: p.x,
-                    top: p.y,
+                    left: 0,
+                    top: 0,
                     width: p.w,
                     height: p.h,
                     cursor: dragging ? "grabbing" : "grab",
                     touchAction: "none",
                     zIndex: p.z,
-                    transform: `rotate(${p.rot}deg)${dragging ? " scale(1.05)" : ""}`,
+                    // Move via translate (the compositor) rather than left/top: dragging
+                    // a piece across the big AI-render layer was leaving white repaint
+                    // trails on the board. translate3d keeps each piece on its own clean
+                    // GPU layer so the vacated area always repaints.
+                    transform: `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)${dragging ? " scale(1.05)" : ""}`,
                     transformOrigin: "center",
+                    willChange: dragging || settling ? "transform" : undefined,
                     transition: settling
                       ? "transform .6s cubic-bezier(.2,1.5,.35,1)"
                       : dragging
@@ -1458,6 +1513,37 @@ export default function VisionBoard({
                         </select>
                       </label>
                     </div>
+                    {/* Full wide room, or a close-up feature/hero shot of the products. */}
+                    <div style={{ marginBottom: 16 }}>
+                      <span style={fieldLabelStyle}>Image style</span>
+                      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                        {([
+                          ["room", "Full room"],
+                          ["feature", "Feature shot"],
+                        ] as const).map(([m, mlabel]) => (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => setImgMode(m)}
+                            style={{
+                              flex: 1,
+                              padding: "9px 12px",
+                              borderRadius: 10,
+                              cursor: "pointer",
+                              fontFamily: "inherit",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              border: imgMode === m ? "1.5px solid var(--accent)" : "1px solid var(--line)",
+                              background: imgMode === m ? "color-mix(in oklab, var(--accent) 12%, transparent)" : "#fff",
+                              color: imgMode === m ? "var(--accent)" : "#5a6067",
+                            }}
+                          >
+                            {mlabel}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <label style={{ display: "block", marginBottom: 16 }}>
                       <span style={fieldLabelStyle}>Add a note (optional)</span>
                       <input
@@ -1469,6 +1555,58 @@ export default function VisionBoard({
                         style={{ ...selectStyle, cursor: "text" }}
                       />
                     </label>
+
+                    {/* Per-tile placement: let the customer say where each tile goes
+                        so the render is accurate (floor tile beats timber flooring;
+                        mosaics default to a feature). */}
+                    {boardTiles.length > 0 && (
+                      <div style={{ marginBottom: 16 }}>
+                        <span style={fieldLabelStyle}>Where do your tiles go? (pick any)</span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
+                          {boardTiles.map((t) => {
+                            const key = t.name.trim();
+                            const sel = tilePlace[key] || [defaultTileSurface(t.name, t.sub)];
+                            return (
+                              <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between" }}>
+                                <span style={{ fontSize: 12.5, color: "var(--ink)", fontWeight: 600, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {t.name}
+                                </span>
+                                <div style={{ display: "inline-flex", border: "1px solid var(--line)", borderRadius: 9, overflow: "hidden", flexShrink: 0 }}>
+                                  {(["floor", "wall", "feature"] as const).map((s) => {
+                                    const on = sel.includes(s);
+                                    return (
+                                      <button
+                                        key={s}
+                                        type="button"
+                                        onClick={() =>
+                                          setTilePlace((p) => {
+                                            const cur = p[key] || [defaultTileSurface(t.name, t.sub)];
+                                            return { ...p, [key]: on ? cur.filter((x) => x !== s) : [...cur, s] };
+                                          })
+                                        }
+                                        style={{
+                                          padding: "5px 11px",
+                                          fontSize: 11.5,
+                                          fontWeight: 700,
+                                          border: "none",
+                                          cursor: "pointer",
+                                          textTransform: "capitalize",
+                                          fontFamily: "inherit",
+                                          background: on ? "var(--accent)" : "#fff",
+                                          color: on ? "#fff6ee" : "#5a6067",
+                                        }}
+                                      >
+                                        {s}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                     {imgError ? (
                       <div
                         style={{
@@ -1484,10 +1622,14 @@ export default function VisionBoard({
                     <button
                       type="button"
                       onClick={generateRoom}
-                      disabled={imgLoading}
-                      style={{ ...primaryBtnStyle, opacity: imgLoading ? 0.7 : 1 }}
+                      disabled={imgLoading || imgRemaining === 0}
+                      style={{ ...primaryBtnStyle, opacity: imgLoading || imgRemaining === 0 ? 0.7 : 1 }}
                     >
-                      {imgLoading ? "Painting your room…" : "Generate room"}
+                      {imgLoading
+                        ? "Painting your room…"
+                        : imgRemaining === 0
+                          ? "Daily limit reached"
+                          : "Generate room"}
                     </button>
                     <p
                       style={{
@@ -1499,7 +1641,9 @@ export default function VisionBoard({
                     >
                       {imgLoading
                         ? "This takes a few seconds…"
-                        : "AI render is a styling guide, not exact products."}
+                        : imgRemaining != null
+                          ? `${imgRemaining} of 3 room visuals left today · uses your exact samples`
+                          : "3 room visuals per day · uses your exact samples for an accurate render"}
                     </p>
                   </>
                 ) : (
@@ -1564,6 +1708,19 @@ export default function VisionBoard({
                         ? "Tap an option, then add your favourite to the board."
                         : "Add it to your board, or regenerate for another look."}
                     </p>
+                    <p
+                      style={{
+                        textAlign: "center",
+                        color: "var(--muted)",
+                        fontSize: 10.5,
+                        lineHeight: 1.5,
+                        margin: "8px 0 0",
+                      }}
+                    >
+                      AI-generated image - our generator is accurate, but it&rsquo;s a guide for visual
+                      inspiration only, not an exact reflection of the real product. Always confirm
+                      colour &amp; texture with a physical sample.
+                    </p>
                     <div
                       style={{
                         display: "flex",
@@ -1582,7 +1739,7 @@ export default function VisionBoard({
                       <button
                         type="button"
                         onClick={generateRoom}
-                        disabled={imgLoading}
+                        disabled={imgLoading || imgRemaining === 0}
                         style={boardBtnStyle}
                       >
                         {imgLoading ? "…" : "Regenerate"}
@@ -1675,7 +1832,7 @@ export default function VisionBoard({
                       color: "var(--ink)",
                     }}
                   >
-                    📤 Share your board
+                    📤 Send me my selection
                   </div>
                   <button
                     type="button"
@@ -1850,8 +2007,25 @@ export default function VisionBoard({
                         textAlign: "center",
                       }}
                     >
-                      We&rsquo;ll only use your details to send your board and
-                      follow up. No spam.
+                      By requesting your vision board, you agree to OnWood&rsquo;s{" "}
+                      <a
+                        href="/terms#privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent)", textDecoration: "underline" }}
+                      >
+                        Privacy Statement
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        href="/website-terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent)", textDecoration: "underline" }}
+                      >
+                        Website Use Terms &amp; Conditions
+                      </a>
+                      .
                     </p>
                   </>
                 )}
@@ -2851,8 +3025,8 @@ export default function VisionBoard({
                 maxWidth: 520,
               }}
             >
-              Style your board with cushions, florals and decor - product cut-outs
-              from Provincial Home Living, for colour and mood.
+              Style your board with cushions, florals and decor - our own styling
+              range, for colour and mood.
             </p>
             {/* Category sub-tabs */}
             <div
@@ -2958,7 +3132,6 @@ export default function VisionBoard({
                       addPiece("styling", s.name, {
                         texture: s.url,
                         ar: s.ar,
-                        brandLogo: "/images/styling/phl-logo.png",
                         styleMax:
                           s.category === "Floral"
                             ? STYLE_MAX_BIG
@@ -2968,7 +3141,7 @@ export default function VisionBoard({
                       })
                     }
                     aria-label={`Add ${s.name} to the board`}
-                    title={`${s.name} (Provincial Home Living)`}
+                    title={s.name}
                     style={{
                       display: "flex",
                       flexDirection: "column",
@@ -3008,7 +3181,6 @@ export default function VisionBoard({
                           filter: "drop-shadow(0 4px 6px rgba(0,0,0,.22))",
                         }}
                       />
-                      <BrandBadge logo="/images/styling/phl-logo.png" h={8} />
                     </span>
                     <span
                       style={{
@@ -3040,7 +3212,7 @@ export default function VisionBoard({
             >
               {stylingData === null
                 ? ""
-                : `${stylingResults.length} ${stylingCat.toLowerCase()} piece${stylingResults.length === 1 ? "" : "s"} from Provincial Home Living. Styling ideas only.`}
+                : `${stylingResults.length} ${stylingCat.toLowerCase()} piece${stylingResults.length === 1 ? "" : "s"} to style your board. Styling ideas only.`}
             </p>
           </div>
         ) : activeTab === "benchtops" ? (

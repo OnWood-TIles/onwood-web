@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
-import { getRange, getTaxonomy, listRanges } from "../../../lib/onbase/client";
+import { getRange, getTaxonomy, listPairCandidates } from "../../../lib/onbase/client";
 import { pickPairs } from "../../../lib/pairs";
 import ProductView from "../../components/shop/ProductView";
-import { PairsWellWith, TechnicalSpecs } from "../../components/shop/shared";
+import { TechnicalSpecs } from "../../components/shop/shared";
 
 export const dynamic = "force-dynamic";
 
@@ -32,28 +32,47 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const { c } = await searchParams;
-  const [range, taxonomy, allRanges] = await Promise.all([getRange(slug), getTaxonomy(), listRanges()]);
+  // Fetch the range first, then the taxonomy + its department's ranges in
+  // parallel. "Pairs well with" only ever suggests within/near the same
+  // department, so we no longer pull the WHOLE catalogue (~100 ranges) on every
+  // product open - just this department's, which also shares the department
+  // shop's cache entry. Big cut to the per-click payload.
+  // Fetch everything in PARALLEL (getRange no longer blocks the rest). allRanges is
+  // the long-cached pairing candidate list (every department, so "Pairs well with"
+  // can suggest cross-department complements). pickPairs handles the scoring.
+  const [range, taxonomy, allRanges] = await Promise.all([
+    getRange(slug),
+    getTaxonomy(),
+    listPairCandidates(),
+  ]);
   if (!range) notFound();
 
   const dept = taxonomy.find((d) => d.slug === range.department);
   const catLabels = range.categories
     .map((c) => dept?.categories.find((x) => x.slug === c)?.label || c)
     .filter(Boolean);
-  const labelMap: Record<string, string> = {};
-  for (const d of taxonomy) for (const cat of d.categories) labelMap[cat.slug] = cat.label;
   const pairs = pickPairs(range, allRanges, dept?.label);
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
-        <ProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} catLabels={catLabels} initialColour={c ?? null} />
-        <TechnicalSpecs
-          specs={range.specs}
-          material={range.specs.find((s) => /material|construction/i.test(s.label))?.value ?? null}
-          documents={range.documents}
+        <ProductView
+          range={range}
+          deptLabel={dept?.label ?? null}
+          deptSlug={dept?.slug ?? null}
+          catLabels={catLabels}
+          initialColour={c ?? null}
+          pairs={pairs}
+          productBase="/product"
+          specsSlot={
+            <TechnicalSpecs
+              specs={range.specs}
+              material={range.specs.find((s) => /material|construction/i.test(s.label))?.value ?? null}
+              documents={range.documents}
+            />
+          }
         />
-        <PairsWellWith pairs={pairs} categoryLabels={labelMap} />
       </main>
       <MarketingFooter />
     </div>

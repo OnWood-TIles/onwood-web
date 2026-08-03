@@ -153,7 +153,7 @@ export default function CartView() {
           <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 22 }}>{money(subtotal)}</span>
         </div>
         <p style={{ color: "#8a8577", fontSize: 12.5, margin: "8px 0 0", lineHeight: 1.55 }}>
-          This is a request, not a final invoice. We will confirm pricing, stock and any GST before processing.
+          This is an order request, not an order. It does not reserve stock and no payment is taken. We will confirm price, availability and lead time and send you a quote or deposit invoice.
         </p>
 
         <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 12 }}>

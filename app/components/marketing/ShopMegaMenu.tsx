@@ -37,7 +37,26 @@ function triggerStyle(open: boolean): React.CSSProperties {
   };
 }
 
-export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
+export default function ShopMegaMenu({
+  depts,
+  label = "Shop",
+  shopBase = "/shop",
+  productBase = "/product",
+  panelTop = 70,
+  triggerStyleOverride,
+}: {
+  depts: ShopMenuDept[];
+  /** Trigger label - "Shop" (public) or "Catalogue" (trade portal). */
+  label?: string;
+  /** Department/category link root - "/shop" or "/trade/catalogue". */
+  shopBase?: string;
+  /** Product link root - "/product" or "/trade/catalogue/product". */
+  productBase?: string;
+  /** Fixed panel offset from the top of the viewport (nav height). */
+  panelTop?: number;
+  /** Merged over the computed trigger style so the trade nav can match its pills. */
+  triggerStyleOverride?: React.CSSProperties;
+}) {
   const [open, setOpen] = useState(false);
   const [focus, setFocus] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,11 +79,11 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // No catalogue yet -> a plain Shop link, no menu.
+  // No catalogue yet -> a plain link, no menu.
   if (!depts.length) {
     return (
-      <a href="/shop" style={triggerStyle(false)}>
-        Shop
+      <a href={shopBase} style={{ ...triggerStyle(false), ...triggerStyleOverride }}>
+        {label}
       </a>
     );
   }
@@ -73,8 +92,8 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
 
   return (
     <div onMouseEnter={openNow} onMouseLeave={closeSoon}>
-      <a href="/shop" onFocus={openNow} aria-expanded={open} style={triggerStyle(open)}>
-        Shop
+      <a href={shopBase} onFocus={openNow} aria-expanded={open} style={{ ...triggerStyle(open), ...triggerStyleOverride }}>
+        {label}
         <svg
           viewBox="0 0 12 8"
           width="9"
@@ -95,7 +114,7 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
           position: "fixed",
           left: 0,
           right: 0,
-          top: 70,
+          top: panelTop,
           zIndex: 149,
           overflow: "hidden",
           clipPath: open ? "inset(0 0 0 0)" : "inset(0 0 100% 0)",
@@ -123,7 +142,7 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
               {depts.map((d, i) => (
                 <Link
                   key={d.slug}
-                  href={`/shop/${d.slug}`}
+                  href={`${shopBase}/${d.slug}`}
                   onMouseEnter={() => setFocus(i)}
                   onFocus={() => setFocus(i)}
                   onClick={() => setOpen(false)}
@@ -159,7 +178,7 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
             <div style={eyebrow}>In focus — {active.focusName ?? active.label}</div>
             {active.focusImage && active.focusSlug ? (
               <Link
-                href={`/product/${active.focusSlug}`}
+                href={`${productBase}/${active.focusSlug}`}
                 onClick={() => setOpen(false)}
                 style={{ display: "block", position: "relative", height: 260, borderRadius: 16, overflow: "hidden", background: "#efece5", border: "1px solid var(--line)", textDecoration: "none" }}
               >
@@ -183,7 +202,7 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
                 {active.categories.map((c) => (
                   <Link
                     key={c.slug}
-                    href={`/shop/${active.slug}?c=${c.slug}`}
+                    href={`${shopBase}/${active.slug}?c=${c.slug}`}
                     onClick={() => setOpen(false)}
                     style={{
                       textDecoration: "none",
@@ -202,7 +221,7 @@ export default function ShopMegaMenu({ depts }: { depts: ShopMenuDept[] }) {
               </div>
             )}
             <Link
-              href={`/shop/${active.slug}`}
+              href={`${shopBase}/${active.slug}`}
               onClick={() => setOpen(false)}
               style={{ display: "inline-block", marginTop: 16, color: "var(--accent)", fontWeight: 700, fontSize: 14, textDecoration: "none" }}
             >

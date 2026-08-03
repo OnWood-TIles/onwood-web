@@ -180,6 +180,10 @@ export default function ComingSoon() {
               {submitting ? "Adding…" : "Notify me →"}
             </button>
           </div>
+          <p style={{ marginTop: 12, fontSize: 12.5, lineHeight: 1.5, color: "rgba(255,255,255,0.8)", maxWidth: 440 }}>
+            We will use your details to send occasional updates about new ranges, promotions and events. Unsubscribe any time. See our{" "}
+            <a href="/privacy-policy" style={{ color: "#ffd9c8", textDecoration: "underline" }}>Privacy Policy</a>.
+          </p>
         </form>
         <div
           role="status"
@@ -234,13 +238,23 @@ export default function ComingSoon() {
             </svg>
           </a>
         </div>
-      </div>
 
-      <div className={styles.footnote}>
-        © 2026 OnWood Tiles ·{" "}
-        <a href="/staff" className={styles.footnoteLink}>
-          Staff
-        </a>
+        {/* fine print + staff sign-in — kept INSIDE the card so it is always
+            visible and tappable (a screen-bottom footnote gets hidden behind the
+            tall card on phones and short laptops). */}
+        <div
+          className={`${styles.rise} ${styles.cardFine}`}
+          style={{ animationDelay: "0.68s" }}
+        >
+          © 2026 OnWood Tiles ·{" "}
+          <a href="/privacy-policy" className={styles.footnoteLink}>
+            Privacy Policy
+          </a>{" "}
+          ·{" "}
+          <a href="/staff" className={styles.footnoteLink}>
+            Staff sign-in
+          </a>
+        </div>
       </div>
     </div>
   );

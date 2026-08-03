@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "./CartProvider";
+import ShopMegaMenu from "../../components/marketing/ShopMegaMenu";
+import type { ShopMenuDept } from "../../../lib/onbase/client";
 
 // Trade Partner portal header: brand lockup, the section links, a cart badge and log out.
 // Kept deliberately simple (warm cream band) so it reads as "your account area",
@@ -14,7 +16,7 @@ const LINKS = [
   { label: "Orders", href: "/trade/orders" },
 ];
 
-export default function TradeNav({ customerName }: { customerName: string }) {
+export default function TradeNav({ customerName, shopDepts }: { customerName: string; shopDepts: ShopMenuDept[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const { count } = useCart();
@@ -80,23 +82,46 @@ export default function TradeNav({ customerName }: { customerName: string }) {
         </Link>
 
         <nav style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap", marginLeft: "auto" }} aria-label="Trade Partner portal">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              style={{
-                textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-                padding: "8px 13px",
-                borderRadius: 10,
-                color: isActive(l.href) ? "var(--accent)" : "#3a4750",
-                background: isActive(l.href) ? "color-mix(in oklab, var(--accent) 12%, transparent)" : "transparent",
-              }}
-            >
-              {l.label}
-            </Link>
-          ))}
+          {LINKS.map((l) =>
+            // "Catalogue" gets the SAME hover mega-menu as the main site (departments
+            // + in-focus product), pointing at the trade catalogue. Clicking the
+            // trigger still lands on the department tile page (/trade/catalogue).
+            l.href === "/trade/catalogue" ? (
+              <ShopMegaMenu
+                key={l.href}
+                depts={shopDepts}
+                label="Catalogue"
+                shopBase="/trade/catalogue"
+                productBase="/trade/catalogue/product"
+                panelTop={60}
+                triggerStyleOverride={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  padding: "8px 13px",
+                  borderRadius: 10,
+                  opacity: 1,
+                  color: isActive(l.href) ? "var(--accent)" : "#3a4750",
+                  background: isActive(l.href) ? "color-mix(in oklab, var(--accent) 12%, transparent)" : "transparent",
+                }}
+              />
+            ) : (
+              <Link
+                key={l.href}
+                href={l.href}
+                style={{
+                  textDecoration: "none",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  padding: "8px 13px",
+                  borderRadius: 10,
+                  color: isActive(l.href) ? "var(--accent)" : "#3a4750",
+                  background: isActive(l.href) ? "color-mix(in oklab, var(--accent) 12%, transparent)" : "transparent",
+                }}
+              >
+                {l.label}
+              </Link>
+            ),
+          )}
 
           <Link
             href="/trade/cart"

@@ -48,6 +48,17 @@ export default async function DepartmentPage({
   const labelMap: Record<string, string> = {};
   for (const t of taxonomy) for (const cat of t.categories) labelMap[cat.slug] = cat.label;
 
+  // Only offer filter values that at least one LIVE product here actually carries -
+  // no point showing "Oversized" if nothing is tagged Oversized. Empty groups drop out.
+  const usedByGroup: Record<string, Set<string>> = {};
+  for (const r of allRanges) for (const [g, vals] of Object.entries(r.filters ?? {})) {
+    (usedByGroup[g] ??= new Set());
+    for (const v of vals) usedByGroup[g].add(v);
+  }
+  const shownGroups = filterGroupsVM
+    .map((g) => ({ ...g, values: g.values.filter((v) => usedByGroup[g.slug]?.has(v.slug)) }))
+    .filter((g) => g.values.length > 0);
+
   const chip = (label: string, href: string, on: boolean) => (
     <Link key={href} href={href} style={{ textDecoration: "none", padding: "8px 18px", borderRadius: 99, fontSize: 14, fontWeight: 700, border: `1px solid ${on ? "var(--accent)" : "var(--line)"}`, background: on ? "var(--accent)" : "#fff", color: on ? "#fff6ee" : "var(--ink)", transition: "all .2s ease" }}>
       {label}
@@ -68,7 +79,7 @@ export default async function DepartmentPage({
         </h1>
 
         {dept.categories.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: filterGroupsVM.length ? 18 : 30 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
             {chip("Shop All", `/shop/${dept.slug}`, !activeCategory)}
             {dept.categories.map((cat) => chip(cat.label, `/shop/${dept.slug}?c=${cat.slug}`, activeCategory === cat.slug))}
           </div>
@@ -76,7 +87,7 @@ export default async function DepartmentPage({
 
         <DepartmentShop
           allRanges={allRanges}
-          groups={filterGroupsVM}
+          groups={shownGroups}
           labelMap={labelMap}
           initialActive={initialActive}
           deptSlug={dept.slug}

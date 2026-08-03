@@ -38,6 +38,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         {order.poReference ? ` · PO ${order.poReference}` : ""}
       </p>
 
+      {/* Order-request disclaimer - shown while the request is newly received and
+          not yet confirmed into an order. */}
+      {!cancelled && currentIdx <= 0 && (
+        <div style={{ ...cardStyle, padding: "16px 20px", marginBottom: 26, background: "color-mix(in oklab, var(--accent) 6%, #fff)", border: "1px solid var(--line)", fontSize: 13.5, lineHeight: 1.6, color: "#5a6067" }}>
+          <strong style={{ color: "var(--ink)" }}>This is an order request, not an order.</strong> It does not reserve stock and no payment is taken. We will confirm price, availability and lead time and send you a quote or deposit invoice.
+        </div>
+      )}
+
       {/* Status timeline */}
       {cancelled ? (
         <div

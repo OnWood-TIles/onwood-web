@@ -235,43 +235,50 @@ async function addOnConnectContact(
 
 // ---- email bodies ---------------------------------------------------------
 
-function shell(inner: string): string {
+// Styled to match the other OnWood emails (book-a-visit, welcome): a warm cream
+// ground, a teal-ink header band with a Courier-mono eyebrow + terracotta accent.
+const CONTACT_ADDR = process.env.SHOWROOM_ADDRESS || "2/11 Packer Road, Baringa QLD 4551";
+const MONO_LBL = "font-family:'Courier New',monospace;font-size:10px;letter-spacing:.14em;color:#86A6AC";
+
+function emailShell(eyebrow: string, heading: string, body: string): string {
+  const footer = ["ONWOOD TILES", escapeHtml(CONTACT_ADDR), "onwoodtiles.com.au", escapeHtml(SALES_EMAIL)].join(" &nbsp;&middot;&nbsp; ");
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
-<body style="margin:0;padding:0;background:#0e1a20;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0e1a20;padding:40px 16px;">
-    <tr><td align="center">
-      <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#fbfaf6;border-radius:20px;overflow:hidden;">
-        <tr><td style="background:#20303a;padding:28px 40px;">
-          <img src="https://onwoodtiles.com.au/onwood-logo-white.png" alt="OnWood Tiles" width="131" height="48" style="display:block;border:0;outline:none;text-decoration:none;width:131px;height:48px;" />
-        </td></tr>
-        <tr><td style="padding:38px 40px;">${inner}</td></tr>
-        <tr><td style="padding:22px 40px;border-top:1px solid #e6e2d8;">
-          <p style="margin:0;font-size:12px;color:#8a959b;">
-            2/11 Packer Road, Baringa &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a> &middot; onwoodtiles.com.au
-          </p>
-        </td></tr>
-      </table>
+<body style="margin:0;padding:0;">
+<div style="background:#F6F1E8;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#20303A;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;margin:0 auto;">
+    <tr><td style="background:#20303A;border-radius:20px 20px 0 0;padding:28px 30px;color:#F6F1E8;">
+      <img src="https://onwoodtiles.com.au/email-logo.png" alt="OnWood Tiles" width="150" style="display:block;height:auto;border:0;outline:none;text-decoration:none;" />
+      <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:.22em;color:#E79070;margin-top:20px;">${eyebrow}</div>
+      <div style="font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-.01em;">${heading}</div>
+      <div style="height:3px;width:46px;background:#D06A45;border-radius:2px;margin-top:14px;"></div>
     </td></tr>
+    <tr><td style="background:#ffffff;padding:28px 30px;">${body}</td></tr>
+    <tr><td style="padding:18px 30px;text-align:center;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.1em;color:#86A6AC;">${footer}</td></tr>
   </table>
+</div>
 </body></html>`;
 }
 
 function customerEmailHtml(firstName: string | undefined, hasPdf: boolean): string {
-  const hi = firstName ? `Hi ${escapeHtml(firstName)},` : "Hi there,";
-  const attachLine = hasPdf
-    ? `Your vision board is attached as a PDF, with the finishes you picked and where they come from.`
-    : `We&rsquo;ve saved the finishes you picked, and our team will put a vision board together for you.`;
-  return shell(`
-    <h1 style="margin:0 0 16px;font-size:24px;font-weight:800;color:#20303a;">${hi}</h1>
-    <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#3a4b54;">
-      Thanks for building a board with us. ${attachLine}
-    </p>
-    <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#3a4b54;">
-      Love the look? Reply to this email or pop into our Baringa showroom and we&rsquo;ll help you turn it into the real thing, with samples in hand and honest Sunshine Coast advice.
-    </p>
-    <p style="margin:0;font-size:16px;line-height:1.7;color:#3a4b54;">Talk soon,<br /><strong style="color:#20303a;">The OnWood Tiles team</strong></p>
-  `);
+  const heading = firstName ? `Here&rsquo;s your board, ${escapeHtml(firstName)}.` : "Here&rsquo;s your vision board.";
+  const attach = hasPdf
+    ? "Your vision board is attached as a PDF - the finishes you picked, where they come from, and your room brought to life."
+    : "We&rsquo;ve saved the finishes you picked, and our team will put a vision board together for you.";
+  return emailShell(
+    "YOUR VISION BOARD",
+    heading,
+    `
+    <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#3a4750;">Thanks for building a board with us. ${attach}</p>
+    <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#3a4750;">Love the look? Reply to this email or pop into our Baringa showroom and we&rsquo;ll help you turn it into the real thing - samples in hand and honest Sunshine Coast advice.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;border:1px solid #EDE6D8;border-radius:14px;">
+      <tr><td style="padding:14px 18px 8px;"><span style="${MONO_LBL}">VISIT US</span></td></tr>
+      <tr><td style="padding:0 18px 4px;font-size:15px;font-weight:700;color:#20303A;">${escapeHtml(CONTACT_ADDR)}</td></tr>
+      <tr><td style="padding:0 18px 16px;"><a href="mailto:${escapeHtml(SALES_EMAIL)}" style="font-size:14px;font-weight:700;color:#1E7A8C;text-decoration:none;">${escapeHtml(SALES_EMAIL)}</a></td></tr>
+    </table>
+    <p style="margin:22px 0 0;font-size:14px;line-height:1.6;color:#3a4750;">Talk soon,<br /><strong style="color:#20303A;">The OnWood Tiles team</strong></p>
+  `,
+  );
 }
 
 function salesEmailHtml(payload: SharePayload): string {
@@ -279,21 +286,22 @@ function salesEmailHtml(payload: SharePayload): string {
   const count = payload.pieces.length;
   const row = (k: string, v?: string) =>
     v
-      ? `<tr><td style="padding:4px 14px 4px 0;font-size:13px;color:#8a959b;">${escapeHtml(k)}</td><td style="padding:4px 0;font-size:13px;color:#20303a;font-weight:600;">${escapeHtml(v)}</td></tr>`
+      ? `<tr><td style="padding:5px 16px 5px 0;font-family:'Courier New',monospace;font-size:11px;letter-spacing:.06em;color:#86A6AC;white-space:nowrap;vertical-align:top;">${escapeHtml(k)}</td><td style="padding:5px 0;font-size:14px;color:#20303A;font-weight:700;">${escapeHtml(v)}</td></tr>`
       : "";
-  return shell(`
-    <h1 style="margin:0 0 12px;font-size:22px;font-weight:800;color:#20303a;">New vision board</h1>
-    <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#3a4b54;">
-      A customer has just created a vision board on the website. Their details have been added to OnBase (customer card + OnConnect, tagged &ldquo;${escapeHtml(VISION_TAG)}&rdquo;). Please follow up in the short future.
-    </p>
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px;">
-      ${row("Name", name)}
-      ${row("Phone", phone)}
-      ${row("Email", email)}
-      ${row("Suburb", suburb)}
-      ${row("Postcode", postcode)}
-      ${row("Finishes", `${count} piece${count === 1 ? "" : "s"} on the board`)}
+  return emailShell(
+    "NEW VISION BOARD",
+    "A new board just landed.",
+    `
+    <p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#3a4750;">A customer built a vision board on the website. Their details are in OnBase (customer card + OnConnect, tagged &ldquo;${escapeHtml(VISION_TAG)}&rdquo;). Please follow up soon.</p>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px;">
+      ${row("NAME", name)}
+      ${row("PHONE", phone)}
+      ${row("EMAIL", email)}
+      ${row("SUBURB", suburb)}
+      ${row("POSTCODE", postcode)}
+      ${row("FINISHES", `${count} piece${count === 1 ? "" : "s"} on the board`)}
     </table>
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#3a4b54;">Their vision board PDF is attached.</p>
-  `);
+    <p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:#3a4750;">Their vision board PDF is attached.</p>
+  `,
+  );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import FormNotice from "../legal/FormNotice";
 
 // Generic "send us a message" form. POSTs {name,email,phone,message} to the
 // existing /api/enquiry endpoint (emails the shop inbox + adds to OnConnect).
@@ -38,7 +39,9 @@ const label: React.CSSProperties = {
   margin: "0 0 7px",
 };
 
-export default function ContactForm() {
+// `defaultMessage` pre-fills the message box (e.g. an "Enquire about X" link from
+// a product page). It stays fully editable - it's just the starting text.
+export default function ContactForm({ defaultMessage }: { defaultMessage?: string }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,14 +111,16 @@ export default function ContactForm() {
 
       <div style={{ marginTop: 16 }}>
         <label htmlFor="cf-message" style={label}>Message</label>
-        <textarea id="cf-message" name="message" required rows={5} placeholder="What can we help you with? Tiles, tapware, a room you're planning, a question about stock..." onFocus={focusOn} onBlur={focusOff} style={{ ...field, resize: "vertical", lineHeight: 1.5 }} />
+        <textarea id="cf-message" name="message" required rows={5} defaultValue={defaultMessage} placeholder="What can we help you with? Tiles, tapware, a room you're planning, a question about stock..." onFocus={focusOn} onBlur={focusOff} style={{ ...field, resize: "vertical", lineHeight: 1.5 }} />
       </div>
 
       {error && (
         <p role="alert" style={{ margin: "16px 0 0", fontSize: 13.5, lineHeight: 1.5, color: "var(--accent)" }}>{error}</p>
       )}
 
-      <button type="submit" disabled={busy} className="cf-submit" style={{ marginTop: 20, width: "100%", padding: "15px 18px", borderRadius: 999, border: "none", background: "var(--accent)", color: "#fff6ee", fontFamily: "inherit", fontWeight: 800, fontSize: 15.5, cursor: busy ? "default" : "pointer", opacity: busy ? 0.72 : 1, boxShadow: "0 14px 30px -12px rgba(208,106,69,.6)" }}>
+      <FormNotice style={{ marginTop: 18 }} />
+
+      <button type="submit" disabled={busy} className="cf-submit" style={{ marginTop: 14, width: "100%", padding: "15px 18px", borderRadius: 999, border: "none", background: "var(--accent)", color: "#fff6ee", fontFamily: "inherit", fontWeight: 800, fontSize: 15.5, cursor: busy ? "default" : "pointer", opacity: busy ? 0.72 : 1, boxShadow: "0 14px 30px -12px rgba(208,106,69,.6)" }}>
         {busy ? "Sending..." : "Send message"}
       </button>
 

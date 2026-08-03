@@ -15,7 +15,13 @@ const KEY = process.env.ONBASE_API_KEY;
 
 // Cache windows (seconds).
 const TTL_CATALOGUE = 300;
-const TTL_STOCK = 30;
+// Stock-bearing reads (ranges list + single range). 30s was aggressive enough
+// that a product page missed the Data Cache every half-minute and re-fetched the
+// whole catalogue from OnBase on the click - the main source of "slow to open".
+// 3 min keeps a public showroom's availability effectively live while letting the
+// vast majority of clicks render straight from cache. (Trade ordering, where stock
+// must be exact, uses lib/onbase/trade.ts - unaffected by this.)
+const TTL_STOCK = 180;
 
 // ── Shapes (mirror OnBase lib/websiteFeed.ts + /api/v1/website/taxonomy) ─────
 export type Availability = "in_stock" | "low" | "out";
@@ -192,6 +198,44 @@ export async function saveNav(items: NavItem[]): Promise<NavItem[]> {
   return Array.isArray(json?.data) ? json.data : [];
 }
 
+export type BlogPost = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  coverCaption: string; // product credit shown on the hero
+  coverLink: string; // product page the hero credit links to
+  category: string;
+  author: string;
+  date: string; // ISO
+  keywords: string; // comma-separated (SEO)
+  body: string; // Markdown
+  published: boolean;
+};
+
+/** Blog posts authored on the site's own /admin blog editor. */
+export function getBlog(): Promise<BlogPost[]> {
+  return onbaseGet<BlogPost[]>(
+    "/api/v1/website/blog",
+    { revalidate: TTL_CATALOGUE, tags: ["blog"] },
+    [],
+  ).then((p) => (Array.isArray(p) ? p : []));
+}
+
+/** Save all blog posts (server-to-server; called by the /admin API). WRITES fail closed. */
+export async function saveBlog(posts: BlogPost[]): Promise<BlogPost[]> {
+  if (!KEY) throw new Error("ONBASE_API_KEY not configured");
+  const res = await fetch(`${BASE}/api/v1/website/blog`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ posts }),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Blog save failed (${res.status})`);
+  const json = (await res.json()) as { data?: BlogPost[] };
+  return Array.isArray(json?.data) ? json.data : [];
+}
+
 /** Published ranges, optionally narrowed by department/category/specials and
  *  attribute filters ({ colour: ["green"] } -> ?f=colour:green; OR within a
  *  group, AND across groups). */
@@ -207,10 +251,25 @@ export function listRanges(params?: {
   if (params?.specialsOnly) qs.set("specialsOnly", "1");
   for (const [group, vals] of Object.entries(params?.filters ?? {}))
     for (const v of vals) qs.append("f", `${group}:${v}`);
-  qs.set("limit", "100");
+  // Uncapped: the shop grid + mega-menu counts must show EVERY published product in a
+  // department (no 100-item truncation - previously hid products past the first 100).
+  qs.set("all", "1");
   return onbaseGet<WebsiteRange[]>(
     `/api/v1/website/ranges?${qs.toString()}`,
     { revalidate: TTL_STOCK, tags: ["ranges"] },
+    [],
+  ).then((ranges) => (Array.isArray(ranges) ? ranges.map(normalizeRange) : []));
+}
+
+/** Candidate ranges for the "Pairs well with" section - the whole catalogue, but
+ *  cached far longer than the shop (pairing doesn't need live stock, and it's read
+ *  on EVERY product open). A distinct cache key (`_ctx=pairs`, ignored by the feed)
+ *  keeps it warm ~30min instead of rebuilding every 180s. Still busted by the
+ *  "ranges" tag when a product is edited. */
+export function listPairCandidates(): Promise<WebsiteRange[]> {
+  return onbaseGet<WebsiteRange[]>(
+    `/api/v1/website/ranges?limit=500&_ctx=pairs`,
+    { revalidate: 1800, tags: ["ranges"] },
     [],
   ).then((ranges) => (Array.isArray(ranges) ? ranges.map(normalizeRange) : []));
 }
@@ -245,6 +304,10 @@ export type ShopMenuDept = {
  *  the range feed so counts and imagery always reflect what is published. */
 export async function getShopMenu(): Promise<ShopMenuDept[]> {
   const [taxonomy, ranges] = await Promise.all([getTaxonomy(), listRanges()]);
+  // Menu counts reflect total colourways/variations across products (more
+  // impressive + closer to the real number of options we sell), counting a
+  // single-colour product as one.
+  const varCount = (rs: WebsiteRange[]) => rs.reduce((n, r) => n + Math.max(1, r.swatches.length), 0);
   const byDept = new Map<string, WebsiteRange[]>();
   for (const r of ranges) {
     const key = r.department || "other";
@@ -268,12 +331,12 @@ export async function getShopMenu(): Promise<ShopMenuDept[]> {
           })
           .find(Boolean) ?? null;
       const categories = d.categories
-        .map((c) => ({ slug: c.slug, label: c.label, count: list.filter((r) => r.categories.includes(c.slug)).length }))
+        .map((c) => ({ slug: c.slug, label: c.label, count: varCount(list.filter((r) => r.categories.includes(c.slug))) }))
         .filter((c) => c.count > 0);
       return {
         slug: d.slug,
         label: d.label,
-        count: list.length,
+        count: varCount(list),
         image,
         focusImage: focus?.image ?? null,
         focusSlug: focus?.slug ?? null,

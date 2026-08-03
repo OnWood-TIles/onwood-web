@@ -13,6 +13,7 @@ export type ImagineItem = {
   sub?: string;
   url?: string; // swatch image (the API reads its dominant colour into `color`)
 };
+export type TileSurface = "floor" | "wall" | "feature";
 export type ImagineRequest = {
   items: ImagineItem[];
   benchtop?: string | null;
@@ -22,6 +23,12 @@ export type ImagineRequest = {
   style: string;
   note?: string; // optional free-text nudge from the customer
   count?: number; // how many variations to generate
+  /** The customer's explicit tile surface choices (tile name -> one OR MORE of
+   *  floor/wall/feature). Overrides the auto-classification. */
+  tilePlacements?: Record<string, TileSurface[]>;
+  /** "room" = a full wide interior; "feature" = a close-up hero/detail shot that
+   *  shows the chosen products up close. Defaults to "room". */
+  imageMode?: "room" | "feature";
 };
 
 export const IMAGINE_ROOMS = [
@@ -207,6 +214,24 @@ export function classifyTile(
   return "large-format";
 }
 
+// The default surface a tile plays when the customer hasn't chosen one:
+// large-format -> floor (it can also be a wall), mosaic/stone -> feature, else wall.
+export function defaultTileSurface(name?: string, sub?: string): TileSurface {
+  const c = classifyTile(name, sub);
+  return c === "large-format" ? "floor" : c === "mosaic" || c === "stone" ? "feature" : "wall";
+}
+
+// Resolve a tile's surfaces: the customer's explicit choice(s) if any (a tile may
+// be used on several surfaces at once), else the single sensible default. Never empty.
+export function resolveTileSurfaces(
+  name: string | undefined,
+  sub: string | undefined,
+  placements?: Record<string, TileSurface[]>,
+): TileSurface[] {
+  const p = placements?.[(name || "").trim()];
+  return p && p.length ? p : [defaultTileSurface(name, sub)];
+}
+
 // Build a photographer-grade interior prompt from the placed pieces + benchtop.
 export function buildImaginePrompt(req: ImagineRequest): string {
   const items = Array.isArray(req.items) ? req.items : [];
@@ -240,22 +265,22 @@ export function buildImaginePrompt(req: ImagineRequest): string {
   // Tiles are split by role (see classifyTile). A LARGE-FORMAT tile is the hero
   // floor and takes priority 1 - it beats a plank "flooring" sample for the floor.
   const tiles = uniq("tile");
-  const floorTiles = tiles.filter((t) => classifyTile(t.name, t.sub) === "large-format");
-  const stoneTiles = tiles.filter((t) => classifyTile(t.name, t.sub) === "stone");
-  const wallTiles = [
-    ...floorTiles.slice(1), // any extra large-format tiles become the splashback
-    ...tiles.filter((t) => {
-      const c = classifyTile(t.name, t.sub);
-      return c === "mosaic" || c === "feature";
-    }),
-  ];
+  // Surface split - the customer's explicit tilePlacements win (a tile may be used
+  // on MORE than one surface at once); otherwise auto-classify.
+  const placements = req.tilePlacements || {};
+  const surfacesOf = (t: ImagineItem): TileSurface[] => resolveTileSurfaces(t.name, t.sub, placements);
+  const floorTiles = tiles.filter((t) => surfacesOf(t).includes("floor"));
+  const wallTiles = tiles.filter((t) => surfacesOf(t).includes("wall"));
+  const featureTiles = tiles.filter((t) => surfacesOf(t).includes("feature"));
+  const stoneTiles = featureTiles.filter((t) => classifyTile(t.name, t.sub) === "stone");
+  const mosaicTiles = featureTiles.filter((t) => classifyTile(t.name, t.sub) !== "stone");
 
-  // FLOOR: a large-format tile wins; otherwise fall back to the plank flooring.
-  if (floorTiles[0]) {
-    const f = floorTiles[0];
-    palette.push(
-      `${cp(f.color)}large-format ${f.name} porcelain floor tiles across the whole floor`,
-    );
+  // FLOOR: any tile placed on the floor wins; otherwise fall back to the plank flooring.
+  if (floorTiles.length) {
+    for (const f of floorTiles)
+      palette.push(
+        `${cp(f.color)}large-format ${f.name} porcelain floor tiles across the whole floor`,
+      );
   } else {
     for (const f of uniq("flooring")) {
       const meta = `${f.name} ${f.sub || ""}`;
@@ -280,10 +305,15 @@ export function buildImaginePrompt(req: ImagineRequest): string {
 
   for (const c of uniq("carpet")) palette.push(`${cp(c.color)}${c.name} carpet as an area rug`);
 
-  // Splashback / feature-wall tiles - explicitly NEVER on the floor.
+  // Generic wall / splashback tiles - explicitly NEVER on the floor.
   for (const t of wallTiles)
     palette.push(
-      `${cp(t.color)}${t.name} tiles used only as a splashback or feature wall, never on the floor`,
+      `${cp(t.color)}${t.name} tiles used as a wall tile or splashback, never on the floor`,
+    );
+  // Mosaic / feature tiles - a feature-wall or splashback accent only.
+  for (const t of mosaicTiles)
+    palette.push(
+      `${cp(t.color)}${t.name} mosaic used only as a feature wall or splashback accent, never on the floor`,
     );
 
   // Natural-stone samples read as a feature-wall cladding. Flux renders the
@@ -318,15 +348,30 @@ export function buildImaginePrompt(req: ImagineRequest): string {
     ? palette.join("; ")
     : "a warm, natural material palette";
 
+  // "feature" = a close-up hero/detail shot showing the chosen products up close;
+  // "room" (default) = a full wide interior.
+  const feature = req.imageMode === "feature";
+  const opener = feature
+    ? `Photorealistic close-up interior DETAIL / hero shot in a ${styleKey} ${room}, styling these exact finishes together in one beautifully composed vignette where the surfaces meet.`
+    : `Photorealistic interior design photograph of a ${styleKey} ${room}.`;
+  const closer = feature
+    ? `Fill the frame with the materials at close range (benchtop meeting splashback, tapware, the floor edge, a paint wall), shallow depth of field, soft natural light, a few tasteful props (a plant, ceramics, folded towel), interiors-magazine detail photography, photorealistic, high detail.`
+    : `Natural daylight, soft shadows, styled and lived-in, wide-angle architectural interior photography, photorealistic, high detail, interiors magazine quality.`;
+
   return [
-    `Photorealistic interior design photograph of a ${styleKey} ${room}.`,
-    `Strict colour and material palette - build the whole room from ONLY these, as the defining scheme: ${paletteStr}.`,
-    `Do not add any colours, timber or warm-wood tones that are not listed above. If the palette is cool, dark or monochrome, keep the entire room cool, dark or monochrome to match.`,
+    opener,
+    `Strict colour and material palette - build the whole ${feature ? "composition" : "room"} from ONLY these, as the defining scheme: ${paletteStr}.`,
+    `Do not add any colours, timber or warm-wood tones that are not listed above. If the palette is cool, dark or monochrome, keep the entire ${feature ? "shot" : "room"} cool, dark or monochrome to match.`,
     cues ? `${req.style} style: ${cues}.` : "",
+    // Realistic tile laying: use the tile's many design faces + rotate alternate tiles
+    // so the pattern never looks like one repeated stamp (Reagan's proven prompt).
+    (floorTiles.length || wallTiles.length || featureTiles.length)
+      ? `Lay the tiles realistically: each tile has 20-30 different design faces, so vary the veins and markings slightly from tile to tile. Rotate every second tile 90 degrees to also make the pattern more random.`
+      : "",
     (req.note || "").trim()
       ? `Also incorporate: ${(req.note || "").trim().slice(0, 200)}.`
       : "",
-    `Natural daylight, soft shadows, styled and lived-in, wide-angle architectural interior photography, photorealistic, high detail, interiors magazine quality.`,
+    closer,
   ]
     .filter(Boolean)
     .join(" ");

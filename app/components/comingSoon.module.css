@@ -1,13 +1,21 @@
 .root {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
-  overflow: hidden;
+  /* Only the horizontal axis is clipped. The vertical axis must scroll so the
+     (tall) card is never cut off on phones / short laptops. */
+  overflow-x: hidden;
+  overflow-y: auto;
   color: var(--ink);
   background: var(--deep);
   display: flex;
   align-items: center;
   justify-content: center;
+  /* headroom clears the top bar and gives the card room to scroll into view
+     instead of being clipped by the viewport when it is taller than the screen */
+  padding-block: 88px;
+  box-sizing: border-box;
 }
 
 .vignette {
@@ -352,27 +360,20 @@
   transform: translateY(-3px);
 }
 
-.footnote {
-  position: absolute;
-  bottom: 18px;
-  left: 0;
-  right: 0;
-  z-index: 5;
+/* Fine print + Staff sign-in, sitting at the foot of the card (see ComingSoon.tsx). */
+.cardFine {
+  margin-top: 22px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  pointer-events: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
 }
 
-/* The Staff link must be individually clickable even though the footnote as a
-   whole is click-through (so the mosaic tap interaction still works beneath it). */
 .footnoteLink {
   color: var(--aqua);
   text-decoration: underline;
   text-underline-offset: 2px;
   opacity: 0.9;
-  pointer-events: auto;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }

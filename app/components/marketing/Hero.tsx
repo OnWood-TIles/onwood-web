@@ -5,6 +5,7 @@ import Reveal from "../ui/Reveal";
 import MagneticButton from "../ui/MagneticButton";
 import { HERO } from "../../../lib/content";
 import AmbientDriftBoard from "./AmbientDriftBoard";
+import ImageDisclosure from "../legal/ImageDisclosure";
 
 // Full-height hero. Behind the copy sits a lightweight canvas that draws soft,
 // gently drifting horizontal wood-grain lines in warm tones (accent + walnut on
@@ -232,8 +233,10 @@ export default function Hero() {
           </Reveal>
         </div>
 
-        <div className="ow-hero-art" style={{ display: "flex", justifyContent: "center" }}>
+        <div className="ow-hero-art" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <AmbientDriftBoard />
+          {/* Subtle imagery disclosure under the hero mood-board visuals. */}
+          <ImageDisclosure variant="grid" style={{ textAlign: "center", color: "var(--muted)" }} />
         </div>
       </div>
 

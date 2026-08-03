@@ -47,7 +47,11 @@ function ReachCard({ icon, label, value, href, external }: { icon: React.ReactNo
   );
 }
 
-export default async function ContactPage() {
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ product?: string }> }) {
+  const { product } = await searchParams;
+  // An "Enquire about X" link from a product page arrives as ?product=Name and
+  // pre-fills the message so the shopper only has to add their details.
+  const prefill = product?.trim() ? `I am interested in the ${product.trim()} product.` : undefined;
   const business = await getBusiness();
   const phone = (business?.phone || "").trim();
   const email = (business?.email || SHOP.email).trim();
@@ -88,7 +92,7 @@ export default async function ContactPage() {
         {/* ── Form + quick-reach ───────────────────────────────── */}
         <section style={{ maxWidth: 1240, margin: "0 auto", padding: "48px 40px 20px" }}>
           <div className="ct-grid">
-            <Reveal><ContactForm /></Reveal>
+            <Reveal><ContactForm defaultMessage={prefill} /></Reveal>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <Reveal delay={0.06}>
                 <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 22, letterSpacing: "-.01em", margin: "4px 0 4px" }}>Reach us quickly</h2>

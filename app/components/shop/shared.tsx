@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { Availability, ShopMenuDept, Swatch, WebsiteRange } from "../../../lib/onbase/client";
+import { imageAlt } from "../../../lib/alt";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
 
@@ -98,7 +99,7 @@ export function Watermark({ mode = "static" }: { mode?: "static" | "yield" | "ro
 // A range card for the shop grids: hero image (or swatch fallback), name,
 // colour count + availability. Whole card links to the product page.
 // categoryLabels maps category slugs -> display labels (from the taxonomy).
-export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Record<string, string> }) {
+export function RangeCard({ range, productBase = "/product" }: { range: WebsiteRange; categoryLabels?: Record<string, string>; productBase?: string }) {
   const image = range.heroImage || range.swatches.find((s) => s.image)?.image || null;
   // Hover reveals the LEAD colour's "see it installed" room shot (swatches are
   // lead-first) so it always matches the hero, never another colour's room.
@@ -106,7 +107,7 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
   const colourCount = range.swatches.length;
   return (
     <Link
-      href={`/product/${range.slug}`}
+      href={`${productBase}/${range.slug}`}
       style={{
         display: "block",
         textDecoration: "none",
@@ -125,7 +126,7 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image}
-            alt={range.name}
+            alt={imageAlt(range, { kind: "primary" })}
             loading="lazy"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
@@ -147,7 +148,7 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={roomShot}
-            alt=""
+            alt={imageAlt(range, { kind: "installed", swatch: range.swatches[0] })}
             loading="lazy"
             className="ow-room-shot"
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -176,9 +177,41 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
         >
           {range.name}
         </h3>
-        <p style={{ margin: "6px 0 0", fontSize: 13, color: "#8a8577" }}>
-          {colourCount > 1 ? `${colourCount} options` : "1 option"}
-        </p>
+        <div style={{ margin: "8px 0 0", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13, color: "#8a8577" }}>
+            {colourCount > 1 ? `${colourCount} options` : "1 option"}
+          </span>
+          {/* Colour thumbnails - a quick visual that a product comes in variations.
+              Capped + lazy so the grid stays fast; falls back to a hex dot. */}
+          {colourCount > 1 && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+              {range.swatches.slice(0, 5).map((s, i) =>
+                s.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={i}
+                    src={s.image}
+                    alt=""
+                    loading="lazy"
+                    width={22}
+                    height={22}
+                    title={s.colour}
+                    style={{ width: 22, height: 22, borderRadius: 5, objectFit: "cover", border: "1px solid var(--line)", display: "block" }}
+                  />
+                ) : (
+                  <span
+                    key={i}
+                    title={s.colour}
+                    style={{ width: 22, height: 22, borderRadius: 5, background: s.swatchHex || "#d8d3c7", border: "1px solid var(--line)", display: "block" }}
+                  />
+                ),
+              )}
+              {colourCount > 5 && (
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8577" }}>+{colourCount - 5}</span>
+              )}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );
@@ -188,11 +221,11 @@ export function RangeCard({ range }: { range: WebsiteRange; categoryLabels?: Rec
 // filter is active, so a shopper filtering Beige sees every beige colourway
 // as its own card (never hidden inside a range). Links straight to the
 // product page with the colour pre-selected.
-export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: Swatch }) {
+export function ColourwayCard({ range, swatch, productBase = "/product" }: { range: WebsiteRange; swatch: Swatch; productBase?: string }) {
   const image = swatch.image || range.heroImage || null;
   const roomShot = swatch.installedImage || null;
   const special = swatch.special ?? range.special ?? null;
-  const href = `/product/${swatch.slug || range.slug}?c=${encodeURIComponent(swatch.colour)}`;
+  const href = `${productBase}/${swatch.slug || range.slug}?c=${encodeURIComponent(swatch.colour)}`;
   return (
     <Link
       href={href}
@@ -214,7 +247,7 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image}
-            alt={`${range.name} - ${swatch.colour}`}
+            alt={imageAlt(range, { kind: "primary", swatch })}
             loading="lazy"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
@@ -225,7 +258,7 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={roomShot}
-            alt=""
+            alt={imageAlt(range, { kind: "installed", swatch })}
             loading="lazy"
             className="ow-room-shot"
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -270,9 +303,12 @@ export function ColourwayCard({ range, swatch }: { range: WebsiteRange; swatch: 
 export function PairsWellWith({
   pairs,
   categoryLabels,
+  productBase = "/product",
 }: {
   pairs: { range: WebsiteRange; reason: string }[];
   categoryLabels?: Record<string, string>;
+  /** Where the suggestion cards link - "/product" (public) or the trade base. */
+  productBase?: string;
 }) {
   if (!pairs.length) return null;
   return (
@@ -309,7 +345,7 @@ export function PairsWellWith({
                 {reason}
               </span>
             </div>
-            <RangeCard range={range} categoryLabels={categoryLabels} />
+            <RangeCard range={range} categoryLabels={categoryLabels} productBase={productBase} />
           </div>
         ))}
       </div>

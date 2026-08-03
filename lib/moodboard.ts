@@ -12,7 +12,8 @@
 import sharp from "sharp";
 import path from "node:path";
 import { readFile } from "node:fs/promises";
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage, type Color } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 
 export type SharePiece = {
   kind: string;
@@ -200,15 +201,27 @@ export async function composeBoardImage(
   if (payload.board.stoneUrl) bgBuf = await resolveImg(payload.board.stoneUrl, origin);
   if (!bgBuf) bgBuf = await loadAsset("/images/colour-board.jpg", origin);
 
+  // The benchtop is often upscaled to fill the (tall, on mobile) board, so a mild
+  // sharpen restores crispness in the stone veining after the resize.
   const base = bgBuf
-    ? sharp(await sharp(bgBuf).resize(W, H, { fit: "cover" }).toBuffer())
+    ? sharp(
+        await sharp(bgBuf)
+          .resize(W, H, { fit: "cover" })
+          .sharpen({ sigma: 1 })
+          .toBuffer(),
+      )
     : sharp({
         create: { width: W, height: H, channels: 3, background: "#efece5" },
       });
 
-  // Composite pieces bottom-up in stacking (z) order.
+  // Composite pieces bottom-up in stacking (z) order, tracking the bounding box
+  // of what actually lands on the board.
   const ordered = [...payload.pieces].sort((a, b) => (a.z || 0) - (b.z || 0));
   const composites: sharp.OverlayOptions[] = [];
+  let minX = W;
+  let minY = H;
+  let maxX = 0;
+  let maxY = 0;
   for (const p of ordered) {
     const pw = Math.max(8, Math.round(p.w * scale));
     const ph = Math.max(8, Math.round(p.h * scale));
@@ -216,23 +229,53 @@ export async function composeBoardImage(
     const top = Math.round(p.y * scale);
     try {
       const buf = await buildPiece(p, pw, ph, origin);
-      if (buf) composites.push({ input: buf, left, top });
+      if (buf) {
+        composites.push({ input: buf, left, top });
+        minX = Math.min(minX, left);
+        minY = Math.min(minY, top);
+        maxX = Math.max(maxX, left + pw);
+        maxY = Math.max(maxY, top + ph);
+      }
     } catch {
       /* skip a piece that fails to build */
     }
   }
 
-  return base.composite(composites).png().toBuffer();
+  const full = await base.composite(composites).png().toBuffer();
+
+  // Crop to the arrangement's bounding box + a little padding. A board built on a
+  // phone is a tall portrait canvas with lots of empty benchtop; emailed whole it
+  // reads as a stretched sliver. Cropping to the pieces makes it a tight moodboard
+  // on any device. No-op when the pieces already fill the board.
+  if (composites.length && maxX > minX && maxY > minY) {
+    const pad = Math.round(Math.min(W, H) * 0.06);
+    const cropL = Math.max(0, minX - pad);
+    const cropT = Math.max(0, minY - pad);
+    const cropR = Math.min(W, maxX + pad);
+    const cropB = Math.min(H, maxY + pad);
+    const cropW = cropR - cropL;
+    const cropH = cropB - cropT;
+    if (cropW > 60 && cropH > 60 && (cropW < W - 4 || cropH < H - 4)) {
+      return sharp(full).extract({ left: cropL, top: cropT, width: cropW, height: cropH }).png().toBuffer();
+    }
+  }
+  return full;
 }
 
 // ---- PDF -------------------------------------------------------------------
 
-const INK = rgb(0.125, 0.188, 0.227); // #20303a
-const ACCENT = rgb(0.816, 0.416, 0.271); // #d06a45
-const MUTED = rgb(0.54, 0.52, 0.47);
-const LINE = rgb(0.86, 0.84, 0.8);
+// Palette matched to the OnWood emails/brand: warm cream ground, teal-ink ("teak")
+// for text + the dark band, terracotta accent.
+const CREAM = rgb(0.965, 0.945, 0.91); // #f6f1e8
+const INK = rgb(0.125, 0.188, 0.227); // #20303a teal-ink
+const MUTED = rgb(0.42, 0.478, 0.502); // #6b7a80 muted teal-grey
+const FAINT = rgb(0.55, 0.6, 0.62);
+const LINE = rgb(0.87, 0.845, 0.8);
+const ACCENT = rgb(0.816, 0.416, 0.271); // #d06a45 terracotta
+const DARK = rgb(0.125, 0.188, 0.227); // #20303a — same teal-ink band as the emails
+const ONCREAM = rgb(0.965, 0.945, 0.91);
 
-// Keep drawn text within StandardFont (WinAnsi) - strip anything it can't encode.
+// Names can carry accents; keep to what the embedded fonts cover (Latin-1).
 const safe = (s: string) => (s || "").replace(/[^\x20-\x7E\xA0-\xFF]/g, "").trim();
 
 // Supplier / manufacturer per piece kind, for the finishes list.
@@ -242,11 +285,27 @@ const SUPPLIERS: Record<string, { label: string; supplier: string }> = {
   flooring: { label: "Flooring", supplier: "Quick-Step" },
   carpet: { label: "Carpet", supplier: "Godfrey Hirst" },
   timber: { label: "Cabinetry", supplier: "Laminex" },
-  metal: { label: "Metal finishes", supplier: "Designer finish" },
-  styling: { label: "Styling", supplier: "Provincial Home Living" },
+  metal: { label: "Metal", supplier: "Designer finish" },
+  styling: { label: "Styling", supplier: "OnWood" },
   chip: { label: "Decor", supplier: "" },
 };
 const GROUP_ORDER = ["paint", "tile", "flooring", "carpet", "timber", "metal", "styling", "chip"];
+const IMAGE_KINDS = new Set(["tile", "flooring", "carpet", "timber", "styling", "metal"]);
+
+// Cover-fit a photo to wPx x hPx with rounded (transparent) corners, so images
+// sit as rounded cards on the cream page with no stretch.
+async function roundedCover(buf: Buffer, wPx: number, hPx: number, rPx: number): Promise<Buffer | null> {
+  try {
+    const w = Math.max(2, Math.round(wPx));
+    const h = Math.max(2, Math.round(hPx));
+    const resized = await sharp(buf).resize(w, h, { fit: "cover" }).toBuffer();
+    return sharp(resized).composite([{ input: roundMask(w, h, rPx), blend: "dest-in" }]).png().toBuffer();
+  } catch {
+    return null;
+  }
+}
+
+type Finish = { key: string; cat: string; name: string; sub: string; url?: string; color?: string };
 
 export async function buildMoodboardPdf(
   payload: SharePayload,
@@ -255,213 +314,326 @@ export async function buildMoodboardPdf(
   origin: string,
 ): Promise<Buffer> {
   const pdf = await PDFDocument.create();
+  pdf.registerFontkit(fontkit);
+
+  // Embed the design's Instrument Serif + Space Mono; Helvetica covers the sans.
+  // Any font that can't load falls back so a PDF always renders.
   const helv = await pdf.embedFont(StandardFonts.Helvetica);
   const helvB = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const loadFont = async (rel: string, fallback: PDFFont): Promise<PDFFont> => {
+    try {
+      const bytes = await loadAsset(rel, origin);
+      if (bytes) return await pdf.embedFont(bytes, { subset: true });
+    } catch {
+      /* fall back */
+    }
+    return fallback;
+  };
+  const serif = await loadFont("/fonts/InstrumentSerif-Regular.ttf", helvB);
+  const mono = await loadFont("/fonts/SpaceMono-Regular.ttf", helv);
+  const monoB = await loadFont("/fonts/SpaceMono-Bold.ttf", helvB);
 
   const W = 595.28;
   const H = 841.89;
-  const M = 42;
+  const M = 44;
   const cw = W - M * 2;
 
-  let page = pdf.addPage([W, H]);
-  let cursor = 0; // distance from the top of the current page
-
-  const bottomLimit = 70; // leave room for the footer
-  const ensure = (need: number) => {
-    if (H - cursor - need < bottomLimit) {
-      drawFooter(page);
-      page = pdf.addPage([W, H]);
-      cursor = M;
-    }
+  // Top-origin text helpers (pdf-lib's y is measured from the bottom).
+  const T = (page: PDFPage, s: string, x: number, top: number, size: number, font: PDFFont, color: Color) =>
+    page.drawText(safe(s), { x, y: H - top - size, size, font, color });
+  const TR = (page: PDFPage, s: string, xRight: number, top: number, size: number, font: PDFFont, color: Color) =>
+    T(page, s, xRight - font.widthOfTextAtSize(safe(s), size), top, size, font, color);
+  const fitSize = (s: string, font: PDFFont, maxW: number, start: number, min: number) => {
+    let sz = start;
+    while (sz > min && font.widthOfTextAtSize(safe(s), sz) > maxW) sz -= 0.5;
+    return sz;
   };
-
-  const drawFooter = (pg: typeof page) => {
-    pg.drawText(
-      safe(
-        "OnWood Tiles  |  2/11 Packer Road, Baringa QLD  |  onwoodtiles.com.au  |  sales@onwoodtiles.com.au",
-      ),
-      { x: M, y: 34, size: 8, font: helv, color: MUTED },
-    );
+  const ellipsize = (s: string, font: PDFFont, size: number, maxW: number) => {
+    let t = safe(s);
+    if (font.widthOfTextAtSize(t, size) <= maxW) return t;
+    while (t.length > 1 && font.widthOfTextAtSize(`${t}...`, size) > maxW) t = t.slice(0, -1);
+    return `${t}...`;
   };
-
-  // Wrapped paragraph; returns the height consumed.
-  const wrapText = (
-    text: string,
-    x: number,
-    topCursor: number,
-    maxW: number,
-    size: number,
-    font: PDFFont,
-    color = MUTED,
-    lineH = size * 1.4,
-  ) => {
+  const wrap = (page: PDFPage, text: string, x: number, top: number, maxW: number, size: number, font: PDFFont, color: Color, lineH = size * 1.5) => {
     const words = safe(text).split(/\s+/);
     let line = "";
     let used = 0;
-    const flush = () => {
-      page.drawText(line, { x, y: H - topCursor - used - size, size, font, color });
-      used += lineH;
-    };
-    for (const word of words) {
-      const test = line ? `${line} ${word}` : word;
-      if (font.widthOfTextAtSize(test, size) > maxW && line) {
-        flush();
-        line = word;
-      } else {
-        line = test;
-      }
+    const flush = () => { T(page, line, x, top + used, size, font, color); used += lineH; };
+    for (const w of words) {
+      const t = line ? `${line} ${w}` : w;
+      if (font.widthOfTextAtSize(t, size) > maxW && line) { flush(); line = w; } else line = t;
     }
     if (line) flush();
     return used;
   };
-
-  // Header band + logo.
-  page.drawRectangle({ x: 0, y: H - 78, width: W, height: 78, color: INK });
-  let logoDrawn = false;
-  try {
-    const logo = await loadAsset("/onwood-logo-white.png", origin);
-    if (logo) {
-      const img = await pdf.embedPng(logo);
-      const lw = 128;
-      const lh = (img.height / img.width) * lw;
-      page.drawImage(img, { x: M, y: H - 44 - lh / 2, width: lw, height: lh });
-      logoDrawn = true;
-    }
-  } catch {
-    /* fall back to text */
-  }
-  if (!logoDrawn) {
-    page.drawText("OnWood Tiles", { x: M, y: H - 46, size: 22, font: helvB, color: rgb(1, 1, 1) });
-  }
-  // Centred in the header banner (clears the logo on the left + date on the right).
-  const vbLabel = "VISION BOARD";
-  const vbSize = 13;
-  page.drawText(vbLabel, {
-    x: (W - helvB.widthOfTextAtSize(vbLabel, vbSize)) / 2,
-    y: H - 47,
-    size: vbSize,
-    font: helvB,
-    color: ACCENT,
-  });
-  const dstr = safe(dateStr);
-  page.drawText(dstr, {
-    x: W - M - helv.widthOfTextAtSize(dstr, 9),
-    y: H - 44,
-    size: 9,
-    font: helv,
-    color: rgb(0.85, 0.85, 0.83),
-  });
-  cursor = 78 + 22;
-
-  // Title + intro.
-  const title = safe(`${payload.customer.name || "Your"}'s vision board`);
-  page.drawText(title, { x: M, y: H - cursor - 16, size: 17, font: helvB, color: INK });
-  cursor += 26;
-  cursor += wrapText(
-    "Here's the look you built on our Vision Board. The finishes you chose are listed below - bring this in, or reply to this email and our team will help bring it to life.",
-    M,
-    cursor,
-    cw,
-    10,
-    helv,
-  );
-  cursor += 12;
-
-  // Board image (bordered).
-  const ar = (payload.board.w || 900) / (payload.board.h || 560);
-  let imgW = cw;
-  let imgH = imgW / ar;
-  const maxImgH = 340;
-  if (imgH > maxImgH) {
-    imgH = maxImgH;
-    imgW = imgH * ar;
-  }
-  const imgX = M + (cw - imgW) / 2;
-  let boardImg: PDFImage | null = null;
-  try {
-    boardImg = await pdf.embedPng(boardPng);
-  } catch {
-    boardImg = null;
-  }
-  if (boardImg) {
-    page.drawRectangle({
-      x: imgX - 1,
-      y: H - cursor - imgH - 1,
-      width: imgW + 2,
-      height: imgH + 2,
-      borderColor: LINE,
-      borderWidth: 1,
-    });
-    page.drawImage(boardImg, { x: imgX, y: H - cursor - imgH, width: imgW, height: imgH });
-    cursor += imgH + 24;
-  }
-
-  // "Your finishes" heading.
-  ensure(30);
-  page.drawText("YOUR FINISHES", { x: M, y: H - cursor - 11, size: 11, font: helvB, color: ACCENT });
-  cursor += 22;
-
-  // Benchtop first (if a stone was picked).
-  const drawItem = (label: string, detail: string) => {
-    ensure(18);
-    page.drawText(safe(label), { x: M + 6, y: H - cursor - 10, size: 10, font: helvB, color: INK });
-    const lw = helvB.widthOfTextAtSize(safe(label), 10);
-    if (detail)
-      page.drawText(safe(detail), {
-        x: M + 12 + lw,
-        y: H - cursor - 10,
-        size: 9.5,
-        font: helv,
-        color: MUTED,
-      });
-    cursor += 17;
+  const hexRgb = (hex?: string): Color => {
+    const m = (hex || "").replace("#", "").match(/^([0-9a-f]{6})$/i);
+    if (!m) return rgb(0.85, 0.83, 0.79);
+    const int = parseInt(m[1], 16);
+    return rgb(((int >> 16) & 255) / 255, ((int >> 8) & 255) / 255, (int & 255) / 255);
   };
-  const drawGroupHeading = (label: string) => {
-    ensure(20);
-    cursor += 4;
-    page.drawText(safe(label.toUpperCase()), {
-      x: M,
-      y: H - cursor - 9,
-      size: 8.5,
-      font: helvB,
-      color: MUTED,
-    });
-    cursor += 15;
+  const bg = (page: PDFPage) => page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: CREAM });
+  const footer = (page: PDFPage) => {
+    page.drawLine({ start: { x: M, y: 52 }, end: { x: W - M, y: 52 }, thickness: 0.75, color: LINE });
+    page.drawText(safe("2/11 Packer Road, Baringa QLD   ·   onwoodtiles.com.au   ·   sales@onwoodtiles.com.au"), { x: M, y: 36, size: 8, font: mono, color: MUTED });
   };
 
-  // Benchtop - always listed (the board IS a Caesarstone benchtop). Name the
-  // specific colour if the customer picked one, else note the default surface.
-  drawGroupHeading("Benchtop");
-  if (payload.board.stoneName) drawItem(payload.board.stoneName, "-  Caesarstone");
-  else drawItem("Caesarstone benchtop", "");
-
-  // Grouped finishes (dedupe by name within a kind).
+  // ── gather the finishes (benchtop first, then grouped, deduped) ──────────────
+  const finishes: Finish[] = [];
+  finishes.push({
+    key: "benchtop",
+    cat: "BENCHTOP",
+    name: payload.board.stoneName || "Caesarstone benchtop",
+    sub: payload.board.stoneName ? "Caesarstone" : "",
+    url: payload.board.stoneUrl || undefined,
+  });
   for (const kind of GROUP_ORDER) {
     const meta = SUPPLIERS[kind];
     if (!meta) continue;
     const seen = new Set<string>();
-    const items = payload.pieces.filter((p) => {
-      if (p.kind !== kind) return false;
-      const n = (p.name || "").trim().toLowerCase();
-      if (!n || seen.has(n)) return false;
-      seen.add(n);
-      return true;
-    });
-    if (!items.length) continue;
-    drawGroupHeading(meta.label);
-    for (const p of items) {
-      const bits = [meta.supplier, p.sub].filter(Boolean).join(", ");
-      drawItem(p.name, bits ? `-  ${bits}` : "");
+    for (const p of payload.pieces) {
+      if (p.kind !== kind) continue;
+      const n = (p.name || "").trim();
+      const nk = n.toLowerCase();
+      if (!n || seen.has(nk)) continue;
+      seen.add(nk);
+      finishes.push({
+        key: `${kind}:${nk}`,
+        cat: meta.label.toUpperCase(),
+        name: n,
+        sub: [meta.supplier, p.sub].filter(Boolean).join(", "),
+        url: IMAGE_KINDS.has(kind) ? p.url : undefined,
+        color: p.color,
+      });
     }
   }
 
-  // Any AI room render is a bonus visual, note it once.
-  if (payload.pieces.some((p) => p.kind === "render")) {
-    drawGroupHeading("Room render");
-    drawItem("AI-generated room visual", "-  a guide to the finished look");
+  // Pre-embed swatch thumbnails (rounded).
+  const thumbs: Record<string, PDFImage | null> = {};
+  await Promise.all(
+    finishes.map(async (f) => {
+      if (!f.url) { thumbs[f.key] = null; return; }
+      try {
+        const raw = await resolveImg(f.url, origin);
+        const rc = raw ? await roundedCover(raw, 72, 72, 10) : null;
+        thumbs[f.key] = rc ? await pdf.embedPng(rc) : null;
+      } catch {
+        thumbs[f.key] = null;
+      }
+    }),
+  );
+
+  // ── PAGE 1 ───────────────────────────────────────────────────────────────
+  const page1 = pdf.addPage([W, H]);
+  bg(page1);
+  let y = 42;
+
+  // Top bar: LARGE ink logo + right-aligned meta.
+  const inkLogo = (await loadAsset("/onwood-logo-ink.png", origin)) || (await loadAsset("/onwood-logo-ink-tight.png", origin));
+  let logoBottom = y + 30;
+  if (inkLogo) {
+    try {
+      const img = await pdf.embedPng(inkLogo);
+      const lw = 190; // much larger than before
+      const lh = (img.height / img.width) * lw;
+      page1.drawImage(img, { x: M, y: H - y - lh, width: lw, height: lh });
+      logoBottom = y + lh;
+    } catch {
+      T(page1, "OnWood Tiles", M, y + 2, 26, serif, INK);
+      logoBottom = y + 30;
+    }
+  } else {
+    T(page1, "OnWood Tiles", M, y + 2, 26, serif, INK);
+  }
+  TR(page1, "VISION BOARD", W - M, y + 2, 9, monoB, ACCENT);
+  TR(page1, dateStr, W - M, y + 18, 8.5, mono, MUTED);
+
+  y = logoBottom + 28;
+  page1.drawLine({ start: { x: M, y: H - y }, end: { x: W - M, y: H - y }, thickness: 0.75, color: LINE });
+  y += 26;
+
+  // Prepared-for + big serif name (auto-shrinks to fit).
+  T(page1, "PREPARED FOR", M, y, 8.5, monoB, MUTED);
+  y += 22;
+  const nm = payload.customer.name || "Your vision board";
+  const nmSize = fitSize(nm, serif, cw, 58, 26);
+  T(page1, ellipsize(nm, serif, nmSize, cw), M, y, nmSize, serif, INK);
+  y += nmSize * 0.96 + 12;
+
+  y += wrap(
+    page1,
+    "Here's the look you built on our Vision Board - the finishes you chose, and your room brought to life. Bring it in, or reply to your email and our team will help make it real.",
+    M, y, cw, 10.5, helv, MUTED, 15.5,
+  );
+  y += 26;
+
+  // Two columns: a LARGE moodboard (left) + a generously spaced finishes list (right).
+  const colTop = y;
+  const colBottom = H - 92;
+  const gap = 24;
+  const boardW = Math.round(cw * 0.55);
+  const listX = M + boardW + gap;
+  const listRight = M + cw;
+
+  // LEFT: the moodboard collage, CONTAINED (never stretched), as large as it fits.
+  let bImg: PDFImage | null = null;
+  try { bImg = await pdf.embedPng(boardPng); } catch { bImg = null; }
+  if (bImg) {
+    const bAr = bImg.width / bImg.height;
+    const maxH = colBottom - colTop - 24;
+    let iw = boardW;
+    let ih = iw / bAr;
+    if (ih > maxH) { ih = maxH; iw = ih * bAr; }
+    const ix = M + (boardW - iw) / 2;
+    page1.drawRectangle({ x: ix - 1.5, y: H - colTop - ih - 1.5, width: iw + 3, height: ih + 3, borderColor: LINE, borderWidth: 1 });
+    page1.drawImage(bImg, { x: ix, y: H - colTop - ih, width: iw, height: ih });
+    T(page1, "YOUR BOARD", M, colTop + ih + 12, 8, monoB, MUTED);
   }
 
-  drawFooter(page);
+  // RIGHT: numbered finishes list with swatch thumbnails, generously spaced.
+  T(page1, "YOUR FINISHES", listX, colTop, 9, monoB, ACCENT);
+  let ly = colTop + 26;
+  const rowH = 50;
+  const maxRows = Math.max(1, Math.floor((colBottom - ly) / rowH));
+  const shown = finishes.length > maxRows ? finishes.slice(0, maxRows - 1) : finishes;
+  shown.forEach((f, i) => {
+    const sz = 34;
+    T(page1, String(i + 1).padStart(2, "0"), listX, ly + 7, 9, mono, FAINT);
+    const tx = listX + 22;
+    const thumb = thumbs[f.key];
+    if (thumb) {
+      page1.drawImage(thumb, { x: tx, y: H - ly - sz, width: sz, height: sz });
+    } else if (f.color) {
+      page1.drawRectangle({ x: tx, y: H - ly - sz, width: sz, height: sz, color: hexRgb(f.color), borderColor: LINE, borderWidth: 0.75 });
+    } else {
+      page1.drawRectangle({ x: tx, y: H - ly - sz, width: sz, height: sz, color: rgb(0.9, 0.88, 0.84) });
+    }
+    const bx = tx + sz + 11;
+    const bw = listRight - bx;
+    T(page1, f.cat, bx, ly, 7.5, mono, MUTED);
+    T(page1, ellipsize(f.name, helvB, 11.5, bw), bx, ly + 12, 11.5, helvB, INK);
+    if (f.sub) T(page1, ellipsize(f.sub, helv, 8.5, bw), bx, ly + 27, 8.5, helv, MUTED);
+    page1.drawLine({ start: { x: listX, y: H - (ly + rowH - 8) }, end: { x: listRight, y: H - (ly + rowH - 8) }, thickness: 0.5, color: LINE });
+    ly += rowH;
+  });
+  if (finishes.length > shown.length) {
+    T(page1, `+ ${finishes.length - shown.length} more finishes`, listX + 22, ly + 2, 9, mono, ACCENT);
+  }
+  footer(page1);
+
+  // ── PAGE 2 ───────────────────────────────────────────────────────────────
+  const page2 = pdf.addPage([W, H]);
+  bg(page2);
+  let y2 = 50;
+  T(page2, "THE ROOM", M, y2, 8.5, monoB, ACCENT);
+  y2 += 20;
+  const hSize = fitSize("Step inside your future room.", serif, cw, 34, 22);
+  T(page2, "Step inside your future room.", M, y2, hSize, serif, INK);
+  y2 += hSize * 0.96 + 18;
+
+  // Embed a render into a box at ~2x resolution (crisp), rounded.
+  const embedRender = async (url: string, wPt: number, hPt: number): Promise<PDFImage | null> => {
+    try {
+      const raw = await resolveImg(url, origin);
+      const rc = raw ? await roundedCover(raw, wPt * 2, hPt * 2, 18) : null;
+      return rc ? await pdf.embedPng(rc) : null;
+    } catch {
+      return null;
+    }
+  };
+  const soft = (x: number, top: number, w: number, h: number) =>
+    page2.drawRectangle({ x, y: H - top - h, width: w, height: h, color: rgb(0.93, 0.91, 0.87) });
+
+  // Show ALL the room renders the customer generated. One = a big hero; several
+  // = a 2-up grid (up to 4).
+  const renders = payload.pieces.filter((p) => p.kind === "render" && p.url);
+  const heroH = 322;
+  if (renders.length === 0) {
+    soft(M, y2, cw, heroH);
+    T(page2, "Create a room visual on our Vision Board to see your palette come to life.", M + 26, y2 + heroH / 2 - 8, 13, serif, MUTED);
+    y2 += heroH;
+  } else if (renders.length === 1) {
+    const img = await embedRender(renders[0].url!, cw, heroH);
+    if (img) page2.drawImage(img, { x: M, y: H - y2 - heroH, width: cw, height: heroH });
+    else soft(M, y2, cw, heroH);
+    y2 += heroH;
+  } else {
+    const g = 14;
+    const cols = 2;
+    const cellW = (cw - g) / cols;
+    const cellH = Math.round(cellW * 0.74);
+    const show = renders.slice(0, 4);
+    for (let i = 0; i < show.length; i++) {
+      const cx = M + (i % cols) * (cellW + g);
+      const cyTop = y2 + Math.floor(i / cols) * (cellH + g);
+      const img = await embedRender(show[i].url!, cellW, cellH);
+      if (img) page2.drawImage(img, { x: cx, y: H - cyTop - cellH, width: cellW, height: cellH });
+      else soft(cx, cyTop, cellW, cellH);
+    }
+    const rows = Math.ceil(show.length / cols);
+    y2 += rows * cellH + (rows - 1) * g;
+    if (renders.length > show.length) {
+      y2 += 14;
+      T(page2, `+ ${renders.length - show.length} more room visuals`, M, y2, 8.5, mono, ACCENT);
+    }
+  }
+  y2 += 12;
+
+  // AI disclaimer - the room visuals are AI-generated.
+  if (renders.length > 0) {
+    y2 += wrap(
+      page2,
+      "Please note: the room visuals above are AI-generated. While our generator is accurate, they are a guide for visual inspiration only - not an exact representation of the real product. Colour, texture, pattern and scale can vary; always confirm with a physical sample before ordering.",
+      M, y2, cw, 8, mono, MUTED, 12,
+    );
+    y2 += 12;
+  } else {
+    y2 += 22;
+  }
+
+  // Dark "let's bring it to life" next-steps band (rounded corners - pdf-lib
+  // rectangles are square, so draw it as a rounded shape via sharp).
+  const bandH = 168;
+  const bandTop = y2;
+  try {
+    const bw = Math.round(cw * 2);
+    const bh = bandH * 2;
+    const bandSvg = Buffer.from(
+      `<svg width="${bw}" height="${bh}" xmlns="http://www.w3.org/2000/svg"><rect width="${bw}" height="${bh}" rx="34" ry="34" fill="#20303a"/></svg>`,
+    );
+    const bandImg = await pdf.embedPng(await sharp(bandSvg).png().toBuffer());
+    page2.drawImage(bandImg, { x: M, y: H - bandTop - bandH, width: cw, height: bandH });
+  } catch {
+    page2.drawRectangle({ x: M, y: H - bandTop - bandH, width: cw, height: bandH, color: DARK });
+  }
+  T(page2, "NEXT STEPS", M + 26, bandTop + 26, 8, monoB, rgb(0.82, 0.55, 0.4));
+  T(page2, "Let's bring it to life.", M + 26, bandTop + 40, 26, serif, ONCREAM);
+  const whiteLogo = await loadAsset("/onwood-logo-white.png", origin);
+  if (whiteLogo) {
+    try {
+      const wl = await pdf.embedPng(whiteLogo);
+      const ww = 104;
+      const wh = (wl.height / wl.width) * ww;
+      page2.drawImage(wl, { x: W - M - 26 - ww, y: H - bandTop - 34 - wh, width: ww, height: wh });
+    } catch {
+      /* logo optional */
+    }
+  }
+  const steps: [string, string, string][] = [
+    ["01", "REPLY OR DROP IN", "Reply to your email or visit our Baringa showroom - we'd love to meet you."],
+    ["02", "SEE IT IN PERSON", "We'll pull the real samples together so you can see and feel every finish."],
+    ["03", "WE TAKE IT FROM HERE", "Measure, quote and supply - honest Sunshine Coast advice, start to finish."],
+  ];
+  const stepW = (cw - 52) / 3;
+  steps.forEach((s, i) => {
+    const sx = M + 26 + i * stepW;
+    const st = bandTop + 92;
+    T(page2, s[0], sx, st, 9, mono, rgb(0.82, 0.55, 0.4));
+    T(page2, s[1], sx, st + 16, 8.5, monoB, ONCREAM);
+    wrap(page2, s[2], sx, st + 30, stepW - 16, 8.5, helv, rgb(0.78, 0.75, 0.7), 12);
+  });
+  footer(page2);
+
   const bytes = await pdf.save();
   return Buffer.from(bytes);
 }

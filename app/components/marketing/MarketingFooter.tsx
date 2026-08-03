@@ -206,13 +206,18 @@ export default async function MarketingFooter() {
         <div style={bottomBarStyle}>
           <div style={infoStyle}>
             © 2026 {SHOP.name} · {SHOP.suburb} {SHOP.state} · Tiles, supply only
+            <br />
+            OnWood Tiles is a registered business name of Reagan Genrich, ABN 41 522 687 021.
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <Link href="/terms" className="owf-link" style={{ ...infoStyle, textDecoration: "none" }}>
-              Terms of Service
+            <Link href="/terms-of-sale" className="owf-link" style={{ ...infoStyle, textDecoration: "none" }}>
+              Terms of Sale
             </Link>
-            <Link href="/website-terms" className="owf-link" style={{ ...infoStyle, textDecoration: "none" }}>
+            <Link href="/terms-of-use" className="owf-link" style={{ ...infoStyle, textDecoration: "none" }}>
               Website Terms
+            </Link>
+            <Link href="/privacy-policy" className="owf-link" style={{ ...infoStyle, textDecoration: "none" }}>
+              Privacy
             </Link>
             <Link href="/trade/login" className="owf-link" style={{ ...infoStyle, fontWeight: 700, textDecoration: "none", color: "var(--accent)" }}>
               Trade Partner login

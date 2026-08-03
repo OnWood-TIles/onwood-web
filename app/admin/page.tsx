@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import { getNav, getTaxonomy } from "../../lib/onbase/client";
@@ -15,9 +16,14 @@ export default async function AdminPage() {
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>
       <MarketingNav />
       <main style={{ maxWidth: 980, margin: "0 auto", padding: "150px 28px 90px" }}>
-        <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--accent)", margin: 0 }}>
-          Site admin
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--accent)", margin: 0 }}>
+            Site admin
+          </p>
+          <Link href="/admin/blog" style={{ fontSize: 14, fontWeight: 800, color: "#fff", background: "var(--accent)", borderRadius: 999, padding: "9px 18px", textDecoration: "none" }}>
+            Blog editor →
+          </Link>
+        </div>
         <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(28px,4vw,42px)", letterSpacing: "-.02em", margin: "6px 0 10px" }}>
           Navigation designer
         </h1>

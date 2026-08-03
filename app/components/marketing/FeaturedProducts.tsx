@@ -2,6 +2,7 @@ import Reveal from "../ui/Reveal";
 import FeaturedProductCard, { type FeaturedProduct } from "./FeaturedProductCard";
 import { FEATURED_HEAD } from "../../../lib/content";
 import { listRanges, getTaxonomy, type WebsiteRange } from "../../../lib/onbase/client";
+import { imageAlt } from "../../../lib/alt";
 
 // "Currently On Trend" - a curated strip of live products from OnBase, each shown
 // with its product photo AND its "see it installed" room shot. Prefers products
@@ -71,6 +72,8 @@ export default async function FeaturedProducts() {
     slug: r.slug,
     productImage: productImg(r) as string,
     roomImage: roomImg(r),
+    alt: imageAlt(r, { kind: "primary" }),
+    roomAlt: roomImg(r) ? imageAlt(r, { kind: "installed" }) : null,
     tag: (r.department && deptLabel.get(r.department)) || "Featured",
     special: r.special ?? null,
   }));

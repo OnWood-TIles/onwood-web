@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { tradeMe } from "../../../lib/onbase/trade";
+import { getShopMenu } from "../../../lib/onbase/client";
 import { CartProvider } from "./CartProvider";
 import TradeNav from "./TradeNav";
 
@@ -25,13 +26,16 @@ export default async function TradeAppLayout({ children }: { children: React.Rea
     redirect("/trade/login");
   }
 
+  // Powers the "Catalogue" hover mega-menu (same data as the public shop menu).
+  const shopDepts = await getShopMenu().catch(() => []);
+
   return (
     <CartProvider>
       <div
         data-theme="terracotta"
         style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--ink)" }}
       >
-        <TradeNav customerName={name} />
+        <TradeNav customerName={name} shopDepts={shopDepts} />
         <main style={{ maxWidth: 1180, margin: "0 auto", padding: "34px 24px 90px" }}>{children}</main>
       </div>
     </CartProvider>

@@ -108,14 +108,19 @@
 }
 
 html {
-  scroll-behavior: smooth;
   /* offset anchor jumps so targets clear the fixed marketing header */
   scroll-padding-top: 84px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+/* Smooth scrolling ONLY when jumping to an in-page anchor (a hash target is
+   present). Setting scroll-behavior: smooth on <html> unconditionally also
+   hijacks the App Router's scroll-to-top on navigation, turning the instant
+   reset into an interrupted animation that strands a fast-loading page
+   half-scrolled. Scoping it to :has(:target) keeps anchor links (/#contact,
+   /#showroom) smooth while letting route changes jump straight to the top. */
+@media (prefers-reduced-motion: no-preference) {
+  html:has(:target) {
+    scroll-behavior: smooth;
   }
 }
 

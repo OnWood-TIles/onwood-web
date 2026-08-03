@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ImageDisclosure from "../legal/ImageDisclosure";
 
 // A featured-product card that shows off BOTH the product photo and its
 // "see it installed" room shot. At rest: the tile/product photo fills the card
@@ -12,6 +13,9 @@ export type FeaturedProduct = {
   slug: string;
   productImage: string;
   roomImage: string | null;
+  // Descriptive alt text, built from the product's data (see lib/alt.ts).
+  alt: string;
+  roomAlt: string | null;
   tag: string;
   special: { price: number | null; was: number | null } | null;
 };
@@ -21,11 +25,12 @@ const money = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigi
 export default function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
   const hasRoom = !!p.roomImage;
   return (
+    <div>
     <Link href={`/product/${p.slug}`} className={`owf-card${hasRoom ? " owf-has-room" : ""}`} aria-label={p.name}>
       <div className="owf-media">
         {/* eslint-disable @next/next/no-img-element */}
-        <img className="owf-front" src={p.productImage} alt={p.name} loading="lazy" />
-        {hasRoom && <img className="owf-back" src={p.roomImage as string} alt={`${p.name} installed`} loading="lazy" />}
+        <img className="owf-front" src={p.productImage} alt={p.alt} loading="lazy" />
+        {hasRoom && <img className="owf-back" src={p.roomImage as string} alt={p.roomAlt ?? `${p.name} installed`} loading="lazy" />}
         {/* eslint-enable @next/next/no-img-element */}
 
         <span className="owf-bar" aria-hidden />
@@ -58,5 +63,8 @@ export default function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
         </div>
       </div>
     </Link>
+      {/* Imagery disclosure - outside the card Link (avoids nested anchors). */}
+      <ImageDisclosure variant="grid" style={{ padding: "0 2px" }} />
+    </div>
   );
 }

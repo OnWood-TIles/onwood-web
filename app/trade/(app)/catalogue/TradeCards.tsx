@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { PriceDisplayGst, Swatch, WebsiteRange } from "../../../../lib/onbase/client";
 import { AvailabilityPill, SpecialBadge, Watermark } from "../../../components/shop/shared";
 import { useCart } from "../CartProvider";
 import { boxesFor, coveragePerUnit, hasBoxes, isAreaUnit, roundUpToBox, round3, stepFor, stepQty, unitLabel, unitsForArea } from "../../../../lib/boxQty";
+import ImageDisclosure from "../../../components/legal/ImageDisclosure";
 
 // The trade portal renders the SAME shop range/colourway cards, but each carries
 // its trade pricing (RRP struck / Your Price) and an "Add to order" action. Adding
@@ -25,7 +27,7 @@ function gstSuffix(mode: PriceDisplayGst | undefined): string {
 // Swatches that can actually be ordered (carry trade pricing).
 const orderableSwatches = (range: WebsiteRange): Swatch[] => range.swatches.filter((s) => s.trade);
 
-type Summary = {
+export type Summary = {
   anyPriced: boolean;
   sameTrade: boolean;
   minTrade: number | null;
@@ -56,7 +58,7 @@ function summarise(range: WebsiteRange): Summary {
 }
 
 // The price block shown on a card (and re-used, condensed, in the dialog header).
-function PriceBlock({ s, singleSwatch }: { s: Summary; singleSwatch?: boolean }) {
+export function PriceBlock({ s, singleSwatch }: { s: Summary; singleSwatch?: boolean }) {
   const unitSuffix = s.unit ? ` / ${unitLabel(s.unit)}` : "";
   if (!s.anyPriced) {
     return (
@@ -153,6 +155,7 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
 
   return (
     <div style={cardStyle} className="ow-range-card">
+      <Link href={`/trade/catalogue/product/${range.slug}`} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -176,9 +179,30 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
           </div>
         )}
       </div>
+      </Link>
       <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <h3 style={nameStyle}>{range.name}</h3>
-        <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "#8a8577" }}>{colourCount > 1 ? `${colourCount} options` : "1 option"}</p>
+        {/* Imagery disclosure, adjacent to the card image. */}
+        <ImageDisclosure variant="grid" style={{ margin: "0 0 8px" }} />
+        <Link href={`/trade/catalogue/product/${range.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <h3 style={nameStyle}>{range.name}</h3>
+          {/* Colour thumbnails - mirrors the public shop card (capped + lazy). */}
+          <div style={{ margin: "6px 0 0", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12.5, color: "#8a8577" }}>{colourCount > 1 ? `${colourCount} options` : "1 option"}</span>
+            {range.swatches.length > 1 && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                {range.swatches.slice(0, 5).map((sw, i) =>
+                  sw.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={i} src={sw.image} alt="" loading="lazy" width={22} height={22} title={sw.colour} style={{ width: 22, height: 22, borderRadius: 5, objectFit: "cover", border: "1px solid var(--line)", display: "block" }} />
+                  ) : (
+                    <span key={i} title={sw.colour} style={{ width: 22, height: 22, borderRadius: 5, background: sw.swatchHex || "#d8d3c7", border: "1px solid var(--line)", display: "block" }} />
+                  ),
+                )}
+                {range.swatches.length > 5 && <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8577" }}>+{range.swatches.length - 5}</span>}
+              </span>
+            )}
+          </div>
+        </Link>
         <PriceBlock s={s} />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
           {s.anyPriced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
@@ -208,6 +232,7 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
 
   return (
     <div style={cardStyle} className="ow-range-card">
+      <Link href={`/trade/catalogue/product/${swatch.slug || range.slug}?c=${encodeURIComponent(swatch.colour)}`} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -227,12 +252,17 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
           </div>
         )}
       </div>
+      </Link>
       <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <h3 style={nameStyle}>{range.name}</h3>
-        <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "#8a8577", display: "flex", alignItems: "center", gap: 7 }}>
-          {swatch.swatchHex && <span style={{ width: 12, height: 12, borderRadius: "50%", background: swatch.swatchHex, border: "1px solid var(--line)", display: "inline-block" }} />}
-          {swatch.colour}
-        </p>
+        {/* Imagery disclosure, adjacent to the card image. */}
+        <ImageDisclosure variant="grid" style={{ margin: "0 0 8px" }} />
+        <Link href={`/trade/catalogue/product/${swatch.slug || range.slug}?c=${encodeURIComponent(swatch.colour)}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <h3 style={nameStyle}>{range.name}</h3>
+          <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "#8a8577", display: "flex", alignItems: "center", gap: 7 }}>
+            {swatch.swatchHex && <span style={{ width: 12, height: 12, borderRadius: "50%", background: swatch.swatchHex, border: "1px solid var(--line)", display: "inline-block" }} />}
+            {swatch.colour}
+          </p>
+        </Link>
         <PriceBlock s={s} singleSwatch />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
           {priced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
@@ -244,7 +274,7 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
 }
 
 // ── Add-to-order dialog ───────────────────────────────────────────────────────
-function AddToOrderModal({ range, preselectColour, onClose }: { range: WebsiteRange; preselectColour?: string; onClose: () => void }) {
+export function AddToOrderModal({ range, preselectColour, onClose }: { range: WebsiteRange; preselectColour?: string; onClose: () => void }) {
   const { add } = useCart();
   const swatches = useMemo(() => orderableSwatches(range), [range]);
 
