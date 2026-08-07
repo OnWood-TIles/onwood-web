@@ -55,18 +55,42 @@ export default async function BlogIndex() {
         <section style={{ position: "relative", overflow: "hidden", padding: "150px 24px 56px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 78% -8%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
-            <Reveal>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 9, padding: "7px 14px", borderRadius: 999, background: "color-mix(in srgb, var(--accent) 12%, var(--surface))", border: "1px solid var(--line)" }}>
-                <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--accent)" }} />
-                <span style={eyebrow}>The OnWood Journal · Ideas &amp; Inspiration</span>
-              </div>
-              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(38px,6.4vw,76px)", lineHeight: 1.02, margin: "20px 0 0", maxWidth: 14 + "ch" }}>
-                Ideas, guides &amp; {serif("inspiration")}
-              </h1>
-              <p style={{ fontSize: "clamp(16px,2vw,20px)", lineHeight: 1.6, color: "var(--muted)", maxWidth: "52ch", margin: "20px 0 0" }}>
-                Advice, ideas and inspiration for tiling and renovating on the Sunshine Coast, straight from our Baringa showroom. Real tips on tiles, stone cladding, flooring and getting the whole room right.
-              </p>
-            </Reveal>
+            <div className="bl-hero-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.12fr) minmax(0,0.88fr)", gap: 44, alignItems: "center" }}>
+              {/* Left: intro */}
+              <Reveal>
+                <div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 9, padding: "7px 14px", borderRadius: 999, background: "color-mix(in srgb, var(--accent) 12%, var(--surface))", border: "1px solid var(--line)" }}>
+                    <span style={{ width: 7, height: 7, borderRadius: 99, background: "var(--accent)" }} />
+                    <span style={eyebrow}>The OnWood Journal · Ideas &amp; Inspiration</span>
+                  </div>
+                  <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(34px,5vw,62px)", lineHeight: 1.03, margin: "20px 0 0", maxWidth: 14 + "ch" }}>
+                    Ideas, guides &amp; {serif("inspiration")}
+                  </h1>
+                  <p style={{ fontSize: "clamp(16px,2vw,20px)", lineHeight: 1.6, color: "var(--muted)", maxWidth: "52ch", margin: "20px 0 0" }}>
+                    Advice, ideas and inspiration for tiling and renovating on the Sunshine Coast, straight from our Baringa showroom. Real tips on tiles, stone cladding, flooring and getting the whole room right.
+                  </p>
+                </div>
+              </Reveal>
+
+              {/* Right: gallery card */}
+              <Reveal delay={0.12}>
+                <Link href="/gallery" className="bl-gallink" style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: 14, minHeight: 260, textDecoration: "none", color: "#F6F1E8", background: "var(--deep)", borderRadius: 22, padding: "clamp(24px,2.6vw,32px)" }}>
+                  <span aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(460px 220px at 92% 118%, color-mix(in srgb, var(--accent) 44%, transparent), transparent 62%)", pointerEvents: "none" }} />
+                  <span style={{ position: "relative" }}>
+                    <span style={{ ...eyebrow, color: "var(--accent2)" }}>The gallery · See it installed</span>
+                    <span style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(23px,2.6vw,32px)", lineHeight: 1.08, margin: "12px 0 0" }}>
+                      Our tiles &amp; stone {serif("in real rooms")}
+                    </span>
+                    <span style={{ display: "block", fontSize: 15, lineHeight: 1.6, color: "rgba(246,241,232,.74)", margin: "12px 0 0" }}>
+                      A visual wall of installed looks. Enlarge any image and click straight through to the product.
+                    </span>
+                  </span>
+                  <span className="bl-gallink-cta" style={{ position: "relative", marginTop: "auto", alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, padding: "13px 24px", borderRadius: 999, whiteSpace: "nowrap" }}>
+                    Open the gallery <span aria-hidden>→</span>
+                  </span>
+                </Link>
+              </Reveal>
+            </div>
           </div>
         </section>
 
@@ -98,27 +122,6 @@ export default async function BlogIndex() {
             </div>
           </section>
         )}
-
-        {/* ── GALLERY LINK (fancy) ── */}
-        <section style={{ padding: "28px 24px 6px" }}>
-          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <Link href="/gallery" className="bl-gallink" style={{ position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap", textDecoration: "none", color: "#F6F1E8", background: "var(--deep)", borderRadius: 22, padding: "clamp(26px,3.4vw,40px) clamp(24px,3vw,44px)" }}>
-              <span aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(560px 220px at 88% 120%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 60%)", pointerEvents: "none" }} />
-              <span style={{ position: "relative", maxWidth: "62ch" }}>
-                <span style={{ ...eyebrow, color: "var(--accent2)" }}>The gallery · See it installed</span>
-                <span style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(24px,3.4vw,40px)", lineHeight: 1.06, margin: "12px 0 0" }}>
-                  Browse our tiles &amp; stone {serif("in real rooms")}
-                </span>
-                <span style={{ display: "block", fontSize: 15.5, lineHeight: 1.6, color: "rgba(246,241,232,.74)", margin: "12px 0 0" }}>
-                  A visual wall of installed looks. Enlarge any image and click straight through to the product.
-                </span>
-              </span>
-              <span className="bl-gallink-cta" style={{ position: "relative", flex: "none", display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, padding: "14px 26px", borderRadius: 999, whiteSpace: "nowrap" }}>
-                Open the gallery <span aria-hidden>→</span>
-              </span>
-            </Link>
-          </div>
-        </section>
 
         {/* ── GRID ── */}
         {rest.length > 0 && (
@@ -168,6 +171,7 @@ export default async function BlogIndex() {
         .bl-gallink:hover{transform:translateY(-3px);box-shadow:0 40px 84px -44px rgba(16,28,30,.8)}
         .bl-gallink .bl-gallink-cta{transition:transform .25s ease}
         .bl-gallink:hover .bl-gallink-cta{transform:translateX(3px)}
+        @media(max-width:860px){.bl-hero-grid{grid-template-columns:1fr!important;gap:28px!important}}
         @media(max-width:820px){.bl-feat{grid-template-columns:1fr!important}.bl-cta{grid-template-columns:1fr!important}}
       `}</style>
     </div>
