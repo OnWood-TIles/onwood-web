@@ -74,20 +74,18 @@ export default async function BlogIndex() {
         {featured ? (
           <section style={{ padding: "10px 24px 8px" }}>
             <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-              <Reveal>
-                <Link href={`/blog/${featured.slug}`} style={{ textDecoration: "none", color: "inherit", display: "grid", gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)", gap: 0, borderRadius: 22, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", boxShadow: "0 40px 80px -50px rgba(16,28,30,.5)" }} className="bl-feat">
-                  <div style={{ minHeight: 340, aspectRatio: "16/11" }}><Cover src={featured.coverImage} alt={featured.title} /></div>
-                  <div style={{ padding: "clamp(22px,3vw,40px)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                      <span style={{ ...eyebrow, color: "var(--accent)" }}>{featured.category || "Latest"}</span>
-                      <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{fmtDate(featured.date)} · {readMins(featured)} min read</span>
-                    </div>
-                    <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.02em", fontSize: "clamp(26px,3.2vw,40px)", lineHeight: 1.08, margin: "12px 0 0" }}>{featured.title}</h2>
-                    <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0" }}>{featured.excerpt}</p>
-                    <span style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, color: "var(--accent)", fontSize: 15 }}>Read the guide <span aria-hidden>→</span></span>
+              <Link href={`/blog/${featured.slug}`} style={{ textDecoration: "none", color: "inherit", display: "grid", gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)", gap: 0, borderRadius: 22, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", boxShadow: "0 40px 80px -50px rgba(16,28,30,.5)" }} className="bl-feat">
+                <div style={{ minHeight: 340, aspectRatio: "16/11" }}><Cover src={featured.coverImage} alt={featured.title} /></div>
+                <div style={{ padding: "clamp(22px,3vw,40px)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                    <span style={{ ...eyebrow, color: "var(--accent)" }}>{featured.category || "Latest"}</span>
+                    <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{fmtDate(featured.date)} · {readMins(featured)} min read</span>
                   </div>
-                </Link>
-              </Reveal>
+                  <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.02em", fontSize: "clamp(26px,3.2vw,40px)", lineHeight: 1.08, margin: "12px 0 0" }}>{featured.title}</h2>
+                  <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0" }}>{featured.excerpt}</p>
+                  <span style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, color: "var(--accent)", fontSize: 15 }}>Read the guide <span aria-hidden>→</span></span>
+                </div>
+              </Link>
             </div>
           </section>
         ) : (
@@ -110,21 +108,19 @@ export default async function BlogIndex() {
                 <span style={{ fontSize: 13, color: "var(--muted)" }}>{rest.length} more guide{rest.length === 1 ? "" : "s"}</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 22 }}>
-                {rest.map((p, i) => (
-                  <Reveal key={p.slug} delay={i * 0.06}>
-                    <Link href={`/blog/${p.slug}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", height: "100%" }} className="bl-card">
-                      <div style={{ aspectRatio: "16/10" }}><Cover src={p.coverImage} alt={p.title} /></div>
-                      <div style={{ padding: 20, display: "flex", flexDirection: "column", flex: 1 }}>
-                        <div style={{ display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
-                          <span style={{ ...eyebrow, fontSize: 11, color: "var(--accent)" }}>{p.category || "Guide"}</span>
-                          <span style={{ fontSize: 12, color: "var(--muted)" }}>{readMins(p)} min</span>
-                        </div>
-                        <h3 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.015em", fontSize: 20, lineHeight: 1.16, margin: "10px 0 0" }}>{p.title}</h3>
-                        <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)", margin: "10px 0 0" }}>{p.excerpt}</p>
-                        <span style={{ marginTop: "auto", paddingTop: 16, fontWeight: 800, color: "var(--accent)", fontSize: 14 }}>Read →</span>
+                {rest.map((p) => (
+                  <Link key={p.slug} href={`/blog/${p.slug}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", height: "100%" }} className="bl-card">
+                    <div style={{ aspectRatio: "16/10" }}><Cover src={p.coverImage} alt={p.title} /></div>
+                    <div style={{ padding: 20, display: "flex", flexDirection: "column", flex: 1 }}>
+                      <div style={{ display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
+                        <span style={{ ...eyebrow, fontSize: 11, color: "var(--accent)" }}>{p.category || "Guide"}</span>
+                        <span style={{ fontSize: 12, color: "var(--muted)" }}>{readMins(p)} min</span>
                       </div>
-                    </Link>
-                  </Reveal>
+                      <h3 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.015em", fontSize: 20, lineHeight: 1.16, margin: "10px 0 0" }}>{p.title}</h3>
+                      <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)", margin: "10px 0 0" }}>{p.excerpt}</p>
+                      <span style={{ marginTop: "auto", paddingTop: 16, fontWeight: 800, color: "var(--accent)", fontSize: 14 }}>Read →</span>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
