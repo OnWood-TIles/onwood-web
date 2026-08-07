@@ -139,7 +139,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
           aria-modal="true"
           aria-label={`${current.name}${current.colour ? ", " + current.colour : ""}`}
           onClick={close}
-          style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(14,20,22,.93)", backdropFilter: "blur(4px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}
+          style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(14,20,22,.93)", backdropFilter: "blur(4px)", overflowY: "auto" }}
         >
           {/* Close */}
           <button type="button" onClick={close} aria-label="Close" style={iconBtn({ top: 18, right: 18 })}>
@@ -156,19 +156,22 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
               </button>
             </>
           )}
-          {/* Image + caption (clicks inside don't close) */}
-          <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxWidth: "94vw" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={current.img} alt={current.alt} style={{ maxWidth: "94vw", maxHeight: "78vh", objectFit: "contain", borderRadius: 14, boxShadow: "0 30px 80px -30px rgba(0,0,0,.7)", display: "block" }} />
-            <div style={{ textAlign: "center", color: "#F6F1E8" }}>
-              <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 19, letterSpacing: "-.01em" }}>{current.name}</div>
-              {current.colour ? <div style={{ ...eyebrow, color: "var(--accent2)", marginTop: 6 }}>{current.colour}</div> : null}
-              <Link href={current.href} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", padding: "11px 22px", borderRadius: 999 }}>
-                View this {current.group === "stone" ? "stone" : "tile"} <span aria-hidden>→</span>
-              </Link>
-              <p style={{ fontSize: 11.5, color: "rgba(246,241,232,.5)", margin: "14px 0 0", maxWidth: "44ch" }}>
-                Illustration - AI-generated or rendered. Colour and finish vary; confirm from a physical sample.
-              </p>
+          {/* Center + scroll wrapper: on tall images the overlay scrolls instead
+              of clipping the caption/disclosure off the bottom of the screen. */}
+          <div style={{ minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "76px 20px 46px" }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxWidth: "94vw" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={current.img} alt={current.alt} style={{ maxWidth: "94vw", maxHeight: "70vh", objectFit: "contain", borderRadius: 14, boxShadow: "0 30px 80px -30px rgba(0,0,0,.7)", display: "block" }} />
+              <div style={{ textAlign: "center", color: "#F6F1E8", maxWidth: 540 }}>
+                <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 19, letterSpacing: "-.01em" }}>{current.name}</div>
+                {current.colour ? <div style={{ ...eyebrow, color: "var(--accent2)", marginTop: 6 }}>{current.colour}</div> : null}
+                <Link href={current.href} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", padding: "11px 22px", borderRadius: 999 }}>
+                  View this {current.group === "stone" ? "stone" : "tile"} <span aria-hidden>→</span>
+                </Link>
+                <p style={{ fontSize: 12.5, lineHeight: 1.55, color: "rgba(246,241,232,.7)", margin: "14px auto 0", maxWidth: "48ch" }}>
+                  Illustration - AI-generated or rendered. Colour and finish vary; confirm from a physical sample.
+                </p>
+              </div>
             </div>
           </div>
         </div>
