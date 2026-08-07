@@ -11,23 +11,43 @@ const safeUrl = (u: string): string | null => {
   return null;
 };
 
+// Decode HTML entities in authored text (e.g. "Pool &amp; alfresco" from the
+// /admin editor) so they render as real characters. Safe because output goes
+// through React text nodes, which re-escape on render (never innerHTML).
+const NAMED: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
+  ndash: "–", mdash: "—", hellip: "…",
+  rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”",
+};
+export function decodeEntities(s: string): string {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]*);/gi, (m, e: string) => {
+    if (e[0] === "#") {
+      const cp = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+      return Number.isFinite(cp) && cp > 0 ? String.fromCodePoint(cp) : m;
+    }
+    const hit = NAMED[e.toLowerCase()];
+    return hit !== undefined ? hit : m;
+  });
+}
+
 // Inline: **bold**, *italic*, `code`, [text](url). Processed in that order.
 function inline(text: string, keyBase: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   const re = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(`([^`]+)`)|(\[([^\]]+)\]\(([^)]+)\))/g;
   let last = 0, m: RegExpExecArray | null, i = 0;
   while ((m = re.exec(text))) {
-    if (m.index > last) nodes.push(text.slice(last, m.index));
-    if (m[2]) nodes.push(<strong key={`${keyBase}-${i}`}>{m[2]}</strong>);
-    else if (m[4]) nodes.push(<em key={`${keyBase}-${i}`}>{m[4]}</em>);
-    else if (m[6]) nodes.push(<code key={`${keyBase}-${i}`} className="bl-code">{m[6]}</code>);
+    if (m.index > last) nodes.push(decodeEntities(text.slice(last, m.index)));
+    if (m[2]) nodes.push(<strong key={`${keyBase}-${i}`}>{decodeEntities(m[2])}</strong>);
+    else if (m[4]) nodes.push(<em key={`${keyBase}-${i}`}>{decodeEntities(m[4])}</em>);
+    else if (m[6]) nodes.push(<code key={`${keyBase}-${i}`} className="bl-code">{decodeEntities(m[6])}</code>);
     else if (m[8]) {
       const href = safeUrl(m[9]);
-      nodes.push(href ? <a key={`${keyBase}-${i}`} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer">{m[8]}</a> : m[8]);
+      const label = decodeEntities(m[8]);
+      nodes.push(href ? <a key={`${keyBase}-${i}`} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer">{label}</a> : label);
     }
     last = re.lastIndex; i++;
   }
-  if (last < text.length) nodes.push(text.slice(last));
+  if (last < text.length) nodes.push(decodeEntities(text.slice(last)));
   return nodes;
 }
 
@@ -53,12 +73,13 @@ export function Markdown({ source }: { source: string }) {
       const src = safeUrl(limg[2]);
       const link = safeUrl(limg[3]);
       if (src) {
+        const cap = decodeEntities(limg[1]);
         /* eslint-disable-next-line @next/next/no-img-element */
-        const image = <img src={src} alt={limg[1]} loading="lazy" />;
+        const image = <img src={src} alt={cap} loading="lazy" />;
         out.push(
           <figure key={k()} className="bl-fig">
             {link ? <a href={link} className="bl-figlink">{image}</a> : image}
-            {limg[1] ? <figcaption>{link ? <a href={link} className="bl-figcredit">{limg[1]} <span aria-hidden>→</span></a> : limg[1]}</figcaption> : null}
+            {cap ? <figcaption>{link ? <a href={link} className="bl-figcredit">{cap} <span aria-hidden>→</span></a> : cap}</figcaption> : null}
           </figure>,
         );
       }
@@ -69,13 +90,16 @@ export function Markdown({ source }: { source: string }) {
     const img = t.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (img) {
       const src = safeUrl(img[2]);
-      if (src) out.push(
-        <figure key={k()} className="bl-fig">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={img[1]} loading="lazy" />
-          {img[1] ? <figcaption>{img[1]}</figcaption> : null}
-        </figure>,
-      );
+      if (src) {
+        const cap = decodeEntities(img[1]);
+        out.push(
+          <figure key={k()} className="bl-fig">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt={cap} loading="lazy" />
+            {cap ? <figcaption>{cap}</figcaption> : null}
+          </figure>,
+        );
+      }
       i++; continue;
     }
 

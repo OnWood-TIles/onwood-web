@@ -111,7 +111,7 @@ export default async function BlogIndex() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 22 }}>
                 {rest.map((p, i) => (
-                  <Reveal key={p.slug} delay={i * 60}>
+                  <Reveal key={p.slug} delay={i * 0.06}>
                     <Link href={`/blog/${p.slug}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", height: "100%" }} className="bl-card">
                       <div style={{ aspectRatio: "16/10" }}><Cover src={p.coverImage} alt={p.title} /></div>
                       <div style={{ padding: 20, display: "flex", flexDirection: "column", flex: 1 }}>
