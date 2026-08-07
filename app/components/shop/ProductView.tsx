@@ -183,12 +183,6 @@ export default function ProductView({
             )}
             {watermarked && <Watermark />}
           </div>
-          {view === "room" && installed && (
-            <p style={{ margin: "10px 2px 0", fontSize: 11.5, lineHeight: 1.5, color: "#8a8577" }}>
-              Indicative room visual - some are AI-generated. Always confirm the exact colour, texture and
-              finish with a physical sample.
-            </p>
-          )}
           {/* Imagery disclosure - shown once per product page, adjacent to the main image. */}
           <ImageDisclosure variant="medium" />
         </div>

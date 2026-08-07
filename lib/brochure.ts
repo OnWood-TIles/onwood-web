@@ -67,7 +67,7 @@ export async function getFamilyBrochure(slug: string): Promise<BrochureData | nu
   const [ranges, taxonomy] = await Promise.all([listPairCandidates(), getTaxonomy()]);
   const groups = groupFamilies(ranges);
   let members = groups.get(slug);
-  // Stone-cladding accessory families (e.g. "arctic-corners") fold into their base
+  // Stone-cladding accessory families (e.g. a "<collection>-corners" slug) fold into their base
   // collection brochure, so a corner product's brochure link lands on the full range.
   if (members?.length && members[0].department === "stone-cladding" && /\bcorners$/i.test(members[0].name)) {
     const base = slug.replace(/-corners$/, "");
@@ -141,7 +141,7 @@ export async function getFamilyBrochure(slug: string): Promise<BrochureData | nu
       r.swatches.filter((s) => s.image).map((s) => ({ src: s.image as string, colour: s.colour, product }));
     const cornerRange = ranges.find((r) => r.department === "stone-cladding" && r.name.toLowerCase() === `${familyName} corners`.toLowerCase());
     if (cornerRange) accessories.push({ name: "Matching corners", spec: "Sold per lineal metre", blurb: `Prefabricated L-shaped corner pieces that wrap external corners seamlessly, handcrafted in the same stone as the ${familyName} wall.`, photos: photosOf(cornerRange, `${familyName} Corner`) });
-    const cappingRange = ranges.find((r) => r.department === "stone-cladding" && /^capping$/i.test(r.name));
+    const cappingRange = ranges.find((r) => r.department === "stone-cladding" && /\bcapping$/i.test(r.name)); // matches "Capping" or "Stone Capping"
     if (cappingRange) accessories.push({ name: "Capping", spec: "≈ 510 × 290mm · sold each", blurb: "Solid stone capping to finish and weather-protect wall tops, piers and fence lines.", photos: photosOf(cappingRange, "Capping") });
     accessories.push({ name: "Pier caps", spec: "390 × 390mm · sold each", blurb: "Square pier caps to crown pillars, posts and columns with a solid stone finish.", photos: PIER_CAP_COLOURS.map((c) => ({ src: `${IMG_BASE}piercap-${c.toLowerCase()}.webp?v=3`, colour: c, product: "Pier Cap" })) });
   }

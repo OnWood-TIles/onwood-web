@@ -422,7 +422,12 @@ export function TechnicalSpecs({
             <div style={{ height: 1, background: line, margin: hero.length || rest.length ? "28px 0 22px" : "0 0 22px" }} />
             <div style={{ ...eyebrow, marginBottom: 14 }}>Downloads</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-              {documents.map((d, i) => (
+              {documents.map((d, i) => {
+                // Doc type is the headline (Care Guide / Installation Guide / Warranty); the
+                // product/subject sits below. Falls back to the name when there is no useful type.
+                const headline = d.type && d.type !== "Document" ? d.type : d.name;
+                const sub = d.name && d.name !== headline ? d.name : null;
+                return (
                 <a
                   key={i}
                   href={d.url}
@@ -437,13 +442,14 @@ export function TechnicalSpecs({
                     </svg>
                   </span>
                   <span>
-                    <span style={{ display: "block", fontWeight: 700, fontSize: 13.5 }}>{d.name}</span>
+                    <span style={{ display: "block", fontWeight: 700, fontSize: 13.5 }}>{headline}</span>
                     <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: muted }}>
-                      {d.type || "Document"} {d.isExternal ? "· Supplier ↗" : "· Download ↓"}
+                      {sub ? `${sub} · ` : ""}{d.isExternal ? "Supplier ↗" : "Download ↓"}
                     </span>
                   </span>
                 </a>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

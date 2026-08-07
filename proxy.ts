@@ -19,9 +19,19 @@ const PREVIEW_COOKIE = "owp_preview";
 const TRADE_COOKIE = "ow_trade";
 
 // Reachable by the public even while gated (assets handled by the matcher).
+// These are served WITHOUT noindex (see below), so they are publicly indexable -
+// the point of un-gating the blog + legal pages during the coming-soon phase is
+// to build search presence and to make the coming-soon footer's legal links work.
 const ALLOWLIST = [
   "/soon",
   "/staff",
+  "/blog",            // editorial/SEO content - public + indexable while coming-soon
+  "/privacy-policy",  // linked from the coming-soon footer (email collection)
+  "/terms-of-use",
+  "/terms-of-sale",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/google9e157bec500a9409.html", // Google Search Console HTML-file verification
   "/api/subscribe",
   "/api/enquiry",
   "/api/preview-login",
@@ -106,6 +116,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.png|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|txt|xml|woff2?|ttf|otf)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|txt|xml|woff2?|ttf|otf|pdf)$).*)",
   ],
 };

@@ -208,6 +208,18 @@ export default async function MarketingFooter() {
             © 2026 {SHOP.name} · {SHOP.suburb} {SHOP.state} · Tiles, supply only
             <br />
             OnWood Tiles is a registered business name of Reagan Genrich, ABN 41 522 687 021.
+            <br />
+            Our enquiries, quoting and trade orders run on{" "}
+            <a
+              href="https://onbasehq.com.au"
+              target="_blank"
+              rel="noopener"
+              className="owf-link"
+              style={{ color: "inherit", textDecoration: "underline" }}
+            >
+              OnBase HQ
+            </a>
+            .
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
             <Link href="/terms-of-sale" className="owf-link" style={{ ...infoStyle, textDecoration: "none" }}>

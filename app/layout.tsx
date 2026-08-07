@@ -47,6 +47,9 @@ export const metadata: Metadata = {
     locale: "en_AU",
     type: "website",
   },
+  // Google Search Console verification. Set GOOGLE_SITE_VERIFICATION in Vercel to
+  // the token from Search Console's "HTML tag" method; if unset, no tag renders.
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
 };
 
 // LocalBusiness structured data (site-wide).
@@ -58,6 +61,7 @@ const jsonLd = {
     "The Sunshine Coast's new home for all things tiles. Quality floor, wall and outdoor tiles in Baringa.",
   url: "https://onwoodtiles.com.au",
   email: "sales@onwoodtiles.com.au",
+  telephone: "+61 447 766 553",
   image: "https://onwoodtiles.com.au/onwood-logo-white.png",
   address: {
     "@type": "PostalAddress",
