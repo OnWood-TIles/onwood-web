@@ -99,6 +99,27 @@ export default async function BlogIndex() {
           </section>
         )}
 
+        {/* ── GALLERY LINK (fancy) ── */}
+        <section style={{ padding: "28px 24px 6px" }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <Link href="/gallery" className="bl-gallink" style={{ position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap", textDecoration: "none", color: "#F6F1E8", background: "var(--deep)", borderRadius: 22, padding: "clamp(26px,3.4vw,40px) clamp(24px,3vw,44px)" }}>
+              <span aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(560px 220px at 88% 120%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 60%)", pointerEvents: "none" }} />
+              <span style={{ position: "relative", maxWidth: "62ch" }}>
+                <span style={{ ...eyebrow, color: "var(--accent2)" }}>The gallery · See it installed</span>
+                <span style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(24px,3.4vw,40px)", lineHeight: 1.06, margin: "12px 0 0" }}>
+                  Browse our tiles &amp; stone {serif("in real rooms")}
+                </span>
+                <span style={{ display: "block", fontSize: 15.5, lineHeight: 1.6, color: "rgba(246,241,232,.74)", margin: "12px 0 0" }}>
+                  A visual wall of installed looks. Enlarge any image and click straight through to the product.
+                </span>
+              </span>
+              <span className="bl-gallink-cta" style={{ position: "relative", flex: "none", display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, padding: "14px 26px", borderRadius: 999, whiteSpace: "nowrap" }}>
+                Open the gallery <span aria-hidden>→</span>
+              </span>
+            </Link>
+          </div>
+        </section>
+
         {/* ── GRID ── */}
         {rest.length > 0 && (
           <section style={{ padding: "40px 24px 20px" }}>
@@ -143,6 +164,10 @@ export default async function BlogIndex() {
       <style>{`
         .bl-feat:hover,.bl-card:hover{transform:translateY(-3px);box-shadow:0 34px 70px -46px rgba(16,28,30,.55)}
         .bl-feat,.bl-card{transition:transform .25s ease,box-shadow .25s ease}
+        .bl-gallink{transition:transform .25s ease,box-shadow .25s ease;box-shadow:0 30px 70px -46px rgba(16,28,30,.7)}
+        .bl-gallink:hover{transform:translateY(-3px);box-shadow:0 40px 84px -44px rgba(16,28,30,.8)}
+        .bl-gallink .bl-gallink-cta{transition:transform .25s ease}
+        .bl-gallink:hover .bl-gallink-cta{transform:translateX(3px)}
         @media(max-width:820px){.bl-feat{grid-template-columns:1fr!important}.bl-cta{grid-template-columns:1fr!important}}
       `}</style>
     </div>
