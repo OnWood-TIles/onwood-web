@@ -41,7 +41,6 @@ export default function NavDesigner({ initialItems, taxonomy }: { initialItems: 
       : [
           { label: "Shop", href: "/shop", children: taxonomy.slice(0, 8).map((d) => ({ label: d.label, href: `/shop/${d.slug}` })) },
           { label: "On Trend", href: "/#featured" },
-          { label: "Visualiser", href: "/#visualize" },
           { label: "Showroom", href: "/#showroom" },
           { label: "Why OnWood", href: "/why" },
           { label: "Contact", href: "/contact" },

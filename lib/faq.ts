@@ -203,7 +203,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       },
       {
         q: "Do you offer design or selection help?",
-        a: "Yes. From matching a wood-look to your deck to building a full palette, we help you choose and lay it out so the whole room works together. Our [vision board](/#showroom) and [visualiser](/#visualize) are a good place to start online.",
+        a: "Yes. From matching a wood-look to your deck to building a full palette, we help you choose and lay it out so the whole room works together. Our [vision board](/#showroom) is a good place to start online.",
       },
     ],
   },

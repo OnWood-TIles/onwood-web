@@ -1,10 +1,8 @@
 import MarketingNav from "./components/marketing/MarketingNav";
 import Hero from "./components/marketing/Hero";
-import Marquee from "./components/marketing/Marquee";
 import TileGrid from "./components/marketing/TileGrid";
 import FeaturedProducts from "./components/marketing/FeaturedProducts";
 import SpecialsTeaser from "./components/marketing/SpecialsTeaser";
-import Visualiser from "./components/marketing/Visualiser";
 import Showroom from "./components/marketing/Showroom";
 import Story from "./components/marketing/Story";
 import Testimonials from "./components/marketing/Testimonials";
@@ -22,11 +20,9 @@ export default async function Home() {
       <MarketingNav />
       <main>
         <Hero />
-        <Marquee />
         <TileGrid />
         <FeaturedProducts />
         <SpecialsTeaser />
-        <Visualiser />
         <Showroom />
         <Story />
         <Testimonials />

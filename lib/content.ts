@@ -8,7 +8,7 @@
 // No em-dashes in customer copy. Team names are PLACEHOLDERS.
 //
 // NOTE: not "server-only" - these are static marketing constants consumed by
-// both server and client components (Hero, Contact, Visualiser are client).
+// both server and client components (Hero, Contact are client).
 // No secrets live here. The OnBase/CMS data client (lib/onbase/client.ts) stays
 // server-only for anything sensitive.
 
@@ -43,7 +43,6 @@ export const SHOP: ShopDetails = {
 export const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
   { href: "/#featured", label: "On Trend" },
-  { href: "/#visualize", label: "Visualiser" },
   { href: "/#showroom", label: "Showroom" },
   { href: "/why", label: "Why OnWood" },
   { href: "/contact", label: "Contact" },
@@ -69,7 +68,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "Explore",
     links: [
-      { href: "/#visualize", label: "Live Visualiser" },
       { href: "/#showroom", label: "Vision Board" },
       { href: "/#showroom", label: "The Showroom" },
       { href: "/why", label: "Why OnWood" },
@@ -97,19 +95,8 @@ export const HERO = {
   headAccent: "feel.",
   sub: "OnWood brings beautiful floor, wall and outdoor tiles to Sunshine Coast homes, studios and builds, chosen and matched with care by a local family team.",
   ctaPrimary: { label: "See what's on trend", href: "#featured" },
-  ctaSecondary: { label: "See it on your floor", href: "#visualize" },
+  ctaSecondary: { label: "Step into the showroom", href: "#showroom" },
 };
-
-// Scrolling marquee of finishes (tiles only).
-export const MARQUEE = [
-  "Handmade zellige",
-  "Sun-baked terracotta",
-  "Honed travertine",
-  "Whitewashed limestone",
-  "Wood-look porcelain",
-  "Aegean gloss",
-  "Marble-look porcelain",
-];
 
 export type Collection = {
   tag: string;
@@ -192,22 +179,6 @@ export const SPECIALS_TEASER = {
   cta: { label: "See all specials", href: "/specials" },
   badge: { pct: "40%", label: "OFF" },
   card: { name: "Coastal Oak", was: "$59", now: "$41/m²" },
-};
-
-export type Swatch = { name: string; swatch: string; floor: string };
-
-export const VISUALISER = {
-  eyebrow: "Live visualiser",
-  title: "See it on your floor",
-  sub: "Tap a finish to lay it across the room instantly. In the full build this swaps onto your uploaded photo with lighting matched.",
-  swatches: [
-    { name: "Coastal Oak", swatch: "#C8894B", floor: "#C8894B" },
-    { name: "Travertine Sand", swatch: "#d8c8ac", floor: "#cdbb98" },
-    { name: "Carrara Statuario", swatch: "#efe9e0", floor: "#e6ddcf" },
-    { name: "Aegean Zellige", swatch: "#3f97a6", floor: "#3f97a6" },
-    { name: "Baked Terracotta", swatch: "#c15a30", floor: "#b5532c" },
-    { name: "Whitewashed Limestone", swatch: "#e4ddd0", floor: "#ddd4c4" },
-  ] as Swatch[],
 };
 
 export const SHOWROOM = {
