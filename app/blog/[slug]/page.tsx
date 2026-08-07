@@ -144,6 +144,8 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         .bl-prose a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
         .bl-prose strong{color:var(--ink);font-weight:800}
         .bl-prose .bl-quote{margin:28px 0;padding:6px 0 6px 22px;border-left:3px solid var(--accent);font-family:var(--font-newsreader);font-style:italic;font-size:clamp(20px,2.6vw,26px);line-height:1.4;color:var(--ink)}
+        .bl-prose .bl-note{display:block;margin:26px 0;padding:15px 18px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;font-size:14.5px;line-height:1.62;color:#5a6067}
+        .bl-prose .bl-note a{font-weight:700}
         .bl-prose .bl-fig{margin:30px 0}
         .bl-prose .bl-fig img{width:100%;border-radius:16px;border:1px solid var(--line);display:block}
         .bl-prose .bl-figlink{display:block}

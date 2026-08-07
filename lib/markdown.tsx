@@ -2,7 +2,9 @@
 // (never dangerouslySetInnerHTML), and only emits <a>/<img> for http(s) or
 // root-relative URLs, so authored content can't inject scripts. Supports:
 // # ## ### headings, paragraphs, **bold**, *italic*, `code`, [text](url),
-// ![alt](url) images, "- " lists, "1. " lists, "> " quotes, and "---" rules.
+// ![alt](url) images, "- " lists, "1. " lists, "> " quotes, "---" rules, and
+// ":::note ... :::" callout boxes (shaded sidenotes - see the OnWood blog
+// format reference; used for the standard imagery disclosure on every guide).
 import React from "react";
 
 const safeUrl = (u: string): string | null => {
@@ -38,7 +40,9 @@ function inline(text: string, keyBase: string): React.ReactNode[] {
   while ((m = re.exec(text))) {
     if (m.index > last) nodes.push(decodeEntities(text.slice(last, m.index)));
     if (m[2]) nodes.push(<strong key={`${keyBase}-${i}`}>{decodeEntities(m[2])}</strong>);
-    else if (m[4]) nodes.push(<em key={`${keyBase}-${i}`}>{decodeEntities(m[4])}</em>);
+    // Italic may itself contain a [link](url), so process its content inline
+    // (a bare decode would leave an embedded link as raw "[text](url)" text).
+    else if (m[4]) nodes.push(<em key={`${keyBase}-${i}`}>{inline(m[4], `${keyBase}-${i}e`)}</em>);
     else if (m[6]) nodes.push(<code key={`${keyBase}-${i}`} className="bl-code">{decodeEntities(m[6])}</code>);
     else if (m[8]) {
       const href = safeUrl(m[9]);
@@ -62,6 +66,20 @@ export function Markdown({ source }: { source: string }) {
     const t = line.trim();
 
     if (!t) { i++; continue; }
+
+    // callout / sidenote box:  :::note   ...   :::
+    // A shaded aside in slightly smaller type, set apart from the body. Used for
+    // the standard imagery disclosure on every guide (and any hint/sidenote).
+    // The label after ::: (e.g. "note") is optional and currently cosmetic.
+    if (/^:::/.test(t)) {
+      i++; // consume the opening fence
+      const buf: string[] = [];
+      while (i < lines.length && lines[i].trim() !== ":::") { buf.push(lines[i].trim()); i++; }
+      if (i < lines.length) i++; // consume the closing fence
+      const text = buf.filter(Boolean).join(" ");
+      if (text) out.push(<aside key={k()} className="bl-note">{inline(text, k())}</aside>);
+      continue;
+    }
 
     // horizontal rule
     if (/^---+$/.test(t)) { out.push(<hr key={k()} className="bl-hr" />); i++; continue; }
