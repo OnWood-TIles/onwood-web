@@ -26,6 +26,7 @@ const ALLOWLIST = [
   "/soon",
   "/staff",
   "/blog",            // editorial/SEO content - public + indexable while coming-soon
+  "/faq",             // FAQ page - public + indexable (SEO, FAQPage schema), linked in the footer
   "/privacy-policy",  // linked from the coming-soon footer (email collection)
   "/terms-of-use",
   "/terms-of-sale",

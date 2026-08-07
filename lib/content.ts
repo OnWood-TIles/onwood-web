@@ -288,7 +288,7 @@ export const TEAM: TeamMember[] = [
 
 export const CONTACT = {
   title: "Let's lay something beautiful.",
-  sub: "Book a free measure & quote, or drop by the showroom for a coffee and a fistful of samples.",
+  sub: "Send through your sizes for a quick tile quote, or drop by the showroom for a coffee and a fistful of samples.",
   interests: [
     "I'm interested in... wood-look tiles",
     "Natural stone",

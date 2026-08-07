@@ -622,7 +622,7 @@ export async function buildMoodboardPdf(
   const steps: [string, string, string][] = [
     ["01", "REPLY OR DROP IN", "Reply to your email or visit our Baringa showroom - we'd love to meet you."],
     ["02", "SEE IT IN PERSON", "We'll pull the real samples together so you can see and feel every finish."],
-    ["03", "WE TAKE IT FROM HERE", "Measure, quote and supply - honest Sunshine Coast advice, start to finish."],
+    ["03", "WE TAKE IT FROM HERE", "Choose, quote and supply - honest Sunshine Coast advice, start to finish."],
   ];
   const stepW = (cw - 52) / 3;
   steps.forEach((s, i) => {
