@@ -21,7 +21,7 @@ export default function SaveButton({ item, variant = "overlay" }: { item: WishIt
     return (
       <button type="button" onClick={onClick} aria-pressed={saved} style={{
         display: "inline-flex", alignItems: "center", gap: 9, cursor: "pointer", fontFamily: "inherit",
-        fontWeight: 800, fontSize: 14, padding: "12px 20px", borderRadius: 999,
+        fontWeight: 700, fontSize: 15, padding: "14px 24px", borderRadius: 99,
         border: `1px solid ${saved ? "var(--accent)" : "var(--line)"}`,
         background: saved ? "color-mix(in oklab, var(--accent) 12%, #fff)" : "#fff",
         color: saved ? "var(--accent)" : "var(--ink)", transition: "all .2s ease",

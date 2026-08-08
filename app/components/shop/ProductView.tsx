@@ -330,7 +330,8 @@ export default function ProductView({
             renderActions({ range, swatch, selectedIndex: selected })
           ) : (
             <>
-              <div style={{ display: "flex", gap: 12, marginTop: 32, flexWrap: "wrap" }}>
+              {/* Primary action + Save together, then the secondary buttons below. */}
+              <div style={{ display: "flex", gap: 12, marginTop: 32, flexWrap: "wrap", alignItems: "center" }}>
                 <Link
                   href={`/contact?product=${encodeURIComponent(range.name)}`}
                   style={{
@@ -345,6 +346,9 @@ export default function ProductView({
                 >
                   Enquire about {range.swatches.length > 1 ? "this range" : "this product"} →
                 </Link>
+                <SaveButton variant="inline" item={{ href: `/product/${range.slug}`, name: range.name, colour: swatch?.colour, image: main ?? undefined }} />
+              </div>
+              <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
                 <Link
                   href="/book"
                   style={{
@@ -375,7 +379,6 @@ export default function ProductView({
                 >
                   Download brochure ↓
                 </Link>
-                <SaveButton variant="inline" item={{ href: `/product/${range.slug}`, name: range.name, colour: swatch?.colour, image: main ?? undefined }} />
               </div>
               <p style={{ marginTop: 14, fontSize: 12.5, color: "#8a8577" }}>
                 Call or drop in to the Baringa showroom and we will have it ready to view.
