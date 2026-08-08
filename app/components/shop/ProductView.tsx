@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
 import { AvailabilityPill, Watermark, ColourwayCard } from "./shared";
@@ -8,7 +8,7 @@ import SaveButton from "../wishlist/SaveButton";
 import { pairSwatch } from "../../../lib/pairs";
 import { familySlug } from "../../../lib/family";
 import { imageAlt } from "../../../lib/alt";
-import ImageDisclosure from "../legal/ImageDisclosure";
+import ProductDisclosure from "./ProductDisclosure";
 
 // ABI-inspired product page: sticky gallery on the left, identity + option
 // selector + specs on the right. "Options" are the range's swatches - colours
@@ -58,6 +58,7 @@ export default function ProductView({
     : 0;
   const [selected, setSelected] = useState(initialIdx);
   const [view, setView] = useState<"tile" | "room">("tile");
+  const [zoom, setZoom] = useState(false);
   const swatch: Swatch | undefined = range.swatches[selected];
 
   // Single main image = the selected colour's photo, falling back to the range
@@ -73,6 +74,16 @@ export default function ProductView({
   const watermarked = view === "room" && installed ? wmSecondary : wmPrimary;
 
   const special = swatch?.special ?? range.special ?? null;
+
+  // Close the zoom lightbox on Escape; lock body scroll while it's open.
+  useEffect(() => {
+    if (!zoom) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setZoom(false); };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [zoom]);
 
   return (
     <div>
@@ -117,16 +128,24 @@ export default function ProductView({
             }}
           >
             {displayMain ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={displayMain}
-                alt={
-                  view === "room" && installed
-                    ? `${range.name} shown installed - AI-generated illustration, actual product varies`
-                    : `${range.name} - colour, scale and finish vary from the image`
-                }
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={displayMain}
+                  onClick={() => setZoom(true)}
+                  alt={
+                    view === "room" && installed
+                      ? `${range.name} shown installed - AI-generated illustration, actual product varies`
+                      : `${range.name} - colour, scale and finish vary from the image`
+                  }
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "zoom-in" }}
+                />
+                <span aria-hidden style={{ position: "absolute", top: 12, right: 12, display: "grid", placeItems: "center", width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.9)", color: "var(--ink)", boxShadow: "0 4px 14px -4px rgba(16,28,30,.45)", pointerEvents: "none" }}>
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
+                  </svg>
+                </span>
+              </>
             ) : (
               <div
                 style={{
@@ -185,7 +204,7 @@ export default function ProductView({
             {watermarked && <Watermark />}
           </div>
           {/* Imagery disclosure - shown once per product page, adjacent to the main image. */}
-          <ImageDisclosure variant="medium" />
+          <ProductDisclosure />
         </div>
 
         {/* identity + options */}
@@ -422,6 +441,23 @@ export default function ProductView({
             })}
           </div>
         </section>
+      )}
+
+      {/* Zoom lightbox for the main image (tile or "see it installed"). */}
+      {zoom && displayMain && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${range.name} enlarged`}
+          onClick={() => setZoom(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(14,20,22,.93)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, cursor: "zoom-out" }}
+        >
+          <button type="button" onClick={() => setZoom(false)} aria-label="Close" style={{ position: "fixed", top: 18, right: 18, zIndex: 310, display: "grid", placeItems: "center", width: 44, height: 44, borderRadius: 999, border: "1px solid rgba(246,241,232,.28)", background: "rgba(20,26,28,.55)", color: "#F6F1E8", cursor: "pointer" }}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={displayMain} alt={range.name} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "94vw", maxHeight: "88vh", objectFit: "contain", borderRadius: 12, boxShadow: "0 30px 80px -30px rgba(0,0,0,.7)", display: "block", cursor: "default" }} />
+        </div>
       )}
 
       <style>{`
