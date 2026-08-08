@@ -178,7 +178,7 @@ export default function GalleryClient({
         <>
           <div className="gal-grid">
             {shown.slice(0, visible).map((it, idx) => (
-              <div key={`${it.img}-${idx}`} className="gal-cell">
+              <div key={`${it.img}-${idx}`} className={`gal-cell ${galVariant(idx)}`}>
                 <button
                   type="button"
                   className="gal-item"
@@ -188,10 +188,6 @@ export default function GalleryClient({
                   <span className="gal-imgwrap">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={it.img} alt={it.alt} loading="lazy" className="gal-img" />
-                    {it.watermark && (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src="/onwood-logo-white.png" alt="" aria-hidden className="gal-wm" />
-                    )}
                     <span className="gal-cap">
                       <span className="gal-name">{it.name}</span>
                       {it.colour ? <span className="gal-col">{it.colour}</span> : null}
@@ -265,17 +261,21 @@ export default function GalleryClient({
       )}
 
       <style>{`
-        /* Fixed-ratio grid: each cell reserves its space BEFORE the image loads,
-           so nothing reflows/jumps as photos come in (the images are square). */
-        .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-        @media(max-width:760px){.gal-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}}
+        /* Pinterest-style grid: fixed row height + spanning "tall"/"wide"/"big"
+           cells give varied, staggered sizes for visual interest, while the grid
+           (not the images) defines every cell's box - so NOTHING reflows/jumps as
+           photos load. Square photos are cover-cropped to fill each cell. */
+        .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));grid-auto-rows:216px;grid-auto-flow:dense;gap:14px}
+        @media(max-width:760px){.gal-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-rows:150px;gap:10px}}
         .gal-cell{position:relative}
+        .gal-cell.tall{grid-row:span 2}
+        .gal-cell.wide{grid-column:span 2}
+        .gal-cell.big{grid-row:span 2;grid-column:span 2}
         .gal-save{position:absolute;top:10px;left:10px;z-index:2}
-        .gal-item{display:block;width:100%;padding:0;margin:0;border:0;background:none;cursor:pointer}
-        .gal-imgwrap{position:relative;display:block;aspect-ratio:1/1;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 18px 40px -34px rgba(16,28,30,.5)}
+        .gal-item{display:block;width:100%;height:100%;padding:0;margin:0;border:0;background:none;cursor:pointer}
+        .gal-imgwrap{position:relative;display:block;width:100%;height:100%;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 18px 40px -34px rgba(16,28,30,.5)}
         .gal-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease}
         .gal-item:hover .gal-img{transform:scale(1.05)}
-        .gal-wm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46%;max-width:150px;opacity:.5;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35));pointer-events:none}
         .gal-cap{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:2px;padding:34px 14px 12px;text-align:left;background:linear-gradient(to top,rgba(14,20,22,.82),rgba(14,20,22,.28) 62%,transparent);opacity:0;transform:translateY(6px);transition:opacity .25s ease,transform .25s ease}
         .gal-item:hover .gal-cap,.gal-item:focus-visible .gal-cap{opacity:1;transform:none}
         .gal-name{font-family:var(--font-archivo);font-weight:800;font-size:14.5px;color:#fff;line-height:1.2}
@@ -285,6 +285,16 @@ export default function GalleryClient({
       `}</style>
     </div>
   );
+}
+
+// Deterministic size variety for the Pinterest-style grid - stable per grid
+// position (no reflow) but reads as random. Occasional big/wide, more tall.
+function galVariant(i: number): string {
+  const m = (i * 5 + 2) % 17;
+  if (m === 0) return "big";
+  if (m === 6 || m === 12) return "wide";
+  if (m === 3 || m === 8 || m === 14) return "tall";
+  return "";
 }
 
 function iconBtn(pos: React.CSSProperties, vCenter = false): React.CSSProperties {

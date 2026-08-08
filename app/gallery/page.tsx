@@ -69,6 +69,14 @@ export default async function GalleryPage({
   const seen = new Set<string>();
   const unique = items.filter((it) => (seen.has(it.img) ? false : (seen.add(it.img), true)));
 
+  // Shuffle so the wall looks varied and lively, not grouped alphabetically (which
+  // clusters a range's near-identical colourway shots together). The page is
+  // force-dynamic, so this reshuffles each visit for a fresh feel.
+  for (let i = unique.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [unique[i], unique[j]] = [unique[j], unique[i]];
+  }
+
   // Filter groups (same as the shop): union across the gallery's departments,
   // restricted to values at least one image here actually carries.
   const vmBySlug = new Map<string, FilterGroupVM>();
