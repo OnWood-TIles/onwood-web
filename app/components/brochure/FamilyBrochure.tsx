@@ -85,6 +85,16 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
         .print-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 22px;background:${DEEP};color:${CREAM};font-family:Manrope,sans-serif}
         .print-btn{appearance:none;border:none;cursor:pointer;background:${TERRA};color:#fff;border-radius:999px;padding:10px 22px;font:700 14px Manrope,sans-serif}
         .bx-pad{padding-top:60px}
+        /* MOBILE (screen only): scale the whole A4 page down to fit the phone
+           width so it reads like a normal scrollable brochure - the design,
+           layout and proportions are IDENTICAL to desktop, just smaller. Print
+           is untouched (always full A4), so a desktop and a phone print match. */
+        @media screen and (max-width:840px){
+          .bx-wrap{overflow-x:hidden;padding:12px 4px 22px;gap:10px}
+          .page{--sc:calc((100vw - 12px) / 794);transform:scale(var(--sc));transform-origin:top center;margin-bottom:calc(-1123px * (1 - var(--sc)))}
+          .print-bar{padding:10px 14px}
+          .print-btn{padding:9px 16px;font-size:13px}
+        }
         @page{size:A4;margin:0}
         @media print{
           .print-bar{display:none!important}
