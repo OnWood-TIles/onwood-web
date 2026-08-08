@@ -135,7 +135,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
     items: [
       {
         q: "How do I work out how much tile I need?",
-        a: "Measure the area in square metres, then add wastage for cuts and offcuts. Bring your measurements or plans in and we will do the maths with you, including how many boxes or sheets that comes to.",
+        a: "Measure the area in square metres, then add wastage for cuts and offcuts. Our [tile calculator](/calculator) does this for you in seconds, including how many boxes it comes to. Or bring your measurements or plans in and we will do the maths with you.",
       },
       {
         q: "How much extra should I order?",

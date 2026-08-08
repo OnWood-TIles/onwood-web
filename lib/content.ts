@@ -62,6 +62,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/shop", label: "Shop All Tiles" },
       { href: "/#featured", label: "Currently On Trend" },
       { href: "/specials", label: "Monthly Specials" },
+      { href: "/calculator", label: "Tile Calculator" },
       { href: "/book", label: "Book a Visit" },
     ],
   },
