@@ -123,6 +123,18 @@ ${notes ? `<p><strong>Notes:</strong> ${esc(notes).replace(/\n/g, "<br>")}</p>` 
     } catch (e) { console.error("[book] calendar failed:", e); }
   }
 
+  // 4) OnConnect marketing contact (fail-open; not required for success).
+  if (ONBASE_API_KEY) {
+    try {
+      const parts = name.split(/\s+/).filter(Boolean);
+      await fetch(`${ONBASE_API_URL}/api/v1/onconnect/contacts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
+        body: JSON.stringify({ email, firstName: parts[0], lastName: parts.slice(1).join(" ") || undefined, phone: phone || undefined, tags: ["Book a Visit", "Website Lead", "Marketing"] }),
+      });
+    } catch (e) { console.error("[book] onconnect failed:", e); }
+  }
+
   if (!salesOk && !custOk && !calOk) {
     return NextResponse.json({ ok: false, error: "Sorry - we couldn't record that just now. Please call us or email sales@onwoodtiles.com.au." }, { status: 502 });
   }
