@@ -55,9 +55,11 @@ const ALLOWLIST = [
 const TRADE_PUBLIC = [
   "/trade/login",
   "/trade/set-password",
+  "/trade/apply",
   "/api/trade/login",
   "/api/trade/forgot",
   "/api/trade/set-password",
+  "/api/trade/apply",
 ];
 
 // Internal-only paths: require the preview cookie in ALL modes (incl. live).

@@ -69,8 +69,8 @@ export default function TradeLoginPage() {
 
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: "20px 0 0", lineHeight: 1.6 }}>
           Want to become a Trade Partner?{" "}
-          <Link href="/#contact" style={{ color: "#e79070", fontWeight: 700, textDecoration: "none" }}>
-            Talk to us
+          <Link href="/trade/apply" style={{ color: "#e79070", fontWeight: 700, textDecoration: "none" }}>
+            Apply now
           </Link>
         </p>
       </div>
