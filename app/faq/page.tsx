@@ -44,7 +44,7 @@ export default function FaqPage() {
       <MarketingNav />
       <main>
         {/* ── HERO (headline + tips sidebar) ── */}
-        <section style={{ position: "relative", overflow: "hidden", padding: "138px 24px 8px" }}>
+        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(92px,15vw,138px) 24px 8px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 82% -10%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1040, margin: "0 auto", position: "relative" }}>
             <Reveal>

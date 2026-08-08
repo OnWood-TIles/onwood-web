@@ -62,7 +62,7 @@ export default function SpecialsHero() {
   return (
     <section
       style={{
-        padding: "150px 40px 70px",
+        padding: "clamp(96px,16vw,150px) 40px 70px",
         maxWidth: 1240,
         margin: "0 auto",
         textAlign: "center",

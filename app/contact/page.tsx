@@ -75,7 +75,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
       <MarketingNav />
       <main>
         {/* ── Hero ─────────────────────────────────────────────── */}
-        <section style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 40px 20px", textAlign: "center" }}>
+        <section style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 40px 20px", textAlign: "center" }}>
           <Reveal><div style={eyebrow}>Get in touch</div></Reveal>
           <Reveal delay={0.06}>
             <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(40px,5.6vw,68px)", letterSpacing: "-.025em", lineHeight: 1.02, margin: "16px 0 0" }}>

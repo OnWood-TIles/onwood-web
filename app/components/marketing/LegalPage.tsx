@@ -40,7 +40,7 @@ export default function LegalPage({ doc, updated }: { doc: LegalDoc; updated: st
       <MarketingNav />
       <main>
         {/* Hero */}
-        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "140px 40px 8px" }}>
+        <section style={{ maxWidth: 1100, margin: "0 auto", padding: "clamp(92px,15vw,140px) 40px 8px" }}>
           <Reveal>
             <div style={{ fontSize: 12.5, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent2)" }}>{doc.eyebrow}</div>
           </Reveal>

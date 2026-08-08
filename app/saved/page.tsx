@@ -17,7 +17,7 @@ export default function SavedPage() {
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>
       <MarketingNav />
       <main>
-        <section style={{ padding: "150px 24px 8px" }}>
+        <section style={{ padding: "clamp(96px,16vw,150px) 24px 8px" }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <p style={eyebrow}>Your selections</p>
             <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(32px,5vw,54px)", lineHeight: 1.03, margin: "14px 0 0" }}>

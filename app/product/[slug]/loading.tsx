@@ -28,7 +28,7 @@ export default function ProductLoading() {
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 28px 90px" }}>
         {/* breadcrumb */}
         <Block w={280} h={13} r={6} style={{ marginBottom: 22 }} />
 

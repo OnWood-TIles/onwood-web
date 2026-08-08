@@ -118,7 +118,7 @@ export default async function WhyPage() {
       <MarketingNav />
       <main>
         {/* ── Hero ─────────────────────────────────────────────── */}
-        <section style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 40px 40px" }}>
+        <section style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 40px 40px" }}>
           <div className="wy-hero-grid">
             <div>
               <Reveal>

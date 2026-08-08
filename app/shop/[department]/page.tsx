@@ -68,7 +68,7 @@ export default async function DepartmentPage({
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "150px 28px 90px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(96px,16vw,150px) 28px 90px" }}>
         <nav style={{ fontSize: 13, color: "#8a8577", marginBottom: 14 }} aria-label="Breadcrumb">
           <Link href="/shop" style={{ color: "inherit", textDecoration: "none" }}>Shop</Link>
           <span style={{ margin: "0 8px" }}>/</span>

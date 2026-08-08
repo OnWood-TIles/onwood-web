@@ -24,7 +24,7 @@ export default function TradeApplyPage() {
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>
       <MarketingNav />
       <main>
-        <section style={{ position: "relative", overflow: "hidden", padding: "150px 24px 8px" }}>
+        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(96px,16vw,150px) 24px 8px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 82% -10%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1080, margin: "0 auto", position: "relative" }}>
             <p style={eyebrow}>Trade partners</p>

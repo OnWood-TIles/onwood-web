@@ -117,7 +117,7 @@ export default async function GalleryPage({
       <MarketingNav />
       <main>
         {/* ── HERO ── */}
-        <section style={{ position: "relative", overflow: "hidden", padding: "150px 24px 26px" }}>
+        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(96px,16vw,150px) 24px 26px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 80% -10%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1040, margin: "0 auto", position: "relative", textAlign: "center" }}>
             <Reveal>

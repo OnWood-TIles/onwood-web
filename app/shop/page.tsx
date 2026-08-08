@@ -21,7 +21,7 @@ export default async function ShopPage() {
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "150px 28px 96px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(96px,16vw,150px) 28px 96px" }}>
         {/* Editorial header */}
         <header style={{ textAlign: "center", maxWidth: 640, margin: "0 auto 52px" }}>
           <div

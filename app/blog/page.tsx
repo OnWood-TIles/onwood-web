@@ -52,7 +52,7 @@ export default async function BlogIndex() {
       <MarketingNav />
       <main>
         {/* ── HERO ── */}
-        <section style={{ position: "relative", overflow: "hidden", padding: "150px 24px 56px" }}>
+        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(96px,16vw,150px) 24px 56px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 78% -8%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
             <div className="bl-hero-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.12fr) minmax(0,0.88fr)", gap: 44, alignItems: "center" }}>

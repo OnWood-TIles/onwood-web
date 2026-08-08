@@ -66,7 +66,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       <main>
         {/* ── HEADER ── */}
         <article>
-          <header style={{ maxWidth: 780, margin: "0 auto", padding: "140px 24px 8px", textAlign: "center" }}>
+          <header style={{ maxWidth: 780, margin: "0 auto", padding: "clamp(92px,15vw,140px) 24px 8px", textAlign: "center" }}>
             <Link href="/blog" style={{ ...eyebrow, textDecoration: "none", color: "var(--accent)" }}>← The OnWood Journal</Link>
             <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap", margin: "18px 0 0" }}>
               {post.category ? <span style={{ padding: "5px 12px", borderRadius: 999, background: "color-mix(in srgb, var(--accent) 12%, var(--surface))", border: "1px solid var(--line)", fontSize: 12, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--accent)" }}>{post.category}</span> : null}

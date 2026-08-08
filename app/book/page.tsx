@@ -16,7 +16,7 @@ export default async function BookPage() {
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <MarketingNav />
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "140px 28px 90px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 28px 90px" }}>
         <BookAVisit business={business} />
       </main>
       <MarketingFooter />
