@@ -166,11 +166,6 @@ export const COLLECTIONS: Collection[] = [
   },
 ];
 
-export const TILEGRID_HEAD = {
-  eyebrow: "Every surface, alive to the touch",
-  title: "Move your cursor across the floor",
-};
-
 export const SPECIALS_TEASER = {
   eyebrow: "This month at OnWood",
   headA: "Specials worth",
