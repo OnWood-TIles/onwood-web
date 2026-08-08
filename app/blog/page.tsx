@@ -77,12 +77,12 @@ export default async function BlogIndex() {
                 <Link href="/gallery" className="bl-gallink" style={{ position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: 14, minHeight: 260, textDecoration: "none", color: "#F6F1E8", background: "var(--deep)", borderRadius: 22, padding: "clamp(24px,2.6vw,32px)" }}>
                   <span aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(460px 220px at 92% 118%, color-mix(in srgb, var(--accent) 44%, transparent), transparent 62%)", pointerEvents: "none" }} />
                   <span style={{ position: "relative" }}>
-                    <span style={{ ...eyebrow, color: "var(--accent2)" }}>The gallery · See it installed</span>
+                    <span style={{ ...eyebrow, color: "var(--accent2)" }}>The gallery</span>
                     <span style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(23px,2.6vw,32px)", lineHeight: 1.08, margin: "12px 0 0" }}>
-                      Our tiles &amp; stone {serif("in real rooms")}
+                      Our tiles &amp; stone, {serif("styled to inspire")}
                     </span>
                     <span style={{ display: "block", fontSize: 15, lineHeight: 1.6, color: "rgba(246,241,232,.74)", margin: "12px 0 0" }}>
-                      A visual wall of installed looks. Enlarge any image and click straight through to the product.
+                      Browse hundreds of looks for your next project.
                     </span>
                   </span>
                   <span className="bl-gallink-cta" style={{ position: "relative", marginTop: "auto", alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, padding: "13px 24px", borderRadius: 999, whiteSpace: "nowrap" }}>

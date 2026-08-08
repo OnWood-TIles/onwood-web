@@ -81,10 +81,10 @@ export default async function GalleryPage() {
             <Reveal>
               <p style={eyebrow}>The gallery</p>
               <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(34px,6vw,64px)", lineHeight: 1.03, margin: "14px 0 0" }}>
-                See it {serif("installed")}.
+                Find your {serif("look")}.
               </h1>
               <p style={{ fontSize: 17.5, lineHeight: 1.7, color: "#3a444a", maxWidth: "56ch", margin: "18px auto 0" }}>
-                Our tiles and stone veneer, shown in real rooms. Tap any image to enlarge it, then click through to the product to see colours, sizes and stock.
+                Browse our tiles and stone veneer for a little inspiration on your next project.
               </p>
               <p style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--muted)", margin: "16px auto 0", maxWidth: "60ch" }}>
                 Images are AI-generated or digitally rendered to show how a product may look installed. They are illustrations - colour, tone, scale and finish vary.{" "}
