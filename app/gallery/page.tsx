@@ -3,7 +3,8 @@ import Link from "next/link";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import Reveal from "../components/ui/Reveal";
-import { getTaxonomy, listRanges } from "../../lib/onbase/client";
+import { getTaxonomy, getFilterGroups, listRanges } from "../../lib/onbase/client";
+import { buildFilterGroupVMs, parseActiveFilters, type FilterGroupVM } from "../../lib/shopFilters";
 import { imageAlt } from "../../lib/alt";
 import GalleryClient, { type GalleryItem } from "./GalleryClient";
 
@@ -30,9 +31,15 @@ const isStone = (s: string) => /stone|veneer|cladd/i.test(s);
 const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)" };
 const serif = (t: string) => <em style={{ fontFamily: "var(--font-newsreader)", fontStyle: "italic", fontWeight: 400, color: "var(--sea)" }}>{t}</em>;
 
-export default async function GalleryPage() {
+export default async function GalleryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ dept?: string; f?: string | string[] }>;
+}) {
+  const { dept: deptParam, f } = await searchParams;
+
   // Only tiles + stone veneer/cladding departments (per Reagan's scope).
-  const taxonomy = await getTaxonomy().catch(() => []);
+  const [taxonomy, allFilterGroups] = await Promise.all([getTaxonomy().catch(() => []), getFilterGroups().catch(() => [])]);
   const depts = taxonomy.filter((d) => isTiles(d.slug) || isTiles(d.label) || isStone(d.slug) || isStone(d.label));
   const lists = await Promise.all(depts.map((d) => listRanges({ department: d.slug }).catch(() => [])));
 
@@ -51,6 +58,8 @@ export default async function GalleryPage() {
           group,
           groupLabel: group === "stone" ? "Stone Veneer" : "Tiles",
           watermark: (sw.watermarkSecondary ?? r.watermarkSecondary) || false,
+          rf: r.filters ?? {},
+          sc: sw.colours ?? [],
         });
       }
     }
@@ -59,6 +68,31 @@ export default async function GalleryPage() {
   // A colour can appear under more than one matched department; keep one card each.
   const seen = new Set<string>();
   const unique = items.filter((it) => (seen.has(it.img) ? false : (seen.add(it.img), true)));
+
+  // Filter groups (same as the shop): union across the gallery's departments,
+  // restricted to values at least one image here actually carries.
+  const vmBySlug = new Map<string, FilterGroupVM>();
+  for (const d of depts) {
+    for (const g of buildFilterGroupVMs(allFilterGroups, d.slug)) {
+      const existing = vmBySlug.get(g.slug);
+      if (!existing) vmBySlug.set(g.slug, { ...g, values: [...g.values] });
+      else {
+        const have = new Set(existing.values.map((v) => v.slug));
+        for (const v of g.values) if (!have.has(v.slug)) existing.values.push(v);
+      }
+    }
+  }
+  const usedByGroup: Record<string, Set<string>> = {};
+  for (const it of unique) for (const [g, vals] of Object.entries(it.rf)) {
+    (usedByGroup[g] ??= new Set());
+    for (const v of vals) usedByGroup[g].add(v);
+  }
+  const groups = [...vmBySlug.values()]
+    .map((g) => ({ ...g, values: g.values.filter((v) => usedByGroup[g.slug]?.has(v.slug)) }))
+    .filter((g) => g.values.length > 0);
+
+  const initialActive = parseActiveFilters(f, groups);
+  const initialDept: "all" | "tiles" | "stone" = deptParam === "tiles" || deptParam === "stone" ? deptParam : "all";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -104,7 +138,7 @@ export default async function GalleryPage() {
               <Link href="/shop" style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, textDecoration: "none", padding: "13px 26px", borderRadius: 999 }}>Browse the shop</Link>
             </div>
           ) : (
-            <GalleryClient items={unique} />
+            <GalleryClient items={unique} groups={groups} initialActive={initialActive} initialDept={initialDept} />
           )}
         </section>
       </main>

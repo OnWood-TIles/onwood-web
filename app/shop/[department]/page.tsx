@@ -92,6 +92,13 @@ export default async function DepartmentPage({
           initialActive={initialActive}
           deptSlug={dept.slug}
           activeCategory={activeCategory}
+          galleryDept={
+            /stone|veneer|cladd/i.test(dept.slug) || /stone|veneer|cladd/i.test(dept.label)
+              ? "stone"
+              : /tile/i.test(dept.slug) || /tile/i.test(dept.label)
+                ? "tiles"
+                : undefined
+          }
         />
       </main>
       <MarketingFooter />

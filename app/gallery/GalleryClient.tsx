@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { FilterBar } from "../components/shop/FilterBar";
+import type { FilterGroupVM } from "../../lib/shopFilters";
 
-// Pinterest-style masonry gallery of "see it installed" product images, with a
-// simple Tiles / Stone Veneer filter bar and a click-to-enlarge lightbox. Every
-// image carries descriptive alt text (built server-side from the product data).
-// Images keep their natural aspect ratio inside CSS columns, which gives the
-// staggered masonry look for free (no layout JS).
+// Pinterest-style masonry gallery of "see it installed" product visuals, with the
+// SAME filter set as the shop (Colour, Size, Location, …) plus a Tiles / Stone
+// Veneer chip, and a click-to-enlarge lightbox. Filters + department are mirrored
+// to the URL (?dept=&f=group:value) so the state is shareable and so the shop's
+// "Search by inspiration" button can hand its active filters straight over.
+// Every image carries descriptive alt text (built server-side from the product).
 
 export type GalleryItem = {
   img: string;
@@ -18,75 +21,126 @@ export type GalleryItem = {
   group: "tiles" | "stone";
   groupLabel: string;
   watermark: boolean;
+  /** Range-level filter values (size, location, look, …) by group slug. */
+  rf: Record<string, string[]>;
+  /** This colourway's own colour-filter value slugs (per-swatch accuracy). */
+  sc: string[];
 };
 
-type Filter = "all" | "tiles" | "stone";
+type Dept = "all" | "tiles" | "stone";
+
+// Match the shop: ticking multiple values in a suitability/use group means "works
+// in ALL of them" (narrows); every other group is OR.
+const AND_GROUPS = new Set(["location-use", "location", "use", "suitability", "location-and-use"]);
 
 const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase" };
 
-export default function GalleryClient({ items }: { items: GalleryItem[] }) {
-  const [filter, setFilter] = useState<Filter>("all");
-  const [active, setActive] = useState<number | null>(null);
+export default function GalleryClient({
+  items,
+  groups,
+  initialActive,
+  initialDept,
+}: {
+  items: GalleryItem[];
+  groups: FilterGroupVM[];
+  initialActive: Record<string, string[]>;
+  initialDept: Dept;
+}) {
+  const [dept, setDept] = useState<Dept>(initialDept);
+  const [active, setActive] = useState<Record<string, string[]>>(initialActive);
+  const [search, setSearch] = useState("");
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const shown = filter === "all" ? items : items.filter((i) => i.group === filter);
   const hasTiles = items.some((i) => i.group === "tiles");
   const hasStone = items.some((i) => i.group === "stone");
 
-  const chips: { key: Filter; label: string }[] = [
+  function syncUrl(d: Dept, a: Record<string, string[]>) {
+    const qs = new URLSearchParams();
+    if (d !== "all") qs.set("dept", d);
+    for (const [g, vals] of Object.entries(a)) for (const v of vals) qs.append("f", `${g}:${v}`);
+    const s = qs.toString();
+    if (typeof window !== "undefined") window.history.replaceState(null, "", `/gallery${s ? `?${s}` : ""}`);
+  }
+
+  const toggle = (group: string, value: string) =>
+    setActive((prev) => {
+      const cur = prev[group] ?? [];
+      const nextVals = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+      const next = { ...prev };
+      if (nextVals.length) next[group] = nextVals;
+      else delete next[group];
+      syncUrl(dept, next);
+      return next;
+    });
+
+  const clearAll = () => { setActive({}); syncUrl(dept, {}); };
+  const pickDept = (d: Dept) => { setDept(d); syncUrl(d, active); };
+
+  // AND across groups; OR within (except AND_GROUPS). Colour matches per-swatch
+  // (sc); other groups match the range's values (rf). Mirrors the shop exactly.
+  const shown = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((it) => {
+      if (dept !== "all" && it.group !== dept) return false;
+      for (const [g, vals] of Object.entries(active)) {
+        if (!vals.length) continue;
+        const rv = it.rf[g] ?? [];
+        const test = (v: string) => rv.includes(v) || it.sc.includes(v);
+        const ok = AND_GROUPS.has(g) ? vals.every(test) : vals.some(test);
+        if (!ok) return false;
+      }
+      if (q && !(it.name.toLowerCase().includes(q) || it.colour.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [items, dept, active, search]);
+
+  // Any filter/department/search change invalidates the lightbox index.
+  useEffect(() => { setLightbox(null); }, [dept, active, search]);
+
+  const deptChips: { key: Dept; label: string }[] = [
     { key: "all", label: `All (${items.length})` },
-    ...(hasTiles ? [{ key: "tiles" as Filter, label: `Tiles (${items.filter((i) => i.group === "tiles").length})` }] : []),
-    ...(hasStone ? [{ key: "stone" as Filter, label: `Stone Veneer (${items.filter((i) => i.group === "stone").length})` }] : []),
+    ...(hasTiles ? [{ key: "tiles" as Dept, label: "Tiles" }] : []),
+    ...(hasStone ? [{ key: "stone" as Dept, label: "Stone Veneer" }] : []),
   ];
 
-  // When the filter changes, close any open lightbox (indexes no longer align).
-  const pick = (f: Filter) => { setFilter(f); setActive(null); };
-
-  const close = useCallback(() => setActive(null), []);
+  const close = useCallback(() => setLightbox(null), []);
   const step = useCallback(
-    (dir: number) => setActive((a) => (a == null ? a : (a + dir + shown.length) % shown.length)),
+    (dir: number) => setLightbox((a) => (a == null ? a : (a + dir + shown.length) % shown.length)),
     [shown.length],
   );
 
   useEffect(() => {
-    if (active == null) return;
+    if (lightbox == null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
       else if (e.key === "ArrowRight") step(1);
       else if (e.key === "ArrowLeft") step(-1);
     };
     window.addEventListener("keydown", onKey);
-    // Lock body scroll while the lightbox is open.
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
-  }, [active, close, step]);
+  }, [lightbox, close, step]);
 
-  const current = active == null ? null : shown[active];
+  const current = lightbox == null ? null : shown[lightbox];
 
   return (
-    <div>
-      {/* ── Filter bar ── */}
-      {chips.length > 1 && (
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", margin: "0 auto 30px", maxWidth: 900 }}>
-          {chips.map((c) => {
-            const on = filter === c.key;
+    <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+      {/* ── Department chips ── */}
+      {deptChips.length > 1 && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
+          {deptChips.map((c) => {
+            const on = dept === c.key;
             return (
               <button
                 key={c.key}
                 type="button"
-                onClick={() => pick(c.key)}
+                onClick={() => pickDept(c.key)}
                 style={{
-                  cursor: "pointer",
-                  fontFamily: "var(--font-archivo)",
-                  fontWeight: 800,
-                  fontSize: 12.5,
-                  letterSpacing: ".04em",
-                  textTransform: "uppercase",
-                  padding: "10px 18px",
-                  borderRadius: 999,
+                  cursor: "pointer", fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 12.5,
+                  letterSpacing: ".04em", textTransform: "uppercase", padding: "10px 18px", borderRadius: 999,
                   border: `1px solid ${on ? "var(--accent)" : "var(--line)"}`,
-                  background: on ? "var(--accent)" : "var(--surface)",
-                  color: on ? "#fff" : "var(--ink)",
+                  background: on ? "var(--accent)" : "var(--surface)", color: on ? "#fff" : "var(--ink)",
                   transition: "all .18s ease",
                 }}
               >
@@ -97,9 +151,20 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
         </div>
       )}
 
+      {/* ── Filter bar (same as the shop) ── */}
+      {groups.length > 0 && (
+        <FilterBar groups={groups} active={active} onToggle={toggle} onClearAll={clearAll} search={search} onSearchChange={setSearch} />
+      )}
+
+      <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 18px", textAlign: "center" }}>
+        {shown.length} {shown.length === 1 ? "image" : "images"}
+      </p>
+
       {/* ── Masonry ── */}
       {shown.length === 0 ? (
-        <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 16, padding: "40px 0" }}>Nothing to show here yet.</p>
+        <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 16, padding: "40px 0" }}>
+          Nothing matches those filters just yet. Try clearing a filter, or come and see the full range in the showroom.
+        </p>
       ) : (
         <div className="gal-masonry">
           {shown.map((it, idx) => (
@@ -107,7 +172,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
               key={`${it.img}-${idx}`}
               type="button"
               className="gal-item"
-              onClick={() => setActive(idx)}
+              onClick={() => setLightbox(idx)}
               aria-label={`Enlarge ${it.name}${it.colour ? " in " + it.colour : ""}`}
             >
               <span className="gal-imgwrap">
@@ -141,11 +206,9 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
           onClick={close}
           style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(14,20,22,.93)", backdropFilter: "blur(4px)", overflowY: "auto" }}
         >
-          {/* Close */}
           <button type="button" onClick={close} aria-label="Close" style={iconBtn({ top: 18, right: 18 })}>
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
-          {/* Prev / next */}
           {shown.length > 1 && (
             <>
               <button type="button" onClick={(e) => { e.stopPropagation(); step(-1); }} aria-label="Previous" style={iconBtn({ left: 14, top: "50%" }, true)}>
@@ -156,8 +219,6 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
               </button>
             </>
           )}
-          {/* Center + scroll wrapper: on tall images the overlay scrolls instead
-              of clipping the caption/disclosure off the bottom of the screen. */}
           <div style={{ minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "76px 20px 46px" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxWidth: "94vw" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -178,7 +239,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
       )}
 
       <style>{`
-        .gal-masonry{column-count:4;column-gap:18px;max-width:1240px;margin:0 auto}
+        .gal-masonry{column-count:4;column-gap:18px}
         @media(max-width:1100px){.gal-masonry{column-count:3}}
         @media(max-width:760px){.gal-masonry{column-count:2;column-gap:14px}}
         @media(max-width:440px){.gal-masonry{column-count:1}}
@@ -203,15 +264,7 @@ function iconBtn(pos: React.CSSProperties, vCenter = false): React.CSSProperties
     position: "fixed",
     ...pos,
     ...(vCenter ? { transform: "translateY(-50%)" } : {}),
-    zIndex: 310,
-    display: "grid",
-    placeItems: "center",
-    width: 44,
-    height: 44,
-    borderRadius: 999,
-    border: "1px solid rgba(246,241,232,.28)",
-    background: "rgba(20,26,28,.55)",
-    color: "#F6F1E8",
-    cursor: "pointer",
+    zIndex: 310, display: "grid", placeItems: "center", width: 44, height: 44, borderRadius: 999,
+    border: "1px solid rgba(246,241,232,.28)", background: "rgba(20,26,28,.55)", color: "#F6F1E8", cursor: "pointer",
   };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import Link from "next/link";
 import type { Swatch, WebsiteRange } from "../../../lib/onbase/client";
 import { ColourwayCard, EmptyCatalogue, RangeCard } from "./shared";
 import { FilterBar } from "./FilterBar";
@@ -57,6 +58,7 @@ export function DepartmentShop({
   deptSlug,
   activeCategory,
   basePath = "/shop",
+  galleryDept,
   renderCard,
   renderColourway,
 }: {
@@ -68,6 +70,9 @@ export function DepartmentShop({
   activeCategory?: string;
   /** URL prefix for the shareable filter state (default the public shop). */
   basePath?: string;
+  /** When set (tiles/stone on the public shop), show a "Search by inspiration"
+   *  button that opens the gallery carrying the customer's current filters. */
+  galleryDept?: "tiles" | "stone";
   /** Override the range/colourway cards (the trade portal renders priced,
    *  add-to-cart cards; the public shop uses the defaults). */
   renderCard?: (range: WebsiteRange) => ReactNode;
@@ -99,6 +104,16 @@ export function DepartmentShop({
   const clearAll = () => { setActive({}); syncUrl({}); };
 
   const hasActive = Object.values(active).some((v) => v.length);
+
+  // Hand the customer's current filters to the gallery (?dept=&f=group:value),
+  // so "Search by inspiration" opens a visual view of the same selection.
+  const galleryHref = useMemo(() => {
+    if (!galleryDept) return null;
+    const qs = new URLSearchParams();
+    qs.set("dept", galleryDept);
+    for (const [g, vals] of Object.entries(active)) for (const v of vals) qs.append("f", `${g}:${v}`);
+    return `/gallery?${qs.toString()}`;
+  }, [galleryDept, active]);
 
   // AND across groups. Within a group: OR by default (colour beige OR grey), but
   // "suitability" groups (Location/Use) are AND - ticking Outdoor + Splashback means
@@ -157,6 +172,20 @@ export function DepartmentShop({
   return (
     <>
       <FilterBar groups={groups} active={active} onToggle={toggle} onClearAll={clearAll} search={search} onSearchChange={setSearch} />
+
+      {galleryHref && (
+        <div style={{ display: "flex", justifyContent: "flex-end", margin: "-12px 0 22px" }}>
+          <Link
+            href={galleryHref}
+            style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "var(--ink)", color: "#fff6ee", fontWeight: 800, fontSize: 13.5, textDecoration: "none", padding: "10px 18px", borderRadius: 999 }}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" />
+            </svg>
+            Search by inspiration <span aria-hidden>→</span>
+          </Link>
+        </div>
+      )}
 
       {filtered.length === 0 ? (
         <EmptyCatalogue note={hasActive ? "Nothing matches those filters just yet. Try clearing a filter or two, or visit the showroom - the full range is in store." : undefined} />
