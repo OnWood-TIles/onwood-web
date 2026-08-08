@@ -80,12 +80,12 @@ export default function CalculatorClient() {
         <span style={label}>Your areas (metres)</span>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {areas.map((a, i) => (
-            <div key={a.id} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--muted)", width: 58, flexShrink: 0 }}>Area {i + 1}</span>
+            <div key={a.id} className="calc-area-row" style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <span className="calc-area-label" style={{ fontSize: 13, fontWeight: 700, color: "var(--muted)", width: 58, flexShrink: 0 }}>Area {i + 1}</span>
               <input aria-label={`Area ${i + 1} length in metres`} inputMode="decimal" placeholder="Length" value={a.l} onChange={(e) => setArea(a.id, "l", e.target.value)} style={input} />
               <span style={{ color: "var(--muted)", fontWeight: 700 }}>×</span>
               <input aria-label={`Area ${i + 1} width in metres`} inputMode="decimal" placeholder="Width" value={a.w} onChange={(e) => setArea(a.id, "w", e.target.value)} style={input} />
-              <span style={{ fontSize: 13, color: "var(--muted)", width: 62, textAlign: "right", flexShrink: 0 }}>{num(a.l) * num(a.w) > 0 ? `${fmt(num(a.l) * num(a.w))} m²` : ""}</span>
+              <span className="calc-area-m2" style={{ fontSize: 13, color: "var(--muted)", width: 62, textAlign: "right", flexShrink: 0 }}>{num(a.l) * num(a.w) > 0 ? `${fmt(num(a.l) * num(a.w))} m²` : ""}</span>
               <button type="button" onClick={() => rmArea(a.id)} aria-label="Remove area" disabled={areas.length <= 1} style={{ appearance: "none", border: "none", background: "none", cursor: areas.length <= 1 ? "default" : "pointer", color: areas.length <= 1 ? "var(--line)" : "var(--muted)", fontSize: 20, lineHeight: 1, padding: 4 }}>×</button>
             </div>
           ))}
@@ -170,7 +170,19 @@ export default function CalculatorClient() {
         </div>
       </div>
 
-      <style>{`@media(max-width:820px){.calc-grid{grid-template-columns:1fr!important}}`}</style>
+      <style>{`
+        @media(max-width:820px){
+          .calc-grid{grid-template-columns:1fr!important}
+          /* Once stacked, don't pin the results/capture column under the nav. */
+          .calc-grid > div:last-child{position:static!important}
+        }
+        @media(max-width:560px){
+          .calc-area-row{flex-wrap:wrap}
+          .calc-area-row input{flex:1 1 90px;min-width:0;width:auto!important}
+          .calc-area-label{display:none}
+          .calc-area-m2{flex:1 1 100%;width:auto!important;text-align:left!important}
+        }
+      `}</style>
     </div>
   );
 }

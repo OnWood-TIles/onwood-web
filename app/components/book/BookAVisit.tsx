@@ -282,7 +282,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
           {/* 03 details */}
           <div>
             {sectionNum("03", "Your details")}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div className="ow-book-details" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" style={{ ...inputStyle, gridColumn: "span 2" }} />
               <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" type="email" style={inputStyle} />
               <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder="Phone (optional)" style={inputStyle} />
@@ -367,7 +367,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
         </div>
       )}
 
-      <style>{`@media (max-width: 900px){.ow-book-grid{grid-template-columns:1fr !important}.ow-book-rail{position:static !important}.ow-book-cal{grid-template-columns:1fr !important}}@media (max-width: 460px){.ow-purpose-grid{grid-template-columns:1fr !important}}`}</style>
+      <style>{`@media (max-width: 900px){.ow-book-grid{grid-template-columns:1fr !important}.ow-book-rail{position:static !important}.ow-book-cal{grid-template-columns:1fr !important}}@media (max-width: 520px){.ow-book-details{grid-template-columns:1fr !important}}@media (max-width: 460px){.ow-purpose-grid{grid-template-columns:1fr !important}}`}</style>
     </div>
   );
 }

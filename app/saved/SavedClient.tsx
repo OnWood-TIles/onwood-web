@@ -106,7 +106,7 @@ export default function SavedClient() {
         )}
       </div>
 
-      <style>{`@media(max-width:820px){.saved-grid{grid-template-columns:1fr!important}}`}</style>
+      <style>{`@media(max-width:820px){.saved-grid{grid-template-columns:1fr!important}.saved-grid > div:last-child{position:static!important}}`}</style>
     </div>
   );
 }

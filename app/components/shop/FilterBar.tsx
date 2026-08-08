@@ -106,7 +106,9 @@ export function FilterBar({
             {on && (
               <div
                 style={{
-                  position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 40, minWidth: 210, maxHeight: 340,
+                  position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 40,
+                  // Hug the viewport so a right-aligned filter's panel never overflows a phone screen.
+                  minWidth: "min(210px, calc(100vw - 32px))", maxWidth: "calc(100vw - 32px)", maxHeight: 340,
                   overflowY: "auto", padding: 8, borderRadius: 14, border: "1px solid var(--line)", background: "#fff",
                   boxShadow: "0 24px 50px -22px rgba(32,48,58,.4)",
                 }}

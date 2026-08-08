@@ -126,6 +126,7 @@ export default function ShopMegaMenu({
         }}
       >
         <div
+          className="ow-mega-inner"
           style={{
             maxWidth: 1240,
             margin: "0 auto",
@@ -174,7 +175,7 @@ export default function ShopMegaMenu({
 
           {/* Right: IN FOCUS preview - a real product shown via its SECONDARY
               ("see it installed") photo; the image links straight to it. */}
-          <div>
+          <div className="ow-mega-preview">
             <div style={eyebrow}>In focus — {active.focusName ?? active.label}</div>
             {active.focusImage && active.focusSlug ? (
               <Link
@@ -231,7 +232,15 @@ export default function ShopMegaMenu({
         </div>
       </div>
 
-      <style>{`@keyframes owMegaFade{from{opacity:0}to{opacity:1}}`}</style>
+      <style>{`
+        @keyframes owMegaFade{from{opacity:0}to{opacity:1}}
+        /* On tablet/phone widths (e.g. the trade portal, which has no hamburger)
+           collapse the mega panel to a single column and drop the preview image. */
+        @media(max-width:900px){
+          .ow-mega-inner{grid-template-columns:1fr!important;gap:18px!important;padding:22px 18px 26px!important}
+          .ow-mega-preview{display:none!important}
+        }
+      `}</style>
     </div>
   );
 }

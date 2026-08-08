@@ -13,7 +13,7 @@ export default function WishlistFab() {
       href="/saved"
       aria-label={`View your ${items.length} saved item${items.length === 1 ? "" : "s"}`}
       style={{
-        position: "fixed", right: 18, bottom: 18, zIndex: 200, display: "inline-flex", alignItems: "center", gap: 9,
+        position: "fixed", right: 18, bottom: "calc(18px + env(safe-area-inset-bottom))", zIndex: 200, display: "inline-flex", alignItems: "center", gap: 9,
         background: "var(--ink, #20303a)", color: "#fff6ee", textDecoration: "none", fontWeight: 800, fontSize: 14,
         padding: "12px 18px", borderRadius: 999, boxShadow: "0 14px 34px -14px rgba(16,28,30,.6)",
       }}

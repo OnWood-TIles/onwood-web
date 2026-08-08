@@ -133,7 +133,10 @@ export default function SpecialsHero() {
           aria-label="Time left this month"
           style={{
             display: "inline-flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
             gap: 12,
+            maxWidth: "100%",
             padding: "18px 22px",
             borderRadius: 18,
             background: "var(--ink)",

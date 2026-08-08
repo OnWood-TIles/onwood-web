@@ -74,6 +74,12 @@
   background: color-mix(in oklab, var(--bg) 92%, transparent);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
+  /* A full catalogue can make this taller than the screen; let it scroll so
+     every department + link stays reachable (the fixed header never scrolls). */
+  max-height: calc(100dvh - 68px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .mobileLink {
   text-decoration: none;
