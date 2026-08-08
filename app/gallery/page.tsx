@@ -10,15 +10,15 @@ import GalleryClient, { type GalleryItem } from "./GalleryClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Gallery | See Our Tiles & Stone Installed | OnWood Tiles",
+  title: "Gallery | Tile & Stone Room Inspiration | OnWood Tiles",
   description:
-    "A visual gallery of our tiles and stone veneer shown installed in real rooms. Browse the looks, enlarge any image, and click straight through to the product. Sunshine Coast tile showroom.",
+    "A visual gallery of our tiles and stone veneer, styled in room visuals to inspire your next project. Browse the looks and find your favourite from our Sunshine Coast tile showroom.",
   keywords:
-    "tile gallery, tiles installed, stone veneer gallery, wood-look tile inspiration, bathroom tile ideas, outdoor tile ideas, stone cladding, Sunshine Coast tiles, OnWood Tiles",
+    "tile gallery, tile inspiration, stone veneer gallery, wood-look tile inspiration, bathroom tile ideas, outdoor tile ideas, stone cladding, Sunshine Coast tiles, OnWood Tiles",
   alternates: { canonical: "https://onwoodtiles.com.au/gallery" },
   openGraph: {
-    title: "The OnWood Gallery | Tiles & Stone, installed",
-    description: "See our tiles and stone veneer installed in real rooms, then click through to the product.",
+    title: "The OnWood Gallery | Tile & Stone Inspiration",
+    description: "Browse our tiles and stone veneer, styled to inspire your next project.",
     url: "https://onwoodtiles.com.au/gallery",
     type: "website",
   },
@@ -64,7 +64,7 @@ export default async function GalleryPage() {
     "@context": "https://schema.org",
     "@type": "ImageGallery",
     name: "OnWood Tiles Gallery",
-    description: "Tiles and stone veneer shown installed in real rooms.",
+    description: "Tiles and stone veneer, styled in room visuals for inspiration.",
     url: "https://onwoodtiles.com.au/gallery",
     image: unique.slice(0, 100).map((it) => it.img),
   };
