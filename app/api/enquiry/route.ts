@@ -35,12 +35,16 @@ export async function POST(request: Request) {
     email = "",
     phone = "",
     message = "";
+  let marketingConsent = false;
+  let consentText: string | undefined;
   try {
     const b = (await request.json()) as Record<string, unknown>;
     name = typeof b.name === "string" ? b.name.trim() : "";
     email = typeof b.email === "string" ? b.email.trim() : "";
     phone = typeof b.phone === "string" ? b.phone.trim() : "";
     message = typeof b.message === "string" ? b.message.trim() : "";
+    marketingConsent = b.marketingConsent === true;
+    consentText = typeof b.consentText === "string" ? b.consentText : undefined;
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
   }
@@ -55,6 +59,10 @@ export async function POST(request: Request) {
   const parts = name.split(/\s+/).filter(Boolean);
   const firstName = parts[0] || undefined;
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
+
+  const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
+  const tags = [ENQUIRY_TAG, "Website Lead"];
+  if (marketingConsent) tags.push("Marketing");
 
   let emailed = false;
   let crmed = false;
@@ -95,7 +103,7 @@ ${phone ? `<p><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
           "Content-Type": "application/json",
           Authorization: `Bearer ${ONBASE_API_KEY}`,
         },
-        body: JSON.stringify({ email, firstName, lastName, phone, tags: [ENQUIRY_TAG, "Website Lead", "Marketing"] }),
+        body: JSON.stringify({ email, firstName, lastName, phone, tags, marketingConsent, consentText, consentSource: "Contact / enquiry form (onwoodtiles.com.au/contact)", consentIp }),
       });
       crmed = res.ok;
       if (!res.ok) {

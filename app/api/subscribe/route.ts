@@ -14,6 +14,10 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const ONBASE_API_URL = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const ONBASE_API_KEY = process.env.ONBASE_API_KEY;
 const SIGNUP_TAG = process.env.ONBASE_SIGNUP_TAG || "Coming Soon";
+// A newsletter signup IS the express marketing opt-in (marketing is its sole
+// purpose), so we record consent = true and log the exact wording shown.
+const NEWSLETTER_CONSENT_TEXT =
+  "Joined the OnWood Tiles list for first access to new arrivals, subscriber-only specials and Sunshine Coast styling inspiration. Unsubscribe anytime.";
 
 // Optional welcome email — sent through OnWood's existing Zoho mailbox over SMTP.
 // DORMANT until the SMTP credentials are set in Vercel (and .env.local for dev):
@@ -72,7 +76,7 @@ export async function POST(request: Request) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${ONBASE_API_KEY}`,
         },
-        body: JSON.stringify({ email, firstName, lastName, tags: [SIGNUP_TAG, "Website Lead", "Marketing"] }),
+        body: JSON.stringify({ email, firstName, lastName, tags: [SIGNUP_TAG, "Website Lead", "Marketing"], marketingConsent: true, consentText: NEWSLETTER_CONSENT_TEXT, consentSource: "Newsletter signup (onwoodtiles.com.au)", consentIp: (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined }),
       });
       if (!res.ok) {
         const detail = await res.text().catch(() => "");

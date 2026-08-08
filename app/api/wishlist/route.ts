@@ -41,14 +41,19 @@ export async function POST(request: Request) {
   const firstName = parts[0] || undefined;
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
-  const tags = ["Saved Board", "Website Lead", "Marketing"];
+  const marketingConsent = b.marketingConsent === true;
+  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
+
+  const tags = ["Saved Board", "Website Lead"];
+  if (marketingConsent) tags.push("Marketing");
 
   if (ONBASE_API_KEY) {
     try {
       const res = await fetch(`${ONBASE_API_URL}/api/v1/onconnect/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
-        body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, tags }),
+        body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, tags, marketingConsent, consentText, consentSource: "Saved tiles / wishlist (onwoodtiles.com.au/saved)", consentIp }),
       });
       if (!res.ok) console.error(`[wishlist] OnConnect ${res.status} for ${email}: ${await res.text().catch(() => "")}`);
     } catch (err) { console.error(`[wishlist] OnConnect failed for ${email}:`, err); }

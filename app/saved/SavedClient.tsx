@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useWishlist, removeWish, clearWish } from "../../lib/wishlist";
+import MarketingConsent, { MARKETING_CONSENT_TEXT } from "../components/marketing/MarketingConsent";
 
 const card: React.CSSProperties = { background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 18, padding: "clamp(20px,3vw,26px)" };
 const label: React.CSSProperties = { fontSize: 12.5, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: "var(--muted)", display: "block", marginBottom: 8 };
@@ -13,6 +14,7 @@ export default function SavedClient() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
@@ -26,7 +28,7 @@ export default function SavedClient() {
       const res = await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, items: items.map((i) => ({ name: i.name, colour: i.colour, href: i.href })) }),
+        body: JSON.stringify({ name, email, phone, items: items.map((i) => ({ name: i.name, colour: i.colour, href: i.href })), marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
       if (!res.ok) throw new Error();
       setSent(true);
@@ -95,6 +97,7 @@ export default function SavedClient() {
               <input aria-label="Email" type="email" required placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} style={input} />
               <input aria-label="Phone (optional)" placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} style={input} />
             </div>
+            <MarketingConsent checked={consent} onChange={setConsent} />
             {err && <p style={{ color: "#c14338", fontSize: 13.5, fontWeight: 600, margin: "10px 0 0" }}>{err}</p>}
             <button type="submit" disabled={sending} style={{ marginTop: 14, width: "100%", cursor: sending ? "default" : "pointer", background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", borderRadius: 999, padding: "13px 20px", fontFamily: "inherit", opacity: sending ? 0.7 : 1 }}>
               {sending ? "Sending…" : "Email me my selections"}

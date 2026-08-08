@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import FormNotice from "../legal/FormNotice";
+import MarketingConsent, { MARKETING_CONSENT_TEXT } from "./MarketingConsent";
 
 // Generic "send us a message" form. POSTs {name,email,phone,message} to the
 // existing /api/enquiry endpoint (emails the shop inbox + adds to OnConnect).
@@ -45,6 +45,7 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,7 +61,7 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
       const res = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message }),
+        body: JSON.stringify({ name, email, phone, message, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
       const json = await res.json();
       if (res.ok && json.ok) setDone(true);
@@ -118,7 +119,7 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
         <p role="alert" style={{ margin: "16px 0 0", fontSize: 13.5, lineHeight: 1.5, color: "var(--accent)" }}>{error}</p>
       )}
 
-      <FormNotice style={{ marginTop: 18 }} />
+      <MarketingConsent checked={consent} onChange={setConsent} style={{ marginTop: 18 }} />
 
       <button type="submit" disabled={busy} className="cf-submit" style={{ marginTop: 14, width: "100%", padding: "15px 18px", borderRadius: 999, border: "none", background: "var(--accent)", color: "#fff6ee", fontFamily: "inherit", fontWeight: 800, fontSize: 15.5, cursor: busy ? "default" : "pointer", opacity: busy ? 0.72 : 1, boxShadow: "0 14px 30px -12px rgba(208,106,69,.6)" }}>
         {busy ? "Sending..." : "Send message"}

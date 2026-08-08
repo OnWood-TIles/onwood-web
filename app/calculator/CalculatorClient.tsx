@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import MarketingConsent, { MARKETING_CONSENT_TEXT } from "../components/marketing/MarketingConsent";
 
 // "How much tile do I need?" - a genuinely useful buyer tool. Add one or more
 // areas (rooms), pick a wastage allowance, optionally enter box coverage and a
@@ -36,6 +37,7 @@ export default function CalculatorClient() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
@@ -62,6 +64,7 @@ export default function CalculatorClient() {
         body: JSON.stringify({
           name, email, phone, roomType,
           totalArea: +totalArea.toFixed(2), wastage, toOrder: +toOrder.toFixed(2), boxes, cost: cost ? +cost.toFixed(2) : null,
+          marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT,
         }),
       });
       if (!res.ok) throw new Error();
@@ -157,6 +160,7 @@ export default function CalculatorClient() {
                   {ROOMS.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
+              <MarketingConsent checked={consent} onChange={setConsent} />
               {err && <p style={{ color: "#c14338", fontSize: 13.5, fontWeight: 600, margin: "10px 0 0" }}>{err}</p>}
               <button type="submit" disabled={sending || !hasResult} style={{ marginTop: 14, width: "100%", cursor: sending || !hasResult ? "default" : "pointer", background: hasResult ? "var(--accent)" : "var(--line)", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", borderRadius: 999, padding: "13px 20px", fontFamily: "inherit", opacity: sending ? 0.7 : 1 }}>
                 {sending ? "Sending…" : hasResult ? "Email me my estimate" : "Enter your sizes first"}

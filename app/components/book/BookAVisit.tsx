@@ -3,7 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import type { Business, DayHours } from "../../../lib/onbase/client";
-import FormNotice from "../legal/FormNotice";
+import MarketingConsent, { MARKETING_CONSENT_TEXT } from "../marketing/MarketingConsent";
 
 // Book-a-Visit flow (adapted from the Claude Design, on the OnWood theme):
 // 01 purpose -> 02 pick a day (calendar, availability from open hours) + time
@@ -60,6 +60,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
   const [booking, setBooking] = useState(false);
   const [booked, setBooked] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
 
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
 
@@ -131,6 +132,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
           purpose: passType, when: `${passDate} at ${passTime}`,
           startISO: start.toISOString(), endISO: end.toISOString(),
           name: name.trim(), email: email.trim(), phone: tel.trim(), notes: notes.trim(),
+          marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT,
         }),
       });
       if (!res.ok) throw new Error();
@@ -286,7 +288,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
               <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder="Phone (optional)" style={inputStyle} />
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything we should prep? (room, style, m² needed…)" rows={3} style={{ ...inputStyle, gridColumn: "span 2", resize: "vertical" }} />
             </div>
-            <FormNotice style={{ marginTop: 14 }} />
+            <MarketingConsent checked={consent} onChange={setConsent} style={{ marginTop: 14 }} />
           </div>
         </div>
 

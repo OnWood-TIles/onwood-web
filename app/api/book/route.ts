@@ -80,6 +80,9 @@ export async function POST(request: Request) {
   const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");
   const name = str("name"), email = str("email"), phone = str("phone"), purpose = str("purpose") || "Showroom visit";
   const when = str("when"), notes = str("notes"), startISO = str("startISO"), endISO = str("endISO");
+  const marketingConsent = b.marketingConsent === true;
+  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
   if (!name || !EMAIL_RE.test(email) || !when) return NextResponse.json({ ok: false, error: "Missing details" }, { status: 400 });
   const first = name.split(/\s+/)[0] || "there";
 
@@ -123,14 +126,17 @@ ${notes ? `<p><strong>Notes:</strong> ${esc(notes).replace(/\n/g, "<br>")}</p>` 
     } catch (e) { console.error("[book] calendar failed:", e); }
   }
 
-  // 4) OnConnect marketing contact (fail-open; not required for success).
+  // 4) OnConnect contact (fail-open; not required for success). They're captured
+  //    either way; only a ticked marketing box subscribes them + adds "Marketing".
   if (ONBASE_API_KEY) {
     try {
       const parts = name.split(/\s+/).filter(Boolean);
+      const tags = ["Book a Visit", "Website Lead"];
+      if (marketingConsent) tags.push("Marketing");
       await fetch(`${ONBASE_API_URL}/api/v1/onconnect/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
-        body: JSON.stringify({ email, firstName: parts[0], lastName: parts.slice(1).join(" ") || undefined, phone: phone || undefined, tags: ["Book a Visit", "Website Lead", "Marketing"] }),
+        body: JSON.stringify({ email, firstName: parts[0], lastName: parts.slice(1).join(" ") || undefined, phone: phone || undefined, tags, marketingConsent, consentText, consentSource: "Book-a-Visit form (onwoodtiles.com.au/book)", consentIp }),
       });
     } catch (e) { console.error("[book] onconnect failed:", e); }
   }

@@ -40,9 +40,15 @@ export async function POST(request: Request) {
   const firstName = parts[0] || undefined;
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
-  // Simple, consistent tags (no per-lead splitting). The exact numbers + room
-  // type still go to the customer + showroom by email below.
-  const tags = ["Tile Calculator", "Website Lead", "Marketing"];
+  // Marketing consent (express, from the unticked checkbox) + audit data.
+  const marketingConsent = b.marketingConsent === true;
+  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
+
+  // Everyone is captured (fail-open); only consenters get "Marketing" + a subscribed
+  // status. OnConnect defaults new contacts to unsubscribed unless marketingConsent.
+  const tags = ["Tile Calculator", "Website Lead"];
+  if (marketingConsent) tags.push("Marketing");
 
   // 1) OnConnect contact (fail-open).
   if (ONBASE_API_KEY) {
@@ -50,7 +56,7 @@ export async function POST(request: Request) {
       const res = await fetch(`${ONBASE_API_URL}/api/v1/onconnect/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
-        body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, tags }),
+        body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, tags, marketingConsent, consentText, consentSource: "Tile Calculator (onwoodtiles.com.au/calculator)", consentIp }),
       });
       if (!res.ok) console.error(`[calculator] OnConnect ${res.status} for ${email}: ${await res.text().catch(() => "")}`);
     } catch (err) { console.error(`[calculator] OnConnect failed for ${email}:`, err); }
