@@ -62,7 +62,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/shop", label: "Shop All Tiles" },
       { href: "/#featured", label: "Currently On Trend" },
       { href: "/specials", label: "Monthly Specials" },
-      { href: "/calculator", label: "Tile Calculator" },
       { href: "/book", label: "Book a Visit" },
     ],
   },
@@ -70,6 +69,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     title: "Explore",
     links: [
       { href: "/gallery", label: "Gallery" },
+      { href: "/calculator", label: "Tile Calculator" },
       { href: "/#showroom", label: "Vision Board" },
       { href: "/#showroom", label: "The Showroom" },
       { href: "/why", label: "Why OnWood" },

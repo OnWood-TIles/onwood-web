@@ -95,7 +95,7 @@ ${phone ? `<p><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
           "Content-Type": "application/json",
           Authorization: `Bearer ${ONBASE_API_KEY}`,
         },
-        body: JSON.stringify({ email, firstName, lastName, phone, tags: [ENQUIRY_TAG] }),
+        body: JSON.stringify({ email, firstName, lastName, phone, tags: [ENQUIRY_TAG, "Website Lead", "Marketing"] }),
       });
       crmed = res.ok;
       if (!res.ok) {

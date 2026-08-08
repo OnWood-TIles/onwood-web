@@ -224,7 +224,7 @@ async function addOnConnectContact(
         "Content-Type": "application/json",
         Authorization: `Bearer ${ONBASE_API_KEY}`,
       },
-      body: JSON.stringify({ email, firstName, lastName, tags: [VISION_TAG] }),
+      body: JSON.stringify({ email, firstName, lastName, tags: [VISION_TAG, "Website Lead", "Marketing"] }),
     });
     const body = await res.text().catch(() => "");
     return { name: "onconnect", ok: res.ok, detail: `${res.status} ${body.slice(0, 200)}` };

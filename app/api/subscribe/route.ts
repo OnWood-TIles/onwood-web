@@ -72,7 +72,7 @@ export async function POST(request: Request) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${ONBASE_API_KEY}`,
         },
-        body: JSON.stringify({ email, firstName, lastName, tags: [SIGNUP_TAG] }),
+        body: JSON.stringify({ email, firstName, lastName, tags: [SIGNUP_TAG, "Website Lead", "Marketing"] }),
       });
       if (!res.ok) {
         const detail = await res.text().catch(() => "");

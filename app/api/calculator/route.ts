@@ -20,22 +20,6 @@ const MAIL_FROM = process.env.MAIL_FROM || `OnWood Tiles <${ZOHO_SMTP_USER}>`;
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 const money = (n: number) => n.toLocaleString("en-AU", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-function areaBucket(m2: number): string {
-  if (m2 < 5) return "Area: Under 5m²";
-  if (m2 < 15) return "Area: 5-15m²";
-  if (m2 < 30) return "Area: 15-30m²";
-  if (m2 < 60) return "Area: 30-60m²";
-  if (m2 < 120) return "Area: 60-120m²";
-  return "Area: 120m²+";
-}
-function budgetBucket(c: number): string {
-  if (c < 1000) return "Budget: Under $1k";
-  if (c < 3000) return "Budget: $1-3k";
-  if (c < 6000) return "Budget: $3-6k";
-  if (c < 12000) return "Budget: $6-12k";
-  return "Budget: $12k+";
-}
-
 export async function POST(request: Request) {
   let b: Record<string, unknown> = {};
   try { b = (await request.json()) as Record<string, unknown>; } catch { return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 }); }
@@ -56,9 +40,9 @@ export async function POST(request: Request) {
   const firstName = parts[0] || undefined;
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
-  const tags = ["Tile Calculator", "Website Lead", areaBucket(toOrder || totalArea)];
-  if (roomType) tags.push(`Room: ${roomType}`);
-  if (cost != null) tags.push(budgetBucket(cost));
+  // Simple, consistent tags (no per-lead splitting). The exact numbers + room
+  // type still go to the customer + showroom by email below.
+  const tags = ["Tile Calculator", "Website Lead", "Marketing"];
 
   // 1) OnConnect contact (fail-open).
   if (ONBASE_API_KEY) {

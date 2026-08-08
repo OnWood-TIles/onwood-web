@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   const firstName = parts[0] || undefined;
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
-  const tags = ["Saved Board", "Website Lead", `Saved: ${items.length} tile${items.length === 1 ? "" : "s"}`];
+  const tags = ["Saved Board", "Website Lead", "Marketing"];
 
   if (ONBASE_API_KEY) {
     try {
