@@ -84,8 +84,11 @@ export default function GalleryClient({
       if (dept !== "all" && it.group !== dept) return false;
       for (const [g, vals] of Object.entries(active)) {
         if (!vals.length) continue;
-        const rv = it.rf[g] ?? [];
-        const test = (v: string) => rv.includes(v) || it.sc.includes(v);
+        // Colour is per-colourway: match THIS swatch's own colour (sc), not the
+        // range's union - otherwise every colourway of a range that merely has a
+        // white option would match "white". Other groups are range-level (rf).
+        const rv = g === "colour" ? it.sc : (it.rf[g] ?? []);
+        const test = (v: string) => rv.includes(v);
         const ok = AND_GROUPS.has(g) ? vals.every(test) : vals.some(test);
         if (!ok) return false;
       }
