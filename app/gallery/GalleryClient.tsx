@@ -33,6 +33,9 @@ type Dept = "all" | "tiles" | "stone";
 // in ALL of them" (narrows); every other group is OR.
 const AND_GROUPS = new Set(["location-use", "location", "use", "suitability", "location-and-use"]);
 
+// Render in pages so only a batch mounts at once (fast first paint, small DOM).
+const PER_PAGE = 60;
+
 const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase" };
 
 export default function GalleryClient({
@@ -50,6 +53,7 @@ export default function GalleryClient({
   const [active, setActive] = useState<Record<string, string[]>>(initialActive);
   const [search, setSearch] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [visible, setVisible] = useState(PER_PAGE);
 
   const hasTiles = items.some((i) => i.group === "tiles");
   const hasStone = items.some((i) => i.group === "stone");
@@ -97,8 +101,9 @@ export default function GalleryClient({
     });
   }, [items, dept, active, search]);
 
-  // Any filter/department/search change invalidates the lightbox index.
-  useEffect(() => { setLightbox(null); }, [dept, active, search]);
+  // Any filter/department/search change invalidates the lightbox index and
+  // resets paging back to the first batch.
+  useEffect(() => { setLightbox(null); setVisible(PER_PAGE); }, [dept, active, search]);
 
   const deptChips: { key: Dept; label: string }[] = [
     { key: "all", label: `All (${items.length})` },
@@ -169,35 +174,48 @@ export default function GalleryClient({
           Nothing matches those filters just yet. Try clearing a filter, or come and see the full range in the showroom.
         </p>
       ) : (
-        <div className="gal-masonry">
-          {shown.map((it, idx) => (
-            <button
-              key={`${it.img}-${idx}`}
-              type="button"
-              className="gal-item"
-              onClick={() => setLightbox(idx)}
-              aria-label={`Enlarge ${it.name}${it.colour ? " in " + it.colour : ""}`}
-            >
-              <span className="gal-imgwrap">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={it.img} alt={it.alt} loading="lazy" className="gal-img" />
-                {it.watermark && (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src="/onwood-logo-white.png" alt="" aria-hidden className="gal-wm" />
-                )}
-                <span className="gal-cap">
-                  <span className="gal-name">{it.name}</span>
-                  {it.colour ? <span className="gal-col">{it.colour}</span> : null}
+        <>
+          <div className="gal-grid">
+            {shown.slice(0, visible).map((it, idx) => (
+              <button
+                key={`${it.img}-${idx}`}
+                type="button"
+                className="gal-item"
+                onClick={() => setLightbox(idx)}
+                aria-label={`Enlarge ${it.name}${it.colour ? " in " + it.colour : ""}`}
+              >
+                <span className="gal-imgwrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={it.img} alt={it.alt} loading="lazy" className="gal-img" />
+                  {it.watermark && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src="/onwood-logo-white.png" alt="" aria-hidden className="gal-wm" />
+                  )}
+                  <span className="gal-cap">
+                    <span className="gal-name">{it.name}</span>
+                    {it.colour ? <span className="gal-col">{it.colour}</span> : null}
+                  </span>
+                  <span className="gal-zoom" aria-hidden>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
+                    </svg>
+                  </span>
                 </span>
-                <span className="gal-zoom" aria-hidden>
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
-                  </svg>
-                </span>
-              </span>
-            </button>
-          ))}
-        </div>
+              </button>
+            ))}
+          </div>
+          {visible < shown.length && (
+            <div style={{ display: "flex", justifyContent: "center", marginTop: 36 }}>
+              <button
+                type="button"
+                onClick={() => setVisible((v) => v + PER_PAGE)}
+                style={{ cursor: "pointer", fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 14, letterSpacing: ".02em", padding: "13px 30px", borderRadius: 999, border: "1px solid var(--line)", background: "var(--surface)", color: "var(--ink)" }}
+              >
+                Load more <span style={{ color: "var(--muted)", fontWeight: 700 }}>({shown.length - visible} left)</span>
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* ── Lightbox ── */}
@@ -242,13 +260,13 @@ export default function GalleryClient({
       )}
 
       <style>{`
-        .gal-masonry{column-count:4;column-gap:18px}
-        @media(max-width:1100px){.gal-masonry{column-count:3}}
-        @media(max-width:760px){.gal-masonry{column-count:2;column-gap:14px}}
-        @media(max-width:440px){.gal-masonry{column-count:1}}
-        .gal-item{display:block;width:100%;padding:0;margin:0 0 18px;border:0;background:none;cursor:pointer;break-inside:avoid;-webkit-column-break-inside:avoid}
-        .gal-imgwrap{position:relative;display:block;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 18px 40px -34px rgba(16,28,30,.5)}
-        .gal-img{width:100%;height:auto;display:block;transition:transform .4s ease}
+        /* Fixed-ratio grid: each cell reserves its space BEFORE the image loads,
+           so nothing reflows/jumps as photos come in (the images are square). */
+        .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+        @media(max-width:760px){.gal-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}}
+        .gal-item{display:block;width:100%;padding:0;margin:0;border:0;background:none;cursor:pointer}
+        .gal-imgwrap{position:relative;display:block;aspect-ratio:1/1;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 18px 40px -34px rgba(16,28,30,.5)}
+        .gal-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease}
         .gal-item:hover .gal-img{transform:scale(1.05)}
         .gal-wm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46%;max-width:150px;opacity:.5;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35));pointer-events:none}
         .gal-cap{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:2px;padding:34px 14px 12px;text-align:left;background:linear-gradient(to top,rgba(14,20,22,.82),rgba(14,20,22,.28) 62%,transparent);opacity:0;transform:translateY(6px);transition:opacity .25s ease,transform .25s ease}
