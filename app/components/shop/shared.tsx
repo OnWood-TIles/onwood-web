@@ -2,8 +2,13 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { Availability, ShopMenuDept, Swatch, WebsiteRange } from "../../../lib/onbase/client";
 import { imageAlt } from "../../../lib/alt";
+import SaveButton from "../wishlist/SaveButton";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
+
+// Corner ♡ save chip for a product card image (client island inside these
+// server-rendered cards). Stops the click from navigating the card's Link.
+const saveOverlay: CSSProperties = { position: "absolute", top: 10, right: 10, zIndex: 3 };
 
 export function AvailabilityPill({ availability, size = "sm" }: { availability: Availability; size?: "sm" | "md" }) {
   const conf =
@@ -161,6 +166,9 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
             <SpecialBadge special={range.special} />
           </div>
         )}
+        <div style={saveOverlay}>
+          <SaveButton item={{ href: `${productBase}/${range.slug}`, name: range.name, image: image ?? undefined }} />
+        </div>
       </div>
       <div style={{ padding: "14px 16px 16px" }}>
         {/* Full name shown in full (wraps) at a uniform, slightly smaller size so
@@ -271,6 +279,9 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
             <SpecialBadge special={special} />
           </div>
         )}
+        <div style={saveOverlay}>
+          <SaveButton item={{ href, name: range.name, colour: swatch.colour, image: image ?? undefined }} />
+        </div>
       </div>
       <div style={{ padding: "14px 16px 16px" }}>
         {/* Full name shown in full (wraps) at a uniform, slightly smaller size. No availability pill. */}

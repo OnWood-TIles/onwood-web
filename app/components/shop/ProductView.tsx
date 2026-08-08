@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
 import { AvailabilityPill, Watermark, ColourwayCard } from "./shared";
+import SaveButton from "../wishlist/SaveButton";
 import { pairSwatch } from "../../../lib/pairs";
 import { familySlug } from "../../../lib/family";
 import { imageAlt } from "../../../lib/alt";
@@ -374,6 +375,7 @@ export default function ProductView({
                 >
                   Download brochure ↓
                 </Link>
+                <SaveButton variant="inline" item={{ href: `/product/${range.slug}`, name: range.name, colour: swatch?.colour, image: main ?? undefined }} />
               </div>
               <p style={{ marginTop: 14, fontSize: 12.5, color: "#8a8577" }}>
                 Call or drop in to the Baringa showroom and we will have it ready to view.

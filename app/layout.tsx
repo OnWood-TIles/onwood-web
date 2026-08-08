@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider, themeNoFlashScript } from "./components/ui/ThemeProvider";
 import { NavConfigProvider } from "./components/marketing/NavConfigProvider";
 import { ShopMenuProvider } from "./components/marketing/ShopMenuProvider";
+import WishlistFab from "./components/wishlist/WishlistFab";
 import { getNav, getShopMenu } from "../lib/onbase/client";
 
 // Headings / labels
@@ -105,6 +106,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <NavConfigProvider items={navItems}>
             <ShopMenuProvider depts={shopDepts}>{children}</ShopMenuProvider>
+            <WishlistFab />
           </NavConfigProvider>
         </ThemeProvider>
       </body>

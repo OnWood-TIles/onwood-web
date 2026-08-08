@@ -28,6 +28,7 @@ const ALLOWLIST = [
   "/blog",            // editorial/SEO content - public + indexable while coming-soon
   "/gallery",         // installed-photo gallery (tiles + stone veneer) - public + indexable
   "/calculator",      // "how much tile do I need" tool - public + indexable (lead capture)
+  "/saved",           // the customer's saved-tiles board (noindex; reachable while gated)
   "/faq",             // FAQ page - public + indexable (SEO, FAQPage schema), linked in the footer
   "/privacy-policy",  // linked from the coming-soon footer (email collection)
   "/terms-of-use",
@@ -38,6 +39,7 @@ const ALLOWLIST = [
   "/api/subscribe",
   "/api/enquiry",
   "/api/calculator", // tile-calculator lead capture (public form POST)
+  "/api/wishlist",   // saved-tiles lead capture (public form POST)
   "/api/preview-login",
   "/api/preview-logout",
   "/api/revalidate", // secret-gated OnBase -> storefront cache purge (server-to-server)

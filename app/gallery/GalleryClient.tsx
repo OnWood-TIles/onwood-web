@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { FilterBar } from "../components/shop/FilterBar";
+import SaveButton from "../components/wishlist/SaveButton";
 import type { FilterGroupVM } from "../../lib/shopFilters";
 
 // Pinterest-style masonry gallery of "see it installed" product visuals, with the
@@ -177,31 +178,35 @@ export default function GalleryClient({
         <>
           <div className="gal-grid">
             {shown.slice(0, visible).map((it, idx) => (
-              <button
-                key={`${it.img}-${idx}`}
-                type="button"
-                className="gal-item"
-                onClick={() => setLightbox(idx)}
-                aria-label={`Enlarge ${it.name}${it.colour ? " in " + it.colour : ""}`}
-              >
-                <span className="gal-imgwrap">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={it.img} alt={it.alt} loading="lazy" className="gal-img" />
-                  {it.watermark && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src="/onwood-logo-white.png" alt="" aria-hidden className="gal-wm" />
-                  )}
-                  <span className="gal-cap">
-                    <span className="gal-name">{it.name}</span>
-                    {it.colour ? <span className="gal-col">{it.colour}</span> : null}
+              <div key={`${it.img}-${idx}`} className="gal-cell">
+                <button
+                  type="button"
+                  className="gal-item"
+                  onClick={() => setLightbox(idx)}
+                  aria-label={`Enlarge ${it.name}${it.colour ? " in " + it.colour : ""}`}
+                >
+                  <span className="gal-imgwrap">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={it.img} alt={it.alt} loading="lazy" className="gal-img" />
+                    {it.watermark && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src="/onwood-logo-white.png" alt="" aria-hidden className="gal-wm" />
+                    )}
+                    <span className="gal-cap">
+                      <span className="gal-name">{it.name}</span>
+                      {it.colour ? <span className="gal-col">{it.colour}</span> : null}
+                    </span>
+                    <span className="gal-zoom" aria-hidden>
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
+                      </svg>
+                    </span>
                   </span>
-                  <span className="gal-zoom" aria-hidden>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                      <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
-                    </svg>
-                  </span>
+                </button>
+                <span className="gal-save">
+                  <SaveButton item={{ href: it.href, name: it.name, colour: it.colour, image: it.img }} />
                 </span>
-              </button>
+              </div>
             ))}
           </div>
           {visible < shown.length && (
@@ -264,6 +269,8 @@ export default function GalleryClient({
            so nothing reflows/jumps as photos come in (the images are square). */
         .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
         @media(max-width:760px){.gal-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}}
+        .gal-cell{position:relative}
+        .gal-save{position:absolute;top:10px;left:10px;z-index:2}
         .gal-item{display:block;width:100%;padding:0;margin:0;border:0;background:none;cursor:pointer}
         .gal-imgwrap{position:relative;display:block;aspect-ratio:1/1;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 18px 40px -34px rgba(16,28,30,.5)}
         .gal-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease}
