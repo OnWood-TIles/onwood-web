@@ -62,39 +62,78 @@
   background: color-mix(in oklab, var(--ink) 6%, transparent);
 }
 
+/* Full-screen mobile menu: covers the viewport under the fixed header, with big
+   tap-friendly rows. Shop is a collapsible section (not pre-expanded). */
 .mobileMenu {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 67px;
   left: 0;
   right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 10px 20px 18px;
-  background: color-mix(in oklab, var(--bg) 92%, transparent);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--line);
-  /* A full catalogue can make this taller than the screen; let it scroll so
-     every department + link stays reachable (the fixed header never scrolls). */
-  max-height: calc(100dvh - 68px);
+  padding: 16px 20px 40px;
+  background: color-mix(in oklab, var(--bg) 97%, transparent);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-top: 1px solid var(--line);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  animation: owMenuIn 0.22s ease;
+}
+@keyframes owMenuIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
 }
 .mobileLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   text-decoration: none;
   color: var(--ink);
-  font-weight: 600;
-  font-size: 15px;
-  padding: 12px 10px;
-  border-radius: 10px;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  padding: 15px 12px;
+  border-radius: 12px;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 55%, transparent);
 }
-.mobileLink:hover {
+.mobileLink:active {
   background: color-mix(in oklab, var(--ink) 6%, transparent);
 }
 .mobileSpecials {
   color: var(--accent);
-  font-weight: 700;
+}
+.mobileSubWrap {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0 10px;
+}
+.mobileSub {
+  text-decoration: none;
+  color: var(--ink);
+  opacity: 0.82;
+  font-weight: 600;
+  font-size: 15.5px;
+  padding: 11px 12px 11px 22px;
+  border-radius: 10px;
+}
+.mobileSub:active {
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  opacity: 1;
+}
+.mobileBook {
+  margin-top: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background: var(--ink);
+  font-weight: 800;
+  font-size: 16px;
+  padding: 16px;
+  border-radius: 100px;
 }
 
 @media (max-width: 860px) {

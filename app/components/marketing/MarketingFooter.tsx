@@ -6,7 +6,8 @@
 // Link columns live in lib/content.ts (FOOTER_COLUMNS) so they're easy to
 // extend. Async server component. No em-dashes in customer copy.
 import Link from "next/link";
-import { SHOP, FOOTER_COLUMNS } from "../../../lib/content";
+import { SHOP } from "../../../lib/content";
+import FooterColumns from "./FooterColumns";
 import { getBusiness } from "../../../lib/onbase/client";
 
 // Showroom coordinates (Packer Road, Baringa) - directions link, matches /contact.
@@ -185,21 +186,8 @@ export default async function MarketingFooter() {
             </div>
           </div>
 
-          {/* ── Directory link columns (extend in lib/content.ts) ── */}
-          {FOOTER_COLUMNS.map((col) => (
-            <div key={col.title}>
-              <div style={colHeaderStyle}>{col.title}</div>
-              <ul style={linkListStyle}>
-                {col.links.map((l) => (
-                  <li key={`${col.title}-${l.label}`}>
-                    <Link href={l.href} className="owf-link" style={linkStyle}>
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* ── Directory link columns (accordions on mobile; extend in lib/content.ts) ── */}
+          <FooterColumns />
         </div>
 
         {/* ── Bottom bar ────────────────────────────────────────── */}

@@ -17,6 +17,8 @@ import styles from "./marketingNav.module.css";
 export default function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
+  const closeMenu = () => { setOpen(false); setShopOpen(false); };
   const designed = useNavConfig();
   const shopDepts = useShopMenu();
   const rawItems: NavItem[] = designed.length
@@ -171,64 +173,57 @@ export default function MarketingNav() {
         </svg>
       </button>
 
-      {/* Mobile dropdown */}
+      {/* Mobile full-screen menu */}
       {open ? (
         <div className={styles.mobileMenu}>
           {shopDepts.length > 0 && (
             <div>
-              <a href="/shop" className={styles.mobileLink} onClick={() => setOpen(false)} style={{ fontWeight: 800 }}>
-                Shop
-              </a>
-              {shopDepts.map((d) => (
-                <a
-                  key={d.slug}
-                  href={`/shop/${d.slug}`}
-                  className={styles.mobileLink}
-                  style={{ paddingLeft: 28, fontSize: 14, opacity: 0.8 }}
-                  onClick={() => setOpen(false)}
-                >
-                  {d.label} <span style={{ opacity: 0.5 }}>({d.count})</span>
-                </a>
-              ))}
+              <button
+                type="button"
+                className={styles.mobileLink}
+                aria-expanded={shopOpen}
+                onClick={() => setShopOpen((v) => !v)}
+                style={{ width: "100%", background: "none", border: "none", cursor: "pointer", font: "inherit", textAlign: "left" }}
+              >
+                <span>Shop</span>
+                <svg viewBox="0 0 12 8" width="14" height="10" aria-hidden="true" style={{ opacity: 0.5, transform: shopOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease" }}>
+                  <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {shopOpen && (
+                <div className={styles.mobileSubWrap}>
+                  <a href="/shop" className={styles.mobileSub} onClick={closeMenu} style={{ fontWeight: 700 }}>Shop all tiles</a>
+                  {shopDepts.map((d) => (
+                    <a key={d.slug} href={`/shop/${d.slug}`} className={styles.mobileSub} onClick={closeMenu}>
+                      {d.label} <span style={{ opacity: 0.5 }}>({d.count})</span>
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          {items.map((item) => (
-            <div key={item.label}>
+          {items.map((item) =>
+            item.children?.length ? (
+              <div key={item.label}>
+                <a href={item.href || item.children[0].href} className={styles.mobileLink} onClick={closeMenu}>{item.label}</a>
+                <div className={styles.mobileSubWrap}>
+                  {item.children.map((c) => (
+                    <a key={`${c.label}-${c.href}`} href={c.href} className={styles.mobileSub} onClick={closeMenu}>{c.label}</a>
+                  ))}
+                </div>
+              </div>
+            ) : (
               <a
-                href={item.href || item.children?.[0]?.href || "/"}
+                key={item.label}
+                href={item.href || "/"}
                 className={`${styles.mobileLink} ${item.label === "Specials" ? styles.mobileSpecials : ""}`}
-                onClick={() => setOpen(false)}
+                onClick={closeMenu}
               >
                 {item.label}
               </a>
-              {item.children?.map((c) => (
-                <a
-                  key={`${c.label}-${c.href}`}
-                  href={c.href}
-                  className={styles.mobileLink}
-                  style={{ paddingLeft: 28, fontSize: 14, opacity: 0.8 }}
-                  onClick={() => setOpen(false)}
-                >
-                  {c.label}
-                </a>
-              ))}
-            </div>
-          ))}
-          <a
-            href="/book"
-            className={styles.mobileLink}
-            onClick={() => setOpen(false)}
-            style={{
-              color: "#fff",
-              background: "var(--ink)",
-              fontWeight: 700,
-              textAlign: "center",
-              borderRadius: 100,
-              marginTop: 6,
-            }}
-          >
-            Book a visit
-          </a>
+            ),
+          )}
+          <a href="/book" className={styles.mobileBook} onClick={closeMenu}>Book a visit</a>
         </div>
       ) : null}
     </header>
