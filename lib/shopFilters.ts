@@ -19,6 +19,11 @@ const COLOUR_HEX: Record<string, string> = {
   grey: "#9aa0a2", gray: "#9aa0a2", silver: "#c3c6c4", charcoal: "#3f4547", black: "#20282b",
   green: "#7e9678", sage: "#a6b8a0", olive: "#8a8b5c", blue: "#5b7c99", navy: "#2f4356", teal: "#3f6b6b",
   stone: "#c9c1b2", natural: "#d8cdb6", oatmeal: "#e5dcc7", pink: "#e0b8ad", blush: "#e8cfc6",
+  // Warm + remaining spectrum so every Colour value shows a dot (orange/red/yellow
+  // were missing); extras cover future additions harmlessly.
+  orange: "#d98236", red: "#c14338", yellow: "#dcb046", gold: "#c9a24a", mustard: "#cba33a",
+  copper: "#b5713f", bronze: "#9c6b3f", coral: "#d9795f", purple: "#7a5f86", plum: "#6e4a5a",
+  taupe: "#b3a494", mushroom: "#c7b8a5", mocha: "#6f4e3d", aqua: "#5fb0ad", mint: "#a8cbb2",
 };
 const colourHex = (v: { slug: string; label: string }): string | null =>
   COLOUR_HEX[(v.slug || "").toLowerCase()] ?? COLOUR_HEX[(v.label || "").toLowerCase()] ?? null;
