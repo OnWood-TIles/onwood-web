@@ -152,7 +152,9 @@ export default function BookAVisit({ business }: { business: Business | null }) 
   );
 
   return (
-    <div>
+    // overflow-x: clip guards against a stray horizontal overflow pushing the
+    // page sideways on phones (clip keeps position:sticky + the fixed modal working).
+    <div style={{ overflowX: "clip" }}>
       <div style={{ marginBottom: 30 }}>
         <div style={{ ...mono(11, 0.18, "var(--accent2)"), textTransform: "uppercase" }}>Book a visit</div>
         <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4.4vw,52px)", letterSpacing: "-.02em", margin: "10px 0 0" }}>

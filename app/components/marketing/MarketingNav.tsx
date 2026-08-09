@@ -198,7 +198,6 @@ export default function MarketingNav() {
               </button>
               {shopOpen && (
                 <div className={styles.mobileSubWrap}>
-                  <a href="/shop" className={styles.mobileSub} onClick={closeMenu} style={{ fontWeight: 700 }}>Shop all tiles</a>
                   {shopDepts.map((d) => (
                     <a key={d.slug} href={`/shop/${d.slug}`} className={styles.mobileSub} onClick={closeMenu}>
                       {d.label} <span style={{ opacity: 0.5 }}>({d.count})</span>
