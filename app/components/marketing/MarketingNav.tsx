@@ -189,7 +189,7 @@ export default function MarketingNav() {
                 className={styles.mobileLink}
                 aria-expanded={shopOpen}
                 onClick={() => setShopOpen((v) => !v)}
-                style={{ width: "100%", background: "none", border: "none", cursor: "pointer", font: "inherit", textAlign: "left" }}
+                style={{ width: "100%", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
               >
                 <span>Shop</span>
                 <svg viewBox="0 0 12 8" width="14" height="10" aria-hidden="true" style={{ opacity: 0.5, transform: shopOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease" }}>

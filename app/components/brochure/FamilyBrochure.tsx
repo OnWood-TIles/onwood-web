@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import type { BrochureData } from "../../../lib/brochure";
 
 // Per-family product brochure. Ports the OnWood "Claude Design" brochure look
@@ -37,6 +38,23 @@ const Logo = ({ onDark, h }: { onDark?: boolean; h: number }) => (
 
 export default function FamilyBrochure({ data, contact }: { data: BrochureData; contact: BrochureContact }) {
   const { familyName, accentWord, eyebrow, description, rangeSummary, hero, colours, installed, stats, specs, options, department, accessories } = data;
+
+  // Fit the fixed 794px A4 page to the screen width. scale() needs a UNITLESS
+  // factor, which CSS can't derive from viewport width - so compute it here and
+  // expose it as --bx-sc. Used only by the mobile @media rule; print is untouched.
+  useEffect(() => {
+    const root = document.documentElement;
+    const apply = () => root.style.setProperty("--bx-sc", Math.min(1, (window.innerWidth - 16) / 794).toFixed(4));
+    apply();
+    window.addEventListener("resize", apply);
+    window.addEventListener("orientationchange", apply);
+    return () => {
+      window.removeEventListener("resize", apply);
+      window.removeEventListener("orientationchange", apply);
+      root.style.removeProperty("--bx-sc");
+    };
+  }, []);
+
   const STONE = department === "stone-cladding";
   const installCopy = STONE
     ? "Fix over a clean, sound substrate with a flexible cement-based adhesive. Apply the corners first, alternating long and short returns, then fill in the bodies. Dry-stack for a tight mortarless look, or point with an 8-12mm mortar joint. Work from several boxes at once so colour and size spread naturally."
@@ -91,7 +109,7 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
            is untouched (always full A4), so a desktop and a phone print match. */
         @media screen and (max-width:840px){
           .bx-wrap{overflow-x:hidden;padding:12px 4px 22px;gap:10px}
-          .page{--sc:calc((100vw - 12px) / 794);transform:scale(var(--sc));transform-origin:top center;margin-bottom:calc(-1123px * (1 - var(--sc)))}
+          .page{transform:scale(var(--bx-sc,1));transform-origin:top center;margin-bottom:calc(-1123px * (1 - var(--bx-sc,1)))}
           .print-bar{padding:10px 14px}
           .print-btn{padding:9px 16px;font-size:13px}
         }
