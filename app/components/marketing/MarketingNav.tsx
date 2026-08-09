@@ -58,6 +58,7 @@ export default function MarketingNav() {
   };
 
   return (
+    <>
     <header
       style={{
         position: "fixed",
@@ -173,7 +174,12 @@ export default function MarketingNav() {
         </svg>
       </button>
 
-      {/* Mobile full-screen menu */}
+    </header>
+
+      {/* Mobile full-screen menu - rendered OUTSIDE the <header> on purpose: the
+          header's backdrop-filter makes any position:fixed child position/stack
+          relative to the header (a ~68px bar), which trapped this menu behind the
+          page. As a sibling it covers the viewport with its own high z-index. */}
       {open ? (
         <div className={styles.mobileMenu}>
           {shopDepts.length > 0 && (
@@ -226,6 +232,6 @@ export default function MarketingNav() {
           <a href="/book" className={styles.mobileBook} onClick={closeMenu}>Book a visit</a>
         </div>
       ) : null}
-    </header>
+    </>
   );
 }
