@@ -165,6 +165,8 @@ type Piece = {
   texture?: string; // metal/carpet real texture (image url)
   sub?: string; // secondary label (carpet range)
   brandLogo?: string; // carpet brand badge
+  size?: string; // tile dimensions (e.g. "600 x 600") for the AI room prompt
+  white?: boolean; // plain white tile - skip "face variation" in the AI prompt
 };
 
 const clamp = (lo: number, v: number, hi: number) =>
@@ -518,6 +520,8 @@ export default function VisionBoard({
       ar?: number; // styling cutout aspect ratio (w/h)
       big?: boolean; // styling: florals sit ~2x larger than cushions
       styleMax?: number; // explicit styling long-edge (overrides big); decor uses this
+      size?: string; // tile dimensions for the AI room prompt
+      white?: boolean; // plain white tile
     },
   ) => {
     const el = boardRef.current;
@@ -591,6 +595,8 @@ export default function VisionBoard({
         texture: opts.texture,
         sub: opts.sub,
         brandLogo: opts.brandLogo,
+        size: opts.size,
+        white: opts.white,
       },
     ]);
   };
@@ -678,6 +684,8 @@ export default function VisionBoard({
           color: p.kind === "paint" ? p.color || undefined : undefined,
           sub: p.sub || undefined,
           url: p.texture || undefined,
+          size: p.size || undefined,
+          white: p.white || undefined,
         }));
       const res = await fetch("/api/room-visual", {
         method: "POST",
@@ -2399,7 +2407,12 @@ export default function VisionBoard({
                     key={t.id}
                     type="button"
                     onClick={() =>
-                      addPiece("tile", t.name, { texture: t.url, sub: t.type })
+                      addPiece("tile", t.name, {
+                        texture: t.url,
+                        sub: t.type,
+                        size: (t.f?.size || []).find((s) => /\d/.test(s)),
+                        white: (t.f?.colour || []).includes("white"),
+                      })
                     }
                     aria-label={`Add ${t.name}${t.type ? ` (${t.type})` : ""} to the board`}
                     title={t.type ? `${t.name} - ${t.type}` : t.name}

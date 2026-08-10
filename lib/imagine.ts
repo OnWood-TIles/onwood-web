@@ -12,6 +12,8 @@ export type ImagineItem = {
   color?: string; // hex - for paint from the chip, for materials read from the swatch
   sub?: string;
   url?: string; // swatch image (the API reads its dominant colour into `color`)
+  size?: string; // tile dimensions (e.g. "600 x 600") for scale + square/rectangle
+  white?: boolean; // plain white tile - skip "face variation" so no invented pattern
 };
 export type TileSurface = "floor" | "wall" | "feature";
 export type ImagineRequest = {
@@ -232,6 +234,43 @@ export function resolveTileSurfaces(
   return p && p.length ? p : [defaultTileSurface(name, sub)];
 }
 
+// Pull the two largest mm figures from a size string ("600 x 1200", "600x600mm")
+// -> { long, short }. Ignores thickness. null if unreadable.
+function parseTileDims(size?: string): { long: number; short: number } | null {
+  const nums = (String(size || "").match(/\d+(?:\.\d+)?/g) || []).map(Number).filter((n) => n > 0).sort((a, b) => b - a);
+  return nums.length >= 2 ? { long: nums[0], short: nums[1] } : null;
+}
+
+// Per-tile laying guidance in the OnBase "See it installed" style: state the real
+// size + large-format scale + rectangle ratio, then (Reagan's rules) add face
+// variation ONLY for non-white tiles, and the "rotate every second tile 90 degrees"
+// trick ONLY for SQUARE tiles (rotating a rectangular plank looks wrong).
+function tileLayingClause(tiles: ImagineItem[]): string {
+  const parts: string[] = [];
+  const seen = new Set<string>();
+  for (const t of tiles) {
+    const nm = (t.name || "").trim();
+    if (!nm || seen.has(nm)) continue;
+    seen.add(nm);
+    const dims = parseTileDims(t.size);
+    let c = "";
+    if (t.size && /\d/.test(t.size)) c += `${nm} measures exactly ${t.size}. `;
+    let square = false;
+    if (dims) {
+      const ratio = dims.long / dims.short;
+      square = ratio < 1.2;
+      if (dims.long >= 900) c += `These are LARGE-FORMAT tiles - render them BIG, only a few large tiles across each surface, and never add extra grout lines that split a tile. `;
+      else if (dims.long >= 600) c += `Render these large, only a few across each surface, with no extra grout lines splitting them. `;
+      if (ratio >= 1.6) c += `Each tile is a long rectangle, about ${ratio.toFixed(1)} to 1 - lay the planks in straight parallel rows all running the same direction. `;
+    }
+    if (!t.white) c += `Give each tile natural face variation - vary the veining, marbling and movement from one tile to the next (real tiles have 20-30 faces before the pattern repeats), keeping the colour, material and finish identical. `;
+    if (square) c += `Rotate every second tile 90 degrees to make the pattern more random. `;
+    if (c) parts.push(c.trim());
+  }
+  if (!parts.length) return "";
+  return `${parts.join(" ")} The swatch shows only the tile's colour and texture, not its shape or size; keep grout lines straight, continuous, parallel and evenly spaced.`;
+}
+
 // Build a photographer-grade interior prompt from the placed pieces + benchtop.
 export function buildImaginePrompt(req: ImagineRequest): string {
   const items = Array.isArray(req.items) ? req.items : [];
@@ -363,11 +402,10 @@ export function buildImaginePrompt(req: ImagineRequest): string {
     `Strict colour and material palette - build the whole ${feature ? "composition" : "room"} from ONLY these, as the defining scheme: ${paletteStr}.`,
     `Do not add any colours, timber or warm-wood tones that are not listed above. If the palette is cool, dark or monochrome, keep the entire ${feature ? "shot" : "room"} cool, dark or monochrome to match.`,
     cues ? `${req.style} style: ${cues}.` : "",
-    // Realistic tile laying: use the tile's many design faces + rotate alternate tiles
-    // so the pattern never looks like one repeated stamp (Reagan's proven prompt).
-    (floorTiles.length || wallTiles.length || featureTiles.length)
-      ? `Lay the tiles realistically: each tile has 20-30 different design faces, so vary the veins and markings slightly from tile to tile. Rotate every second tile 90 degrees to also make the pattern more random.`
-      : "",
+    // Per-tile laying (size, scale, square-only 90-degree rotation, and face
+    // variation skipped for plain white tiles) - matches OnBase's "See it installed"
+    // generator. Stone samples are excluded (they have their own description above).
+    tileLayingClause([...floorTiles, ...wallTiles, ...mosaicTiles]),
     (req.note || "").trim()
       ? `Also incorporate: ${(req.note || "").trim().slice(0, 200)}.`
       : "",
