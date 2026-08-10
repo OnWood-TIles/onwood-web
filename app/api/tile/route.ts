@@ -30,10 +30,11 @@ export async function GET(req: Request) {
       const tm = await sharp(trimmed).metadata();
       const tw = tm.width || 0, th = tm.height || 0;
       const ar = tw && th ? Math.max(tw / th, th / tw) : 99;
-      // Only keep the trim if it left a sane amount of the tile. A near-white tile
-      // (e.g. a white subway on white) has no edge for trim to find and collapses to
-      // a sliver - reject that and serve the original so the tile is never destroyed.
-      if (tw >= ow * 0.2 && th >= oh * 0.2 && ar <= 8) src = trimmed;
+      // Only keep the trim if it left a real tile. A near-white tile (a white subway
+      // on white) has no edge for the trimmer to find and collapses to a ~10px sliver
+      // - detect that by an absurd aspect / tiny dimension and serve the original so a
+      // light tile is never destroyed. (A legit subway is ~2.8:1, a plank up to ~6:1.)
+      if (tw >= 24 && th >= 24 && ar <= 12) src = trimmed;
     } catch {
       /* trim can throw on a single-colour image - keep the original */
     }
