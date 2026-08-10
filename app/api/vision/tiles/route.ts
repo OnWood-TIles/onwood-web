@@ -9,7 +9,7 @@ import { listRanges, getFilterGroups } from "../../../../lib/onbase/client";
 // filter exactly like the shop. Cached; listRanges is itself cached.
 export const revalidate = 600;
 
-type TileItem = { id: string; name: string; type: string; url: string; f: Record<string, string[]> };
+type TileItem = { id: string; name: string; type: string; url: string; raw: string; installed: string | null; f: Record<string, string[]> };
 
 // Structural stone pieces (corners, capping, pier caps) are not surfaces.
 const STRUCTURAL = /\b(corners?|capping|pier\s*caps?)\b/i;
@@ -32,7 +32,7 @@ export async function GET() {
         const colour = (s.colour || "").trim();
         const name = colour && colour.toLowerCase() !== r.name.toLowerCase() ? `${r.name} ${colour}` : r.name;
         const f: Record<string, string[]> = { ...rf, "surface-type": [dept] };
-        out.push({ id: `${r.slug}-${colourSlug(colour) || i}`, name, type, url: `/api/tile?u=${encodeURIComponent(s.image)}`, f });
+        out.push({ id: `${r.slug}-${colourSlug(colour) || i}`, name, type, url: `/api/tile?u=${encodeURIComponent(s.image)}`, raw: s.image, installed: s.installedImage || null, f });
       });
     }
   };
