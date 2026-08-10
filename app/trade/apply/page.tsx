@@ -39,7 +39,7 @@ export default function TradeApplyPage() {
 
         <section style={{ padding: "34px 24px 90px" }}>
           <div style={{ maxWidth: 1080, margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0,0.8fr) minmax(0,1.1fr)", gap: 36, alignItems: "start" }} className="ta-grid">
-            <div style={{ display: "flex", flexDirection: "column", gap: 18, position: "sticky", top: 96 }}>
+            <div className="ta-perks" style={{ display: "flex", flexDirection: "column", gap: 18, position: "sticky", top: 96 }}>
               {PERKS.map(([t, d]) => (
                 <div key={t} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
                   <span style={{ width: 9, height: 9, background: "var(--accent)", transform: "rotate(45deg)", flex: "none", marginTop: 7 }} />
@@ -55,7 +55,7 @@ export default function TradeApplyPage() {
         </section>
       </main>
       <MarketingFooter />
-      <style>{`@media(max-width:820px){.ta-grid{grid-template-columns:1fr!important}}`}</style>
+      <style>{`@media(max-width:820px){.ta-grid{grid-template-columns:1fr!important}.ta-perks{position:static!important;top:auto!important}}`}</style>
     </div>
   );
 }
