@@ -10,7 +10,7 @@ import { SPECIALS_TEASER } from "../../../lib/content";
 // shadows). The white CTA carries the reference's data-magnetic lean-to-cursor
 // behaviour (disabled under prefers-reduced-motion).
 export default function SpecialsTeaser() {
-  const { eyebrow, headA, headB, sub, chips, cta, badge, card } =
+  const { eyebrow, headA, headB, sub, chips, cta, badge, card, image } =
     SPECIALS_TEASER;
   const ctaRef = useRef<HTMLAnchorElement>(null);
 
@@ -182,7 +182,10 @@ export default function SpecialsTeaser() {
               overflow: "hidden",
               height: "clamp(300px,34vw,420px)",
               boxShadow: "0 30px 70px rgba(0,0,0,.3)",
-              background: "linear-gradient(160deg,#e4c39c,#b47f4b 60%,#8a5c34)",
+              backgroundColor: "#c9a06a",
+              backgroundImage: `url(/api/tile?u=${encodeURIComponent(image)})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           />
 
@@ -249,14 +252,16 @@ export default function SpecialsTeaser() {
               {card.name}
             </div>
             <div style={{ fontSize: 13, marginTop: 3 }}>
-              <span
-                style={{
-                  textDecoration: "line-through",
-                  color: "var(--muted)",
-                }}
-              >
-                {card.was}
-              </span>{" "}
+              {card.was ? (
+                <span
+                  style={{
+                    textDecoration: "line-through",
+                    color: "var(--muted)",
+                  }}
+                >
+                  {card.was}
+                </span>
+              ) : null}{" "}
               <strong style={{ color: "#b8562f" }}>{card.now}</strong>
             </div>
           </div>

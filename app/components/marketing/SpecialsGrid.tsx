@@ -1,27 +1,28 @@
 import Reveal from "../ui/Reveal";
 import { SPECIALS_PAGE } from "../../../lib/content";
 
-// The 6 special-offer cards, matching the reference (arched swatch top, % OFF
-// badge, tag, name, was/now price, note, Enquire link).
+// The current specials, each an arched real-tile photo, a badge, name, price (when
+// there is one) + an Enquire link. Real product photos route through /api/tile so
+// the white catalogue margin is trimmed off.
 export default function SpecialsGrid() {
   return (
     <section
       style={{
-        padding: "40px 40px 90px",
-        maxWidth: 1240,
+        padding: "10px 40px 70px",
+        maxWidth: 940,
         margin: "0 auto",
       }}
     >
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: 24,
+          gridTemplateColumns: "repeat(2,1fr)",
+          gap: 28,
         }}
         className="specials-grid"
       >
         {SPECIALS_PAGE.items.map((it, i) => (
-          <Reveal key={it.name} delay={(i % 3) * 0.06}>
+          <Reveal key={it.name} delay={(i % 2) * 0.08}>
             <article
               style={{
                 position: "relative",
@@ -36,32 +37,49 @@ export default function SpecialsGrid() {
                 style={{
                   position: "relative",
                   margin: "10px 10px 0",
-                  aspectRatio: "4 / 3.4",
+                  aspectRatio: "4 / 3.2",
                   borderRadius: "130px 130px 0 0",
                   overflow: "hidden",
-                  background: it.swatch,
+                  background: it.swatch || "#efece5",
                 }}
               >
-                <span
-                  style={{
-                    position: "absolute",
-                    top: 14,
-                    right: 14,
-                    zIndex: 2,
-                    background: "var(--accent)",
-                    color: "#fff",
-                    fontFamily: "var(--font-archivo)",
-                    fontWeight: 900,
-                    fontSize: 14,
-                    padding: "8px 12px",
-                    borderRadius: 100,
-                    boxShadow: "0 8px 20px rgba(0,0,0,.2)",
-                  }}
-                >
-                  {it.pct}
-                </span>
+                {it.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/tile?u=${encodeURIComponent(it.image)}`}
+                    alt={it.name}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                ) : null}
+                {it.pct ? (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: 14,
+                      right: 14,
+                      zIndex: 2,
+                      background: "var(--accent)",
+                      color: "#fff",
+                      fontFamily: "var(--font-archivo)",
+                      fontWeight: 900,
+                      fontSize: 14,
+                      padding: "8px 12px",
+                      borderRadius: 100,
+                      boxShadow: "0 8px 20px rgba(0,0,0,.2)",
+                    }}
+                  >
+                    {it.pct}
+                  </span>
+                ) : null}
               </div>
-              <div style={{ padding: "16px 18px 20px" }}>
+              <div style={{ padding: "16px 20px 22px" }}>
                 <div
                   style={{
                     fontSize: 11.5,
@@ -77,25 +95,31 @@ export default function SpecialsGrid() {
                   style={{
                     fontFamily: "var(--font-archivo)",
                     fontWeight: 800,
-                    fontSize: 20,
+                    fontSize: 22,
                     margin: "6px 0 8px",
                     color: "var(--ink)",
                   }}
                 >
                   {it.name}
                 </h3>
-                <div style={{ fontSize: 15, marginBottom: 6 }}>
-                  <span style={{ textDecoration: "line-through", color: "var(--muted)" }}>
-                    {it.was}
-                  </span>{" "}
-                  <strong style={{ color: "var(--accent)", fontSize: 18 }}>{it.now}</strong>
+                {it.now ? (
+                  <div style={{ fontSize: 15, marginBottom: 6 }}>
+                    {it.was ? (
+                      <span style={{ textDecoration: "line-through", color: "var(--muted)" }}>
+                        {it.was}
+                      </span>
+                    ) : null}{" "}
+                    <strong style={{ color: "var(--accent)", fontSize: 19 }}>{it.now}</strong>
+                  </div>
+                ) : null}
+                <div style={{ fontSize: 13.5, lineHeight: 1.55, color: "var(--muted)" }}>
+                  {it.note}
                 </div>
-                <div style={{ fontSize: 13, color: "var(--muted)" }}>{it.note}</div>
                 <a
-                  href="/#contact"
+                  href="/contact"
                   style={{
                     display: "inline-block",
-                    marginTop: 14,
+                    marginTop: 16,
                     textDecoration: "none",
                     color: "var(--ink)",
                     fontWeight: 700,

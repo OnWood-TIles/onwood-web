@@ -3,6 +3,7 @@ import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import SpecialsHero from "../components/marketing/SpecialsHero";
 import SpecialsGrid from "../components/marketing/SpecialsGrid";
+import FreeDeliveryBand from "../components/marketing/FreeDeliveryBand";
 import PackageDeal from "../components/marketing/PackageDeal";
 import ReserveBand from "../components/marketing/ReserveBand";
 
@@ -19,6 +20,7 @@ export default function SpecialsPage() {
       <main>
         <SpecialsHero />
         <SpecialsGrid />
+        <FreeDeliveryBand />
         <PackageDeal />
         <ReserveBand />
       </main>

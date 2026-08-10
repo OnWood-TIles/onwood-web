@@ -171,11 +171,12 @@ export const SPECIALS_TEASER = {
   eyebrow: "This month at OnWood",
   headA: "Specials worth",
   headB: "walking in for.",
-  sub: "Clearance runs, end-of-line stone and whole-home tile packages, refreshed monthly, while stocks last.",
-  chips: ["Up to 40% off wood-look", "Free underlay over 60m²"],
+  sub: "Right now: 20% off timber-look porcelain, our Aspect gloss white at a sharp price, and free delivery across the Sunshine Coast. While stocks last.",
+  chips: ["20% off timber-look", "Free Sunshine Coast delivery"],
   cta: { label: "See all specials", href: "/specials" },
-  badge: { pct: "40%", label: "OFF" },
-  card: { name: "Coastal Oak", was: "$59", now: "$41/m²" },
+  badge: { pct: "20%", label: "OFF" },
+  card: { name: "Aspect 36 Gloss", was: "", now: "$16.95/m²" },
+  image: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
 };
 
 export const SHOWROOM = {
@@ -268,28 +269,44 @@ export const CONTACT = {
 
 // ---- Specials page ----
 export type Special = {
-  pct: string;
+  pct?: string; // corner badge, e.g. "20% OFF" or "SPECIAL"
   tag: string;
   name: string;
-  was: string;
-  now: string;
+  was?: string; // struck price (optional)
+  now?: string; // e.g. "$16.95/m²" (optional)
   note: string;
-  swatch: string;
+  image?: string; // real product photo (routed through /api/tile to trim the margin)
+  swatch?: string; // gradient fallback when there's no photo
 };
 
 export const SPECIALS_PAGE = {
-  eyebrow: "While stocks last",
-  title: "Seasonal specials",
+  eyebrow: "On now · while stocks last",
+  title: "This month's",
   titleAccent: ".",
-  sub: "Clearance runs, end-of-line stone and tile bundles from the Baringa showroom. Prices held until the counter hits zero.",
+  sub: "A couple of genuine deals from the Baringa showroom right now — plus free delivery across the Sunshine Coast. Supply only, while stocks last.",
   items: [
-    { pct: "40% OFF", tag: "Wood-look porcelain", name: "Coastal Oak", was: "$59", now: "$41/m²", note: "End of line · ~300m² left", swatch: "linear-gradient(160deg,#d09a5f,#96632f)" },
-    { pct: "30% OFF", tag: "Polished porcelain", name: "Carrara Statuario", was: "$74", now: "$52/m²", note: "Showroom clearance", swatch: "linear-gradient(150deg,#efe9e0,#d9d2c6)" },
-    { pct: "25% OFF", tag: "Wood-look plank", name: "Herringbone Walnut", was: "$89", now: "$67/m²", note: "Limited packs remaining", swatch: "repeating-linear-gradient(45deg,#7A4A28 0 16px,#5f3a1f 16px 32px)" },
-    { pct: "35% OFF", tag: "Honed natural stone", name: "Travertine Sand", was: "$96", now: "$62/m²", note: "Last of the crate", swatch: "linear-gradient(160deg,#d8c8ac,#a89372)" },
-    { pct: "20% OFF", tag: "Handmade gloss tile", name: "Aegean Zellige", was: "$120", now: "$96/m²", note: "Overstock batch", swatch: "linear-gradient(135deg,#3f97a6,#1c4a54)" },
-    { pct: "30% OFF", tag: "Sun-baked terracotta", name: "Baked Terracotta", was: "$105", now: "$74/m²", note: "Discontinued colour", swatch: "linear-gradient(160deg,#c15a30,#8a3d22)" },
+    {
+      pct: "20% OFF",
+      tag: "Timber-look porcelain",
+      name: "Timber-look feature",
+      note: "The warmth of timber with none of the upkeep — 20% off our timber-look range (Woodstock, Heartwood & more) this month.",
+      image: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
+    },
+    {
+      pct: "SPECIAL",
+      tag: "300×300 rectified white gloss",
+      name: "Aspect 36 Gloss White",
+      now: "$16.95/m²",
+      note: "A crisp, bright rectified white gloss — a clean, timeless look for walls and splashbacks at a sharp price.",
+      image: "https://onwoodtiles.com.au/images/tileone/aspect-300x600-gloss.webp?v=1",
+    },
   ] as Special[],
+  freeDelivery: {
+    badge: "Free delivery",
+    title: "Free delivery across the Sunshine Coast.",
+    sub: "We'll get your tiles to site free within our Sunshine Coast delivery zones — just ask us about your suburb when you order.",
+    cta: "Check my suburb",
+  },
   package: {
     eyebrow: "Bundle & save",
     title: "The whole tile job, in one supply package.",
