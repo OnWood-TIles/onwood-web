@@ -19,6 +19,7 @@ export function FloorSwatchFace({
   brandLogo,
   showLabel = true,
   radius = 12,
+  zoom = 1.14,
 }: {
   name: string;
   range: string;
@@ -26,6 +27,7 @@ export function FloorSwatchFace({
   brandLogo?: string;
   showLabel?: boolean;
   radius?: number; // corner radius - tiles pass a small value to square them off
+  zoom?: number; // 1.14 = slight sample zoom (flooring); tiles pass 1 to show the WHOLE tile uncropped
 }) {
   return (
     <div
@@ -53,7 +55,7 @@ export function FloorSwatchFace({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          transform: "scale(1.14)", // slight zoom into the plank for a sample feel
+          transform: `scale(${zoom})`,
           display: "block",
         }}
       />

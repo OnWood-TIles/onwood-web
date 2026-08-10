@@ -179,6 +179,7 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
           url={piece.src || ""}
           showLabel={false}
           radius={piece.radius ?? (piece.kind === "tile" ? 2 : 10)}
+          zoom={piece.kind === "tile" ? 1 : 1.14}
         />
       );
     case "carpet":

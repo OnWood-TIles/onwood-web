@@ -22,13 +22,22 @@ export async function GET(req: Request) {
     });
     if (!r.ok) return NextResponse.redirect(u);
     const buf = Buffer.from(await r.arrayBuffer());
-    let out: Buffer;
+    const meta = await sharp(buf).metadata();
+    const ow = meta.width || 0, oh = meta.height || 0;
+    let src: Buffer = buf;
     try {
-      out = await sharp(buf).trim({ background: "#ffffff", threshold: 18 }).resize(700, 700, { fit: "inside", withoutEnlargement: true }).webp({ quality: 84 }).toBuffer();
+      const trimmed = await sharp(buf).trim({ background: "#ffffff", threshold: 18 }).toBuffer();
+      const tm = await sharp(trimmed).metadata();
+      const tw = tm.width || 0, th = tm.height || 0;
+      const ar = tw && th ? Math.max(tw / th, th / tw) : 99;
+      // Only keep the trim if it left a sane amount of the tile. A near-white tile
+      // (e.g. a white subway on white) has no edge for trim to find and collapses to
+      // a sliver - reject that and serve the original so the tile is never destroyed.
+      if (tw >= ow * 0.2 && th >= oh * 0.2 && ar <= 8) src = trimmed;
     } catch {
-      // trim can throw on an image that is all one colour - serve it un-trimmed.
-      out = await sharp(buf).resize(700, 700, { fit: "inside", withoutEnlargement: true }).webp({ quality: 84 }).toBuffer();
+      /* trim can throw on a single-colour image - keep the original */
     }
+    const out = await sharp(src).resize(700, 700, { fit: "inside", withoutEnlargement: true }).webp({ quality: 84 }).toBuffer();
     return new NextResponse(new Uint8Array(out), {
       headers: { "Content-Type": "image/webp", "Cache-Control": "public, max-age=604800, immutable" },
     });

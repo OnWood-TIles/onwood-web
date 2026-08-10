@@ -122,7 +122,17 @@ const CARPET_W = 210; // carpet swatch + label (~2x)
 const CARPET_H = 262;
 const FLOOR_W = 176; // flooring plank sample (rectangular, ~carpet size)
 const FLOOR_H = 248;
-const TILE_EDGE = 212; // catalogue tile: square swatch (larger, trimmed of its white margin)
+const TILE_EDGE = 212; // catalogue tile: a 600x600 shows at this square; other sizes keep ~this AREA
+const TILE_AR_CAP = 3.2; // planks longer than this (e.g. 200x1200) become a sliver - cap it (slight crop)
+// A tile sample sized to its TRUE aspect ratio but a roughly constant AREA, so the
+// whole tile shows (a subway looks like a subway, a 600x1200 like a 2:1 plank) and
+// no one size hogs the board. `aspect` = long/short (>=1).
+const tileBox = (aspect: number): [number, number] => {
+  // aspect = width/height; clamp elongation in EITHER orientation (portrait planks too).
+  const a = Math.min(Math.max(aspect || 1, 1 / TILE_AR_CAP), TILE_AR_CAP);
+  const A = TILE_EDGE * TILE_EDGE;
+  return [Math.round(Math.sqrt(A * a)), Math.round(Math.sqrt(A / a))];
+};
 const STYLE_MAX = 178; // styling cutout: long-edge target (aspect preserved per item)
 const STYLE_MAX_BIG = 340; // florals drop ~2x larger than cushions (wispy stems need height)
 const STYLE_MAX_DECOR = 248; // decor (vases/urns/lanterns): a touch under floral size
@@ -555,17 +565,11 @@ export default function VisionBoard({
                 : kind === "styling"
                   ? STYLE_MAX
                   : PIECE;
-    // Rectangle tiles (timber-look planks) keep their real plank shape instead of
-    // a square - derive the aspect from the tile's true dimensions when we have them.
+    // Tiles render at their TRUE aspect ratio (constant sample area). Seed the shape
+    // from the tile's dimensions here; it's refined to the real image aspect on load.
     if (kind === "tile" && opts.size) {
       const dims = (opts.size.match(/\d+(?:\.\d+)?/g) || []).map(Number).filter((n) => n > 0);
-      if (dims.length >= 2) {
-        const ratio = Math.min(Math.max(dims[0], dims[1]) / Math.min(dims[0], dims[1]), 2.4);
-        if (ratio >= 1.35) {
-          baseW = TILE_EDGE; // horizontal plank: full width, shorter height
-          baseH = Math.round(TILE_EDGE / ratio);
-        }
-      }
+      if (dims.length >= 2) [baseW, baseH] = tileBox(Math.max(dims[0], dims[1]) / Math.min(dims[0], dims[1]));
     }
     // Styling cutouts keep their natural shape - fit within a box sized by kind
     // (florals + decor ~2x cushions).
@@ -587,10 +591,31 @@ export default function VisionBoard({
     const drift = Math.floor(n / DROP_OFFSETS.length) * 16;
     const x = clamp(0, bw / 2 - pw / 2 + ox + drift, Math.max(0, bw - pw));
     const y = clamp(0, bh / 2 - ph / 2 + oy + drift, Math.max(0, bh - ph));
+    const pieceId = idRef.current++;
+    // Refine a tile to its REAL image aspect once loaded, so the whole tile shows
+    // at its true shape (planks/subways) instead of the seeded/square guess.
+    if (kind === "tile" && opts.texture) {
+      const im = new window.Image();
+      im.onload = () => {
+        const a = im.naturalWidth / im.naturalHeight;
+        if (!(a > 0)) return;
+        const [tw, th] = tileBox(a);
+        const nw = Math.round(tw * scale);
+        const nh = Math.round(th * scale);
+        setPieces((prev) =>
+          prev.map((p) =>
+            p.id === pieceId
+              ? { ...p, w: nw, h: nh, x: clamp(0, p.x, Math.max(0, bw - nw)), y: clamp(0, p.y, Math.max(0, bh - nh)) }
+              : p,
+          ),
+        );
+      };
+      im.src = opts.texture;
+    }
     setPieces((prev) => [
       ...prev,
       {
-        id: idRef.current++,
+        id: pieceId,
         name,
         kind,
         w: pw,
@@ -1326,8 +1351,9 @@ export default function VisionBoard({
                       />
                     </div>
                   ) : p.kind === "tile" ? (
-                    // Fill the piece's own w x h box so RECTANGLE tiles (timber-look
-                    // planks) keep their true plank shape; square tiles stay square.
+                    // Fill the piece's own w x h box (sized to the tile's real aspect)
+                    // with zoom=1 so the WHOLE tile shows, uncropped - a subway looks
+                    // like a subway, a 600x1200 like a 2:1 plank.
                     <div style={{ width: "100%", height: "100%" }}>
                       {/* Tiles reuse the flooring swatch face with NO brand badge,
                           and squared-off corners (tiles aren't rounded). */}
@@ -1337,6 +1363,7 @@ export default function VisionBoard({
                         url={p.texture || ""}
                         showLabel={showLabels}
                         radius={2}
+                        zoom={1}
                       />
                     </div>
                   ) : p.kind === "styling" ? (
@@ -2461,7 +2488,11 @@ export default function VisionBoard({
                         style={{
                           width: "100%",
                           height: "100%",
-                          objectFit: "cover",
+                          // Show the WHOLE tile at its real shape (a subway looks like a
+                          // subway, a plank like a plank) instead of a square crop.
+                          objectFit: "contain",
+                          padding: 4,
+                          boxSizing: "border-box",
                           display: "block",
                         }}
                       />

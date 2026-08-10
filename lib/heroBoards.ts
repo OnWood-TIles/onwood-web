@@ -90,7 +90,8 @@ export const HERO_BOARDS: HeroBoard[] = [
     pieces: [
       photo("bath-coastal-white", -1),
       hero("Alba 45 Statuario", "Marble-look porcelain", `${T}/1668640604.webp?v=3`),
-      feature({ kind: "tile", name: "Aspect White Subway", sub: "Gloss subway", src: `${T}/1599661909.webp?v=3`, w: 176, h: 176, radius: 2 }),
+      // Subway is a ~2.85:1 tile - a subway-shaped box so it reads like a subway.
+      { id: "feature", kind: "tile", name: "Aspect White Subway", sub: "Gloss subway", src: tp(`${T}/1599661909.webp?v=3`), x: 314, y: 44, w: 204, h: 96, rot: 3, z: 3, radius: 2 },
       styling("plant", "Native Gum", "ai-floral-native-gum", -24, 10, 110, 214, 8),
       paint("paintA", "Natural White", "#EFE9DB", 0, 248, -4, 5),
       { ...stone("Calacatta Nuvo", -20, 430, -6, 3), src: "/images/stone/5131.webp?v=2" },
