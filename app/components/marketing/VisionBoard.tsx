@@ -13,6 +13,7 @@ import ImageDisclosure from "../legal/ImageDisclosure";
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
+import MarketingConsent, { MARKETING_CONSENT_TEXT } from "./MarketingConsent";
 import { FilterBar } from "../shop/FilterBar";
 import { DULUX_COLOURS } from "../../../lib/dulux";
 import { type MetalFinish } from "../../../lib/metals";
@@ -702,6 +703,7 @@ export default function VisionBoard({
     email: "",
     suburb: "",
     postcode: "",
+    consent: false, // marketing opt-in (unticked); the PDF sends either way
   });
 
   const generateRoom = async () => {
@@ -842,6 +844,8 @@ export default function VisionBoard({
             suburb: f.suburb.trim(),
             postcode: f.postcode.trim(),
           },
+          consent: f.consent,
+          consentText: MARKETING_CONSENT_TEXT,
           board: {
             w: boardW,
             h: boardH,
@@ -2038,6 +2042,11 @@ export default function VisionBoard({
                         />
                       </label>
                     </div>
+                    <MarketingConsent
+                      checked={shareForm.consent}
+                      onChange={(v) => setShareForm((s) => ({ ...s, consent: v }))}
+                      style={{ marginBottom: 16 }}
+                    />
                     {shareError ? (
                       <div
                         style={{

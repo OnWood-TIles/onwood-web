@@ -214,14 +214,9 @@ export async function composeBoardImage(
         create: { width: W, height: H, channels: 3, background: "#efece5" },
       });
 
-  // Composite pieces bottom-up in stacking (z) order, tracking the bounding box
-  // of what actually lands on the board.
+  // Composite pieces bottom-up in stacking (z) order at their EXACT board positions.
   const ordered = [...payload.pieces].sort((a, b) => (a.z || 0) - (b.z || 0));
   const composites: sharp.OverlayOptions[] = [];
-  let minX = W;
-  let minY = H;
-  let maxX = 0;
-  let maxY = 0;
   for (const p of ordered) {
     const pw = Math.max(8, Math.round(p.w * scale));
     const ph = Math.max(8, Math.round(p.h * scale));
@@ -229,37 +224,18 @@ export async function composeBoardImage(
     const top = Math.round(p.y * scale);
     try {
       const buf = await buildPiece(p, pw, ph, origin);
-      if (buf) {
-        composites.push({ input: buf, left, top });
-        minX = Math.min(minX, left);
-        minY = Math.min(minY, top);
-        maxX = Math.max(maxX, left + pw);
-        maxY = Math.max(maxY, top + ph);
-      }
+      if (buf) composites.push({ input: buf, left, top });
     } catch {
       /* skip a piece that fails to build */
     }
   }
 
-  const full = await base.composite(composites).png().toBuffer();
-
-  // Crop to the arrangement's bounding box + a little padding. A board built on a
-  // phone is a tall portrait canvas with lots of empty benchtop; emailed whole it
-  // reads as a stretched sliver. Cropping to the pieces makes it a tight moodboard
-  // on any device. No-op when the pieces already fill the board.
-  if (composites.length && maxX > minX && maxY > minY) {
-    const pad = Math.round(Math.min(W, H) * 0.06);
-    const cropL = Math.max(0, minX - pad);
-    const cropT = Math.max(0, minY - pad);
-    const cropR = Math.min(W, maxX + pad);
-    const cropB = Math.min(H, maxY + pad);
-    const cropW = cropR - cropL;
-    const cropH = cropB - cropT;
-    if (cropW > 60 && cropH > 60 && (cropW < W - 4 || cropH < H - 4)) {
-      return sharp(full).extract({ left: cropL, top: cropT, width: cropW, height: cropH }).png().toBuffer();
-    }
-  }
-  return full;
+  // Return the FULL board exactly as the customer arranged it on screen - same
+  // canvas, same positions + spacing. We deliberately do NOT crop to the pieces:
+  // that "jammed" everything together and lost their layout. The PDF places this
+  // image contained (never stretched), so a portrait (mobile) or landscape
+  // (desktop) board each keeps its true look.
+  return base.composite(composites).png().toBuffer();
 }
 
 // ---- PDF -------------------------------------------------------------------

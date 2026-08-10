@@ -63,6 +63,12 @@ export async function POST(request: Request) {
   if (!email || !EMAIL_RE.test(email)) return bad("Please add a valid email address.");
   if (!phone) return bad("Please add a phone number.");
 
+  // Marketing opt-in (express, from the unticked checkbox) + audit data, same as
+  // the site's other forms. The PDF still sends whether or not they tick it.
+  const consent = body.consent === true;
+  const consentText = str(body.consentText, 300) || undefined;
+  const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
+
   const boardIn = (body.board ?? {}) as Record<string, unknown>;
   const piecesIn = Array.isArray(body.pieces) ? body.pieces : [];
   if (piecesIn.length === 0) return bad("Your board is empty - add a few finishes first.");
@@ -129,7 +135,7 @@ export async function POST(request: Request) {
     sendCustomerEmail(email, firstName, attachments),
     sendSalesEmail(payload, attachments),
     upsertOnBaseCustomer(payload),
-    addOnConnectContact(email, firstName, lastName),
+    addOnConnectContact(email, firstName, lastName, consent, consentText, consentIp),
   ]);
   for (const t of tasks)
     if (!t.ok) console.error(`[share] ${t.name} failed: ${t.detail || ""}`);
@@ -219,8 +225,15 @@ async function addOnConnectContact(
   email: string,
   firstName: string | undefined,
   lastName: string | undefined,
+  consent: boolean,
+  consentText: string | undefined,
+  consentIp: string | undefined,
 ): Promise<Task> {
   if (!ONBASE_API_KEY) return { name: "onconnect", ok: false, detail: "ONBASE_API_KEY not set" };
+  // Everyone is captured as a lead; only a ticked marketing box adds "Marketing" and
+  // records express consent (Spam Act), matching the rest of the site's forms.
+  const tags = [VISION_TAG, "Website Lead"];
+  if (consent) tags.push("Marketing");
   try {
     const res = await fetch(`${ONBASE_API_URL}/api/v1/onconnect/contacts`, {
       method: "POST",
@@ -228,7 +241,16 @@ async function addOnConnectContact(
         "Content-Type": "application/json",
         Authorization: `Bearer ${ONBASE_API_KEY}`,
       },
-      body: JSON.stringify({ email, firstName, lastName, tags: [VISION_TAG, "Website Lead", "Marketing"] }),
+      body: JSON.stringify({
+        email,
+        firstName,
+        lastName,
+        tags,
+        marketingConsent: consent,
+        consentText: consent ? consentText : undefined,
+        consentSource: "Vision Board (onwoodtiles.com.au)",
+        consentIp: consent ? consentIp : undefined,
+      }),
     });
     const body = await res.text().catch(() => "");
     return { name: "onconnect", ok: res.ok, detail: `${res.status} ${body.slice(0, 200)}` };
