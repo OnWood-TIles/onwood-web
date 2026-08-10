@@ -36,6 +36,9 @@ export const BOARD_H = 600;
 
 const LAMINEX = "/images/timber/laminex-logo.svg";
 const ABI = "/images/metals/abi/abi-logo.svg";
+// Route tile/feature photos through the trimmer so ONLY the tile shows (the source
+// catalogue photos sit on a white canvas). See app/api/tile.
+const tp = (u: string) => `/api/tile?u=${encodeURIComponent(u)}`;
 
 // ---- shared anchor slots (identical on every board) -------------------------
 const photo = (id: string, rot: number): BoardPiece => ({
@@ -44,13 +47,13 @@ const photo = (id: string, rot: number): BoardPiece => ({
 });
 // Hero tile - biggest, centred, FRONT (tool tile face scaled up).
 const hero = (name: string, sub: string, src: string): BoardPiece => ({
-  id: "hero", kind: "tile", name, sub, src,
-  x: 136, y: 238, w: 240, h: 240, rot: -2, z: 6, radius: 2,
+  id: "hero", kind: "tile", name, sub, src: tp(src),
+  x: 120, y: 224, w: 280, h: 280, rot: -2, z: 6, radius: 2,
 });
 // Feature slot - the board's secondary material (mosaic / subway / stone veneer),
 // top-right, fixed position.
 const feature = (p: Omit<BoardPiece, "id" | "x" | "y" | "rot" | "z">): BoardPiece => ({
-  id: "feature", x: 332, y: 18, rot: 3, z: 3, ...p,
+  id: "feature", x: 324, y: 16, rot: 3, z: 3, ...p, w: 196, h: 196, src: p.src ? tp(p.src) : p.src,
 });
 
 // ---- piece factories at the tool's real design sizes ------------------------

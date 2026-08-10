@@ -13,6 +13,7 @@ import ImageDisclosure from "../legal/ImageDisclosure";
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
+import { FilterBar } from "../shop/FilterBar";
 import { DULUX_COLOURS } from "../../../lib/dulux";
 import { type MetalFinish } from "../../../lib/metals";
 import type { CarpetSwatchItem } from "../../../lib/carpet";
@@ -51,6 +52,9 @@ const DEFAULT_HEAD: VisionHead = {
 };
 
 const TAB_ORDER = ["paint", "tiles", "benchtops"];
+
+// Filter groups whose selected values are AND-ed (match ALL), mirroring the shop.
+const TILE_AND_GROUPS = new Set(["location-use", "location", "use", "suitability", "location-and-use"]);
 
 // Pretty tab labels for keys that don't title-case cleanly.
 const TAB_LABELS: Record<string, string> = {
@@ -102,7 +106,8 @@ const STYLING_CATS = ["Cushion", "Floral", "Decor"] as const;
 // GlowTile tile (Tiles tab). Shopify product; the tile face hotlinks from
 // cdn.shopify.com. Shown WITHOUT a brand badge (Reagan's call). type = the
 // GlowTile collection ("Feature Tiles", "TUNDRA", ...). See scripts/gen-tiles.mjs.
-type TileItem = { id: string; name: string; type: string; url: string };
+type TileItem = { id: string; name: string; type: string; url: string; f?: Record<string, string[]> };
+type TileGroup = { slug: string; label: string; values: { slug: string; label: string }[] };
 
 const PIECE = 64; // material chip (square)
 const PAINT_W = 120; // Dulux paint chip
@@ -117,7 +122,7 @@ const CARPET_W = 210; // carpet swatch + label (~2x)
 const CARPET_H = 262;
 const FLOOR_W = 176; // flooring plank sample (rectangular, ~carpet size)
 const FLOOR_H = 248;
-const TILE_EDGE = 176; // GlowTile tile: square swatch (~carpet/flooring scale)
+const TILE_EDGE = 212; // catalogue tile: square swatch (larger, trimmed of its white margin)
 const STYLE_MAX = 178; // styling cutout: long-edge target (aspect preserved per item)
 const STYLE_MAX_BIG = 340; // florals drop ~2x larger than cushions (wispy stems need height)
 const STYLE_MAX_DECOR = 248; // decor (vases/urns/lanterns): a touch under floral size
@@ -185,14 +190,14 @@ export default function VisionBoard({
   // and "cabinetry" (Laminex timber) are special searchable pickers, always
   // first; the material chip tabs follow.
   const SPECIAL = [
-    "paint",
     "tiles",
     "metals",
+    "paint",
     "carpet",
     "flooring",
     "cabinetry",
-    "styling",
     "benchtops",
+    "styling",
   ];
   const materialKeys = TAB_ORDER.filter(
     (k) => !SPECIAL.includes(k) && tabs[k]?.length,
@@ -201,7 +206,7 @@ export default function VisionBoard({
   );
   const tabKeys = [...SPECIAL, ...materialKeys];
 
-  const [activeTab, setActiveTab] = useState("paint");
+  const [activeTab, setActiveTab] = useState("tiles");
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [query, setQuery] = useState("");
   const [showLabels, setShowLabels] = useState(true);
@@ -412,6 +417,8 @@ export default function VisionBoard({
   // carpet. NO brand badge is shown for tiles (Reagan's call).
   const [tileQuery, setTileQuery] = useState("");
   const [tileData, setTileData] = useState<TileItem[] | null>(null);
+  const [tileGroups, setTileGroups] = useState<TileGroup[]>([]);
+  const [tileFilters, setTileFilters] = useState<Record<string, string[]>>({});
   const TILE_PAGE = 90;
   const [tileLimit, setTileLimit] = useState(TILE_PAGE);
 
@@ -419,20 +426,31 @@ export default function VisionBoard({
     if (activeTab === "tiles" && tileData === null) {
       fetch("/api/vision/tiles")
         .then((r) => r.json())
-        .then((d: TileItem[]) => setTileData(d))
+        .then((d: { tiles: TileItem[]; groups: TileGroup[] }) => {
+          setTileData(d.tiles);
+          setTileGroups(d.groups || []);
+        })
         .catch(() => setTileData([]));
     }
   }, [activeTab, tileData]);
 
   const tileResults = useMemo(() => {
-    const all = tileData ?? [];
+    let all = tileData ?? [];
+    if (Object.values(tileFilters).some((v) => v.length)) {
+      all = all.filter((t) => {
+        for (const [g, vals] of Object.entries(tileFilters)) {
+          if (!vals.length) continue;
+          const have = t.f?.[g] ?? [];
+          const ok = TILE_AND_GROUPS.has(g) ? vals.every((v) => have.includes(v)) : vals.some((v) => have.includes(v));
+          if (!ok) return false;
+        }
+        return true;
+      });
+    }
     const q = tileQuery.trim().toLowerCase();
-    if (!q) return all;
-    return all.filter(
-      (t) =>
-        t.name.toLowerCase().includes(q) || t.type.toLowerCase().includes(q),
-    );
-  }, [tileData, tileQuery]);
+    if (q) all = all.filter((t) => t.name.toLowerCase().includes(q) || t.type.toLowerCase().includes(q));
+    return all;
+  }, [tileData, tileQuery, tileFilters]);
 
   useEffect(() => {
     setTileLimit(TILE_PAGE);
@@ -2325,8 +2343,8 @@ export default function VisionBoard({
                 type="search"
                 value={tileQuery}
                 onChange={(e) => setTileQuery(e.target.value)}
-                placeholder="Search GlowTile tiles (name or collection, e.g. Carrara)"
-                aria-label="Search GlowTile tiles"
+                placeholder="Search the OnWood Tiles collection (name or colour)"
+                aria-label="Search the OnWood Tiles collection"
                 style={{
                   width: "100%",
                   padding: "12px 16px",
@@ -2340,12 +2358,23 @@ export default function VisionBoard({
                 }}
               />
             </div>
+            <FilterBar
+              groups={tileGroups}
+              active={tileFilters}
+              onToggle={(g, v) =>
+                setTileFilters((prev) => {
+                  const cur = prev[g] || [];
+                  return { ...prev, [g]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] };
+                })
+              }
+              onClearAll={() => setTileFilters({})}
+            />
             <div
               role="group"
-              aria-label="GlowTile tiles"
+              aria-label="Catalogue tiles"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
                 gap: 14,
                 maxHeight: 340,
                 overflowY: "auto",
