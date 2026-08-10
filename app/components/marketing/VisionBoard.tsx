@@ -702,7 +702,13 @@ export default function VisionBoard({
           count: 1,
         }),
       });
-      const data = await res.json();
+      // A timed-out/oversized response can come back as an HTML error page, not
+      // JSON - degrade to a friendly message instead of a raw "Unexpected token '<'".
+      const data = await res.json().catch(() => ({
+        ok: false,
+        error:
+          "The render is taking too long right now - the image service is busy. Please try again in a moment.",
+      }));
       if (typeof data.remaining === "number") setImgRemaining(data.remaining);
       if (!res.ok || !data.ok) throw new Error(data.error || "Generation failed.");
       const imgs: string[] =

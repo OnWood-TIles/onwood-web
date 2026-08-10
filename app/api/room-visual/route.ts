@@ -143,7 +143,18 @@ export async function POST(request: Request) {
   }
 
   const base = new URL(request.url).origin;
-  const abs = (u?: string) => (u && u.startsWith("/") ? base + u : u);
+  const abs = (u?: string) => {
+    if (!u) return u;
+    // Unwrap the /api/tile trimmer proxy to its real source image. The AI
+    // reference doesn't need the white margin trimmed, and fetching through the
+    // proxy is a nested request that just adds latency (and can be skipped on a
+    // slow trim, dropping the reference). Go straight to the source instead.
+    if (u.includes("/api/tile")) {
+      const m = u.match(/[?&]u=([^&]+)/);
+      if (m) { try { return decodeURIComponent(m[1]); } catch { /* fall through */ } }
+    }
+    return u.startsWith("/") ? base + u : u;
+  };
   const items = Array.isArray(req.items) ? req.items : [];
 
   // The customer's tile placements (tile name -> floor/wall/feature). A tile placed
@@ -206,7 +217,14 @@ export async function POST(request: Request) {
       ...usable.map((r) => ({ inlineData: { mimeType: r.img.mimeType, data: r.img.data } })),
       { text: prompt },
     ];
-    const resp = await ai.models.generateContent({ model: MODEL, contents: [{ role: "user", parts }] });
+    // Cap the Gemini call well under the 120s function limit. If the image model
+    // is slow/overloaded, a plain await would run until Vercel kills the function
+    // and returns an HTML timeout page - which the client can't parse as JSON
+    // ("Unexpected token '<'"). Racing a timeout lets us return a clean JSON error.
+    const resp = (await Promise.race([
+      ai.models.generateContent({ model: MODEL, contents: [{ role: "user", parts }] }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("gemini-timeout")), 75000)),
+    ])) as Awaited<ReturnType<typeof ai.models.generateContent>>;
     const out = resp.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
     if (!out?.inlineData?.data) {
       console.error("[room-visual] no image in Gemini response");
@@ -219,7 +237,16 @@ export async function POST(request: Request) {
       { headers: { "Set-Cookie": cookieFor(used + 1), "Cache-Control": "no-store" } },
     );
   } catch (err) {
+    const timedOut = err instanceof Error && err.message === "gemini-timeout";
     console.error("[room-visual] Gemini failed:", err);
-    return NextResponse.json({ ok: false, error: "The render service had a hiccup, please try again." }, { status: 502 });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: timedOut
+          ? "The image service is busy right now and the render took too long. Please try again in a moment."
+          : "The render service had a hiccup, please try again.",
+      },
+      { status: timedOut ? 503 : 502 },
+    );
   }
 }
