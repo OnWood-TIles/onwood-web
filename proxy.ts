@@ -43,6 +43,7 @@ const ALLOWLIST = [
   "/api/preview-login",
   "/api/preview-logout",
   "/api/revalidate", // secret-gated OnBase -> storefront cache purge (server-to-server)
+  "/api/warm",       // keep-warm cron ping (server-to-server; warms OnBase+Supabase, no data)
 ];
 
 // The Trade Partner portal is a SELF-CONTAINED customer area with its own OnBase-backed
