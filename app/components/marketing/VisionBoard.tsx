@@ -131,7 +131,12 @@ const TILE_AR_CAP = 3.2; // planks longer than this (e.g. 200x1200) become a sli
 const tileBox = (aspect: number): [number, number] => {
   // aspect = width/height; clamp elongation in EITHER orientation (portrait planks too).
   const a = Math.min(Math.max(aspect || 1, 1 / TILE_AR_CAP), TILE_AR_CAP);
-  const A = TILE_EDGE * TILE_EDGE;
+  // Constant-area sizing makes long tiles (subways/planks) read too WIDE, so taper
+  // the sample area down as a tile gets more elongated: a square is unchanged, a
+  // ~3:1 subway ends up ~30% smaller.
+  const elong = Math.max(a, 1 / a);
+  const edge = TILE_EDGE / (1 + 0.24 * (elong - 1));
+  const A = edge * edge;
   return [Math.round(Math.sqrt(A * a)), Math.round(Math.sqrt(A / a))];
 };
 const STYLE_MAX = 178; // styling cutout: long-edge target (aspect preserved per item)
