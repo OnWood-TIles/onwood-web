@@ -80,6 +80,22 @@ const plankHero = (name: string, sub: string, src: string): BoardPiece => ({
   x: 104, y: 286, w: 312, h: 158, rot: -2, z: 6, radius: 2,
 });
 
+// A real customer Vision Board (Reagan's coastal blue-floral scheme) -> 2 hero
+// cards, one per AI room, sharing the palette: Woodstock 212 Oak plank floor +
+// Antico Designer Valencia Blue feature + Lunar Frost benchtop + Alabaster
+// cabinetry + Antique Slate tapware + cushion / dried florals / rattan lantern.
+const customCoastalPieces = (roomId: string, rot: number): BoardPiece[] => [
+  photo(roomId, rot),
+  plankHero("Woodstock 212 Oak", "Timber-look porcelain", `${T}/1781578830.webp?v=3`),
+  feature({ kind: "tile", name: "Antico Designer Valencia Blue", sub: "Blue floral feature", src: `${T}/GLOANQVALENB15M.webp?v=3`, w: 176, h: 176, radius: 2 }),
+  styling("dried", "Dried Mixed", "ai-floral-dried-mixed", -22, 8, 122, 161, 8),
+  styling("cushion", "Cream Knit", "ai-cushion-cream-knit", -2, 250, 126, 126, 5),
+  { ...stone("Lunar Frost", -20, 430, -5, 3), src: "/images/stone/5141.webp?v=2" },
+  { ...timber("Alabaster", "polytec-alabaster", 404, 214, -4, 4), brandLogo: undefined },
+  metal("Antique Slate", "antique-slate", 196, 476, 3, 5),
+  styling("lantern", "Rattan Lantern", "ai-decor-rattan-lantern", 410, 366, 90, 214, 8),
+];
+
 // Layout note: the hero tile is big + central (x120-400, y224-504), so the
 // material chips sit in clear LEFT / RIGHT columns + a bottom-centre peek that
 // stay visible around it - paints, metals + timber are no longer hidden under
@@ -167,4 +183,6 @@ export const HERO_BOARDS: HeroBoard[] = [
       styling("plant2", "Olive Branch", "ai-floral-olive-branch", 402, 352, 126, 244, 8),
     ],
   },
+  { id: "custom-coastal-bath", pieces: customCoastalPieces("custom-coastal-bath", -1) },
+  { id: "custom-coastal-kitchen", pieces: customCoastalPieces("custom-coastal-kitchen", 1) },
 ];

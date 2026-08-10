@@ -281,7 +281,7 @@ const safe = (s: string) => (s || "").replace(/[^\x20-\x7E\xA0-\xFF]/g, "").trim
 // Supplier / manufacturer per piece kind, for the finishes list.
 const SUPPLIERS: Record<string, { label: string; supplier: string }> = {
   paint: { label: "Paint", supplier: "Dulux" },
-  tile: { label: "Tiles", supplier: "GlowTile" },
+  tile: { label: "Tiles", supplier: "OnWood Tiles" },
   flooring: { label: "Flooring", supplier: "Quick-Step" },
   carpet: { label: "Carpet", supplier: "Godfrey Hirst" },
   timber: { label: "Cabinetry", supplier: "Laminex" },
@@ -401,7 +401,9 @@ export async function buildMoodboardPdf(
         key: `${kind}:${nk}`,
         cat: meta.label.toUpperCase(),
         name: n,
-        sub: [meta.supplier, p.sub].filter(Boolean).join(", "),
+        // Tiles are our own range - always "OnWood Tiles" (never the old GlowTile
+        // placeholder + a redundant "Tiles" category).
+        sub: kind === "tile" ? "OnWood Tiles" : [meta.supplier, p.sub].filter(Boolean).join(", "),
         url: IMAGE_KINDS.has(kind) ? p.url : undefined,
         color: p.color,
       });
@@ -448,77 +450,85 @@ export async function buildMoodboardPdf(
   TR(page1, "VISION BOARD", W - M, y + 2, 9, monoB, ACCENT);
   TR(page1, dateStr, W - M, y + 18, 8.5, mono, MUTED);
 
-  y = logoBottom + 28;
+  y = logoBottom + 20;
   page1.drawLine({ start: { x: M, y: H - y }, end: { x: W - M, y: H - y }, thickness: 0.75, color: LINE });
-  y += 26;
+  y += 18;
 
-  // Prepared-for + big serif name (auto-shrinks to fit).
+  // Prepared-for + big serif name (auto-shrinks to fit). Kept compact so the
+  // board below reads large (Reagan: the moodboard should fill ~half the page).
   T(page1, "PREPARED FOR", M, y, 8.5, monoB, MUTED);
-  y += 22;
+  y += 19;
   const nm = payload.customer.name || "Your vision board";
-  const nmSize = fitSize(nm, serif, cw, 58, 26);
+  const nmSize = fitSize(nm, serif, cw, 34, 22);
   T(page1, ellipsize(nm, serif, nmSize, cw), M, y, nmSize, serif, INK);
-  y += nmSize * 0.96 + 12;
+  y += nmSize * 0.96 + 8;
 
   y += wrap(
     page1,
-    "Here's the look you built on our Vision Board - the finishes you chose, and your room brought to life. Bring it in, or reply to your email and our team will help make it real.",
-    M, y, cw, 10.5, helv, MUTED, 15.5,
+    "The finishes you chose on our Vision Board - and your room, brought to life. Reply to your email or drop in, and we'll help make it real.",
+    M, y, cw, 10.5, helv, MUTED, 14,
   );
-  y += 26;
+  y += 16;
 
-  // Two columns: a LARGE moodboard (left) + a generously spaced finishes list (right).
-  const colTop = y;
-  const colBottom = H - 92;
-  const gap = 24;
-  const boardW = Math.round(cw * 0.55);
-  const listX = M + boardW + gap;
-  const listRight = M + cw;
+  // A LARGE hero of the board they built (full width), with the finishes laid out
+  // in columns UNDERNEATH it - so the board reads big and every name shows in full.
+  const contentBottom = H - 66; // stay clear of the footer
 
-  // LEFT: the moodboard collage, CONTAINED (never stretched), as large as it fits.
+  // Reserve the finishes block at the bottom: a 2-column grid keeps each name
+  // wide enough to show the full tile name + variation without truncating.
+  const fCols = 2;
+  const fRows = Math.max(1, Math.ceil(finishes.length / fCols));
+  const fRowH = 46;
+  const fColGap = 22;
+  const finishesH = 24 + fRows * fRowH;
+  const finishesTop = contentBottom - finishesH;
+
+  // BOARD: full content width, as tall as the room between the intro and the
+  // finishes allows (contained, never stretched).
+  const boardTop = y;
   let bImg: PDFImage | null = null;
   try { bImg = await pdf.embedPng(boardPng); } catch { bImg = null; }
   if (bImg) {
     const bAr = bImg.width / bImg.height;
-    const maxH = colBottom - colTop - 24;
-    let iw = boardW;
+    const boxH = Math.max(170, finishesTop - 28 - boardTop);
+    let iw = cw;
     let ih = iw / bAr;
-    if (ih > maxH) { ih = maxH; iw = ih * bAr; }
-    const ix = M + (boardW - iw) / 2;
-    page1.drawRectangle({ x: ix - 1.5, y: H - colTop - ih - 1.5, width: iw + 3, height: ih + 3, borderColor: LINE, borderWidth: 1 });
-    page1.drawImage(bImg, { x: ix, y: H - colTop - ih, width: iw, height: ih });
-    T(page1, "YOUR BOARD", M, colTop + ih + 12, 8, monoB, MUTED);
+    if (ih > boxH) { ih = boxH; iw = ih * bAr; }
+    const ix = M + (cw - iw) / 2;
+    page1.drawRectangle({ x: ix - 1.5, y: H - boardTop - ih - 1.5, width: iw + 3, height: ih + 3, borderColor: LINE, borderWidth: 1 });
+    page1.drawImage(bImg, { x: ix, y: H - boardTop - ih, width: iw, height: ih });
+    T(page1, "YOUR BOARD", M, boardTop + ih + 11, 8, monoB, MUTED);
   }
 
-  // RIGHT: numbered finishes list with swatch thumbnails, generously spaced.
-  T(page1, "YOUR FINISHES", listX, colTop, 9, monoB, ACCENT);
-  let ly = colTop + 26;
-  const rowH = 50;
-  const maxRows = Math.max(1, Math.floor((colBottom - ly) / rowH));
-  const shown = finishes.length > maxRows ? finishes.slice(0, maxRows - 1) : finishes;
-  shown.forEach((f, i) => {
-    const sz = 34;
-    T(page1, String(i + 1).padStart(2, "0"), listX, ly + 7, 9, mono, FAINT);
-    const tx = listX + 22;
+  // FINISHES: numbered swatch rows in columns; the name auto-shrinks to fit its
+  // column so the full name + variation is never cut off.
+  T(page1, "YOUR FINISHES", M, finishesTop, 9, monoB, ACCENT);
+  const gridTop = finishesTop + 24;
+  const colW = (cw - fColGap * (fCols - 1)) / fCols;
+  finishes.forEach((f, i) => {
+    const col = i % fCols;
+    const row = Math.floor(i / fCols);
+    const colX = M + col * (colW + fColGap);
+    const ry = gridTop + row * fRowH;
+    const sz = 32;
+    T(page1, String(i + 1).padStart(2, "0"), colX, ry + 7, 9, mono, FAINT);
+    const tx = colX + 20;
     const thumb = thumbs[f.key];
     if (thumb) {
-      page1.drawImage(thumb, { x: tx, y: H - ly - sz, width: sz, height: sz });
+      page1.drawImage(thumb, { x: tx, y: H - ry - sz, width: sz, height: sz });
     } else if (f.color) {
-      page1.drawRectangle({ x: tx, y: H - ly - sz, width: sz, height: sz, color: hexRgb(f.color), borderColor: LINE, borderWidth: 0.75 });
+      page1.drawRectangle({ x: tx, y: H - ry - sz, width: sz, height: sz, color: hexRgb(f.color), borderColor: LINE, borderWidth: 0.75 });
     } else {
-      page1.drawRectangle({ x: tx, y: H - ly - sz, width: sz, height: sz, color: rgb(0.9, 0.88, 0.84) });
+      page1.drawRectangle({ x: tx, y: H - ry - sz, width: sz, height: sz, color: rgb(0.9, 0.88, 0.84) });
     }
-    const bx = tx + sz + 11;
-    const bw = listRight - bx;
-    T(page1, f.cat, bx, ly, 7.5, mono, MUTED);
-    T(page1, ellipsize(f.name, helvB, 11.5, bw), bx, ly + 12, 11.5, helvB, INK);
-    if (f.sub) T(page1, ellipsize(f.sub, helv, 8.5, bw), bx, ly + 27, 8.5, helv, MUTED);
-    page1.drawLine({ start: { x: listX, y: H - (ly + rowH - 8) }, end: { x: listRight, y: H - (ly + rowH - 8) }, thickness: 0.5, color: LINE });
-    ly += rowH;
+    const bx = tx + sz + 10;
+    const tw = colX + colW - bx;
+    T(page1, f.cat, bx, ry, 7.5, mono, MUTED);
+    const nSize = fitSize(f.name, helvB, tw, 11.5, 8);
+    T(page1, f.name, bx, ry + 12, nSize, helvB, INK);
+    if (f.sub) T(page1, ellipsize(f.sub, helv, 8.5, tw), bx, ry + 26, 8.5, helv, MUTED);
+    page1.drawLine({ start: { x: colX, y: H - (ry + fRowH - 10) }, end: { x: colX + colW, y: H - (ry + fRowH - 10) }, thickness: 0.5, color: LINE });
   });
-  if (finishes.length > shown.length) {
-    T(page1, `+ ${finishes.length - shown.length} more finishes`, listX + 22, ly + 2, 9, mono, ACCENT);
-  }
   footer(page1);
 
   // ── PAGE 2 ───────────────────────────────────────────────────────────────
