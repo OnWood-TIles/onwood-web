@@ -9,6 +9,7 @@
 //   - Next 16 caching is explicit via next.revalidate + tags (fetch is not
 //     cached by default in 16). Stock uses a short TTL; catalogue a longer one.
 import "server-only";
+import { unstable_cache } from "next/cache";
 
 const BASE = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const KEY = process.env.ONBASE_API_KEY;
@@ -302,7 +303,7 @@ export type ShopMenuDept = {
 /** Departments (with live product counts, a preview image and their populated
  *  sub-categories) that drive the Shop mega-menu. Built from the taxonomy plus
  *  the range feed so counts and imagery always reflect what is published. */
-export async function getShopMenu(): Promise<ShopMenuDept[]> {
+async function buildShopMenu(): Promise<ShopMenuDept[]> {
   const [taxonomy, ranges] = await Promise.all([getTaxonomy(), listRanges()]);
   // Menu counts reflect total colourways/variations across products (more
   // impressive + closer to the real number of options we sell), counting a
@@ -347,6 +348,18 @@ export async function getShopMenu(): Promise<ShopMenuDept[]> {
     .filter((d) => d.count > 0);
 }
 
+// Cached wrapper. The trade portal is `force-dynamic` (it needs the session
+// cookie), which Next turns into `cache: no-store` for EVERY fetch in the segment
+// - so getShopMenu's ~4.5s full-catalogue query re-ran on every trade navigation.
+// unstable_cache is a separate RESULT cache that force-dynamic does NOT override,
+// so the mega-menu is built at most once per TTL and shared by the public shop +
+// trade portal. Busted on catalogue edits via the "ranges"/"taxonomy" tags
+// (app/api/revalidate), so it never goes stale on a real change.
+export const getShopMenu = unstable_cache(buildShopMenu, ["shop-menu"], {
+  revalidate: TTL_CATALOGUE,
+  tags: ["ranges", "taxonomy"],
+});
+
 // ── Business info + structured opening hours ─────────────────────────────────
 export type DayHours = { day: string; closed: boolean; open: string; close: string };
 export type Business = {
@@ -361,6 +374,11 @@ export type Business = {
 
 /** Business name/contact/address + structured opening hours (drives the footer,
  *  showroom panels and the Book-a-Visit page's available times). */
-export function getBusiness(): Promise<Business | null> {
-  return onbaseGet<Business | null>("/api/v1/business", { revalidate: TTL_CATALOGUE, tags: ["business"] }, null);
-}
+// Cached for the same reason as getShopMenu: the trade footer + book page are
+// force-dynamic, so without this the business lookup re-ran (~1s) on every load.
+export const getBusiness = unstable_cache(
+  (): Promise<Business | null> =>
+    onbaseGet<Business | null>("/api/v1/business", { revalidate: TTL_CATALOGUE, tags: ["business"] }, null),
+  ["business"],
+  { revalidate: TTL_CATALOGUE, tags: ["business"] },
+);

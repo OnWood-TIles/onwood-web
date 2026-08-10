@@ -19,16 +19,18 @@ export const metadata: Metadata = {
 // The login + set-password pages live OUTSIDE this (app) group, so they never hit
 // this redirect.
 export default async function TradeAppLayout({ children }: { children: React.ReactNode }) {
+  // Auth check + mega-menu data in parallel (independent work). tradeMe throws
+  // when the session is invalid; getShopMenu is cached (see client.ts) so it's
+  // near-free after the first build. Parallelising drops ~1s off every full load.
   let name = "Trade Partner";
+  let shopDepts: Awaited<ReturnType<typeof getShopMenu>> = [];
   try {
-    const me = await tradeMe();
+    const [me, depts] = await Promise.all([tradeMe(), getShopMenu().catch(() => [])]);
     name = me.preferredName || me.name || "Trade Partner";
+    shopDepts = depts;
   } catch {
     redirect("/trade/login");
   }
-
-  // Powers the "Catalogue" hover mega-menu (same data as the public shop menu).
-  const shopDepts = await getShopMenu().catch(() => []);
 
   return (
     <CartProvider>
