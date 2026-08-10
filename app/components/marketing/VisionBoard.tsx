@@ -417,7 +417,7 @@ export default function VisionBoard({
 
   useEffect(() => {
     if (activeTab === "tiles" && tileData === null) {
-      fetch("/data/tiles.json")
+      fetch("/api/vision/tiles")
         .then((r) => r.json())
         .then((d: TileItem[]) => setTileData(d))
         .catch(() => setTileData([]));
@@ -2473,7 +2473,7 @@ export default function VisionBoard({
             >
               {tileData === null
                 ? ""
-                : `${tileResults.length} tiles from GlowTile. Swatches are a guide only.`}
+                : `${tileResults.length} tiles from our range. Swatches are a guide only.`}
             </p>
           </div>
         ) : activeTab === "carpet" ? (
