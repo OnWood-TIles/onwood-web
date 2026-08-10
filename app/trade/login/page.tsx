@@ -45,8 +45,6 @@ export default function TradeLandingPage() {
       <main>
         {/* ── HERO ─────────────────────────────────────────────────── */}
         <section style={{ position: "relative", overflow: "hidden", padding: "clamp(96px,15vw,140px) 24px 40px" }}>
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1100px 460px at 80% -8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(900px 420px at 12% 110%, color-mix(in srgb, var(--sea) 10%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div className="tl-hero" style={{ maxWidth: 1160, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "minmax(0,1.08fr) minmax(0,0.92fr)", gap: 48, alignItems: "center" }}>
             <div>
               <p style={eyebrow}>OnWood Trade Partners</p>
@@ -66,35 +64,22 @@ export default function TradeLandingPage() {
               </div>
             </div>
 
-            {/* Faux trade price card - shows the value at a glance (RRP struck -> Your Price + live stock). */}
-            <div className="tl-hero-art" aria-hidden style={{ position: "relative", justifySelf: "center", width: "min(360px, 92%)" }}>
-              {/* peeking card behind */}
-              <div style={{ position: "absolute", top: 26, left: -26, width: 190, transform: "rotate(-7deg)", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 16, boxShadow: "0 22px 50px -30px rgba(32,48,58,.5)", overflow: "hidden" }}>
+            {/* Trade partners at work - a real OnWood project photo, framed in an
+                editorial layered style (offset accent panel + floating value chip). */}
+            <div className="tl-hero-art" aria-hidden style={{ position: "relative", justifySelf: "center", width: "min(440px, 100%)" }}>
+              {/* offset accent panel behind the photo for layered depth */}
+              <div style={{ position: "absolute", inset: 0, transform: "translate(16px, 16px)", borderRadius: 26, background: "color-mix(in srgb, var(--accent) 15%, transparent)", border: "1px solid color-mix(in srgb, var(--accent) 28%, transparent)" }} />
+              {/* framed photo */}
+              <div style={{ position: "relative", borderRadius: 24, overflow: "hidden", border: "6px solid #fff", boxShadow: "0 46px 92px -40px rgba(32,48,58,.6)", aspectRatio: "1 / 1" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/stone/4030.webp" alt="" style={{ display: "block", width: "100%", height: 78, objectFit: "cover" }} />
-                <div style={{ padding: "10px 12px 12px" }}>
-                  <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 13.5 }}>Pietra Grey</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 3 }}>Your price <strong style={{ color: "var(--accent)" }}>$52/m&sup2;</strong></div>
-                </div>
+                <img src="/images/trade-partner.webp" alt="An OnWood tradesperson laying stone pavers in a courtyard" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
-              {/* front card */}
-              <div style={{ position: "relative", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 20, boxShadow: "0 34px 70px -34px rgba(32,48,58,.55)", overflow: "hidden" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/timber/AU1005234.webp" alt="" style={{ display: "block", width: "100%", height: 168, objectFit: "cover" }} />
-                <div style={{ padding: "18px 20px 20px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                    <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 17 }}>Coastal Oak</div>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 800, color: "#166b48", background: "rgba(31,122,84,.12)", padding: "4px 9px", borderRadius: 999 }}>
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1f7a54" }} /> In stock
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12.5, color: "var(--muted)", margin: "3px 0 14px" }}>Wood-look porcelain &middot; 600 &times; 600</div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                    <span style={{ fontSize: 14, color: "var(--muted)", textDecoration: "line-through" }}>$69/m&sup2;</span>
-                    <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, fontSize: 24, color: "var(--accent)" }}>$48/m&sup2;</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--sea)", marginLeft: "auto" }}>Your price</span>
-                  </div>
-                  <div style={{ marginTop: 16, textAlign: "center", background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 14, padding: "11px", borderRadius: 999 }}>Add to order</div>
+              {/* floating value chip */}
+              <div style={{ position: "absolute", bottom: -16, left: -14, zIndex: 2, background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 16, padding: "12px 16px", boxShadow: "0 26px 50px -24px rgba(32,48,58,.5)", display: "flex", alignItems: "center", gap: 11 }}>
+                <span style={{ width: 10, height: 10, background: "var(--accent)", transform: "rotate(45deg)", flex: "none" }} />
+                <div>
+                  <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 14, color: "var(--ink)" }}>Trade pricing, live stock</div>
+                  <div style={{ fontSize: 12.5, color: "var(--muted)" }}>Order online, anytime</div>
                 </div>
               </div>
             </div>

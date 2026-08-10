@@ -4,6 +4,7 @@ import FeaturedProducts from "./components/marketing/FeaturedProducts";
 import SpecialsTeaser from "./components/marketing/SpecialsTeaser";
 import Showroom from "./components/marketing/Showroom";
 import Story from "./components/marketing/Story";
+import TradeBanner from "./components/marketing/TradeBanner";
 import Testimonials from "./components/marketing/Testimonials";
 import Team from "./components/marketing/Team";
 import Contact from "./components/marketing/Contact";
@@ -23,6 +24,7 @@ export default async function Home() {
         <SpecialsTeaser />
         <Showroom />
         <Story />
+        <TradeBanner />
         <Testimonials />
         <Team />
         <Contact hours={business?.openHoursSummary} />
