@@ -178,12 +178,12 @@ export default function SpecialsTeaser() {
             aria-label="Special offer tile display"
             style={{
               position: "relative",
-              borderRadius: "200px 200px 22px 22px",
+              borderRadius: 24,
               overflow: "hidden",
               height: "clamp(300px,34vw,420px)",
               boxShadow: "0 30px 70px rgba(0,0,0,.3)",
               backgroundColor: "#c9a06a",
-              backgroundImage: `url(/api/tile?u=${encodeURIComponent(image)})`,
+              backgroundImage: `url(${image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

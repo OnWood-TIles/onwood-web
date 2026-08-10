@@ -175,8 +175,9 @@ export const SPECIALS_TEASER = {
   chips: ["20% off timber-look", "Free Sunshine Coast delivery"],
   cta: { label: "See all specials", href: "/specials" },
   badge: { pct: "20%", label: "OFF" },
-  card: { name: "Aspect 36 Gloss", was: "", now: "$16.95/m²" },
-  image: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
+  card: { name: "Woodstock 212 Oak", was: "", now: "20% off" },
+  image: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhtu1004zrkhk1nj3586q-1785558942651.jpg",
+  tile: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
 };
 
 export const SHOWROOM = {
@@ -275,8 +276,8 @@ export type Special = {
   was?: string; // struck price (optional)
   now?: string; // e.g. "$16.95/m²" (optional)
   note: string;
-  image?: string; // real product photo (routed through /api/tile to trim the margin)
-  swatch?: string; // gradient fallback when there's no photo
+  tile?: string; // the singular tile swatch (overlaid on the room, trimmed via /api/tile)
+  room?: string; // the "see it installed" room photo (the card hero)
 };
 
 export const SPECIALS_PAGE = {
@@ -290,7 +291,8 @@ export const SPECIALS_PAGE = {
       tag: "Timber-look porcelain",
       name: "Timber-look feature",
       note: "The warmth of timber with none of the upkeep — 20% off our timber-look range (Woodstock, Heartwood & more) this month.",
-      image: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
+      tile: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
+      room: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhtu1004zrkhk1nj3586q-1785558942651.jpg",
     },
     {
       pct: "SPECIAL",
@@ -298,7 +300,8 @@ export const SPECIALS_PAGE = {
       name: "Aspect 36 Gloss White",
       now: "$16.95/m²",
       note: "A crisp, bright rectified white gloss — a clean, timeless look for walls and splashbacks at a sharp price.",
-      image: "https://onwoodtiles.com.au/images/tileone/aspect-300x600-gloss.webp?v=1",
+      tile: "https://onwoodtiles.com.au/images/tileone/aspect-300x600-gloss.webp?v=1",
+      room: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhxbu009drkhkg0ckkc0a-1785395853279.jpg",
     },
   ] as Special[],
   freeDelivery: {
@@ -306,6 +309,7 @@ export const SPECIALS_PAGE = {
     title: "Free delivery across the Sunshine Coast.",
     sub: "We'll get your tiles to site free within our Sunshine Coast delivery zones — just ask us about your suburb when you order.",
     cta: "Check my suburb",
+    image: "/images/specials/delivery-truck.webp",
   },
   package: {
     eyebrow: "Bundle & save",
@@ -326,6 +330,17 @@ export const SPECIALS_PAGE = {
   },
   disclaimer:
     "Prices shown are per square metre, GST inclusive, supply only. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer. Sunshine Coast delivery zones apply.",
+  termsTitle: "Specials terms & conditions",
+  terms: [
+    "All specials are supply only. Prices are in Australian dollars, GST inclusive, and quoted per square metre (m²) unless stated otherwise.",
+    "Offers are available for a limited time and while advertised stock lasts. OnWood Tiles may change, extend or withdraw any special at any time without notice.",
+    "Timber-look offer: 20% off is calculated on the normal supply price of tiles in our advertised timber-look porcelain range. Selected lines only; ranges and colours are subject to availability.",
+    "Aspect 36 Gloss White is offered at the advertised special price while stocks last. Once current stock is sold, the special ends or moves to the next available batch.",
+    "Free delivery applies to standard tile orders delivered within OnWood Tiles' nominated Sunshine Coast delivery zones. It excludes bulk, oversized or remote-area freight, which may be quoted separately — please confirm your suburb with us before ordering.",
+    "Specials cannot be used in conjunction with any other offer, discount or trade pricing, and have no cash value.",
+    "Tiles are a natural, batch-made product. Colour, shade, finish and size can vary between batches — always confirm with a current physical sample before ordering, and order your full quantity (including wastage) at once where possible.",
+    "Room images are a guide for inspiration only and may not represent the exact tile, colour or layout supplied. Deposits and our standard Terms of Sale apply to all orders. Errors and omissions excepted.",
+  ],
 };
 
 // ---- async getters (constants today, CMS/OnBase later) ----

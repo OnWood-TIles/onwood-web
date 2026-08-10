@@ -6,6 +6,7 @@ import SpecialsGrid from "../components/marketing/SpecialsGrid";
 import FreeDeliveryBand from "../components/marketing/FreeDeliveryBand";
 import PackageDeal from "../components/marketing/PackageDeal";
 import ReserveBand from "../components/marketing/ReserveBand";
+import SpecialsTerms from "../components/marketing/SpecialsTerms";
 
 export const metadata: Metadata = {
   title: "Specials",
@@ -23,6 +24,7 @@ export default function SpecialsPage() {
         <FreeDeliveryBand />
         <PackageDeal />
         <ReserveBand />
+        <SpecialsTerms />
       </main>
       <MarketingFooter />
     </div>
