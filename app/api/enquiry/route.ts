@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
 
 // Contact-form handler. Unlike signups, an enquiry must NEVER be silently lost
@@ -31,6 +32,9 @@ function esc(s: string): string {
 }
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "enquiry", RL_FORM);
+  if (rl) return rl;
+
   let name = "",
     email = "",
     phone = "",

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -75,6 +76,9 @@ async function getContact(): Promise<{ phone: string; email: string; address: st
 }
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "book", RL_FORM);
+  if (rl) return rl;
+
   let b: Record<string, unknown>;
   try { b = (await request.json()) as Record<string, unknown>; } catch { return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 }); }
   const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");

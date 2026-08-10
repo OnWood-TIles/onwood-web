@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_SHARE } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
 import {
   composeBoardImage,
@@ -40,6 +41,9 @@ const str = (v: unknown, max = 200) =>
 const num = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : 0);
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "share", RL_SHARE);
+  if (rl) return rl;
+
   // --- parse + validate --------------------------------------------------
   let body: Record<string, unknown>;
   try {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../../lib/rateLimit";
 import { tradeForgot } from "../../../../lib/onbase/trade";
 
 export const runtime = "nodejs";
@@ -7,6 +8,9 @@ export const runtime = "nodejs";
 // reveals whether an email is registered), so we do the same - even on error, we
 // return {ok:true} so this endpoint can't be used to probe for accounts.
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "trade-forgot", RL_FORM);
+  if (rl) return rl;
+
   let email = "";
   try {
     const b = (await request.json()) as { email?: unknown };

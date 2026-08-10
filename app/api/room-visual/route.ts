@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, checkDailyCap, RL_AI } from "../../../lib/rateLimit";
 import crypto from "node:crypto";
 import sharp from "sharp";
 import { GoogleGenAI } from "@google/genai";
@@ -112,6 +113,11 @@ function roleFor(kind: string, name: string, sub?: string, surfaces?: TileSurfac
 }
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "roomvisual", RL_AI);
+  if (rl) return rl;
+  const cap = checkDailyCap("roomvisual", 200, "Room rendering has reached today's limit, please try again tomorrow.");
+  if (cap) return cap;
+
   if (!KEY) {
     return NextResponse.json({ ok: false, error: "Room rendering isn't switched on yet." }, { status: 503 });
   }

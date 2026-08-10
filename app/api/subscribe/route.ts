@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
 
 // SMTP send needs the Node.js runtime (nodemailer opens a TCP socket).
@@ -41,6 +42,9 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "subscribe", RL_FORM);
+  if (rl) return rl;
+
   let email = "";
   let name = "";
   try {

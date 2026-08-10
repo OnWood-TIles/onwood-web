@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, checkDailyCap, RL_AI } from "../../../lib/rateLimit";
 import sharp from "sharp";
 import { buildImaginePrompt, type ImagineRequest } from "../../../lib/imagine";
 
@@ -84,6 +85,11 @@ async function generateOne(
 }
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "imagine", RL_AI);
+  if (rl) return rl;
+  const cap = checkDailyCap("imagine", 300, "Room rendering has reached today's free limit, please try again tomorrow.");
+  if (cap) return cap;
+
   if (!ACCOUNT || !TOKEN) {
     return NextResponse.json(
       { ok: false, error: "Room rendering isn't switched on yet." },

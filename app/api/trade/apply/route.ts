@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../../lib/rateLimit";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -20,6 +21,9 @@ const SALES_TO = process.env.ENQUIRY_TO || "sales@onwoodtiles.com.au";
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "trade-apply", RL_FORM);
+  if (rl) return rl;
+
   let b: Record<string, unknown> = {};
   try { b = (await request.json()) as Record<string, unknown>; } catch { return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 }); }
   const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");
