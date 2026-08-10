@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import type { Swatch, WebsiteRange } from "../../../../lib/onbase/client";
+import { familySlug } from "../../../../lib/family";
 import { AddToOrderModal, PriceBlock, type Summary } from "./TradeCards";
 
 // The trade product page's action block: the selected colourway's trade price
@@ -47,6 +48,11 @@ export default function TradeProductActions({
         )}
         <a href="/trade/cart" style={cartLink}>
           View order request →
+        </a>
+        {/* Same product brochure as the public page. Opens in a new tab so the
+            trade partner keeps their order-request session in this one. */}
+        <a href={`/brochure/${familySlug(range)}`} target="_blank" rel="noopener noreferrer" style={cartLink}>
+          Download brochure ↓
         </a>
       </div>
 

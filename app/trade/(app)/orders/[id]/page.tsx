@@ -123,9 +123,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <div key={it.id} style={{ display: "flex", alignItems: "flex-start", padding: "14px 20px", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 14.5 }}>{it.name}</div>
-              {(it.variationColour || it.description1) && (
+              {it.variationColour && (
                 <div style={{ color: "#8a8577", fontSize: 13, marginTop: 2 }}>
-                  {[it.variationColour, it.description1].filter(Boolean).join(" · ")}
+                  {it.variationColour}
                 </div>
               )}
             </div>

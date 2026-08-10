@@ -4,6 +4,7 @@ import { tradeMe } from "../../../lib/onbase/trade";
 import { getShopMenu } from "../../../lib/onbase/client";
 import { CartProvider } from "./CartProvider";
 import TradeNav from "./TradeNav";
+import TradeFooter from "./TradeFooter";
 
 export const dynamic = "force-dynamic";
 
@@ -33,10 +34,11 @@ export default async function TradeAppLayout({ children }: { children: React.Rea
     <CartProvider>
       <div
         data-theme="terracotta"
-        style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--ink)" }}
+        style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--ink)", display: "flex", flexDirection: "column" }}
       >
         <TradeNav customerName={name} shopDepts={shopDepts} />
-        <main style={{ maxWidth: 1180, margin: "0 auto", padding: "34px 24px 90px" }}>{children}</main>
+        <main style={{ maxWidth: 1180, width: "100%", margin: "0 auto", padding: "34px 24px 80px", flex: 1 }}>{children}</main>
+        <TradeFooter />
       </div>
     </CartProvider>
   );
