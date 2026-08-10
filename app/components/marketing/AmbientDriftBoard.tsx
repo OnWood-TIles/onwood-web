@@ -31,7 +31,6 @@ const CB = { x: BOARD_W / 2, y: BOARD_H / 2 + 30 }; // drift-ring centre
 const PAINT_W = 120, PAINT_H = 168;
 const METAL_W = 112;
 const CARPET_W = 210;
-const TILE_EDGE = 176;
 
 const N_MAX = Math.max(...HERO_BOARDS.map((b) => b.pieces.length));
 const E_TOTAL = E_DUR + E_STAG * (N_MAX - 1);
@@ -170,17 +169,17 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
       );
     case "tile":
     case "stone":
-      // labels off (Reagan: only cabinetry + paint keep theirs)
+      // labels off (Reagan: only cabinetry + paint keep theirs). Fills the
+      // piece's own w x h box so RECTANGLE tiles (timber-look planks) keep their
+      // true plank shape instead of being cropped to a square.
       return (
-        <Scaled dw={TILE_EDGE} dh={TILE_EDGE} w={piece.w}>
-          <FloorSwatchFace
-            name={piece.name}
-            range={piece.sub || ""}
-            url={piece.src || ""}
-            showLabel={false}
-            radius={piece.radius ?? (piece.kind === "tile" ? 2 : 10)}
-          />
-        </Scaled>
+        <FloorSwatchFace
+          name={piece.name}
+          range={piece.sub || ""}
+          url={piece.src || ""}
+          showLabel={false}
+          radius={piece.radius ?? (piece.kind === "tile" ? 2 : 10)}
+        />
       );
     case "carpet":
       return (

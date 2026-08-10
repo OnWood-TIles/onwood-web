@@ -555,6 +555,18 @@ export default function VisionBoard({
                 : kind === "styling"
                   ? STYLE_MAX
                   : PIECE;
+    // Rectangle tiles (timber-look planks) keep their real plank shape instead of
+    // a square - derive the aspect from the tile's true dimensions when we have them.
+    if (kind === "tile" && opts.size) {
+      const dims = (opts.size.match(/\d+(?:\.\d+)?/g) || []).map(Number).filter((n) => n > 0);
+      if (dims.length >= 2) {
+        const ratio = Math.min(Math.max(dims[0], dims[1]) / Math.min(dims[0], dims[1]), 2.4);
+        if (ratio >= 1.35) {
+          baseW = TILE_EDGE; // horizontal plank: full width, shorter height
+          baseH = Math.round(TILE_EDGE / ratio);
+        }
+      }
+    }
     // Styling cutouts keep their natural shape - fit within a box sized by kind
     // (florals + decor ~2x cushions).
     if (kind === "styling" || kind === "render") {
@@ -1314,14 +1326,9 @@ export default function VisionBoard({
                       />
                     </div>
                   ) : p.kind === "tile" ? (
-                    <div
-                      style={{
-                        width: TILE_EDGE,
-                        height: TILE_EDGE,
-                        transform: `scale(${p.w / TILE_EDGE})`,
-                        transformOrigin: "top left",
-                      }}
-                    >
+                    // Fill the piece's own w x h box so RECTANGLE tiles (timber-look
+                    // planks) keep their true plank shape; square tiles stay square.
+                    <div style={{ width: "100%", height: "100%" }}>
                       {/* Tiles reuse the flooring swatch face with NO brand badge,
                           and squared-off corners (tiles aren't rounded). */}
                       <FloorSwatchFace

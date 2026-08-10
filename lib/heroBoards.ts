@@ -73,6 +73,17 @@ const T = "https://onwoodtiles.com.au/images/tileone";
 const ABI_MOSAIC = "https://www.abiinteriors.com.au/wp-content/uploads";
 const VENEER = "https://onwoodtiles.com.au/images/veneerstone";
 
+// A rectangle (plank / long-format) hero tile - keeps the tile's real plank
+// shape instead of being cropped square. Horizontal plank, centred.
+const plankHero = (name: string, sub: string, src: string): BoardPiece => ({
+  id: "hero", kind: "tile", name, sub, src: tp(src),
+  x: 104, y: 286, w: 312, h: 158, rot: -2, z: 6, radius: 2,
+});
+
+// Layout note: the hero tile is big + central (x120-400, y224-504), so the
+// material chips sit in clear LEFT / RIGHT columns + a bottom-centre peek that
+// stay visible around it - paints, metals + timber are no longer hidden under
+// the tile. Florals are kept slim so they frame rather than smother.
 export const HERO_BOARDS: HeroBoard[] = [
   {
     id: "bath-coastal-white",
@@ -80,12 +91,12 @@ export const HERO_BOARDS: HeroBoard[] = [
       photo("bath-coastal-white", -1),
       hero("Alba 45 Statuario", "Marble-look porcelain", `${T}/1668640604.webp?v=3`),
       feature({ kind: "tile", name: "Aspect White Subway", sub: "Gloss subway", src: `${T}/1599661909.webp?v=3`, w: 176, h: 176, radius: 2 }),
-      timber("Whitewashed Oak", "AU1007480", 392, 206, -5, 4),
-      { ...stone("Calacatta Nuvo", 8, 296, -7, 3), src: "/images/stone/5131.webp?v=2" },
-      paint("paintA", "Natural White", "#EFE9DB", 48, 428, -4, 5),
-      paint("paintB", "Tranquil Retreat", "#D8D3C7", 186, 436, 3, 4),
-      metal("Brushed Nickel", "brushed-nickel", 334, 430, 4, 5),
-      styling("plant", "Native Gum", "ai-floral-native-gum", -38, 96, 146, 360, 8),
+      styling("plant", "Native Gum", "ai-floral-native-gum", -24, 10, 110, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 248, -4, 5),
+      { ...stone("Calacatta Nuvo", -20, 430, -6, 3), src: "/images/stone/5131.webp?v=2" },
+      timber("Whitewashed Oak", "AU1007480", 402, 214, -5, 4),
+      paint("paintB", "Tranquil Retreat", "#D8D3C7", 404, 392, 3, 5),
+      metal("Brushed Nickel", "brushed-nickel", 182, 488, 4, 5),
     ],
   },
   {
@@ -94,12 +105,12 @@ export const HERO_BOARDS: HeroBoard[] = [
       photo("bath-warm-stone", 1),
       hero("Colonnade 60 Classico", "Travertine-look porcelain", `${T}/1718244731.webp?v=3`),
       feature({ kind: "tile", name: "Atami Mosaic Oat", sub: "Feature mosaic", src: `${ABI_MOSAIC}/Atami_Large_Square_Mosaic_Tile_300x300_Latte-scaled.jpg`, w: 176, h: 176, radius: 2 }),
-      timber("Golden Oak", "AU1006823", 20, 296, -6, 3),
-      { ...stone("Taj Whisper", 336, 204, -4, 2), src: "/images/stone/8251.webp?v=2" },
-      metal("Tumbled Aged Brass", "tumbled-aged-brass", 60, 430, 4, 5),
-      paint("paintA", "Antique White U.S.A.", "#E6DECC", 190, 434, -3, 4),
-      paint("paintB", "Raw Umber", "#D9D0B8", 322, 428, 5, 4),
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", 424, 210, 127, 340, 8),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Antique White U.S.A.", "#E6DECC", 0, 248, -3, 5),
+      { ...stone("Taj Whisper", -20, 430, -4, 3), src: "/images/stone/8251.webp?v=2" },
+      timber("Golden Oak", "AU1006823", 402, 214, -6, 4),
+      paint("paintB", "Raw Umber", "#D9D0B8", 404, 392, 5, 5),
+      metal("Tumbled Aged Brass", "tumbled-aged-brass", 182, 488, 4, 5),
     ],
   },
   {
@@ -108,12 +119,12 @@ export const HERO_BOARDS: HeroBoard[] = [
       photo("kitchen-hamptons-white", -1),
       hero("Cottesloe 60 Limestone", "Limestone-look porcelain", `${T}/1665021475.webp?v=3`),
       feature({ kind: "tile", name: "Aspect White Subway", sub: "Matt subway", src: `${T}/1599661634.webp?v=3`, w: 176, h: 176, radius: 2 }),
-      timber("White Painted Wood", "AU1003791", 392, 206, 4, 4),
-      { ...stone("Calacatta Nuvo", 8, 296, -8, 3), src: "/images/stone/5131.webp?v=2" },
-      paint("paintA", "Natural White", "#EFE9DB", 54, 426, -5, 4),
-      metal("Brushed Brass", "brushed-brass", 204, 432, 0, 5),
-      paint("paintB", "Coastal Fringe", "#C9D2D4", 330, 434, 4, 4),
-      styling("plant", "Hydrangea", "ai-floral-hydrangea-blue", -34, 120, 140, 330, 8),
+      styling("plant", "Hydrangea", "ai-floral-hydrangea-blue", -24, 10, 112, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 248, -5, 5),
+      { ...stone("Calacatta Nuvo", -20, 430, -8, 3), src: "/images/stone/5131.webp?v=2" },
+      timber("White Painted Wood", "AU1003791", 402, 214, 4, 4),
+      paint("paintB", "Coastal Fringe", "#C9D2D4", 404, 392, 4, 5),
+      metal("Brushed Brass", "brushed-brass", 182, 488, 0, 5),
     ],
   },
   {
@@ -122,25 +133,25 @@ export const HERO_BOARDS: HeroBoard[] = [
       photo("kitchen-industrial-charcoal", 1),
       hero("Foundry 60 Cast Iron", "Concrete-look porcelain", `${T}/1599714485.webp?v=3`),
       feature({ kind: "tile", name: "Ironclad Corten", sub: "Metal-look feature", src: `${T}/1771887418-612v3.webp?v=1`, w: 176, h: 176, radius: 2 }),
-      timber("Charred Oak", "AU1004571", 20, 298, -6, 3),
-      { ...stone("Raw Concrete", 336, 206, 5, 2), src: "/images/stone/4004.webp?v=2" },
-      metal("Matte Black", "matte-black", 66, 432, 0, 5),
-      paint("paintA", "Milton Moon", "#A19D91", 196, 438, -3, 4),
-      paint("paintB", "Domino", "#3D4247", 328, 428, 4, 4),
-      styling("plant", "Pampas", "ai-floral-pampas-cream", 386, 336, 179, 260, 8),
+      styling("plant", "Pampas", "ai-floral-pampas-cream", -30, 8, 128, 220, 8),
+      paint("paintA", "Milton Moon", "#A19D91", 0, 248, -3, 5),
+      { ...stone("Raw Concrete", -20, 430, 5, 3), src: "/images/stone/4004.webp?v=2" },
+      timber("Charred Oak", "AU1004571", 402, 214, -6, 4),
+      paint("paintB", "Domino", "#3D4247", 404, 392, 4, 5),
+      metal("Matte Black", "matte-black", 182, 488, 0, 5),
     ],
   },
   {
     id: "living-japandi-warm",
     pieces: [
       photo("living-japandi-warm", -1),
-      hero("Heartwood 212 Oak", "Timber-look porcelain", `${T}/1760406822.webp?v=3`),
+      plankHero("Heartwood 212 Oak", "Timber-look porcelain", `${T}/1760406822.webp?v=3`),
       feature({ kind: "tile", name: "Atami Mosaic Sage", sub: "Feature mosaic", src: `${ABI_MOSAIC}/Atami-Small-Square-Mosaic-Tile-Sage-Green-306x306mm-SKU-19125_1-1-scaled.jpg`, w: 176, h: 176, radius: 2 }),
-      styling("bowl", "Wooden Bowl", "ai-decor-wooden-bowl", 14, 300, 158, 150, 3),
-      metal("Brushed Brass", "brushed-brass", 64, 432, 0, 5),
-      paint("paintA", "Hog Bristle", "#E4DDC8", 192, 436, -4, 4),
-      paint("paintB", "Timeless Grey", "#B6B3AA", 324, 430, 3, 4),
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", 404, 236, 153, 330, 8),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Hog Bristle", "#E4DDC8", 0, 248, -4, 5),
+      styling("bowl", "Wooden Bowl", "ai-decor-wooden-bowl", -12, 440, 150, 140, 3),
+      metal("Brushed Brass", "brushed-brass", 404, 216, 0, 4),
+      paint("paintB", "Timeless Grey", "#B6B3AA", 404, 396, 3, 5),
     ],
   },
   {
@@ -149,11 +160,11 @@ export const HERO_BOARDS: HeroBoard[] = [
       photo("outdoor-alfresco-stone", 1),
       hero("Cabarita 60 Sandstone", "In/out porcelain", `${T}/1744156246.webp?v=3`),
       feature({ kind: "stone", name: "Bastion Sandstone", sub: "Stone veneer", src: `${VENEER}/bastion-sandstone.webp?v=1`, w: 176, h: 176, radius: 10 }),
-      metal("Stainless Steel", "stainless-steel", 394, 210, -4, 4),
-      paint("paintA", "Golden Sand", "#E1CD99", 24, 300, -6, 3),
-      paint("paintB", "Antique White U.S.A.", "#E6DECC", 190, 436, 3, 4),
-      styling("plant", "Mediterranean Jug", "ai-floral-mediterranean-jug", -30, 50, 128, 400, 8),
-      styling("plant2", "Olive Branch", "ai-floral-olive-branch", 400, 320, 139, 300, 8),
+      styling("plant", "Mediterranean Jug", "ai-floral-mediterranean-jug", -26, 6, 122, 236, 8),
+      paint("paintA", "Golden Sand", "#E1CD99", 0, 250, -6, 5),
+      paint("paintB", "Antique White U.S.A.", "#E6DECC", 0, 432, 3, 5),
+      metal("Stainless Steel", "stainless-steel", 404, 214, -4, 4),
+      styling("plant2", "Olive Branch", "ai-floral-olive-branch", 402, 352, 126, 244, 8),
     ],
   },
 ];
