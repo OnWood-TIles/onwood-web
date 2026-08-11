@@ -48,7 +48,7 @@ export default function SpecialsTeaser() {
         overflow: "hidden",
       }}
     >
-      <style>{`@media (max-width:860px){.ow-specials-grid{grid-template-columns:1fr;gap:44px;}}`}</style>
+      <style>{`@media (max-width:860px){.ow-specials-grid{grid-template-columns:1fr;gap:40px;}.spt-img{height:min(118vw,500px)!important;}.spt-price{left:10px!important;bottom:14px!important;}}`}</style>
 
       <div
         className="ow-specials-grid"
@@ -176,11 +176,12 @@ export default function SpecialsTeaser() {
           <div
             role="img"
             aria-label="Special offer tile display"
+            className="spt-img"
             style={{
               position: "relative",
               borderRadius: 24,
               overflow: "hidden",
-              height: "clamp(300px,34vw,420px)",
+              height: "clamp(320px,34vw,440px)",
               boxShadow: "0 30px 70px rgba(0,0,0,.3)",
               backgroundColor: "#c9a06a",
               backgroundImage: `url(${image})`,
@@ -231,6 +232,7 @@ export default function SpecialsTeaser() {
 
           {/* Price card */}
           <div
+            className="spt-price"
             style={{
               position: "absolute",
               left: -16,

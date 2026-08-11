@@ -1,18 +1,11 @@
 import Link from "next/link";
 import Reveal from "../ui/Reveal";
+import AmbientDriftBoard from "./AmbientDriftBoard";
 
-// Homepage teaser for the Vision Board tool. Curated collection shots "fly in"
-// (staggered reveals) beside a CTA into the full /vision-board builder — which
-// lives on its own page so the homepage stays fast and the tool earns its own SEO.
-const BOARDS: { src: string; label: string }[] = [
-  { src: "/images/vision/coastal-kitchen-room.webp", label: "Coastal kitchen" },
-  { src: "/images/vision/marrakesh-ensuite-room.webp", label: "Mediterranean ensuite" },
-  { src: "/images/vision/coastal-powder-hero.webp", label: "Coastal powder room" },
-  { src: "/images/vision/stackstone-living-room.webp", label: "Coastal living" },
-  { src: "/images/vision/coastal-kitchen-hero.webp", label: "Kitchen detail" },
-  { src: "/images/vision/marrakesh-ensuite-hero.webp", label: "Ensuite detail" },
-];
-
+// Homepage teaser for the Vision Board tool. Reuses the hero's live "ambient
+// drift" board — real product samples fly in and assemble into each curated
+// look, exactly like the hero banner — with a centred CTA into the full
+// /vision-board builder (which lives on its own page for speed + SEO).
 const eyebrow: React.CSSProperties = {
   fontSize: 12.5,
   fontWeight: 700,
@@ -27,45 +20,47 @@ export default function VisionBoardTeaser() {
       className="vbt-card"
       style={{
         marginTop: 60,
-        display: "grid",
-        gridTemplateColumns: "0.92fr 1.08fr",
-        gap: "clamp(28px,4vw,52px)",
-        alignItems: "center",
         background: "linear-gradient(160deg,#f7f0e6,#efe3d1)",
         border: "1px solid var(--line)",
         borderRadius: 28,
-        padding: "clamp(26px,3.5vw,48px)",
+        padding: "clamp(28px,4vw,52px)",
+        textAlign: "center",
         overflow: "hidden",
       }}
     >
-      <div>
-        <Reveal>
-          <div style={eyebrow}>Vision board</div>
-        </Reveal>
-        <Reveal delay={0.06}>
-          <h3
-            style={{
-              fontFamily: "var(--font-archivo)",
-              fontWeight: 800,
-              fontSize: "clamp(26px,3.4vw,42px)",
-              letterSpacing: "-0.02em",
-              lineHeight: 1.04,
-              margin: "12px 0 14px",
-              color: "var(--ink)",
-            }}
-          >
-            Design your whole space, tile by tile.
-          </h3>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <p style={{ color: "var(--muted)", fontSize: 16, lineHeight: 1.7, margin: "0 0 24px", maxWidth: 440 }}>
-            Lay real tiles, stone, timber, benchtops and tapware onto a live board and watch the look come together. Start from a warm Mediterranean or coastal collection, or build your own from scratch.
-          </p>
-        </Reveal>
-        <Reveal delay={0.16}>
+      <Reveal>
+        <div style={eyebrow}>Vision board</div>
+      </Reveal>
+      <Reveal delay={0.06}>
+        <h3
+          style={{
+            fontFamily: "var(--font-archivo)",
+            fontWeight: 800,
+            fontSize: "clamp(26px,3.4vw,42px)",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.04,
+            margin: "12px 0 12px",
+            color: "var(--ink)",
+          }}
+        >
+          Design your whole space, tile by tile.
+        </h3>
+      </Reveal>
+      <Reveal delay={0.1}>
+        <p style={{ color: "var(--muted)", fontSize: 16, lineHeight: 1.7, margin: "0 auto", maxWidth: 600 }}>
+          Watch real tiles, natural stone, timber, benchtops and tapware fly onto a live board and come together, look by look. Start from a warm Mediterranean or coastal collection, or build your own.
+        </p>
+      </Reveal>
+
+      {/* The live drift board (same animation as the hero) with a centred CTA. */}
+      <div style={{ position: "relative", marginTop: 12, display: "flex", justifyContent: "center" }}>
+        <AmbientDriftBoard />
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
           <Link
             href="/vision-board"
+            className="vbt-cta"
             style={{
+              pointerEvents: "auto",
               display: "inline-flex",
               alignItems: "center",
               gap: 10,
@@ -73,41 +68,23 @@ export default function VisionBoardTeaser() {
               background: "var(--accent)",
               color: "#fff",
               fontWeight: 800,
+              fontSize: "clamp(14px,1.7vw,16px)",
               padding: "16px 28px",
               borderRadius: 100,
-              fontSize: 15,
-              boxShadow: "0 16px 40px rgba(208,106,69,.34)",
+              boxShadow: "0 20px 50px rgba(208,106,69,.5), 0 0 0 6px rgba(255,255,255,.55)",
+              whiteSpace: "nowrap",
             }}
           >
-            Start your vision board <span aria-hidden>→</span>
+            Start Your Vision Board Here <span aria-hidden>→</span>
           </Link>
-        </Reveal>
+        </div>
       </div>
-
-      <div className="vbt-collage" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-        {BOARDS.map((b, i) => (
-          <Reveal key={b.src} delay={0.05 * i}>
-            <div
-              style={{
-                position: "relative",
-                borderRadius: 14,
-                overflow: "hidden",
-                aspectRatio: "3 / 4",
-                boxShadow: "0 18px 40px rgba(32,48,58,.18)",
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={b.src}
-                alt={`${b.label} vision board`}
-                loading="lazy"
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
-            </div>
-          </Reveal>
-        ))}
-      </div>
-      <style>{`@media(max-width:860px){.vbt-card{grid-template-columns:1fr!important}.vbt-collage{grid-template-columns:1fr 1fr 1fr!important}}@media(max-width:460px){.vbt-collage{grid-template-columns:1fr 1fr!important}}`}</style>
+      <style>{`
+        @keyframes vbtPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+        .vbt-cta{animation:vbtPulse 2.8s ease-in-out infinite;transition:transform .2s ease}
+        .vbt-cta:hover{transform:scale(1.06)!important;animation:none}
+        @media(prefers-reduced-motion:reduce){.vbt-cta{animation:none}}
+      `}</style>
     </div>
   );
 }
