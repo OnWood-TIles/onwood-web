@@ -26,8 +26,8 @@ export default function VisionBoardTeaser() {
         overflow: "hidden",
         borderRadius: 28,
         border: "1px solid var(--line)",
-        backgroundColor: "#2b2723",
-        backgroundImage: "url(/images/stone/536.webp)",
+        backgroundColor: "#b98c68",
+        backgroundImage: "url(/images/backdrops/plaster-eucalyptus-l.jpg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -99,6 +99,7 @@ export default function VisionBoardTeaser() {
         </div>
       </div>
       <style>{`
+        @media(max-width:700px){.vbt-card{background-image:url(/images/backdrops/plaster-eucalyptus-p.jpg)!important}}
         @keyframes vbtPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
         .vbt-cta{animation:vbtPulse 2.8s ease-in-out infinite;transition:transform .2s ease}
         .vbt-cta:hover{transform:scale(1.06)!important;animation:none}

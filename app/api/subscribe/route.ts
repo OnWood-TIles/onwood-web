@@ -48,7 +48,15 @@ export async function POST(request: Request) {
   let email = "";
   let name = "";
   try {
-    const body = (await request.json()) as { email?: unknown; name?: unknown };
+    const body = (await request.json()) as {
+      email?: unknown;
+      name?: unknown;
+      company?: unknown;
+    };
+    // honeypot: bots fill hidden fields; pretend success + drop
+    if (typeof body.company === "string" && body.company.trim() !== "") {
+      return NextResponse.json({ ok: true });
+    }
     email = typeof body.email === "string" ? body.email.trim() : "";
     name = typeof body.name === "string" ? body.name.trim() : "";
   } catch {

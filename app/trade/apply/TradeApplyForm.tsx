@@ -16,6 +16,7 @@ export default function TradeApplyForm() {
   const [phone, setPhone] = useState("");
   const [tradeType, setTradeType] = useState("");
   const [message, setMessage] = useState("");
+  const [company, setCompany] = useState(""); // honeypot — hidden from humans; bots fill it
   const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -32,7 +33,7 @@ export default function TradeApplyForm() {
       const res = await fetch("/api/trade/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, businessName, abn, email, phone, tradeType, message, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
+        body: JSON.stringify({ name, businessName, abn, email, phone, tradeType, message, company, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
       if (!res.ok) throw new Error();
       setSent(true);
@@ -71,6 +72,12 @@ export default function TradeApplyForm() {
       <div style={{ marginTop: 16 }}>
         <label style={label}>Anything else? <span style={{ textTransform: "none", fontWeight: 500 }}>(optional)</span></label>
         <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} placeholder="What you do, the kind of volume you work with, or anything we should know." style={{ ...field, resize: "vertical", lineHeight: 1.5 }} />
+      </div>
+
+      {/* Honeypot: hidden from humans + assistive tech + tab order; bots fill it. */}
+      <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+        <label htmlFor="ta-company">Company</label>
+        <input id="ta-company" name="company" type="text" value={company} onChange={(e) => setCompany(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" />
       </div>
 
       <MarketingConsent checked={consent} onChange={setConsent} />

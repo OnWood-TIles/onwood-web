@@ -59,6 +59,7 @@ const TILE_AND_GROUPS = new Set(["location-use", "location", "use", "suitability
 // Pretty tab labels for keys that don't title-case cleanly.
 const TAB_LABELS: Record<string, string> = {
   metals: "Metals",
+  backdrop: "Backdrop",
 };
 
 // Deterministic drop offsets (Math.random is unavailable). Cycled + drifted by a
@@ -76,9 +77,32 @@ const DROP_OFFSETS: [number, number][] = [
   [44, -2],
 ];
 
-// Caesarstone benchtop surface (selecting one reskins the board). `url` is the
-// landscape image (desktop board), `urlP` the portrait image (mobile board).
+// Caesarstone benchtop (Benchtops tab). Selecting one now DROPS a benchtop sample
+// piece onto the board (it used to reskin the whole board background).
 type StoneItem = { name: string; code: string; url: string; urlP: string };
+
+// Board BACKDROP — the styling surface behind the arrangement (replaces the fixed
+// Caesarstone background). `url` = landscape (desktop board), `urlP` = portrait
+// (mobile board). A few are "styled" with props tucked in the corners, centre clear,
+// so a customer can build a designer flat-lay look themselves.
+type Backdrop = { key: string; name: string; url: string; urlP: string; styled?: boolean };
+const bd = (key: string, name: string, styled?: boolean): Backdrop => ({
+  key,
+  name,
+  url: `/images/backdrops/${key}-l.jpg`,
+  urlP: `/images/backdrops/${key}-p.jpg`,
+  styled,
+});
+const BACKDROPS: Backdrop[] = [
+  bd("warm-plaster", "Warm Plaster"),
+  bd("stone-table", "Travertine Tabletop"),
+  bd("pale-oak", "Pale Oak"),
+  bd("walnut", "Walnut"),
+  bd("limewash-olive", "Limewash · Olive & Pebbles", true),
+  bd("plaster-eucalyptus", "Terracotta · Eucalyptus & Linen", true),
+  bd("dark-stone", "Dark Stone · Pebbles & Grass", true),
+];
+const DEFAULT_BACKDROP = BACKDROPS[0]; // Warm Plaster — clean & neutral so tiles read true
 
 // Laminex woodgrain decor (Kitchen Cabinetry tab). Rendered as a paint-chip-sized
 // swatch with the timber photo as the card face. Hosted locally (see
@@ -122,6 +146,8 @@ const CARPET_W = 210; // carpet swatch + label (~2x)
 const CARPET_H = 262;
 const FLOOR_W = 176; // flooring plank sample (rectangular, ~carpet size)
 const FLOOR_H = 248;
+const BENCH_W = 196; // Caesarstone benchtop sample chip (landscape stone slab)
+const BENCH_H = 150;
 const TILE_EDGE = 212; // catalogue tile: a 600x600 shows at this square; other sizes keep ~this AREA
 const TILE_AR_CAP = 3.2; // planks longer than this (e.g. 200x1200) become a sliver - cap it (slight crop)
 // A tile sample sized to its TRUE aspect ratio but a roughly constant AREA, so the
@@ -160,6 +186,7 @@ type PieceKind =
   | "timber"
   | "flooring"
   | "tile"
+  | "bench"
   | "styling"
   | "render";
 type Piece = {
@@ -209,6 +236,7 @@ export default function VisionBoard({
   // and "cabinetry" (Laminex timber) are special searchable pickers, always
   // first; the material chip tabs follow.
   const SPECIAL = [
+    "backdrop",
     "tiles",
     "metals",
     "paint",
@@ -225,17 +253,14 @@ export default function VisionBoard({
   );
   const tabKeys = [...SPECIAL, ...materialKeys];
 
-  const [activeTab, setActiveTab] = useState("tiles");
+  const [activeTab, setActiveTab] = useState("backdrop");
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [query, setQuery] = useState("");
   const [showLabels, setShowLabels] = useState(true);
-  // Benchtop surface (Caesarstone). Defaults to Antikella (536) — a bold, veined
-  // statement stone that draws the eye; null falls back to the plain marble bench.
-  const [boardStone, setBoardStone] = useState<{
-    name: string;
-    url: string;
-    urlP: string;
-  } | null>({ name: "Antikella", url: "/images/stone/536.webp?v3", urlP: "/images/stone/536-p.webp?v3" });
+  // Board BACKDROP — the styling surface behind the arrangement. Defaults to Warm
+  // Plaster (clean + neutral). Customers pick another in the Backdrop tab; the
+  // Caesarstone benchtop is now a droppable sample (not the background).
+  const [boardBackdrop, setBoardBackdrop] = useState<Backdrop>(DEFAULT_BACKDROP);
   const [stoneData, setStoneData] = useState<StoneItem[] | null>(null);
   const [stoneQuery, setStoneQuery] = useState("");
   const zTopRef = useRef(10); // rising stack counter (last-touched on top)
@@ -573,6 +598,8 @@ export default function VisionBoard({
                 : kind === "styling"
                   ? STYLE_MAX
                   : PIECE;
+    // Benchtop sample chip (landscape stone slab).
+    if (kind === "bench") { baseW = BENCH_W; baseH = BENCH_H; }
     // Tiles render at their TRUE aspect ratio (constant sample area). Seed the shape
     // from the tile's dimensions here; it's refined to the real image aspect on load.
     if (kind === "tile" && opts.size) {
@@ -719,8 +746,11 @@ export default function VisionBoard({
     setImgResults([]);
     setImgPrompt(null);
     try {
+      // The benchtop is passed as its own field (below); everything else is a
+      // material item. (render = the AI image itself; bench = the benchtop.)
+      const bench = pieces.find((p) => p.kind === "bench");
       const items: ImagineItem[] = pieces
-        .filter((p) => p.kind !== "render")
+        .filter((p) => p.kind !== "render" && p.kind !== "bench")
         .map((p) => ({
           kind: p.kind,
           name: p.name,
@@ -738,8 +768,8 @@ export default function VisionBoard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items,
-          benchtop: boardStone?.name ?? null,
-          benchtopUrl: boardStone?.url ?? undefined,
+          benchtop: bench?.name ?? null,
+          benchtopUrl: bench?.texture ?? undefined,
           room: imgRoom,
           style: imgStyle,
           note: imgNote.trim() || undefined,
@@ -856,14 +886,12 @@ export default function VisionBoard({
           board: {
             w: boardW,
             h: boardH,
-            stoneName: boardStone?.name ?? null,
-            // Send the SAME oriented benchtop image the customer is looking at
+            backdropName: boardBackdrop.name,
+            // Send the SAME oriented backdrop image the customer is looking at
             // (portrait on mobile). Otherwise the PDF composites the wide landscape
             // image into the tall mobile board via cover -> a cropped ~3.5x upscaled
             // strip that looks stretched and extremely blurry.
-            stoneUrl: boardStone
-              ? (isMobile ? boardStone.urlP : boardStone.url)
-              : null,
+            backdropUrl: isMobile ? boardBackdrop.urlP : boardBackdrop.url,
           },
           pieces: outPieces,
         }),
@@ -1126,9 +1154,9 @@ export default function VisionBoard({
               overflow: "hidden",
               touchAction: "none",
               backgroundColor: "#efece5",
-              // Benchtop surface: the selected Caesarstone stone (portrait image
-              // on mobile, landscape on desktop), else the default marble.
-              backgroundImage: `linear-gradient(180deg, rgba(255,255,255,.24), rgba(0,0,0,.06)), url(${boardStone ? (isMobile ? boardStone.urlP : boardStone.url) : "/images/colour-board.jpg"})`,
+              // Board surface: the selected styling backdrop (portrait image on
+              // mobile, landscape on desktop).
+              backgroundImage: `linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.05)), url(${isMobile ? boardBackdrop.urlP : boardBackdrop.url})`,
               backgroundSize: "cover, cover",
               backgroundPosition: "center, center",
               boxShadow:
@@ -1153,7 +1181,7 @@ export default function VisionBoard({
                   textAlign: "center",
                 }}
               >
-                tap a swatch below to drop it on the benchtop
+                tap a swatch below to drop it on the board
               </div>
             ) : null}
 
@@ -1235,6 +1263,12 @@ export default function VisionBoard({
                     transform: `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)${dragging ? " scale(1.05)" : ""}`,
                     transformOrigin: "center",
                     willChange: dragging || settling ? "transform" : undefined,
+                    // Lift the piece off the board with a bigger, softer shadow while
+                    // it's held (transient — no doubling at rest). Sells the "picked up"
+                    // feel; the resting shadow lives on each face.
+                    filter: dragging
+                      ? "drop-shadow(0 24px 30px rgba(30,22,15,.32))"
+                      : undefined,
                     transition: settling
                       ? "transform .6s cubic-bezier(.2,1.5,.35,1)"
                       : dragging
@@ -1301,7 +1335,8 @@ export default function VisionBoard({
                             height: "100%",
                             objectFit: "contain",
                             display: "block",
-                            filter: "drop-shadow(0 6px 10px rgba(0,0,0,.34))",
+                            filter:
+                              "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 13px 20px rgba(30,22,15,.32))",
                           }}
                         />
                         {showLabels && p.brandLogo ? (
@@ -1377,6 +1412,18 @@ export default function VisionBoard({
                         zoom={1}
                       />
                     </div>
+                  ) : p.kind === "bench" ? (
+                    // Caesarstone benchtop sample — a rounded stone chip with its name.
+                    <div style={{ width: "100%", height: "100%" }}>
+                      <FloorSwatchFace
+                        name={p.name}
+                        range={p.sub || ""}
+                        url={p.texture || ""}
+                        showLabel={showLabels}
+                        radius={10}
+                        zoom={1.05}
+                      />
+                    </div>
                   ) : p.kind === "styling" ? (
                     <div
                       style={{
@@ -1395,7 +1442,8 @@ export default function VisionBoard({
                           height: "100%",
                           objectFit: "contain",
                           display: "block",
-                          filter: "drop-shadow(0 8px 12px rgba(0,0,0,.34))",
+                          filter:
+                            "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 14px 22px rgba(30,22,15,.32))",
                         }}
                       />
                       {showLabels && p.brandLogo ? (
@@ -3328,8 +3376,8 @@ export default function VisionBoard({
                 maxWidth: 520,
               }}
             >
-              Pick a Caesarstone surface to lay your samples on - it replaces the
-              benchtop behind your board.
+              Tap a Caesarstone benchtop to drop it onto your board as a sample —
+              then drag it into place with everything else.
             </p>
             {/* Search */}
             <div style={{ maxWidth: 420, margin: "0 auto 16px" }}>
@@ -3364,52 +3412,6 @@ export default function VisionBoard({
                 padding: "6px 4px 10px",
               }}
             >
-              {/* Default marble reset (only when not searching) */}
-              {stoneQuery.trim() === "" ? (
-                <button
-                  type="button"
-                  onClick={() => setBoardStone(null)}
-                  aria-pressed={boardStone === null}
-                  title="Default marble bench"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                    padding: 0,
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "100%",
-                      aspectRatio: "16 / 10",
-                      borderRadius: 9,
-                      backgroundImage: "url(/images/colour-board.jpg)",
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      border:
-                        boardStone === null
-                          ? "2px solid var(--accent)"
-                          : "1px solid rgba(0,0,0,.14)",
-                      boxShadow: "0 3px 10px rgba(0,0,0,.14)",
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      color: "var(--ink)",
-                      textAlign: "center",
-                    }}
-                  >
-                    Default marble
-                  </span>
-                </button>
-              ) : null}
-
               {stoneData === null ? (
                 <div
                   style={{
@@ -3424,16 +3426,15 @@ export default function VisionBoard({
                 </div>
               ) : (
                 stoneResults.map((s) => {
-                  const active = boardStone?.url === s.url;
+                  const active = false; // dropping is an action, not a toggle
                   return (
                     <button
                       key={s.code}
                       type="button"
                       onClick={() =>
-                        setBoardStone({
-                          name: s.name,
-                          url: s.url,
-                          urlP: s.urlP,
+                        addPiece("bench", s.name, {
+                          texture: s.url,
+                          sub: `Caesarstone ${s.code}`,
                         })
                       }
                       aria-pressed={active}
@@ -3527,6 +3528,122 @@ export default function VisionBoard({
               {stoneData === null
                 ? ""
                 : `${stoneResults.length} Caesarstone colours. Colours are a guide only.`}
+            </p>
+          </div>
+        ) : activeTab === "backdrop" ? (
+          <div>
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--muted)",
+                fontSize: 12.5,
+                margin: "0 auto 14px",
+                maxWidth: 540,
+              }}
+            >
+              Choose the surface behind your board. The styled ones come with a few
+              props tucked in the corners — the centre stays clear to arrange your
+              samples, so you can build a real designer flat-lay.
+            </p>
+            <div
+              role="group"
+              aria-label="Board backdrops"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                gap: 14,
+                maxHeight: 360,
+                overflowY: "auto",
+                padding: "6px 4px 10px",
+              }}
+            >
+              {BACKDROPS.map((b) => {
+                const active = boardBackdrop.key === b.key;
+                return (
+                  <button
+                    key={b.key}
+                    type="button"
+                    onClick={() => setBoardBackdrop(b)}
+                    aria-pressed={active}
+                    title={b.name}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                      padding: 0,
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        aspectRatio: "16 / 10",
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        border: active
+                          ? "2px solid var(--accent)"
+                          : "1px solid rgba(0,0,0,.14)",
+                        boxShadow: "0 3px 10px rgba(0,0,0,.14)",
+                        background: "#efece5",
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={b.url}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
+                      {b.styled ? (
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: 6,
+                            left: 6,
+                            background: "rgba(208,106,69,.92)",
+                            color: "#fff",
+                            fontSize: 9,
+                            fontWeight: 700,
+                            letterSpacing: ".04em",
+                            padding: "2px 7px",
+                            borderRadius: 100,
+                          }}
+                        >
+                          STYLED
+                        </span>
+                      ) : null}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        color: active ? "var(--accent)" : "var(--ink)",
+                        lineHeight: 1.1,
+                        textAlign: "center",
+                      }}
+                    >
+                      {b.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--muted)",
+                fontSize: 12,
+                margin: "12px auto 0",
+                maxWidth: 560,
+              }}
+            >
+              {BACKDROPS.length} backdrops. Tip: drop a Caesarstone benchtop from the
+              Benchtops tab as a sample on top too.
             </p>
           </div>
         ) : (

@@ -9,9 +9,10 @@
 // pdf-lib is used (not pdfkit) because it is pure-JS with built-in StandardFonts,
 // so it needs no .afm font files at runtime - safe on Vercel's serverless bundler.
 
-import sharp from "sharp";
+import sharp, { type OverlayOptions } from "sharp";
 import path from "node:path";
 import { readFile } from "node:fs/promises";
+import { isAllowedImageHost } from "./imageHosts";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage, type Color } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 
@@ -36,7 +37,17 @@ export type SharePayload = {
     suburb?: string;
     postcode?: string;
   };
-  board: { w: number; h: number; stoneName?: string | null; stoneUrl?: string | null };
+  board: {
+    w: number;
+    h: number;
+    // The board surface behind the arrangement — a styling backdrop (plaster/stone/
+    // timber). `stoneName`/`stoneUrl` are the legacy Caesarstone-background fields,
+    // kept for back-compat; the benchtop is now a placed piece (kind "bench").
+    backdropName?: string | null;
+    backdropUrl?: string | null;
+    stoneName?: string | null;
+    stoneUrl?: string | null;
+  };
   pieces: SharePiece[];
 };
 
@@ -71,6 +82,7 @@ async function resolveImg(url: string, origin: string): Promise<Buffer | null> {
     }
   }
   const abs = url.startsWith("/") ? origin + url : url;
+  if (!isAllowedImageHost(abs, origin)) return null; // SSRF guard
   return fetchImg(abs);
 }
 
@@ -126,14 +138,14 @@ async function buildPiece(
         .toBuffer();
   }
 
-  // Image-backed swatches (carpet/flooring/tile/render/timber): cover + rounded.
+  // Image-backed swatches (carpet/flooring/tile/render/timber/bench): cover + rounded.
   if (
     p.url &&
-    ["carpet", "flooring", "tile", "render", "timber"].includes(p.kind)
+    ["carpet", "flooring", "tile", "render", "timber", "bench"].includes(p.kind)
   ) {
     const raw = await resolveImg(p.url, origin);
     if (raw) {
-      const r = p.kind === "render" ? 8 : p.kind === "tile" ? 3 : 16;
+      const r = p.kind === "render" ? 8 : p.kind === "tile" ? 3 : p.kind === "bench" ? 10 : 16;
       const resized = await sharp(raw).resize(pw, ph, { fit: "cover" }).toBuffer();
       const rounded = await sharp(resized)
         .composite([{ input: roundMask(pw, ph, r), blend: "dest-in" }])
@@ -196,9 +208,10 @@ export async function composeBoardImage(
   const W = Math.round(bw * scale);
   const H = Math.round(bh * scale);
 
-  // Background: the selected Caesarstone stone, else the default marble board.
+  // Background: the selected styling backdrop (else legacy stone, else default board).
   let bgBuf: Buffer | null = null;
-  if (payload.board.stoneUrl) bgBuf = await resolveImg(payload.board.stoneUrl, origin);
+  if (payload.board.backdropUrl) bgBuf = await resolveImg(payload.board.backdropUrl, origin);
+  if (!bgBuf && payload.board.stoneUrl) bgBuf = await resolveImg(payload.board.stoneUrl, origin);
   if (!bgBuf) bgBuf = await loadAsset("/images/colour-board.jpg", origin);
 
   // The benchtop is often upscaled to fill the (tall, on mobile) board, so a mild
@@ -216,7 +229,7 @@ export async function composeBoardImage(
 
   // Composite pieces bottom-up in stacking (z) order at their EXACT board positions.
   const ordered = [...payload.pieces].sort((a, b) => (a.z || 0) - (b.z || 0));
-  const composites: sharp.OverlayOptions[] = [];
+  const composites: OverlayOptions[] = [];
   for (const p of ordered) {
     const pw = Math.max(8, Math.round(p.w * scale));
     const ph = Math.max(8, Math.round(p.h * scale));
@@ -256,6 +269,7 @@ const safe = (s: string) => (s || "").replace(/[^\x20-\x7E\xA0-\xFF]/g, "").trim
 
 // Supplier / manufacturer per piece kind, for the finishes list.
 const SUPPLIERS: Record<string, { label: string; supplier: string }> = {
+  bench: { label: "Benchtop", supplier: "Caesarstone" },
   paint: { label: "Paint", supplier: "Dulux" },
   tile: { label: "Tiles", supplier: "OnWood Tiles" },
   flooring: { label: "Flooring", supplier: "Quick-Step" },
@@ -265,8 +279,8 @@ const SUPPLIERS: Record<string, { label: string; supplier: string }> = {
   styling: { label: "Styling", supplier: "OnWood" },
   chip: { label: "Decor", supplier: "" },
 };
-const GROUP_ORDER = ["paint", "tile", "flooring", "carpet", "timber", "metal", "styling", "chip"];
-const IMAGE_KINDS = new Set(["tile", "flooring", "carpet", "timber", "styling", "metal"]);
+const GROUP_ORDER = ["bench", "paint", "tile", "flooring", "carpet", "timber", "metal", "styling", "chip"];
+const IMAGE_KINDS = new Set(["tile", "flooring", "carpet", "timber", "styling", "metal", "bench"]);
 
 // Cover-fit a photo to wPx x hPx with rounded (transparent) corners, so images
 // sit as rounded cards on the cream page with no stretch.
@@ -354,15 +368,8 @@ export async function buildMoodboardPdf(
     page.drawText(safe("2/11 Packer Road, Baringa QLD   ·   onwoodtiles.com.au   ·   sales@onwoodtiles.com.au"), { x: M, y: 36, size: 8, font: mono, color: MUTED });
   };
 
-  // ── gather the finishes (benchtop first, then grouped, deduped) ──────────────
+  // ── gather the finishes (grouped, deduped; benchtop pieces list first) ───────
   const finishes: Finish[] = [];
-  finishes.push({
-    key: "benchtop",
-    cat: "BENCHTOP",
-    name: payload.board.stoneName || "Caesarstone benchtop",
-    sub: payload.board.stoneName ? "Caesarstone" : "",
-    url: payload.board.stoneUrl || undefined,
-  });
   for (const kind of GROUP_ORDER) {
     const meta = SUPPLIERS[kind];
     if (!meta) continue;
@@ -378,8 +385,9 @@ export async function buildMoodboardPdf(
         cat: meta.label.toUpperCase(),
         name: n,
         // Tiles are our own range - always "OnWood Tiles" (never the old GlowTile
-        // placeholder + a redundant "Tiles" category).
-        sub: kind === "tile" ? "OnWood Tiles" : [meta.supplier, p.sub].filter(Boolean).join(", "),
+        // placeholder + a redundant "Tiles" category). Benchtops carry their own
+        // "Caesarstone <code>" sub already.
+        sub: kind === "tile" ? "OnWood Tiles" : kind === "bench" ? (p.sub || "Caesarstone") : [meta.supplier, p.sub].filter(Boolean).join(", "),
         url: IMAGE_KINDS.has(kind) ? p.url : undefined,
         color: p.color,
       });

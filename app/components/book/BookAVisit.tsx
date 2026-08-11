@@ -57,6 +57,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
   const [email, setEmail] = useState("");
   const [tel, setTel] = useState("");
   const [notes, setNotes] = useState("");
+  const [company, setCompany] = useState(""); // honeypot — hidden from humans; bots fill it
   const [booking, setBooking] = useState(false);
   const [booked, setBooked] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +132,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
         body: JSON.stringify({
           purpose: passType, when: `${passDate} at ${passTime}`,
           startISO: start.toISOString(), endISO: end.toISOString(),
-          name: name.trim(), email: email.trim(), phone: tel.trim(), notes: notes.trim(),
+          name: name.trim(), email: email.trim(), phone: tel.trim(), notes: notes.trim(), company,
           marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT,
         }),
       });
@@ -289,6 +290,11 @@ export default function BookAVisit({ business }: { business: Business | null }) 
               <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" type="email" style={inputStyle} />
               <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder="Phone (optional)" style={inputStyle} />
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything we should prep? (room, style, m² needed…)" rows={3} style={{ ...inputStyle, gridColumn: "span 2", resize: "vertical" }} />
+              {/* Honeypot: hidden from humans + assistive tech + tab order; bots fill it. */}
+              <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+                <label htmlFor="book-company">Company</label>
+                <input id="book-company" name="company" type="text" value={company} onChange={(e) => setCompany(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" />
+              </div>
             </div>
             <MarketingConsent checked={consent} onChange={setConsent} style={{ marginTop: 14 }} />
           </div>

@@ -94,6 +94,8 @@ export async function POST(request: Request) {
     board: {
       w: Math.min(3000, Math.max(300, num(boardIn.w) || 900)),
       h: Math.min(3000, Math.max(200, num(boardIn.h) || 560)),
+      backdropName: str(boardIn.backdropName, 80) || null,
+      backdropUrl: typeof boardIn.backdropUrl === "string" ? boardIn.backdropUrl : null,
       stoneName: str(boardIn.stoneName, 80) || null,
       stoneUrl: typeof boardIn.stoneUrl === "string" ? boardIn.stoneUrl : null,
     },

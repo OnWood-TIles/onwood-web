@@ -12,6 +12,7 @@ export default function ComingSoon() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [company, setCompany] = useState(""); // honeypot — hidden from humans; bots fill it
   const [submitting, setSubmitting] = useState(false);
   const [note, setNote] = useState<Note>(null);
 
@@ -47,7 +48,7 @@ export default function ComingSoon() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name, email, company }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -160,6 +161,20 @@ export default function ComingSoon() {
             autoComplete="name"
             className={styles.field}
           />
+          {/* Honeypot: hidden from humans + assistive tech + tab order; bots fill it. */}
+          <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+            <label htmlFor="company">Company</label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+            />
+          </div>
           <div className={styles.formRow}>
             <input
               type="email"

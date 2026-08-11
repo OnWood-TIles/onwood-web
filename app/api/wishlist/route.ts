@@ -29,6 +29,11 @@ export async function POST(request: Request) {
   let b: Record<string, unknown> = {};
   try { b = (await request.json()) as Record<string, unknown>; } catch { return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 }); }
 
+  // honeypot: bots fill hidden fields; pretend success + drop
+  if (typeof b.company === "string" && b.company.trim() !== "") {
+    return NextResponse.json({ ok: true });
+  }
+
   const email = typeof b.email === "string" ? b.email.trim() : "";
   if (!email || !EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
 

@@ -203,7 +203,7 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
             src={piece.src} alt={piece.name}
             style={{
               width: "100%", height: "100%", objectFit: "contain", display: "block",
-              filter: "drop-shadow(0 6px 10px rgba(0,0,0,.34))",
+              filter: "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 13px 20px rgba(30,22,15,.32))",
             }}
           />
         </Scaled>
@@ -217,7 +217,7 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
           src={piece.src} alt=""
           style={{
             width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom",
-            display: "block", filter: "drop-shadow(0 8px 12px rgba(0,0,0,.34))",
+            display: "block", filter: "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 14px 22px rgba(30,22,15,.32))",
           }}
         />
       );

@@ -81,6 +81,10 @@ export async function POST(request: Request) {
 
   let b: Record<string, unknown>;
   try { b = (await request.json()) as Record<string, unknown>; } catch { return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 }); }
+  // honeypot: bots fill hidden fields; pretend success + drop
+  if (typeof b.company === "string" && b.company.trim() !== "") {
+    return NextResponse.json({ ok: true });
+  }
   const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");
   const name = str("name"), email = str("email"), phone = str("phone"), purpose = str("purpose") || "Showroom visit";
   const when = str("when"), notes = str("notes"), startISO = str("startISO"), endISO = str("endISO");

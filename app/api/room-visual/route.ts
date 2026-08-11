@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, checkDailyCap, RL_AI } from "../../../lib/rateLimit";
+import { isAllowedImageHost } from "../../../lib/imageHosts";
 import crypto from "node:crypto";
 import sharp from "sharp";
 import { GoogleGenAI } from "@google/genai";
@@ -54,7 +55,8 @@ function cookieFor(count: number): string {
 // ── image helpers ───────────────────────────────────────────────────────────
 type Ref = { mimeType: string; data: string; buffer: Buffer };
 
-async function fetchImage(url: string): Promise<Ref | null> {
+async function fetchImage(url: string, self: string): Promise<Ref | null> {
+  if (!isAllowedImageHost(url, self)) return null; // SSRF guard
   try {
     const r = await fetch(url, {
       signal: AbortSignal.timeout(8000),
@@ -182,7 +184,7 @@ export async function POST(request: Request) {
   const chosen = candidates.slice(0, MAX_REF_IMAGES);
   const refs = await Promise.all(
     chosen.map(async ({ it, role }) => {
-      const img = await fetchImage(abs(it.url)!);
+      const img = await fetchImage(abs(it.url)!, base);
       if (!img) return null;
       if (!it.color) {
         const hex = await avgHex(img.buffer);

@@ -36,22 +36,39 @@ export function PaintChipFace({
         width: "100%",
         height: "100%",
         borderRadius: 11,
-        background: hex,
-        ...(image
-          ? {
-              backgroundImage: `url(${image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
-          : {}),
+        // Shadow lives on this (unmasked) wrapper so the punched hole below — which
+        // masks the colour layer — doesn't clip the drop shadow.
         boxShadow:
-          "0 14px 30px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.22)",
-        border: "1px solid rgba(0,0,0,.16)",
-        overflow: "hidden",
+          "0 3px 6px rgba(30,22,15,.20), 0 12px 24px rgba(30,22,15,.22), 0 28px 48px rgba(30,22,15,.15)",
       }}
     >
-      {/* punch hole (fan-deck ring) */}
+      {/* Colour / texture card with a REAL punched hole (transparent centre, so the
+          board shows through like a fan-deck hang tag). A white-on-transparent mask
+          reads correctly in BOTH alpha and luminance mask modes. */}
       <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: 11,
+          background: hex,
+          ...(image
+            ? {
+                backgroundImage: `url(${image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : {}),
+          border: "1px solid rgba(0,0,0,.16)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,.22)",
+          WebkitMaskImage:
+            "radial-gradient(circle at 50% 18px, transparent 7.6px, #fff 8.6px)",
+          maskImage:
+            "radial-gradient(circle at 50% 18px, transparent 7.6px, #fff 8.6px)",
+        }}
+      />
+      {/* punched-hole depth ring (transparent centre) */}
+      <div
+        aria-hidden
         style={{
           position: "absolute",
           top: 11,
@@ -60,8 +77,8 @@ export function PaintChipFace({
           width: 15,
           height: 15,
           borderRadius: "50%",
-          background: "rgba(239,236,229,.95)",
-          boxShadow: "inset 0 1px 3px rgba(0,0,0,.45)",
+          boxShadow:
+            "inset 0 1.5px 2.5px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.45)",
         }}
       />
       {/* brand tag (e.g. Laminex) - small, so it clears the centre punch hole;

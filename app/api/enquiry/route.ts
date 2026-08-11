@@ -43,6 +43,10 @@ export async function POST(request: Request) {
   let consentText: string | undefined;
   try {
     const b = (await request.json()) as Record<string, unknown>;
+    // honeypot: bots fill hidden fields; pretend success + drop
+    if (typeof b.company === "string" && b.company.trim() !== "") {
+      return NextResponse.json({ ok: true });
+    }
     name = typeof b.name === "string" ? b.name.trim() : "";
     email = typeof b.email === "string" ? b.email.trim() : "";
     phone = typeof b.phone === "string" ? b.phone.trim() : "";

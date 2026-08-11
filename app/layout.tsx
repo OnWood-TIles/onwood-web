@@ -5,6 +5,7 @@ import { ThemeProvider, themeNoFlashScript } from "./components/ui/ThemeProvider
 import { NavConfigProvider } from "./components/marketing/NavConfigProvider";
 import { ShopMenuProvider } from "./components/marketing/ShopMenuProvider";
 import WishlistFab from "./components/wishlist/WishlistFab";
+import { Analytics } from "@vercel/analytics/next";
 import { getNav, getShopMenu } from "../lib/onbase/client";
 
 // Headings / labels
@@ -47,6 +48,12 @@ export const metadata: Metadata = {
     siteName: "OnWood Tiles",
     locale: "en_AU",
     type: "website",
+  },
+  // The share image is supplied by app/opengraph-image.tsx + app/twitter-image.tsx.
+  twitter: {
+    card: "summary_large_image",
+    title: "OnWood Tiles",
+    description: "The Sunshine Coast's new home for all things tiles.",
   },
   // Google Search Console verification. Set GOOGLE_SITE_VERIFICATION in Vercel to
   // the token from Search Console's "HTML tag" method; if unset, no tag renders.
@@ -109,6 +116,8 @@ export default async function RootLayout({
             <WishlistFab />
           </NavConfigProvider>
         </ThemeProvider>
+        {/* Cookieless traffic analytics (no consent banner required). */}
+        <Analytics />
       </body>
     </html>
   );

@@ -57,11 +57,12 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
     const email = String(fd.get("email") || "").trim();
     const phone = String(fd.get("phone") || "").trim();
     const message = String(fd.get("message") || "").trim();
+    const company = String(fd.get("company") || ""); // honeypot
     try {
       const res = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
+        body: JSON.stringify({ name, email, phone, message, company, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
       const json = await res.json();
       if (res.ok && json.ok) setDone(true);
@@ -103,6 +104,12 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
           <label htmlFor="cf-phone" style={label}>Phone <span style={{ fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
           <input id="cf-phone" name="phone" placeholder="Best number to reach you" autoComplete="tel" inputMode="tel" onFocus={focusOn} onBlur={focusOff} style={field} />
         </div>
+      </div>
+
+      {/* Honeypot: hidden from humans + assistive tech + tab order; bots fill it. */}
+      <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+        <label htmlFor="cf-company">Company</label>
+        <input id="cf-company" name="company" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" />
       </div>
 
       <div style={{ marginTop: 16 }}>

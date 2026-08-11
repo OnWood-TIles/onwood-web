@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, checkDailyCap, RL_AI } from "../../../lib/rateLimit";
+import { isAllowedImageHost } from "../../../lib/imageHosts";
 import sharp from "sharp";
 import { buildImaginePrompt, type ImagineRequest } from "../../../lib/imagine";
 
@@ -19,8 +20,8 @@ const MODEL = process.env.CLOUDFLARE_AI_MODEL || "@cf/black-forest-labs/flux-1-s
 // Read the overall (average) colour of a swatch image as a hex, so the render
 // uses the customer's real material colours. Average beats "dominant" for
 // woodgrains (dominant grabs a grain streak). Fails-soft to null (name only).
-async function swatchHex(url?: string): Promise<string | null> {
-  if (!url) return null;
+async function swatchHex(url: string | undefined, self: string): Promise<string | null> {
+  if (!url || !isAllowedImageHost(url, self)) return null; // SSRF guard
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 3500);
@@ -112,13 +113,13 @@ export async function POST(request: Request) {
   await Promise.allSettled([
     ...items.map(async (it) => {
       if (!it.color && it.url && COLOUR_KINDS.has(it.kind)) {
-        const hex = await swatchHex(abs(it.url));
+        const hex = await swatchHex(abs(it.url), base);
         if (hex) it.color = hex;
       }
     }),
     (async () => {
       if (req.benchtop && !req.benchtopColor && req.benchtopUrl) {
-        const hex = await swatchHex(abs(req.benchtopUrl));
+        const hex = await swatchHex(abs(req.benchtopUrl), base);
         if (hex) req.benchtopColor = hex;
       }
     })(),

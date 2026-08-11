@@ -53,8 +53,40 @@ export default async function ProductPage({
     .filter(Boolean);
   const pairs = pickPairs(range, allRanges, dept?.label);
 
+  // schema.org/Product structured data (rich results). Deliberately price-free:
+  // the owner never publishes prices, so we emit NO offers/price/availability -
+  // only descriptive fields. Any field that isn't available is omitted rather
+  // than sent as null/empty. Same in-page <script> technique as app/layout.tsx.
+  const SITE = "https://onwoodtiles.com.au";
+  // Pick a representative product image: the range hero, else the first
+  // colourway's swatch photo, else the first gallery image. normalizeRange has
+  // already absolutized OnBase-relative paths, but if a bare relative path ever
+  // slips through, prefix the public site origin so the URL is always absolute.
+  const rawImage =
+    range.heroImage ||
+    range.swatches.find((s) => s.image)?.image ||
+    range.images.find(Boolean) ||
+    null;
+  const image = rawImage ? (rawImage.startsWith("/") ? `${SITE}${rawImage}` : rawImage) : null;
+  const description = range.description?.trim() || null;
+  const category = dept?.label || catLabels[0] || null;
+  const productLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: range.name,
+    ...(image ? { image } : {}),
+    ...(description ? { description } : {}),
+    brand: { "@type": "Brand", name: "OnWood Tiles" },
+    ...(category ? { category } : {}),
+    url: `${SITE}/product/${slug}`,
+  };
+
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+      />
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 28px 90px" }}>
         <ProductView

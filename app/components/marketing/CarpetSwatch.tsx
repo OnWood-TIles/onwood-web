@@ -73,8 +73,10 @@ export function CarpetSwatchFace({
           backgroundSize: "cover",
           backgroundPosition: "center",
           border: "1px solid rgba(0,0,0,.16)",
+          // Layered "contact + ambient" grounding shadow (warm), keeping the plush
+          // inset depth that reads as carpet pile.
           boxShadow:
-            "0 12px 26px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.15), inset 0 -8px 14px rgba(0,0,0,.14)",
+            "0 3px 6px rgba(30,22,15,.22), 0 12px 24px rgba(30,22,15,.22), 0 28px 46px rgba(30,22,15,.14), inset 0 1px 0 rgba(255,255,255,.15), inset 0 -8px 14px rgba(0,0,0,.14)",
         }}
       >
         {brandLogo && showLabel ? <BrandBadge logo={brandLogo} h={13} /> : null}

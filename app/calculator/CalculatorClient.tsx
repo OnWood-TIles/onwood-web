@@ -37,6 +37,7 @@ export default function CalculatorClient() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [company, setCompany] = useState(""); // honeypot — hidden from humans; bots fill it
   const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -62,7 +63,7 @@ export default function CalculatorClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name, email, phone, roomType,
+          name, email, phone, roomType, company,
           totalArea: +totalArea.toFixed(2), wastage, toOrder: +toOrder.toFixed(2), boxes, cost: cost ? +cost.toFixed(2) : null,
           marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT,
         }),
@@ -159,6 +160,11 @@ export default function CalculatorClient() {
                   <option value="">What are you tiling? (optional)</option>
                   {ROOMS.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
+                {/* Honeypot: hidden from humans + assistive tech + tab order; bots fill it. */}
+                <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+                  <label htmlFor="calc-company">Company</label>
+                  <input id="calc-company" name="company" type="text" value={company} onChange={(e) => setCompany(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" />
+                </div>
               </div>
               <MarketingConsent checked={consent} onChange={setConsent} />
               {err && <p style={{ color: "#c14338", fontSize: 13.5, fontWeight: 600, margin: "10px 0 0" }}>{err}</p>}

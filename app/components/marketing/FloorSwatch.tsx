@@ -38,8 +38,10 @@ export function FloorSwatchFace({
         borderRadius: radius,
         overflow: "hidden",
         border: "1px solid rgba(0,0,0,.16)",
+        // Layered "contact + ambient" shadow (warm-tinted) so the sample sits on the
+        // board like a real object, matching the AI flat-lays — not a flat sticker.
         boxShadow:
-          "0 14px 30px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.18)",
+          "0 3px 6px rgba(30,22,15,.20), 0 12px 24px rgba(30,22,15,.22), 0 28px 48px rgba(30,22,15,.15), inset 0 1px 0 rgba(255,255,255,.2)",
         background: "#e7ddcd",
       }}
     >

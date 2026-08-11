@@ -64,7 +64,8 @@ const timber = (name: string, code: string, x: number, y: number, rot: number, z
 const paint = (id: string, name: string, hex: string, x: number, y: number, rot: number, z: number): BoardPiece =>
   ({ id, kind: "paint", name, color: hex, x, y, w: 120, h: 168, rot, z });
 const metal = (name: string, file: string, x: number, y: number, rot: number, z: number): BoardPiece =>
-  ({ id: "metal", kind: "metal", name, src: `/images/metals/abi/${file}.webp`, brandLogo: ABI, x, y, w: 112, h: 112, rot, z });
+  // ?v=3 busts the CDN/browser cache after the hang-holes were punched transparent.
+  ({ id: "metal", kind: "metal", name, src: `/images/metals/abi/${file}.webp?v=3`, brandLogo: ABI, x, y, w: 112, h: 112, rot, z });
 const styling = (id: string, name: string, file: string, x: number, y: number, w: number, h: number, z: number): BoardPiece =>
   ({ id, kind: "styling", name, src: `/images/styling/${file}.webp`, x, y, w, h, rot: 0, z });
 

@@ -14,6 +14,7 @@ export default function SavedClient() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [company, setCompany] = useState(""); // honeypot — hidden from humans; bots fill it
   const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -28,7 +29,7 @@ export default function SavedClient() {
       const res = await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, items: items.map((i) => ({ name: i.name, colour: i.colour, href: i.href })), marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
+        body: JSON.stringify({ name, email, phone, company, items: items.map((i) => ({ name: i.name, colour: i.colour, href: i.href })), marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
       if (!res.ok) throw new Error();
       setSent(true);
@@ -96,6 +97,11 @@ export default function SavedClient() {
               <input aria-label="Your name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} style={input} />
               <input aria-label="Email" type="email" required placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} style={input} />
               <input aria-label="Phone (optional)" placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} style={input} />
+            </div>
+            {/* Honeypot: hidden from humans + assistive tech + tab order; bots fill it. */}
+            <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+              <label htmlFor="saved-company">Company</label>
+              <input id="saved-company" name="company" type="text" value={company} onChange={(e) => setCompany(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" />
             </div>
             <MarketingConsent checked={consent} onChange={setConsent} />
             {err && <p style={{ color: "#c14338", fontSize: 13.5, fontWeight: 600, margin: "10px 0 0" }}>{err}</p>}

@@ -71,7 +71,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { href: "/gallery", label: "Gallery" },
       { href: "/calculator", label: "Tile Calculator" },
-      { href: "/#showroom", label: "Vision Board" },
+      { href: "/vision-board", label: "Vision Board" },
       { href: "/#showroom", label: "The Showroom" },
       { href: "/why", label: "Why OnWood" },
     ],

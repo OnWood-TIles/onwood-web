@@ -319,7 +319,7 @@ export default function ProductView({
                     >
                       {s.image && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={s.image} alt={imageAlt(range, { swatch: s, kind: "swatch" })} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        <img src={s.image} alt={imageAlt(range, { swatch: s, kind: "swatch" })} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       )}
                     </span>
                     <span
