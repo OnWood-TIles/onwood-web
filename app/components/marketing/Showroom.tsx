@@ -1,7 +1,6 @@
 import { SHOWROOM } from "../../../lib/content";
 import Reveal from "../ui/Reveal";
-import VisionBoard from "./VisionBoard";
-import ImageDisclosure from "../legal/ImageDisclosure";
+import VisionBoardTeaser from "./VisionBoardTeaser";
 import styles from "./Showroom.module.css";
 
 // Section 07 - Showroom. Centred head, a wide arched niche + a 3-up row of
@@ -107,11 +106,8 @@ export default function Showroom() {
         </div>
       </div>
 
-      {/* Imagery disclosure for the inspiration gallery above. */}
-      <ImageDisclosure variant="full" style={{ textAlign: "center", marginBottom: 56 }} />
-
-      {/* Interactive vision board (client) - renders its own heading */}
-      <VisionBoard />
+      {/* Vision-board teaser — the full builder lives on /vision-board */}
+      <VisionBoardTeaser />
     </section>
   );
 }

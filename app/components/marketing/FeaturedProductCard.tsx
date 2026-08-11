@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ImageDisclosure from "../legal/ImageDisclosure";
 
 // A featured-product card that shows off BOTH the product photo and its
 // "see it installed" room shot. At rest: the tile/product photo fills the card
@@ -63,8 +62,6 @@ export default function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
         </div>
       </div>
     </Link>
-      {/* Imagery disclosure - outside the card Link (avoids nested anchors). */}
-      <ImageDisclosure variant="grid" style={{ padding: "0 2px" }} />
     </div>
   );
 }

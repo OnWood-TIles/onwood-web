@@ -1,19 +1,16 @@
-/* Team portrait grid. 4-up on desktop, collapses to 2-up then 1-up,
-   matching the reference responsive behaviour. */
+/* Team portrait grid. Two portraits, centred, on both desktop and mobile;
+   collapses to one on very narrow screens. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 26px;
+  max-width: 620px;
+  margin: 0 auto;
 }
 
-@media (max-width: 860px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 460px) {
+@media (max-width: 440px) {
   .grid {
     grid-template-columns: 1fr;
+    max-width: 300px;
   }
 }

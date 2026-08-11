@@ -24,9 +24,9 @@ export default async function Home() {
         <SpecialsTeaser />
         <Showroom />
         <Story />
-        <TradeBanner />
         <Testimonials />
         <Team />
+        <TradeBanner />
         <Contact hours={business?.openHoursSummary} />
       </main>
       <MarketingFooter />

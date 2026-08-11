@@ -9,7 +9,6 @@ import {
   type PointerEvent,
 } from "react";
 import Reveal from "../ui/Reveal";
-import ImageDisclosure from "../legal/ImageDisclosure";
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace, BrandBadge } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
@@ -228,12 +227,13 @@ export default function VisionBoard({
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [query, setQuery] = useState("");
   const [showLabels, setShowLabels] = useState(true);
-  // Benchtop surface override (Caesarstone). null = default marble bench.
+  // Benchtop surface (Caesarstone). Defaults to Antikella (536) — a bold, veined
+  // statement stone that draws the eye; null falls back to the plain marble bench.
   const [boardStone, setBoardStone] = useState<{
     name: string;
     url: string;
     urlP: string;
-  } | null>(null);
+  } | null>({ name: "Antikella", url: "/images/stone/536.webp?v3", urlP: "/images/stone/536-p.webp?v3" });
   const [stoneData, setStoneData] = useState<StoneItem[] | null>(null);
   const [stoneQuery, setStoneQuery] = useState("");
   const zTopRef = useRef(10); // rising stack counter (last-touched on top)
@@ -1056,8 +1056,6 @@ export default function VisionBoard({
             {head.sub}
           </p>
         </Reveal>
-        {/* Imagery disclosure for the inspiration board (rendered swatches + AI room visuals). */}
-        <ImageDisclosure variant="full" style={{ maxWidth: 560, margin: "10px auto 0" }} />
       </div>
 
       {/* Board */}

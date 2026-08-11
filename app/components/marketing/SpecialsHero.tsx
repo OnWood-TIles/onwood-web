@@ -28,12 +28,12 @@ export default function SpecialsHero() {
   const pad = (n: number) => (left === null ? "00" : String(n).padStart(2, "0"));
 
   const cell = (val: string, label: string, accent = false) => (
-    <div style={{ textAlign: "center", minWidth: 62 }}>
+    <div style={{ textAlign: "center", minWidth: "clamp(40px,13vw,62px)" }}>
       <div
         style={{
           fontFamily: "var(--font-archivo)",
           fontWeight: 900,
-          fontSize: 34,
+          fontSize: "clamp(24px,7.5vw,34px)",
           lineHeight: 1,
           color: accent ? "var(--accent)" : "#fff",
         }}
@@ -42,8 +42,8 @@ export default function SpecialsHero() {
       </div>
       <div
         style={{
-          fontSize: 10.5,
-          letterSpacing: "0.16em",
+          fontSize: "clamp(9px,2.6vw,10.5px)",
+          letterSpacing: "0.14em",
           textTransform: "uppercase",
           opacity: 0.6,
           marginTop: 5,
@@ -54,7 +54,7 @@ export default function SpecialsHero() {
     </div>
   );
   const colon = (
-    <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, fontSize: 30, opacity: 0.4 }}>
+    <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, fontSize: "clamp(20px,6vw,30px)", opacity: 0.4 }}>
       :
     </div>
   );
@@ -133,11 +133,12 @@ export default function SpecialsHero() {
           aria-label="Time left this month"
           style={{
             display: "inline-flex",
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
+            alignItems: "center",
             justifyContent: "center",
-            gap: 12,
+            gap: "clamp(4px,2.2vw,12px)",
             maxWidth: "100%",
-            padding: "18px 22px",
+            padding: "clamp(12px,3vw,18px) clamp(14px,3.5vw,22px)",
             borderRadius: 18,
             background: "var(--ink)",
             color: "#fff",

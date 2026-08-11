@@ -185,4 +185,62 @@ export const HERO_BOARDS: HeroBoard[] = [
       styling("dried", "Dried Mixed", "ai-floral-dried-mixed", 412, 300, 102, 148, 8),
     ],
   },
+  // ── Vision-board collections (warm Mediterranean / coastal) — the same curated
+  //    looks featured on /vision-board, added to the hero rotation. ──────────────
+  {
+    id: "vb-coastal-kitchen",
+    pieces: [
+      photo("vb-coastal-kitchen", -1),
+      hero("Terroir 60 Terra", "Terracotta-look porcelain", `${T}/1736898466.webp?v=3`),
+      { id: "feature", kind: "tile", name: "Gelato Azzurro", sub: "Gloss subway", src: tp(`${T}/1718246903.webp?v=3`), x: 314, y: 44, w: 204, h: 96, rot: 3, z: 3, radius: 2 },
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 248, -4, 5),
+      { ...stone("Antikella", -20, 430, -6, 3), src: "/images/stone/536.webp?v3" },
+      timber("Golden Oak", "AU1006823", 402, 214, -5, 4),
+      paint("paintB", "Raw Umber", "#D9D0B8", 404, 392, 3, 5),
+      metal("Brushed Brass", "brushed-brass", 182, 488, 4, 5),
+    ],
+  },
+  {
+    id: "vb-marrakesh-ensuite",
+    pieces: [
+      photo("vb-marrakesh-ensuite", 1),
+      hero("Colonnade 60 Classico", "Travertine-look porcelain", `${T}/1718244596.webp?v=3`),
+      feature({ kind: "tile", name: "Marrakesh Terracotta", sub: "Terracotta mosaic", src: `${T}/1726104512.webp?v=3`, w: 176, h: 176, radius: 2 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Antique White U.S.A.", "#E6DECC", 0, 248, -3, 5),
+      { ...stone("Taj Whisper", -20, 430, -4, 3), src: "/images/stone/8251.webp?v=2" },
+      timber("Golden Oak", "AU1006823", 402, 214, -6, 4),
+      paint("paintB", "Raw Umber", "#D9D0B8", 404, 392, 5, 5),
+      metal("Tumbled Aged Brass", "tumbled-aged-brass", 182, 488, 4, 5),
+    ],
+  },
+  {
+    id: "vb-coastal-powder",
+    pieces: [
+      photo("vb-coastal-powder", -1),
+      hero("Strata 60 Ivory", "Terrazzo-look porcelain", `${T}/1718319318.webp?v=3`),
+      feature({ kind: "tile", name: "Cuadrado Feature Almond", sub: "Textured feature", src: `${T}/1779939428.webp?v=3`, w: 176, h: 176, radius: 2 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 248, -5, 5),
+      { ...stone("Antikella", -20, 430, -8, 3), src: "/images/stone/536.webp?v3" },
+      timber("Whitewashed Oak", "AU1007480", 402, 214, 4, 4),
+      paint("paintB", "Tranquil Retreat", "#D8D3C7", 404, 392, 4, 5),
+      metal("Brushed Brass", "brushed-brass", 182, 488, 0, 5),
+    ],
+  },
+  {
+    id: "vb-stackstone-living",
+    pieces: [
+      photo("vb-stackstone-living", 1),
+      plankHero("Woodstock 212 Driftwood", "Timber-look porcelain", `${T}/1781579195.webp?v=3`),
+      feature({ kind: "stone", name: "Ridgeline Dune", sub: "Stacked stone veneer", src: `${VENEER}/ridgeline-dune.webp?v=1`, w: 176, h: 176, radius: 10 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Hog Bristle", "#E4DDC8", 0, 248, -4, 5),
+      { ...stone("Taj Whisper", -20, 430, -6, 3), src: "/images/stone/8251.webp?v=2" },
+      timber("Golden Oak", "AU1006823", 402, 214, -5, 4),
+      paint("paintB", "Timeless Grey", "#B6B3AA", 404, 392, 3, 5),
+      metal("Brushed Brass", "brushed-brass", 182, 488, 0, 5),
+    ],
+  },
 ];

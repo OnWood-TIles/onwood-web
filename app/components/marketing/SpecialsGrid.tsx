@@ -1,17 +1,18 @@
 import Reveal from "../ui/Reveal";
-import { SPECIALS_PAGE } from "../../../lib/content";
+import type { Special } from "../../../lib/content";
 
 // Each special is shown "in the room": the product's real "see it installed" photo
 // is the card hero, with the actual singular tile floated on top of it (trimmed via
 // /api/tile), plus a badge, name, price and Enquire link. No arched/oval shapes.
-export default function SpecialsGrid() {
+// `items` = curated specials + any live OnBase product specials (built on the page).
+export default function SpecialsGrid({ items }: { items: Special[] }) {
   return (
     <section style={{ padding: "6px 40px 56px", maxWidth: 1080, margin: "0 auto" }}>
       <div
         className="specials-grid"
         style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 30 }}
       >
-        {SPECIALS_PAGE.items.map((it, i) => (
+        {items.map((it, i) => (
           <Reveal key={it.name} delay={(i % 2) * 0.08}>
             <article
               style={{

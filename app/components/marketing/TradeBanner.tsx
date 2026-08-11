@@ -38,7 +38,8 @@ export default function TradeBanner() {
           </div>
         </div>
       </div>
-      <style>{`@media(max-width:760px){.tb-grid{grid-template-columns:1fr!important}.tb-art{display:none!important}}`}</style>
+      {/* On mobile: stack, and KEEP the framed project photo (shown below the copy). */}
+      <style>{`@media(max-width:760px){.tb-grid{grid-template-columns:1fr!important}.tb-art{margin:6px auto 0!important;max-width:360px!important}}`}</style>
     </section>
   );
 }

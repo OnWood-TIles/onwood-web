@@ -79,7 +79,7 @@ export default async function BlogIndex() {
                   <span style={{ position: "relative" }}>
                     <span style={{ ...eyebrow, color: "var(--accent2)" }}>The gallery</span>
                     <span style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(23px,2.6vw,32px)", lineHeight: 1.08, margin: "12px 0 0" }}>
-                      Our tiles &amp; stone, {serif("styled to inspire")}
+                      Our tiles &amp; stone,<br />{serif("styled to inspire")}
                     </span>
                     <span style={{ display: "block", fontSize: 15, lineHeight: 1.6, color: "rgba(246,241,232,.74)", margin: "12px 0 0" }}>
                       Browse hundreds of looks for your next project.
@@ -99,7 +99,7 @@ export default async function BlogIndex() {
           <section style={{ padding: "10px 24px 8px" }}>
             <div style={{ maxWidth: 1100, margin: "0 auto" }}>
               <Link href={`/blog/${featured.slug}`} style={{ textDecoration: "none", color: "inherit", display: "grid", gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)", gap: 0, borderRadius: 22, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", boxShadow: "0 40px 80px -50px rgba(16,28,30,.5)" }} className="bl-feat">
-                <div style={{ minHeight: 340, aspectRatio: "16/11" }}><Cover src={featured.coverImage} alt={featured.title} /></div>
+                <div className="bl-feat-img" style={{ minHeight: 340, aspectRatio: "16/11" }}><Cover src={featured.coverImage} alt={featured.title} /></div>
                 <div style={{ padding: "clamp(22px,3vw,40px)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                     <span style={{ ...eyebrow, color: "var(--accent)" }}>{featured.category || "Latest"}</span>
@@ -172,7 +172,7 @@ export default async function BlogIndex() {
         .bl-gallink .bl-gallink-cta{transition:transform .25s ease}
         .bl-gallink:hover .bl-gallink-cta{transform:translateX(3px)}
         @media(max-width:860px){.bl-hero-grid{grid-template-columns:1fr!important;gap:28px!important}}
-        @media(max-width:820px){.bl-feat{grid-template-columns:1fr!important}.bl-cta{grid-template-columns:1fr!important}}
+        @media(max-width:820px){.bl-feat{grid-template-columns:1fr!important}.bl-feat-img{min-height:0!important;aspect-ratio:16/10!important}.bl-cta{grid-template-columns:1fr!important}}
       `}</style>
     </div>
   );

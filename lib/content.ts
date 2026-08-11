@@ -44,6 +44,7 @@ export const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
   { href: "/#featured", label: "On Trend" },
   { href: "/#showroom", label: "Showroom" },
+  { href: "/vision-board", label: "Vision Board" },
   { href: "/why", label: "Why OnWood" },
   { href: "/contact", label: "Contact" },
 ];
@@ -89,13 +90,13 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
 ];
 
 export const HERO = {
-  eyebrow: "Sunshine Coast tile shop",
-  // headline split so "feel." renders in Newsreader italic sea
-  headA: "The floor is the",
-  headB: "first thing",
-  headC: "you ",
-  headAccent: "feel.",
-  sub: "OnWood brings beautiful floor, wall and outdoor tiles to Sunshine Coast homes, studios and builds, chosen and matched with care by a local family team.",
+  eyebrow: "Curated tiles · Sunshine Coast",
+  // headline split so "better tiles." renders in Newsreader italic sea
+  headA: "Coastal homes",
+  headB: "deserve",
+  headC: "",
+  headAccent: "better tiles.",
+  sub: "Floor, wall and outdoor tiles, chosen and matched with care by a local family team.",
   ctaPrimary: { label: "See what's on trend", href: "#featured" },
   ctaSecondary: { label: "Step into the showroom", href: "#showroom" },
 };
@@ -168,16 +169,16 @@ export const COLLECTIONS: Collection[] = [
 ];
 
 export const SPECIALS_TEASER = {
-  eyebrow: "This month at OnWood",
-  headA: "Specials worth",
-  headB: "walking in for.",
-  sub: "Right now: 20% off timber-look porcelain, our Aspect gloss white at a sharp price, and free delivery across the Sunshine Coast. While stocks last.",
-  chips: ["20% off timber-look", "Free Sunshine Coast delivery"],
-  cta: { label: "See all specials", href: "/specials" },
-  badge: { pct: "20%", label: "OFF" },
-  card: { name: "Woodstock 212 Oak", was: "", now: "20% off" },
-  image: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhtu1004zrkhk1nj3586q-1785558942651.jpg",
-  tile: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
+  eyebrow: "On now · Package deal",
+  headA: "Floor-to-Ceiling",
+  headB: "Package Deal.",
+  sub: "A complete bathroom of tiles — crisp Aspect gloss-white walls taken floor to ceiling, plus our Cottesloe limestone-look floor — supplied as one simple package. Supply only, collect from Baringa.",
+  chips: ["Walls + floor supplied", "Supply only · Baringa pickup"],
+  cta: { label: "View all Specials", href: "/specials" },
+  badge: { pct: "$989", label: "THE LOT" },
+  card: { name: "Floor-to-Ceiling Package", was: "", now: "$989 inc GST" },
+  image: "/images/specials/bathroom-bundle.webp",
+  tile: "https://onwoodtiles.com.au/images/tileone/aspect-300x450-gloss.webp?v=1",
 };
 
 export const SHOWROOM = {
@@ -207,13 +208,20 @@ export const STORY = {
   eyebrow: "Why OnWood",
   headA: "We don't just sell tiles.",
   headB: "We help you get the whole room right.",
-  p1: "Every OnWood project starts with your space, your light and your budget. We help you choose, match and lay out the tile so the pattern runs the way the room wants it to, and we finish the look with the accessories, tapware and trims to match.",
-  p2: "Coolum to Caloundra, we've spent years learning what humidity, salt air and Queensland sun do to a surface, so yours lasts.",
+  p1: "Every OnWood project starts with your space, your light and your budget. We help you choose, match and pull the whole look together, from the tiles to the finishing details, so you end up with a room you'll love for years.",
+  p2: "Not just tiles: we finish the job with the tapware, adhesives, trims and accessories to match. Honest advice from a local, family-run Sunshine Coast family team with no franchise script, no pushy upsell.",
   stats: [
-    { to: 100, suffix: "s", label: "Colours & finishes" },
+    { to: 1000, suffix: "s", label: "Products to choose from", isPostcode: true },
     { to: 4551, suffix: "", label: "Baringa, on your doorstep", isPostcode: true },
     { to: 100, suffix: "%", label: "Local & independent" },
   ],
+  // Curated secondary ("see it installed") images for the three arched niches
+  // (tall, then the two small). Set here → Story uses these instead of auto-picking.
+  images: [
+    { src: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhxlc009mrkhk2mp90kbe-1785544390736.jpg", alt: "Marrakesh Terracotta decor tiles styled in a room" },
+    { src: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhsf5002irkhka5vm767t-1786153002585.jpg", alt: "Fornace Dune decor tiles installed" },
+    { src: "https://onwoodtiles.com.au/images/tileone/ironclad-bronze-facade.webp?v=1", alt: "Ironclad 612 Bronze metal-look tiles installed" },
+  ] as { src: string; alt: string }[],
 };
 
 export type Testimonial = { text: string; name: string; place: string };
@@ -252,8 +260,6 @@ export const TEAM_HEAD = {
 export const TEAM: TeamMember[] = [
   { name: "Placeholder Name", role: "Showroom lead" },
   { name: "Placeholder Name", role: "Selections & design" },
-  { name: "Placeholder Name", role: "Trade & orders" },
-  { name: "Placeholder Name", role: "Showroom host" },
 ];
 
 export const CONTACT = {
@@ -278,6 +284,9 @@ export type Special = {
   note: string;
   tile?: string; // the singular tile swatch (overlaid on the room, trimmed via /api/tile)
   room?: string; // the "see it installed" room photo (the card hero)
+  /** Feed slugs this curated card already represents — used to de-dupe against the
+   *  live OnBase specials feed so a hand-written card isn't duplicated by the auto one. */
+  slugs?: string[];
 };
 
 export const SPECIALS_PAGE = {
@@ -287,21 +296,14 @@ export const SPECIALS_PAGE = {
   sub: "A couple of genuine deals from the Baringa showroom right now — plus free delivery across the Sunshine Coast. Supply only, while stocks last.",
   items: [
     {
-      pct: "20% OFF",
-      tag: "Timber-look porcelain",
-      name: "Timber-look feature",
-      note: "The warmth of timber with none of the upkeep — 20% off our timber-look range (Woodstock, Heartwood & more) this month.",
-      tile: "https://onwoodtiles.com.au/images/tileone/1781578830.webp?v=3",
-      room: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhtu1004zrkhk1nj3586q-1785558942651.jpg",
-    },
-    {
       pct: "SPECIAL",
-      tag: "300×300 rectified white gloss",
+      tag: "300×600mm rectified white gloss",
       name: "Aspect 36 Gloss White",
       now: "$16.95/m²",
       note: "A crisp, bright rectified white gloss — a clean, timeless look for walls and splashbacks at a sharp price.",
       tile: "https://onwoodtiles.com.au/images/tileone/aspect-300x600-gloss.webp?v=1",
       room: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhxbu009drkhkg0ckkc0a-1785395853279.jpg",
+      slugs: ["aspect-36-gloss-rectified"],
     },
   ] as Special[],
   freeDelivery: {
@@ -313,15 +315,20 @@ export const SPECIALS_PAGE = {
   },
   package: {
     eyebrow: "Bundle & save",
-    title: "The whole tile job, in one supply package.",
-    sub: "Found a tile you love? We can bundle it with the adhesive, grout, trims and accessories your tiler needs, matched to your job and priced as one. Supply only, ready for your installer to lay.",
+    title: "Floor-to-Ceiling Package Deal",
+    price: "$989",
+    priceNote: "inc GST · supply only",
+    sub: "Walls and floor sorted in one go. Crisp Aspect gloss-white wall tiles taken floor to ceiling, paired with our Cottesloe Limestone floor — a clean, contemporary bathroom supplied as one simple package.",
+    image: "/images/specials/bathroom-bundle.webp",
+    imageAlt:
+      "Contemporary bathroom with floor-to-ceiling gloss white wall tiles and a light limestone-look tiled floor",
     features: [
-      "Your tiles plus matched adhesive, grout and trims",
-      "Coverage worked out for your space, with wastage allowed",
-      "Supplied from one batch wherever possible",
-      "Delivered to site, or ready for collection at Baringa",
+      "Floor-to-ceiling Aspect 300×450 gloss white wall tiles — all four walls of a 3×3m bathroom",
+      "Cottesloe 45 Limestone 450×450 floor tiles — the full 3×3m floor",
+      "Enough for the room with wastage allowed",
+      "Supply only — collect from our Baringa showroom",
     ],
-    cta: "Ask about a bundle",
+    cta: "Reserve this bathroom",
   },
   reserve: {
     title: "Seen one you like?",
@@ -329,14 +336,19 @@ export const SPECIALS_PAGE = {
     cta: "Reserve & enquire",
   },
   disclaimer:
-    "Prices shown are per square metre, GST inclusive, supply only. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer. Sunshine Coast delivery zones apply.",
+    "Prices are GST inclusive and supply only — per-square-metre specials are priced per m², and the Floor-to-Ceiling Package Deal is a fixed package price. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer.",
   termsTitle: "Specials terms & conditions",
   terms: [
     "All specials are supply only. Prices are in Australian dollars, GST inclusive, and quoted per square metre (m²) unless stated otherwise.",
     "Offers are available for a limited time and while advertised stock lasts. OnWood Tiles may change, extend or withdraw any special at any time without notice.",
     "Timber-look offer: 20% off is calculated on the normal supply price of tiles in our advertised timber-look porcelain range. Selected lines only; ranges and colours are subject to availability.",
     "Aspect 36 Gloss White is offered at the advertised special price while stocks last. Once current stock is sold, the special ends or moves to the next available batch.",
+    "Floor-to-Ceiling Package Deal ($989): the advertised price is for tiles only (supply only) — the floor-to-ceiling wall tiles plus the floor tiles — based on a bathroom of approximately 3m × 3m with 2.4m high walls (about 28.8m² of wall and 9m² of floor, plus wastage, supplied in full boxes). Your actual quantities depend on your room and layout; we'll confirm your exact requirements before you order.",
+    "Floor-to-Ceiling Package Deal is a fixed package price. If your bathroom needs less than the quantities above, the price is not reduced. If it needs more, the additional tiles are supplied at our normal retail (RRP) price.",
+    "The Floor-to-Ceiling Package Deal is supply only and for collection from our Baringa showroom. The price does not include delivery, adhesive, grout, trims, waterproofing, installation, or any tapware, fittings or furniture shown in imagery. Delivery can be arranged and quoted separately.",
+    "Floor-to-Ceiling Package Deal: changing the tiles, colours or finishes shown may change the price. Tiles are batch-made — please order your full quantity at once and confirm a current physical sample before ordering.",
     "Free delivery applies to standard tile orders delivered within OnWood Tiles' nominated Sunshine Coast delivery zones. It excludes bulk, oversized or remote-area freight, which may be quoted separately — please confirm your suburb with us before ordering.",
+    "Tile specials cannot be used in conjunction with the free delivery special offer. All supply-only specials are pickup in store at Baringa.",
     "Specials cannot be used in conjunction with any other offer, discount or trade pricing, and have no cash value.",
     "Tiles are a natural, batch-made product. Colour, shade, finish and size can vary between batches — always confirm with a current physical sample before ordering, and order your full quantity (including wastage) at once where possible.",
     "Room images are a guide for inspiration only and may not represent the exact tile, colour or layout supplied. Deposits and our standard Terms of Sale apply to all orders. Errors and omissions excepted.",

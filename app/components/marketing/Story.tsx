@@ -4,6 +4,7 @@
 // faithfully from .refwork/tiles-sections/08-section-why-onwood.html; copy/data
 // from lib/content.ts (STORY).
 import { STORY } from "../../../lib/content";
+import { listRanges, type WebsiteRange } from "../../../lib/onbase/client";
 import Reveal from "../ui/Reveal";
 import CountUp from "../ui/CountUp";
 import styles from "./Story.module.css";
@@ -51,15 +52,39 @@ const statLabelStyle: React.CSSProperties = {
   marginTop: "2px",
 };
 
-// Warm/tonal placeholder gradients for the three arched niches. Real tile
-// photography drops into these slots later.
+// Warm/tonal fallback gradients for the three arched niches (used only when a
+// slot has no real photo yet).
 const mosaicFills = [
   "linear-gradient(160deg,#C8894B,#96632f)",
   "linear-gradient(150deg,#3f97a6,#1c4a54)",
   "linear-gradient(160deg,#d8c8ac,#a89372)",
 ];
 
-export default function Story() {
+// Fill the mosaic with real imagery from the catalogue feed - prefer "see it
+// installed" room shots, fall back to product photos - spread across the pool
+// so the three niches feel varied.
+function pickImages(ranges: WebsiteRange[]): (string | null)[] {
+  const rooms: string[] = [];
+  const products: string[] = [];
+  for (const r of ranges) {
+    const room = r.swatches?.find((s) => s.installedImage)?.installedImage;
+    const prod = r.heroImage || r.swatches?.find((s) => s.image)?.image;
+    if (room) rooms.push(room);
+    if (prod) products.push(prod);
+  }
+  const pool = [...rooms, ...products].filter(Boolean) as string[];
+  if (!pool.length) return [null, null, null];
+  const at = (frac: number) => pool[Math.min(pool.length - 1, Math.floor(frac * pool.length))] ?? null;
+  return [at(0), at(0.4), at(0.75)];
+}
+
+export default async function Story() {
+  // Prefer the curated secondary images set in content; only hit the feed if they
+  // aren't all set. Each niche is { src, alt }.
+  const curated = STORY.images ?? [];
+  const auto = curated.length >= 3 ? [] : pickImages(await listRanges());
+  const fallbackAlt = ["A tiled Sunshine Coast room", "Tile detail", "Finished floor"];
+  const pics = [0, 1, 2].map((i) => curated[i] ?? { src: auto[i] ?? null, alt: fallbackAlt[i] });
   return (
     <section id="story" style={sectionStyle}>
       <div className={styles.wrap}>
@@ -106,28 +131,31 @@ export default function Story() {
           </div>
         </div>
 
-        {/* Right: arched image mosaic */}
+        {/* Right: arched image mosaic - real imagery from the catalogue */}
         <div className={styles.mosaic}>
           <Reveal className={styles.cellTall}>
-            <div
-              className={styles.fill}
-              style={{ background: mosaicFills[0] }}
-              aria-hidden
-            />
+            {pics[0].src ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.fill} src={pics[0].src} alt={pics[0].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <div className={styles.fill} style={{ background: mosaicFills[0] }} aria-hidden />
+            )}
           </Reveal>
           <Reveal className={styles.cellSmall} delay={0.08}>
-            <div
-              className={styles.fill}
-              style={{ background: mosaicFills[1] }}
-              aria-hidden
-            />
+            {pics[1].src ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.fill} src={pics[1].src} alt={pics[1].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <div className={styles.fill} style={{ background: mosaicFills[1] }} aria-hidden />
+            )}
           </Reveal>
           <Reveal className={styles.cellSmall} delay={0.16}>
-            <div
-              className={styles.fill}
-              style={{ background: mosaicFills[2] }}
-              aria-hidden
-            />
+            {pics[2].src ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.fill} src={pics[2].src} alt={pics[2].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <div className={styles.fill} style={{ background: mosaicFills[2] }} aria-hidden />
+            )}
           </Reveal>
         </div>
       </div>
