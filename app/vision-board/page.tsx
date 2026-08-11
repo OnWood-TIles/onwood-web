@@ -41,8 +41,8 @@ export default function VisionBoardPage() {
           </Reveal>
         </section>
 
-        {/* The interactive builder (renders its own heading) */}
-        <VisionBoard />
+        {/* The interactive builder (page already has its own heading above) */}
+        <VisionBoard showHead={false} />
       </main>
       <MarketingFooter />
     </div>

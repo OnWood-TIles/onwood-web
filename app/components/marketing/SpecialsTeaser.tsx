@@ -48,7 +48,7 @@ export default function SpecialsTeaser() {
         overflow: "hidden",
       }}
     >
-      <style>{`@media (max-width:860px){.ow-specials-grid{grid-template-columns:1fr;gap:34px;}.spt-img{height:min(116vw,480px)!important;border-radius:170px 170px 22px 22px!important;}.spt-badge{display:none!important;}.spt-price{display:none!important;}.spt-mobile-price{display:flex!important;}}`}</style>
+      <style>{`@media (max-width:860px){.ow-specials-grid{grid-template-columns:1fr!important;gap:30px;}.spt-img{aspect-ratio:861/966!important;height:auto!important;}.spt-sub{max-width:none!important;}}`}</style>
 
       <div
         className="ow-specials-grid"
@@ -107,6 +107,7 @@ export default function SpecialsTeaser() {
 
           <Reveal delay={0.16}>
             <p
+              className="spt-sub"
               style={{
                 maxWidth: 460,
                 color: "rgba(255,255,255,.9)",
@@ -118,13 +119,6 @@ export default function SpecialsTeaser() {
               {sub}
             </p>
           </Reveal>
-
-          {/* Mobile-only price. On mobile the floating badge + price card are hidden
-              for a clean, stacked Why-OnWood-style layout, so the price shows here. */}
-          <div className="spt-mobile-price" style={{ display: "none", alignItems: "baseline", gap: 12, margin: "2px 0 24px", flexWrap: "wrap" }}>
-            <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, fontSize: "clamp(36px,11vw,50px)", lineHeight: 1, color: "#fff" }}>{badge.pct}</span>
-            <span style={{ fontSize: 12.5, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.9 }}>inc GST · {badge.label}</span>
-          </div>
 
           <Reveal delay={0.24}>
             <div

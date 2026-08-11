@@ -199,9 +199,11 @@ const timberLogo = (brand?: string) =>
 export default function VisionBoard({
   tabs = DEFAULT_TABS,
   head = DEFAULT_HEAD,
+  showHead = true,
 }: {
   tabs?: VisionTabs;
   head?: VisionHead;
+  showHead?: boolean;
 }) {
   // "paint" (Dulux), "metals", "carpet" (Feltex/Redbook), "flooring" (Quick-Step)
   // and "cabinetry" (Laminex timber) are special searchable pickers, always
@@ -1017,6 +1019,7 @@ export default function VisionBoard({
   return (
     <>
       {/* Vision-board head */}
+      {showHead && (
       <div style={{ textAlign: "center", marginBottom: 22 }}>
         <Reveal>
           <div
@@ -1057,6 +1060,7 @@ export default function VisionBoard({
           </p>
         </Reveal>
       </div>
+      )}
 
       {/* Board */}
       <Reveal delay={0.05}>
