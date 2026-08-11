@@ -277,49 +277,53 @@ export const HERO_BOARDS: HeroBoard[] = [
 // benchtop chip — the teaser card's Antikella stone IS the benchtop). Both the
 // room + hero AI images fly in large; tiles use their TRUE aspect (tbox) so a
 // 600x1200 reads 1:2, a 75x300 subway reads like a subway, exactly like the tool.
+// Pieces are spread to the TOP and BOTTOM so the centred "Start" button (a wide
+// pill across the middle band, ~y 260-345) never covers them: room photo top-left,
+// one tile top-right, hero photo bottom-right, one tile bottom-left, metal + floral
+// down the left edge.
 export const TEASER_BOARDS: HeroBoard[] = [
   {
     id: "teaser-coastal-kitchen",
     pieces: [
-      photoAt("room", "/images/vision/coastal-kitchen-room.webp", 4, 12, 300, 248, -3, 3),
-      photoAt("hero", "/images/vision/coastal-kitchen-hero.webp", 208, 300, 308, 262, 2.6, 4),
-      tileAt("hero-tile", "Terroir 60 Terra", "Terracotta-look 600x600", `${T}/1736898466.webp?v=3`, 600, 600, 116, 292, -3, 6),
-      tileAt("feature", "Gelato Azzurro", "Gloss subway 75x300", `${T}/1718246903.webp?v=3`, 75, 300, 358, 122, 5, 7, "landscape"),
-      metal("Brushed Brass", "brushed-brass", 168, 198, -4, 8),
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", -26, 0, 120, 226, 9),
+      photoAt("room", "/images/vision/coastal-kitchen-room.webp", 2, 2, 286, 214, -3, 3),
+      photoAt("hero", "/images/vision/coastal-kitchen-hero.webp", 222, 368, 296, 226, 2.5, 4),
+      tileAt("hero-tile", "Terroir 60 Terra", "Terracotta-look 600x600", `${T}/1736898466.webp?v=3`, 600, 600, 400, 116, 4, 6),
+      tileAt("feature", "Gelato Azzurro", "Gloss subway 75x300", `${T}/1718246903.webp?v=3`, 75, 300, 138, 476, -4, 7, "landscape"),
+      metal("Brushed Brass", "brushed-brass", 4, 296, -6, 8),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -30, 96, 104, 196, 9),
     ],
   },
   {
     id: "teaser-marrakesh-ensuite",
     pieces: [
-      photoAt("room", "/images/vision/marrakesh-ensuite-room.webp", 4, 12, 300, 248, -3, 3),
-      photoAt("hero", "/images/vision/marrakesh-ensuite-hero.webp", 208, 300, 308, 262, 2.6, 4),
-      tileAt("hero-tile", "Colonnade 60 Classico", "Travertine-look 600x600", `${T}/1718244596.webp?v=3`, 600, 600, 116, 292, -3, 6),
-      tileAt("feature", "Marrakesh Terracotta", "Terracotta mosaic 153x153", `${T}/1726104512.webp?v=3`, 153, 153, 404, 134, 5, 7),
-      metal("Tumbled Aged Brass", "tumbled-aged-brass", 168, 198, -4, 8),
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", -26, 0, 120, 226, 9),
+      photoAt("room", "/images/vision/marrakesh-ensuite-room.webp", 2, 2, 286, 214, -3, 3),
+      photoAt("hero", "/images/vision/marrakesh-ensuite-hero.webp", 222, 368, 296, 226, 2.5, 4),
+      tileAt("hero-tile", "Colonnade 60 Classico", "Travertine-look 600x600", `${T}/1718244596.webp?v=3`, 600, 600, 400, 116, 4, 6),
+      tileAt("feature", "Marrakesh Terracotta", "Terracotta mosaic 153x153", `${T}/1726104512.webp?v=3`, 153, 153, 132, 474, -4, 7),
+      metal("Tumbled Aged Brass", "tumbled-aged-brass", 4, 296, -6, 8),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -30, 96, 104, 196, 9),
     ],
   },
   {
     id: "teaser-coastal-powder",
     pieces: [
-      photoAt("room", "/images/vision/coastal-powder-room.webp", 4, 12, 300, 248, -3, 3),
-      photoAt("hero", "/images/vision/coastal-powder-hero.webp", 208, 300, 308, 262, 2.6, 4),
-      tileAt("hero-tile", "Strata 60 Ivory", "Terrazzo-look 600x600", `${T}/1718319318.webp?v=3`, 600, 600, 116, 292, -3, 6),
-      tileAt("feature", "Cuadrado Feature Almond", "Textured 600x1200", `${T}/1779939428.webp?v=3`, 600, 1200, 410, 152, 5, 7),
-      metal("Brushed Brass", "brushed-brass", 168, 198, -4, 8),
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", -26, 0, 120, 226, 9),
+      photoAt("room", "/images/vision/coastal-powder-room.webp", 2, 2, 286, 214, -3, 3),
+      photoAt("hero", "/images/vision/coastal-powder-hero.webp", 222, 368, 296, 226, 2.5, 4),
+      tileAt("hero-tile", "Strata 60 Ivory", "Terrazzo-look 600x600", `${T}/1718319318.webp?v=3`, 600, 600, 400, 116, 4, 6),
+      tileAt("feature", "Cuadrado Feature Almond", "Textured 600x1200", `${T}/1779939428.webp?v=3`, 600, 1200, 116, 456, -4, 7),
+      metal("Brushed Brass", "brushed-brass", 4, 288, -6, 8),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -30, 92, 104, 190, 9),
     ],
   },
   {
     id: "teaser-stackstone-living",
     pieces: [
-      photoAt("room", "/images/vision/stackstone-living-room.webp", 4, 12, 300, 248, -3, 3),
-      photoAt("hero", "/images/vision/stackstone-living-hero.webp", 208, 300, 308, 262, 2.6, 4),
-      tileAt("hero-tile", "Woodstock 212 Driftwood", "Timber-look plank 200x1200", `${T}/1781579195.webp?v=3`, 200, 1200, 132, 300, -3, 6, "landscape"),
-      { id: "feature", kind: "stone", name: "Ridgeline Dune", sub: "Stacked stone veneer", src: tp(`${VENEER}/ridgeline-dune.webp?v=1`), x: 250, y: 58, w: 236, h: 118, rot: 5, z: 7, radius: 10 },
-      metal("Brushed Brass", "brushed-brass", 150, 202, -4, 8),
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", -26, 0, 120, 226, 9),
+      photoAt("room", "/images/vision/stackstone-living-room.webp", 2, 2, 286, 214, -3, 3),
+      photoAt("hero", "/images/vision/stackstone-living-hero.webp", 222, 368, 296, 226, 2.5, 4),
+      { id: "feature", kind: "stone", name: "Ridgeline Dune", sub: "Stacked stone veneer", src: tp(`${VENEER}/ridgeline-dune.webp?v=1`), x: 276, y: 60, w: 236, h: 118, rot: 4, z: 6, radius: 10 },
+      tileAt("hero-tile", "Woodstock 212 Driftwood", "Timber-look plank 200x1200", `${T}/1781579195.webp?v=3`, 200, 1200, 138, 476, -4, 7, "landscape"),
+      metal("Brushed Brass", "brushed-brass", 4, 296, -6, 8),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -30, 96, 104, 196, 9),
     ],
   },
 ];

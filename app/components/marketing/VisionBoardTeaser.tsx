@@ -70,7 +70,7 @@ export default function VisionBoardTeaser() {
         </Reveal>
 
         <div style={{ position: "relative", marginTop: 10, display: "flex", justifyContent: "center" }}>
-          <AmbientDriftBoard boards={TEASER_BOARDS} maxW={520} />
+          <AmbientDriftBoard boards={TEASER_BOARDS} maxW={560} />
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
             <Link
               href="/vision-board"
@@ -85,10 +85,12 @@ export default function VisionBoardTeaser() {
                 color: "#fff",
                 fontWeight: 800,
                 fontSize: "clamp(14px,1.7vw,16px)",
-                padding: "16px 28px",
+                padding: "15px 26px",
                 borderRadius: 100,
                 boxShadow: "0 20px 50px rgba(0,0,0,.5), 0 0 0 6px rgba(255,255,255,.5)",
-                whiteSpace: "nowrap",
+                maxWidth: 260,
+                textAlign: "center",
+                lineHeight: 1.25,
               }}
             >
               Start Your Vision Board Here <span aria-hidden>→</span>
