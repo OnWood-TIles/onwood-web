@@ -110,9 +110,20 @@ export default async function RootLayout({
         />
       </head>
       <body>
+        {/* Accessibility (WCAG 2.4.1): first focusable element lets keyboard /
+            screen-reader users jump the fixed nav straight to page content.
+            Hidden off-screen until focused (see .skip-link in globals.css). */}
+        <a href="#main" className="skip-link">Skip to content</a>
         <ThemeProvider>
           <NavConfigProvider items={navItems}>
-            <ShopMenuProvider depts={shopDepts}>{children}</ShopMenuProvider>
+            <ShopMenuProvider depts={shopDepts}>
+              {/* Focus target for the skip link. tabIndex=-1 lets it receive
+                  programmatic focus without joining the tab order. Pages render
+                  their own <main>, so this is a neutral wrapper. */}
+              <div id="main" tabIndex={-1}>
+                {children}
+              </div>
+            </ShopMenuProvider>
             <WishlistFab />
           </NavConfigProvider>
         </ThemeProvider>

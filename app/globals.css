@@ -144,6 +144,38 @@ body {
   color: #fff;
 }
 
+/* Skip-to-content link (WCAG 2.4.1). Visually hidden off-screen until it
+   receives keyboard focus, then it slides into the top-left over the fixed
+   header so the first Tab press reveals a clear "Skip to content" control. */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-120%);
+  z-index: 1000;
+  margin: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--brand-primary);
+  color: #fff;
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+/* The programmatically-focused main wrapper shouldn't paint a stray outline. */
+#main:focus {
+  outline: none;
+}
+
 /* ---- marketing keyframes (from the reference) ---- */
 @keyframes owDown {
   0%,

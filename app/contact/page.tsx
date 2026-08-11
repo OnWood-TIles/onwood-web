@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Contact Us",
   description:
     "Get in touch with OnWood Tiles. Send us a message, call the showroom, or find directions to our Baringa store on the Sunshine Coast.",
+  alternates: { canonical: "https://onwoodtiles.com.au/contact" },
 };
 
 export const dynamic = "force-dynamic";

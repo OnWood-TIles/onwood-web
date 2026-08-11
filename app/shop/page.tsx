@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Shop",
   description:
     "Choose a department - tiles, tapware and more - and browse the OnWood Tiles range live from our Baringa showroom.",
+  alternates: { canonical: "https://onwoodtiles.com.au/shop" },
 };
 
 export const dynamic = "force-dynamic";

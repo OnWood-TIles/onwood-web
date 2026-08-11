@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     description:
       range.description?.slice(0, 155) ||
       `${range.name} at OnWood Tiles - see it in our Sunshine Coast showroom.`,
+    alternates: { canonical: `https://onwoodtiles.com.au/product/${slug}` },
   };
 }
 
@@ -81,11 +82,35 @@ export default async function ProductPage({
     url: `${SITE}/product/${slug}`,
   };
 
+  // BreadcrumbList structured data: Home -> Shop -> Department -> Product, using
+  // absolute URLs. The Department step is only included when the range resolves
+  // to a known department (otherwise we skip straight from Shop to the product).
+  const crumbs = [
+    { name: "Home", item: `${SITE}/` },
+    { name: "Shop", item: `${SITE}/shop` },
+    ...(dept ? [{ name: dept.label, item: `${SITE}/shop/${dept.slug}` }] : []),
+    { name: range.name, item: `${SITE}/product/${slug}` },
+  ];
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.item,
+    })),
+  };
+
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 28px 90px" }}>

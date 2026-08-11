@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Why OnWood Tiles",
   description:
     "We don't just sell tiles - we help you get the whole room right. A curated Sunshine Coast tile range, honest advice, live stock, and supply + installation by hand from our Baringa showroom.",
+  alternates: { canonical: "https://onwoodtiles.com.au/why" },
 };
 
 export const dynamic = "force-dynamic";

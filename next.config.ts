@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "onwoodtiles.com.au" },
     ],
   },
+  // Canonicalise the host: www.onwoodtiles.com.au serves the same app without
+  // redirecting, which splits SEO signal and duplicates every URL. Send the www
+  // host to the apex with a permanent 308, preserving the path + query.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.onwoodtiles.com.au" }],
+        destination: "https://onwoodtiles.com.au/:path*",
+        permanent: true,
+      },
+    ];
+  },
   // Baseline security headers on every response. (No CSP here yet — a strict
   // Content-Security-Policy needs per-route testing against Next's inline
   // bootstrap + JSON-LD + data: images before it can go live safely.)

@@ -7,6 +7,7 @@ import BookAVisit from "../components/book/BookAVisit";
 export const metadata: Metadata = {
   title: "Book a Visit",
   description: "Book a showroom visit at OnWood Tiles in Baringa - pick a time that suits and we'll have the space ready for you.",
+  alternates: { canonical: "https://onwoodtiles.com.au/book" },
 };
 
 export const dynamic = "force-dynamic";

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FilterBar } from "../components/shop/FilterBar";
 import SaveButton from "../components/wishlist/SaveButton";
 import type { FilterGroupVM } from "../../lib/shopFilters";
@@ -55,6 +56,11 @@ export default function GalleryClient({
   const [search, setSearch] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [visible, setVisible] = useState(PER_PAGE);
+  // Focus management for the lightbox dialog: remember the trigger that opened
+  // it (to restore focus on close) and move focus onto the Close button when it
+  // opens, so keyboard/screen-reader users land inside the dialog.
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const hasTiles = items.some((i) => i.group === "tiles");
   const hasStone = items.some((i) => i.group === "stone");
@@ -128,7 +134,15 @@ export default function GalleryClient({
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+    // Move keyboard focus into the dialog once it renders.
+    const trigger = triggerRef.current;
+    closeBtnRef.current?.focus();
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+      // Restore focus to the thumbnail that opened the lightbox.
+      trigger?.focus();
+    };
   }, [lightbox, close, step]);
 
   const current = lightbox == null ? null : shown[lightbox];
@@ -182,12 +196,19 @@ export default function GalleryClient({
                 <button
                   type="button"
                   className="gal-item"
-                  onClick={() => setLightbox(idx)}
+                  onClick={(e) => { triggerRef.current = e.currentTarget; setLightbox(idx); }}
                   aria-label={`Enlarge ${it.name}${it.colour ? " in " + it.colour : ""}`}
                 >
                   <span className="gal-imgwrap">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={it.img} alt={it.alt} loading="lazy" className="gal-img" />
+                    <Image
+                      src={it.img}
+                      alt={it.alt}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 760px) 50vw, (max-width: 1240px) 33vw, 420px"
+                      className="gal-img"
+                      style={{ objectFit: "cover" }}
+                    />
                     <span className="gal-cap">
                       <span className="gal-name">{it.name}</span>
                       {it.colour ? <span className="gal-col">{it.colour}</span> : null}
@@ -228,7 +249,7 @@ export default function GalleryClient({
           onClick={close}
           style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(14,20,22,.93)", backdropFilter: "blur(4px)", overflowY: "auto" }}
         >
-          <button type="button" onClick={close} aria-label="Close" style={iconBtn({ top: 18, right: 18 })}>
+          <button ref={closeBtnRef} type="button" onClick={close} aria-label="Close" style={iconBtn({ top: 18, right: 18 })}>
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
           {shown.length > 1 && (

@@ -16,6 +16,9 @@ const EYEBROW_STYLE: React.CSSProperties = {
 };
 
 export default function Testimonials() {
+  // No live testimonials yet → render nothing (heading included) so there's no
+  // empty grid or blank gap. Fill TESTIMONIALS in lib/content.ts to bring it back.
+  if (TESTIMONIALS.length === 0) return null;
   return (
     <section style={{ padding: "110px 40px", maxWidth: 1240, margin: "0 auto" }}>
       {/* Head */}

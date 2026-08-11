@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Website Terms of Use",
   description:
     "The terms that govern your use of the OnWood Tiles website and trade portal - including our AI-generated and illustrative imagery disclosure, indicative stock, and your Australian Consumer Law rights.",
+  alternates: { canonical: "https://onwoodtiles.com.au/terms-of-use" },
 };
 
 export default function TermsOfUsePage() {

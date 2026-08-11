@@ -1,15 +1,18 @@
 import { SHOWROOM } from "../../../lib/content";
+import { listRanges, type WebsiteRange } from "../../../lib/onbase/client";
+import { imageAlt } from "../../../lib/alt";
 import Reveal from "../ui/Reveal";
 import VisionBoardTeaser from "./VisionBoardTeaser";
 import styles from "./Showroom.module.css";
 
 // Section 07 - Showroom. Centred head, a wide arched niche + a 3-up row of
 // arched niches, then the vision-board head and the interactive <VisionBoard/>.
-// Image slots render as arched placeholder divs (warm gradient) with the exact
-// radii from the reference; real photography gets wired in later.
+// The four niches show real "see it installed" room photos pulled from the
+// catalogue feed (same source the /gallery uses); a warm gradient stands in only
+// when the feed returns nothing.
 // Server component (the interactive board lives in its client child).
 
-// Subtle warm gradient stand-ins for the photo slots.
+// Subtle warm gradient stand-in for a photo slot (used only when the feed is empty).
 const NICHE_BG =
   "linear-gradient(160deg, color-mix(in srgb, var(--accent) 12%, var(--surface)), color-mix(in srgb, var(--accent2) 9%, var(--surface)))";
 
@@ -33,14 +36,48 @@ const SUB_STYLE: React.CSSProperties = {
   margin: "0 auto",
 };
 
-// Short accessibility labels for the placeholder slots (not marketing copy).
-const SMALL_NICHES: { label: string }[] = [
-  { label: "Showroom detail placeholder" },
-  { label: "Tiled room placeholder" },
-  { label: "Display wall placeholder" },
-];
+type Niche = { src: string; alt: string } | null;
 
-export default function Showroom() {
+// Gather "see it installed" room shots from the catalogue feed (tiles + stone),
+// spread across the pool so the niches feel varied rather than near-identical
+// colourways of one range. Returns up to `count` niches; missing slots are null
+// (the caller renders a tasteful gradient there).
+async function pickNiches(count: number): Promise<Niche[]> {
+  const ranges: WebsiteRange[] = await listRanges().catch(() => []);
+  const shots: { src: string; alt: string }[] = [];
+  const seen = new Set<string>();
+  for (const r of ranges) {
+    for (const sw of r.swatches ?? []) {
+      if (!sw.installedImage || seen.has(sw.installedImage)) continue;
+      seen.add(sw.installedImage);
+      shots.push({ src: sw.installedImage, alt: imageAlt(r, { swatch: sw, kind: "installed" }) });
+    }
+  }
+  if (!shots.length) return Array.from({ length: count }, () => null);
+  // Even spread across the whole pool so consecutive niches don't repeat a range.
+  return Array.from({ length: count }, (_, i) => shots[Math.floor((i / count) * shots.length)] ?? null);
+}
+
+// Shared arched-niche <img> / gradient fill (preserves the reference aesthetic).
+function nicheFill(niche: Niche) {
+  if (niche) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={niche.src}
+        alt={niche.alt}
+        loading="lazy"
+        decoding="async"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    );
+  }
+  return <div aria-hidden style={{ position: "absolute", inset: 0, background: NICHE_BG }} />;
+}
+
+export default async function Showroom() {
+  // Four niches: one wide hero + a 3-up row.
+  const [wide, ...small] = await pickNiches(4);
   return (
     <section
       id="showroom"
@@ -74,8 +111,6 @@ export default function Showroom() {
       <div style={{ display: "grid", gap: 20, marginBottom: 56 }}>
         <Reveal>
           <div
-            role="img"
-            aria-label="Wide showroom photo placeholder"
             style={{
               position: "relative",
               borderRadius: "220px 220px 22px 22px",
@@ -84,14 +119,14 @@ export default function Showroom() {
               boxShadow: "0 26px 60px rgba(32,48,58,.13)",
               background: NICHE_BG,
             }}
-          />
+          >
+            {nicheFill(wide)}
+          </div>
         </Reveal>
         <div className={styles.row}>
-          {SMALL_NICHES.map((n, i) => (
-            <Reveal key={n.label} delay={0.05 * (i + 1)}>
+          {small.map((niche, i) => (
+            <Reveal key={niche?.src ?? i} delay={0.05 * (i + 1)}>
               <div
-                role="img"
-                aria-label={n.label}
                 style={{
                   position: "relative",
                   borderRadius: "180px 180px 18px 18px",
@@ -100,7 +135,9 @@ export default function Showroom() {
                   boxShadow: "0 20px 46px rgba(32,48,58,.1)",
                   background: NICHE_BG,
                 }}
-              />
+              >
+                {nicheFill(niche)}
+              </div>
             </Reveal>
           ))}
         </div>

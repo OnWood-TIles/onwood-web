@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: dept ? `${dept.label} | Shop` : "Shop",
     description: dept ? `Browse ${dept.label.toLowerCase()} at OnWood Tiles - live availability from our Sunshine Coast showroom.` : undefined,
+    alternates: { canonical: `https://onwoodtiles.com.au/shop/${department}` },
   };
 }
 
@@ -65,8 +66,25 @@ export default async function DepartmentPage({
     </Link>
   );
 
+  // BreadcrumbList structured data: Home -> Shop -> Department, using absolute
+  // URLs. Same in-page <script> technique as app/layout.tsx.
+  const SITE = "https://onwoodtiles.com.au";
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE}/` },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE}/shop` },
+      { "@type": "ListItem", position: 3, name: dept.label, item: `${SITE}/shop/${dept.slug}` },
+    ],
+  };
+
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(96px,16vw,150px) 28px 90px" }}>
         <nav style={{ fontSize: 13, color: "#8a8577", marginBottom: 14 }} aria-label="Breadcrumb">

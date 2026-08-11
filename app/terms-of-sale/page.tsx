@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Terms and Conditions of Sale",
   description:
     "The terms that apply when you buy tiles, natural stone, stone veneer and related products from OnWood Tiles - quotes, orders, deposits, batches, delivery, returns and your Australian Consumer Law rights.",
+  alternates: { canonical: "https://onwoodtiles.com.au/terms-of-sale" },
 };
 
 export default function TermsOfSalePage() {

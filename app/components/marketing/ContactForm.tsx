@@ -44,6 +44,7 @@ const label: React.CSSProperties = {
 export default function ContactForm({ defaultMessage }: { defaultMessage?: string }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [sentEmail, setSentEmail] = useState(""); // echoed back so a typo is visible
   const [error, setError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
 
@@ -65,10 +66,19 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
         body: JSON.stringify({ name, email, phone, message, company, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
       const json = await res.json();
-      if (res.ok && json.ok) setDone(true);
-      else setError(json.error || "Sorry, that did not send. Please email sales@onwoodtiles.com.au.");
+      if (res.ok && json.ok) {
+        setSentEmail(email);
+        setDone(true);
+      } else {
+        setError(
+          json.error ||
+            "Sorry - that didn't send. Please call us on 0447 766 553 or email sales@onwoodtiles.com.au and we'll help straight away.",
+        );
+      }
     } catch {
-      setError("Could not reach the server. Please try again, or email sales@onwoodtiles.com.au.");
+      setError(
+        "We couldn't reach the server just now. Please call us on 0447 766 553 or email sales@onwoodtiles.com.au - we don't want to miss you.",
+      );
     } finally {
       setBusy(false);
     }
@@ -81,8 +91,11 @@ export default function ContactForm({ defaultMessage }: { defaultMessage?: strin
           <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--sea)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg>
         </div>
         <h3 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 24, letterSpacing: "-.01em", margin: "0 0 8px" }}>Message on its way.</h3>
-        <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: 0, maxWidth: 360, marginInline: "auto" }}>
-          Thanks for reaching out. We&rsquo;ll get back to you shortly. In a hurry? Give the showroom a call or pop in and see us.
+        <p style={{ color: "var(--muted)", fontSize: 15, lineHeight: 1.6, margin: 0, maxWidth: 380, marginInline: "auto" }}>
+          Thanks for reaching out. We&rsquo;ll reply to{" "}
+          <strong style={{ color: "var(--ink)", fontWeight: 700, wordBreak: "break-all" }}>{sentEmail}</strong>{" "}
+          shortly. If that address looks wrong, call us on{" "}
+          <a href="tel:+61447766553" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>0447 766 553</a>.
         </p>
       </div>
     );

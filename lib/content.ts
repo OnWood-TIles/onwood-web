@@ -231,7 +231,11 @@ export const TESTIMONIALS_HEAD = {
   title: "People stop and look down.",
 };
 
-export const TESTIMONIALS: Testimonial[] = [
+// FORMAT PRESERVED — these were invented placeholder reviews, not real customers.
+// When real testimonials arrive, fill these in (or add new ones in this shape) and
+// rename this array back to TESTIMONIALS. The live TESTIMONIALS below stays [] until
+// then, so the Testimonials section cleanly hides itself (heading included).
+export const TESTIMONIALS_EXAMPLE: Testimonial[] = [
   {
     text: "The team matched a wood-look porcelain to our deck perfectly. Half the house has asked where the floor is from.",
     name: "Hannah P.",
@@ -248,6 +252,11 @@ export const TESTIMONIALS: Testimonial[] = [
     place: "Caloundra",
   },
 ];
+
+// Live testimonials — empty until we have REAL ones. An empty array makes the
+// Testimonials section render nothing (see Testimonials.tsx). Copy entries from
+// TESTIMONIALS_EXAMPLE (or add real ones) to bring the section back.
+export const TESTIMONIALS: Testimonial[] = [];
 
 export type TeamMember = { name: string; role: string };
 

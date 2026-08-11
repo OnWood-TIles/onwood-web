@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
 import { AvailabilityPill, Watermark, ColourwayCard } from "./shared";
 import SaveButton from "../wishlist/SaveButton";
@@ -129,8 +130,7 @@ export default function ProductView({
           >
             {displayMain ? (
               <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={displayMain}
                   onClick={() => setZoom(true)}
                   alt={
@@ -138,7 +138,9 @@ export default function ProductView({
                       ? `${range.name} shown installed - AI-generated illustration, actual product varies`
                       : `${range.name} - colour, scale and finish vary from the image`
                   }
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "zoom-in" }}
+                  fill
+                  sizes="(max-width: 900px) 100vw, 58vw"
+                  style={{ objectFit: "cover", cursor: "zoom-in" }}
                 />
                 <span aria-hidden style={{ position: "absolute", top: 12, right: 12, display: "grid", placeItems: "center", width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.9)", color: "var(--ink)", boxShadow: "0 4px 14px -4px rgba(16,28,30,.45)", pointerEvents: "none" }}>
                   <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

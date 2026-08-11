@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import type { Availability, ShopMenuDept, Swatch, WebsiteRange } from "../../../lib/onbase/client";
 import { imageAlt } from "../../../lib/alt";
@@ -128,12 +129,13 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
     >
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
         {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={image}
             alt={imageAlt(range, { kind: "primary" })}
+            fill
             loading="lazy"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 300px"
+            style={{ objectFit: "cover" }}
           />
         ) : (
           <div
@@ -150,13 +152,14 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
           </div>
         )}
         {roomShot && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={roomShot}
             alt={imageAlt(range, { kind: "installed", swatch: range.swatches[0] })}
+            fill
             loading="lazy"
+            sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 300px"
             className="ow-room-shot"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{ objectFit: "cover" }}
           />
         )}
         {range.watermarkPrimary && <Watermark mode={roomShot ? "yield" : "static"} />}
@@ -195,8 +198,7 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
               {range.swatches.slice(0, 5).map((s, i) =>
                 s.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     key={i}
                     src={s.image}
                     alt=""
@@ -252,24 +254,26 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
     >
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
         {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={image}
             alt={imageAlt(range, { kind: "primary", swatch })}
+            fill
             loading="lazy"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 300px"
+            style={{ objectFit: "cover" }}
           />
         ) : (
           <div style={{ position: "absolute", inset: 0, background: swatch.swatchHex || "#d8d3c7" }} />
         )}
         {roomShot && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={roomShot}
             alt={imageAlt(range, { kind: "installed", swatch })}
+            fill
             loading="lazy"
+            sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 300px"
             className="ow-room-shot"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{ objectFit: "cover" }}
           />
         )}
         {(swatch.watermarkPrimary ?? range.watermarkPrimary) && <Watermark mode={roomShot ? "yield" : "static"} />}

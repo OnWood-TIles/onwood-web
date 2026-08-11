@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: "Specials",
   description:
     "This month's tile specials at OnWood Tiles - clearance runs, end-of-line stone and whole-home tile packages. While stocks last.",
+  alternates: { canonical: "https://onwoodtiles.com.au/specials" },
 };
 
 // /api/tile only proxies (trims) images from these catalogue hosts; a swatch
