@@ -24,7 +24,6 @@ const E_STAG = 0.11;
 const X_DUR = 1.15; // per-piece release duration (s)
 const X_STAG = 0.08;
 const DRAMA = 1;    // 0.6 calm … 1.5 wild
-const CB = { x: BOARD_W / 2, y: BOARD_H / 2 + 30 }; // drift-ring centre
 
 // the tool's design sizes (render at these, scale to the piece box - keeps
 // punch holes / pills / badges in proportion, same trick as VisionBoard)
@@ -72,6 +71,7 @@ function pose(
   seed: number,
   now: number,
   reduced: boolean,
+  cb: { x: number; y: number },
 ): Pose {
   let { x, y, rot } = slot;
   let op = 1;
@@ -95,8 +95,8 @@ function pose(
   let lift: number;
   if (phase === "enter") {
     // magnetise in from a parking spot on a wide ring, wobble fading as it docks
-    const px = CB.x + Math.cos(pang) * prad;
-    const py = CB.y + Math.sin(pang) * prad * 0.8;
+    const px = cb.x + Math.cos(pang) * prad;
+    const py = cb.y + Math.sin(pang) * prad * 0.8;
     x = lerp(px, slot.x, e) + wob * (1 - p);
     y = lerp(py, slot.y, e) + wob2 * (1 - p);
     rot = lerp(slot.rot + (rnd(seed, 3) - 0.5) * 60 * DRAMA, slot.rot, e);
@@ -104,8 +104,8 @@ function pose(
     lift = Math.sin(Math.PI * p) * 0.8;
   } else {
     // release back into the drift, further round the ring
-    const qx = CB.x + Math.cos(pang + 2) * prad;
-    const qy = CB.y + Math.sin(pang + 2) * prad * 0.8;
+    const qx = cb.x + Math.cos(pang + 2) * prad;
+    const qy = cb.y + Math.sin(pang + 2) * prad * 0.8;
     x = lerp(slot.x, qx, e) + wob * p;
     y = lerp(slot.y, qy, e) + wob2 * p;
     rot = lerp(slot.rot, slot.rot + (rnd(seed, 4) - 0.5) * 50, e);
@@ -227,9 +227,13 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
 export default function AmbientDriftBoard({
   boards = HERO_BOARDS,
   maxW = 430,
+  boardW = BOARD_W,
+  boardH = BOARD_H,
 }: {
   boards?: HeroBoard[];
   maxW?: number;
+  boardW?: number;
+  boardH?: number;
 } = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -239,13 +243,14 @@ export default function AmbientDriftBoard({
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setScale(el.clientWidth / BOARD_W));
+    const ro = new ResizeObserver(() => setScale(el.clientWidth / boardW));
     ro.observe(el);
-    setScale(el.clientWidth / BOARD_W);
+    setScale(el.clientWidth / boardW);
     return () => ro.disconnect();
-  }, []);
+  }, [boardW]);
 
   useEffect(() => {
+    const cb = { x: boardW / 2, y: boardH / 2 + 30 };
     const reduced =
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     // flat piece list mirroring the render order below
@@ -312,7 +317,7 @@ export default function AmbientDriftBoard({
           phase = "exit";
           p = clamp((tl - E_TOTAL - HOLD - oi * X_STAG) / X_DUR);
         }
-        const ps = pose(piece, phase, p, seed, now, reduced);
+        const ps = pose(piece, phase, p, seed, now, reduced, cb);
         const tr = `translate(${ps.x.toFixed(2)}px,${ps.y.toFixed(2)}px) rotate(${ps.rot.toFixed(2)}deg) scale(${(1 + 0.05 * ps.lift).toFixed(3)})`;
         const sig = `${tr}|${ps.op.toFixed(3)}`;
         if (cache[i] === sig) continue;
@@ -343,7 +348,7 @@ export default function AmbientDriftBoard({
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [boards]);
+  }, [boards, boardW, boardH]);
 
   let flatIdx = -1;
   return (
@@ -354,7 +359,7 @@ export default function AmbientDriftBoard({
       style={{
         position: "relative",
         width: `min(${maxW}px, 96%)`,
-        aspectRatio: `${BOARD_W} / ${BOARD_H}`,
+        aspectRatio: `${boardW} / ${boardH}`,
         margin: "0 auto",
       }}
     >
@@ -363,8 +368,8 @@ export default function AmbientDriftBoard({
           position: "absolute",
           left: 0,
           top: 0,
-          width: BOARD_W,
-          height: BOARD_H,
+          width: boardW,
+          height: boardH,
           transform: `scale(${scale})`,
           transformOrigin: "0 0",
         }}

@@ -277,13 +277,16 @@ export const HERO_BOARDS: HeroBoard[] = [
 // benchtop chip — the teaser card's Antikella stone IS the benchtop). Both the
 // room + hero AI images fly in large; tiles use their TRUE aspect (tbox) so a
 // 600x1200 reads 1:2, a 75x300 subway reads like a subway, exactly like the tool.
-// Pieces sit in a RING around the centre so the centred "Start" button (clear
-// band ~x135-385, y255-340) never covers them. Each look brings its room + hero
-// AI images (large), a hero tile + feature at true aspect, a cabinetry (timber)
-// chip, two paint colours, a metal disc and a large floral.
-const roomP = (src: string) => photoAt("room", src, 6, 6, 252, 188, -3, 3);
-const heroP = (src: string) => photoAt("hero", src, 232, 382, 270, 210, 2.6, 4);
-const floralBig = styling("plant", "Olive Branch", "ai-floral-olive-branch", -34, 36, 156, 300, 9);
+// LANDSCAPE teaser canvas (900 x 430) so the section is wide + short (no wasted
+// height). Pieces are spaced with NO overlaps, arranged around a clear centre band
+// (x310-590, y168-262) for the "Start" button: room photo top-left, hero photo
+// bottom-right, a square tile top-right, cabinetry + two paints across the top/left,
+// a metal disc and a large floral bottom-left. The timber-plank + subway feature
+// tiles are shown in the room images (they look poor as tiny swatches), so the tile
+// chip is always a clean square/stone at true 1:1.
+const roomP = (src: string) => photoAt("room", src, 10, 8, 296, 216, -3, 3);
+const heroP = (src: string) => photoAt("hero", src, 596, 200, 296, 222, 2.6, 4);
+const floralBig = styling("plant", "Olive Branch", "ai-floral-olive-branch", 332, 260, 158, 170, 9);
 
 export const TEASER_BOARDS: HeroBoard[] = [
   {
@@ -291,12 +294,11 @@ export const TEASER_BOARDS: HeroBoard[] = [
     pieces: [
       roomP("/images/vision/coastal-kitchen-room.webp"),
       heroP("/images/vision/coastal-kitchen-hero.webp"),
-      tileAt("hero-tile", "Terroir 60 Terra", "Terracotta-look 600x600", `${T}/1736898466.webp?v=3`, 600, 600, 444, 106, 4, 6),
-      tileAt("feature", "Gelato Azzurro", "Gloss subway 75x300", `${T}/1718246903.webp?v=3`, 75, 300, 168, 498, -4, 7, "landscape"),
-      paint("paintA", "Natural White", "#EFE9DB", 196, 4, -4, 5),
-      paint("paintB", "Raw Umber", "#D9D0B8", 400, 392, 4, 5),
-      timber("Golden Oak", "AU1006823", 398, 196, 5, 4),
-      metal("Brushed Brass", "brushed-brass", 4, 404, -6, 8),
+      tileAt("tileA", "Terroir 60 Terra", "Terracotta-look 600x600", `${T}/1736898466.webp?v=3`, 600, 600, 800, 96, 4, 6),
+      timber("Golden Oak", "AU1006823", 356, 0, 4, 5),
+      paint("paintA", "Natural White", "#EFE9DB", 490, 2, -3, 5),
+      paint("paintB", "Raw Umber", "#D9D0B8", 168, 250, 4, 5),
+      metal("Brushed Brass", "brushed-brass", 36, 268, -5, 8),
       floralBig,
     ],
   },
@@ -305,12 +307,11 @@ export const TEASER_BOARDS: HeroBoard[] = [
     pieces: [
       roomP("/images/vision/marrakesh-ensuite-room.webp"),
       heroP("/images/vision/marrakesh-ensuite-hero.webp"),
-      tileAt("hero-tile", "Colonnade 60 Classico", "Travertine-look 600x600", `${T}/1718244596.webp?v=3`, 600, 600, 444, 106, 4, 6),
-      tileAt("feature", "Marrakesh Terracotta", "Terracotta mosaic 153x153", `${T}/1726104512.webp?v=3`, 153, 153, 158, 498, -4, 7),
-      paint("paintA", "Antique White U.S.A.", "#E6DECC", 196, 4, -4, 5),
-      paint("paintB", "Hog Bristle", "#E4DDC8", 400, 392, 4, 5),
-      timber("Golden Oak", "AU1006823", 398, 196, 5, 4),
-      metal("Tumbled Aged Brass", "tumbled-aged-brass", 4, 404, -6, 8),
+      tileAt("tileA", "Marrakesh Terracotta", "Terracotta mosaic 153x153", `${T}/1726104512.webp?v=3`, 153, 153, 800, 96, 4, 6),
+      timber("Golden Oak", "AU1006823", 356, 0, 4, 5),
+      paint("paintA", "Antique White U.S.A.", "#E6DECC", 490, 2, -3, 5),
+      paint("paintB", "Hog Bristle", "#E4DDC8", 168, 250, 4, 5),
+      metal("Tumbled Aged Brass", "tumbled-aged-brass", 36, 268, -5, 8),
       floralBig,
     ],
   },
@@ -319,12 +320,11 @@ export const TEASER_BOARDS: HeroBoard[] = [
     pieces: [
       roomP("/images/vision/coastal-powder-room.webp"),
       heroP("/images/vision/coastal-powder-hero.webp"),
-      tileAt("hero-tile", "Strata 60 Ivory", "Terrazzo-look 600x600", `${T}/1718319318.webp?v=3`, 600, 600, 444, 106, 4, 6),
-      tileAt("feature", "Cuadrado Feature Almond", "Textured 600x1200", `${T}/1779939428.webp?v=3`, 600, 1200, 116, 470, -4, 7),
-      paint("paintA", "Natural White", "#EFE9DB", 196, 4, -4, 5),
-      paint("paintB", "Tranquil Retreat", "#D8D3C7", 400, 392, 4, 5),
-      timber("Whitewashed Oak", "AU1007480", 398, 196, 5, 4),
-      metal("Brushed Brass", "brushed-brass", 4, 404, -6, 8),
+      tileAt("tileA", "Strata 60 Ivory", "Terrazzo-look 600x600", `${T}/1718319318.webp?v=3`, 600, 600, 800, 96, 4, 6),
+      timber("Whitewashed Oak", "AU1007480", 356, 0, 4, 5),
+      paint("paintA", "Natural White", "#EFE9DB", 490, 2, -3, 5),
+      paint("paintB", "Tranquil Retreat", "#D8D3C7", 168, 250, 4, 5),
+      metal("Brushed Brass", "brushed-brass", 36, 268, -5, 8),
       floralBig,
     ],
   },
@@ -333,12 +333,11 @@ export const TEASER_BOARDS: HeroBoard[] = [
     pieces: [
       roomP("/images/vision/stackstone-living-room.webp"),
       heroP("/images/vision/stackstone-living-hero.webp"),
-      tileAt("hero-tile", "Woodstock 212 Driftwood", "Timber-look plank 200x1200", `${T}/1781579195.webp?v=3`, 200, 1200, 430, 104, 4, 6, "landscape"),
-      { id: "feature", kind: "stone", name: "Ridgeline Dune", sub: "Stacked stone veneer", src: tp(`${VENEER}/ridgeline-dune.webp?v=1`), x: 50, y: 440, w: 236, h: 118, rot: -4, z: 7, radius: 10 },
-      paint("paintA", "Hog Bristle", "#E4DDC8", 196, 4, -4, 5),
-      paint("paintB", "Timeless Grey", "#B6B3AA", 400, 392, 4, 5),
-      timber("Golden Oak", "AU1006823", 398, 196, 5, 4),
-      metal("Brushed Brass", "brushed-brass", 4, 404, -6, 8),
+      { id: "tileA", kind: "stone", name: "Ridgeline Dune", sub: "Stacked stone veneer", src: tp(`${VENEER}/ridgeline-dune.webp?v=1`), x: 706, y: 8, w: 188, h: 176, rot: 4, z: 6, radius: 10 },
+      timber("Golden Oak", "AU1006823", 356, 0, 4, 5),
+      paint("paintA", "Hog Bristle", "#E4DDC8", 490, 2, -3, 5),
+      paint("paintB", "Timeless Grey", "#B6B3AA", 168, 250, 4, 5),
+      metal("Brushed Brass", "brushed-brass", 36, 268, -5, 8),
       floralBig,
     ],
   },

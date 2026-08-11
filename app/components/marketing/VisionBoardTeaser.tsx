@@ -70,7 +70,7 @@ export default function VisionBoardTeaser() {
         </Reveal>
 
         <div style={{ position: "relative", marginTop: 10, display: "flex", justifyContent: "center" }}>
-          <AmbientDriftBoard boards={TEASER_BOARDS} maxW={560} />
+          <AmbientDriftBoard boards={TEASER_BOARDS} boardW={900} boardH={430} maxW={920} />
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
             <Link
               href="/vision-board"
