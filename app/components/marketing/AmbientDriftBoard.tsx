@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BOARD_H, BOARD_W, HERO_BOARDS, type BoardPiece } from "../../../lib/heroBoards";
+import { BOARD_H, BOARD_W, HERO_BOARDS, type BoardPiece, type HeroBoard } from "../../../lib/heroBoards";
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
@@ -224,8 +224,13 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
   }
 }
 
-export default function AmbientDriftBoard() {
-  const boards = HERO_BOARDS;
+export default function AmbientDriftBoard({
+  boards = HERO_BOARDS,
+  maxW = 430,
+}: {
+  boards?: HeroBoard[];
+  maxW?: number;
+} = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [scale, setScale] = useState(1);
@@ -348,7 +353,7 @@ export default function AmbientDriftBoard() {
       role="img"
       style={{
         position: "relative",
-        width: "min(430px, 94%)",
+        width: `min(${maxW}px, 96%)`,
         aspectRatio: `${BOARD_W} / ${BOARD_H}`,
         margin: "0 auto",
       }}
