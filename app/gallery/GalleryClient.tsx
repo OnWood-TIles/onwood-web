@@ -286,8 +286,9 @@ export default function GalleryClient({
                     Save to Pinterest
                   </a>
                 </div>
-                <p style={{ fontSize: 12.5, lineHeight: 1.55, color: "rgba(246,241,232,.7)", margin: "14px auto 0", maxWidth: "48ch" }}>
-                  Illustration - AI-generated or rendered. Colour and finish vary; confirm from a physical sample.
+                <p style={{ fontSize: 12.5, lineHeight: 1.55, color: "rgba(246,241,232,.7)", margin: "16px auto 0", maxWidth: "54ch" }}>
+                  Illustration - AI-generated or digitally rendered, not a photograph of the actual product. Colour, tone, veining, scale, layout, grout colour and finish can differ noticeably; always confirm your selection from a current physical sample.{" "}
+                  <Link href="/terms-of-use#ai-imagery" style={{ color: "var(--accent2)", textDecoration: "underline", fontWeight: 600 }}>Read our full imagery disclosure</Link>.
                 </p>
               </div>
             </div>

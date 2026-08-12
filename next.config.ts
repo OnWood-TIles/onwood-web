@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
       // OnWood's own domain (logos, static assets served absolutely)
       { protocol: "https", hostname: "onwoodtiles.com.au" },
+      // ABI Interiors — many ABI products serve their photos straight from the
+      // supplier's own domain (not re-hosted), so next/image MUST allow it or
+      // those product images fail with a 400 ("hostname not configured").
+      { protocol: "https", hostname: "abiinteriors.com.au" },
+      { protocol: "https", hostname: "*.abiinteriors.com.au" },
     ],
   },
   // Canonicalise the host: www.onwoodtiles.com.au serves the same app without
