@@ -70,6 +70,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "Explore",
     links: [
+      { href: "/quiz", label: "Find Your Tile" },
       { href: "/gallery", label: "Gallery" },
       { href: "/calculator", label: "Tile Calculator" },
       { href: "/vision-board", label: "Vision Board" },
