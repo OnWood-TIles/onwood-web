@@ -91,6 +91,7 @@ const jsonLd = {
   sameAs: [
     "https://www.instagram.com/onwood_tiles",
     "https://www.facebook.com/share/18qX1BsNrf/",
+    "https://au.pinterest.com/OnWoodTiles/",
   ],
 };
 

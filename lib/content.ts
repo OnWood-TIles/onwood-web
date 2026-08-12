@@ -20,7 +20,7 @@ export type ShopDetails = {
   postcode: string;
   email: string;
   hours: string;
-  socials: { instagram: string; facebook: string };
+  socials: { instagram: string; facebook: string; pinterest: string };
 };
 
 export const SHOP: ShopDetails = {
@@ -34,6 +34,7 @@ export const SHOP: ShopDetails = {
   socials: {
     instagram: "https://www.instagram.com/onwood_tiles",
     facebook: "https://www.facebook.com/share/18qX1BsNrf/",
+    pinterest: "https://au.pinterest.com/OnWoodTiles/",
   },
 };
 
