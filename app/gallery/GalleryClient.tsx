@@ -223,6 +223,21 @@ export default function GalleryClient({
                 <span className="gal-save">
                   <SaveButton item={{ href: it.href, name: it.name, colour: it.colour, image: it.img }} />
                 </span>
+                {/* Save this room shot to Pinterest — cookieless (a plain link to
+                    Pinterest's pin builder, no third-party script). Links the pin
+                    back to the product page. */}
+                <a
+                  className="gal-pin"
+                  href={`https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent("https://onwoodtiles.com.au" + it.href)}&media=${encodeURIComponent(it.img)}&description=${encodeURIComponent(it.alt || it.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Save ${it.name} to Pinterest`}
+                  title="Save to Pinterest"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
+                    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.08 2.44 7.58 5.94 9.14-.08-.78-.15-1.98.03-2.83.17-.72 1.06-4.5 1.06-4.5s-.27-.54-.27-1.34c0-1.26.73-2.2 1.63-2.2.77 0 1.14.58 1.14 1.27 0 .78-.49 1.94-.75 3.01-.21.9.45 1.63 1.34 1.63 1.6 0 2.84-1.69 2.84-4.13 0-2.16-1.55-3.67-3.77-3.67-2.57 0-4.08 1.92-4.08 3.91 0 .78.3 1.61.67 2.06a.27.27 0 0 1 .06.26c-.07.28-.22.9-.25 1.02-.04.17-.13.21-.3.13-1.12-.52-1.82-2.15-1.82-3.46 0-2.82 2.05-5.41 5.91-5.41 3.1 0 5.51 2.21 5.51 5.16 0 3.08-1.94 5.56-4.64 5.56-.91 0-1.76-.47-2.05-1.03l-.56 2.13c-.2.78-.75 1.76-1.12 2.36.84.26 1.73.4 2.66.4 5.52 0 10-4.48 10-10S17.52 2 12 2z" />
+                  </svg>
+                </a>
               </div>
             ))}
           </div>
@@ -293,6 +308,8 @@ export default function GalleryClient({
         .gal-cell.wide{grid-column:span 2}
         .gal-cell.big{grid-row:span 2;grid-column:span 2}
         .gal-save{position:absolute;top:10px;left:10px;z-index:2}
+        .gal-pin{position:absolute;top:48px;left:10px;z-index:2;display:grid;place-items:center;width:32px;height:32px;border-radius:999px;background:#e60023;color:#fff;box-shadow:0 4px 14px -4px rgba(0,0,0,.45);text-decoration:none;transition:transform .15s ease}
+        .gal-pin:hover{transform:scale(1.08)}
         .gal-item{display:block;width:100%;height:100%;padding:0;margin:0;border:0;background:none;cursor:pointer}
         .gal-imgwrap{position:relative;display:block;width:100%;height:100%;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 18px 40px -34px rgba(16,28,30,.5)}
         .gal-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease}
