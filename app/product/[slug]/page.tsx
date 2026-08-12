@@ -23,7 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   // a swatch photo -> a gallery image. Absolutised so social + Pinterest previews
   // show the actual tile, not the generic site brand card. Without this, product
   // pages inherit the layout's default OpenGraph (homepage title/url/image).
-  const rawImg = range.heroImage || range.swatches.find((s) => s.image)?.image || range.images.find(Boolean);
+  // Prefer the "installed" room shot for shares/pins (a styled room reads far
+  // better on Pinterest/social than a flat tile swatch); fall back to the tile
+  // photo, then the range hero / gallery image if a product has no room shot.
+  const rawImg =
+    range.swatches.find((s) => s.installedImage)?.installedImage ||
+    range.heroImage ||
+    range.swatches.find((s) => s.image)?.image ||
+    range.images.find(Boolean);
   const image = rawImg ? (rawImg.startsWith("http") ? rawImg : `https://onwoodtiles.com.au${rawImg}`) : undefined;
   const ogTitle = `${range.name} | OnWood Tiles`;
   return {
