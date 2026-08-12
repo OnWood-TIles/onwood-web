@@ -15,12 +15,36 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const range = await getRange(slug);
   if (!range) return { title: "Product not found" };
+  const description =
+    range.description?.slice(0, 155) ||
+    `${range.name} at OnWood Tiles - see it in our Sunshine Coast showroom.`;
+  const url = `https://onwoodtiles.com.au/product/${slug}`;
+  // Primary product image (same precedence as the Product JSON-LD): range hero ->
+  // a swatch photo -> a gallery image. Absolutised so social + Pinterest previews
+  // show the actual tile, not the generic site brand card. Without this, product
+  // pages inherit the layout's default OpenGraph (homepage title/url/image).
+  const rawImg = range.heroImage || range.swatches.find((s) => s.image)?.image || range.images.find(Boolean);
+  const image = rawImg ? (rawImg.startsWith("http") ? rawImg : `https://onwoodtiles.com.au${rawImg}`) : undefined;
+  const ogTitle = `${range.name} | OnWood Tiles`;
   return {
     title: range.name,
-    description:
-      range.description?.slice(0, 155) ||
-      `${range.name} at OnWood Tiles - see it in our Sunshine Coast showroom.`,
-    alternates: { canonical: `https://onwoodtiles.com.au/product/${slug}` },
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: ogTitle,
+      description,
+      url,
+      siteName: "OnWood Tiles",
+      locale: "en_AU",
+      type: "website",
+      ...(image ? { images: [{ url: image, alt: range.name }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
   };
 }
 
