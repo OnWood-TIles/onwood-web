@@ -6,7 +6,7 @@ import Showroom from "./components/marketing/Showroom";
 import Story from "./components/marketing/Story";
 import TradeBanner from "./components/marketing/TradeBanner";
 import Testimonials from "./components/marketing/Testimonials";
-import Team from "./components/marketing/Team";
+// import Team from "./components/marketing/Team"; // hidden until real portraits/names exist
 import Contact from "./components/marketing/Contact";
 import MarketingFooter from "./components/marketing/MarketingFooter";
 import { getBusiness } from "../lib/onbase/client";
@@ -25,7 +25,10 @@ export default async function Home() {
         <Showroom />
         <Story />
         <Testimonials />
-        <Team />
+        {/* Team section hidden for now — placeholder names + empty portrait
+            slots (no team photos yet). Restore by un-commenting once real
+            portraits + names are ready (see app/components/marketing/Team.tsx). */}
+        {/* <Team /> */}
         <TradeBanner />
         <Contact hours={business?.openHoursSummary} />
       </main>

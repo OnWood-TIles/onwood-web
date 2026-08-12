@@ -57,7 +57,15 @@ export const metadata: Metadata = {
   },
   // Google Search Console verification. Set GOOGLE_SITE_VERIFICATION in Vercel to
   // the token from Search Console's "HTML tag" method; if unset, no tag renders.
-  verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    // Pinterest domain claim. Set PINTEREST_DOMAIN_VERIFY in Vercel to the code
+    // from Pinterest -> Claim website -> "Add HTML tag" (the content= value).
+    // Renders <meta name="p:domain_verify" ...> only when the env var is set.
+    ...(process.env.PINTEREST_DOMAIN_VERIFY
+      ? { other: { "p:domain_verify": process.env.PINTEREST_DOMAIN_VERIFY } }
+      : {}),
+  },
 };
 
 // LocalBusiness structured data (site-wide).
