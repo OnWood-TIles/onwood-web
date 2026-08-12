@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import { getTaxonomy, listRanges } from "../../lib/onbase/client";
-import { makeCandidates } from "../../lib/quiz";
+import { makeCandidates, pickMoodImages } from "../../lib/quiz";
 import QuizClient from "./QuizClient";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Find Your Tile — OnWood Style Quiz", description: "A few questions, one tile that's so you." },
 };
 
-const isTile = (s: string) => /tile|stone|veneer|cladd/i.test(s);
+// Tiles ONLY (Reagan's call) — exclude stone veneer / cladding and hardware.
+const isTile = (s: string) => /tile/i.test(s) && !/stone|veneer|cladd/i.test(s);
 
 export default async function QuizPage() {
   const taxonomy = await getTaxonomy().catch(() => []);
@@ -33,11 +34,12 @@ export default async function QuizPage() {
   // Dedupe colourways by room-shot url (a range can surface under >1 department).
   const seen = new Set<string>();
   const candidates = makeCandidates(lists.flat()).filter((c) => (seen.has(c.img) ? false : (seen.add(c.img), true)));
+  const moodImages = pickMoodImages(candidates);
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>
       <MarketingNav />
-      <QuizClient candidates={candidates} />
+      <QuizClient candidates={candidates} moodImages={moodImages} />
       <MarketingFooter />
     </div>
   );

@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { QUESTIONS, scoreQuiz, type Candidate, type Option, type Question, type QuizResult } from "../../lib/quiz";
+import { QUESTIONS, scoreQuiz, type Candidate, type Option, type Question, type QuizResult, type MoodImages } from "../../lib/quiz";
 import SaveButton from "../components/wishlist/SaveButton";
 
-export default function QuizClient({ candidates }: { candidates: Candidate[] }) {
+export default function QuizClient({ candidates, moodImages }: { candidates: Candidate[]; moodImages: MoodImages }) {
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<(Option | null)[]>(() => QUESTIONS.map(() => null));
@@ -28,7 +28,7 @@ export default function QuizClient({ candidates }: { candidates: Candidate[] }) 
       ) : result ? (
         <Result result={result} onRetake={restart} />
       ) : (
-        <QuestionView q={QUESTIONS[step]} index={step} total={QUESTIONS.length} onPick={pick} onBack={back} chosenId={answers[step]?.id} />
+        <QuestionView q={QUESTIONS[step]} index={step} total={QUESTIONS.length} onPick={pick} onBack={back} chosenId={answers[step]?.id} moodImages={moodImages} />
       )}
     </main>
   );
@@ -54,7 +54,7 @@ function Intro({ count, onStart }: { count: number; onStart: () => void }) {
 }
 
 // ── question ──────────────────────────────────────────────────────────────────
-function QuestionView({ q, index, total, onPick, onBack, chosenId }: { q: Question; index: number; total: number; onPick: (o: Option) => void; onBack: () => void; chosenId?: string }) {
+function QuestionView({ q, index, total, onPick, onBack, chosenId, moodImages }: { q: Question; index: number; total: number; onPick: (o: Option) => void; onBack: () => void; chosenId?: string; moodImages: MoodImages }) {
   const pct = Math.round((index / total) * 100);
   return (
     <section style={{ maxWidth: q.kind === "mood" && q.options.length <= 2 ? 900 : 820, margin: "0 auto" }}>
@@ -83,17 +83,28 @@ function QuestionView({ q, index, total, onPick, onBack, chosenId }: { q: Questi
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: q.options.length <= 2 ? "repeat(auto-fit, minmax(240px, 1fr))" : "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginTop: 30 }}>
-          {q.options.map((o) => (
-            <button key={o.id} type="button" onClick={() => onPick(o)} style={{ ...moodCard, ...(chosenId === o.id ? moodCardOn : {}) }}>
-              <div style={{ display: "flex", height: q.options.length <= 2 ? 150 : 120, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(0,0,0,.06)" }}>
-                {(o.palette || ["#eee"]).map((c, i) => <div key={i} style={{ flex: 1, background: c }} />)}
-              </div>
-              <div style={{ marginTop: 12, textAlign: "left" }}>
-                <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 16.5 }}>{o.label}</div>
-                {o.sub && <div style={{ fontSize: 13, color: "#8a8577", marginTop: 2 }}>{o.sub}</div>}
-              </div>
-            </button>
-          ))}
+          {q.options.map((o) => {
+            const mi = moodImages[o.id];
+            const h = q.options.length <= 2 ? 200 : 150;
+            return (
+              <button key={o.id} type="button" onClick={() => onPick(o)} style={{ ...moodCard, ...(chosenId === o.id ? moodCardOn : {}) }}>
+                {mi ? (
+                  <div style={{ height: h, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(0,0,0,.06)" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={mi.img} alt={mi.alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", height: h, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(0,0,0,.06)" }}>
+                    {(o.palette || ["#eee"]).map((c, i) => <div key={i} style={{ flex: 1, background: c }} />)}
+                  </div>
+                )}
+                <div style={{ marginTop: 12, textAlign: "left" }}>
+                  <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 16.5 }}>{o.label}</div>
+                  {o.sub && <div style={{ fontSize: 13, color: "#8a8577", marginTop: 2 }}>{o.sub}</div>}
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
     </section>

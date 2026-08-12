@@ -127,7 +127,7 @@ export function makeCandidates(ranges: WebsiteRange[]): Candidate[] {
 }
 
 // ── questions ────────────────────────────────────────────────────────────────
-export type Pref = { use?: string[]; vibe?: string[]; colour?: string[]; look?: string[]; material?: string[]; size?: string[]; persona?: string };
+export type Pref = { use?: string[]; vibe?: string[]; colour?: string[]; look?: string[]; material?: string[]; size?: string[]; avoidSize?: string[]; avoidLook?: string[]; persona?: string };
 export type Option = Pref & { id: string; label: string; sub?: string; emoji?: string; palette?: string[] };
 export type Question = { id: string; title: string; subtitle?: string; kind: "tap" | "mood"; options: Option[] };
 
@@ -140,7 +140,7 @@ export const QUESTIONS: Question[] = [
     options: [
       { id: "bathroom", label: "Bathroom", emoji: "🛁", use: ["bathroom", "wall", "floor"] },
       { id: "kitchen", label: "Kitchen / splashback", emoji: "🍳", use: ["kitchen", "splashback", "wall"] },
-      { id: "floor", label: "Living or bedroom floor", emoji: "🛋️", use: ["floor", "indoor"] },
+      { id: "floor", label: "Living or bedroom floor", emoji: "🛋️", use: ["floor", "indoor"], size: ["600-x-600", "600-x-1200", "large-format", "450-x-450", "600-x-300"], avoidSize: ["mosaic"], avoidLook: ["mosaic"] },
       { id: "outdoor", label: "Outdoor & alfresco", emoji: "🌿", use: ["outdoor", "facade", "pool"] },
       { id: "feature", label: "A feature wall", emoji: "✨", use: ["feature-wall", "wall", "fireplace"] },
     ],
@@ -235,6 +235,8 @@ export function scoreQuiz(candidates: Candidate[], answers: Option[]): QuizResul
     if (a.persona) pPersona[a.persona] = (pPersona[a.persona] || 0) + 1;
   }
   const wantUse = Object.keys(pUse);
+  const avoidSize = new Set(answers.flatMap((a) => a.avoidSize || []));
+  const avoidLook = new Set(answers.flatMap((a) => a.avoidLook || []));
 
   const scored = candidates.map((c) => {
     let s = 0;
@@ -248,6 +250,8 @@ export function scoreQuiz(candidates: Candidate[], answers: Option[]): QuizResul
     s += 1.6 * sum(pLook, c.look);
     s += 1.4 * (c.material ? pMat[c.material] || 0 : 0);
     s += 1.0 * (c.size ? pSize[c.size] || 0 : 0);
+    if (c.size && avoidSize.has(c.size)) s -= 9; // e.g. no mosaics for a main floor
+    if (c.look.some((l) => avoidLook.has(l))) s -= 9;
     return { c, s };
   }).sort((a, b) => b.s - a.s);
 
@@ -259,4 +263,33 @@ export function scoreQuiz(candidates: Candidate[], answers: Option[]): QuizResul
   const positive = scored.filter((x) => x.s > 0);
   const pool = (positive.length ? positive : scored).map((x) => x.c);
   return { persona, hero: pool[0] ?? null, runnersUp: pool.slice(1, 4) };
+}
+
+// Real room-shot image for each MOOD option, chosen from the catalogue by how
+// well a colourway matches that option's colour/vibe/look — so the "pick the
+// space that speaks to you" cards show real photos, not swatches, with no image
+// generation. Distinct images per option (won't reuse the same photo twice).
+export type MoodImages = Record<string, { img: string; alt: string }>;
+export function pickMoodImages(candidates: Candidate[]): MoodImages {
+  const out: MoodImages = {};
+  const used = new Set<string>();
+  for (const q of QUESTIONS) {
+    if (q.kind !== "mood") continue;
+    for (const o of q.options) {
+      let best: { c: Candidate; s: number } | null = null;
+      for (const c of candidates) {
+        let s = 0;
+        for (const cc of c.colourTags) if ((o.colour || []).includes(cc)) s += 3;
+        for (const v of c.vibe) if ((o.vibe || []).includes(v)) s += 2;
+        for (const l of c.look) if ((o.look || []).includes(l)) s += 2;
+        if (used.has(c.img)) s -= 6;
+        if (!best || s > best.s) best = { c, s };
+      }
+      if (best && best.s > 0) {
+        out[o.id] = { img: best.c.img, alt: `${o.label} style` };
+        used.add(best.c.img);
+      }
+    }
+  }
+  return out;
 }
