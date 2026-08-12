@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Serve product images DIRECTLY (bypass Next's image optimizer). The
+    // catalogue pulls photos from several supplier domains (e.g. ABI on
+    // abiinteriors.com.au) — the optimizer's strict per-host allowlist made
+    // those images 400 ("hostname not configured") on the live site after the
+    // next/image conversion. Direct serving is robust for ANY host and has no
+    // per-image quota. Trade-off: no automatic WebP/resize (same as a plain
+    // <img>). Re-enable only once every image is re-hosted onto our own storage.
+    unoptimized: true,
     remotePatterns: [
       // OnBase-hosted product imagery (catalogue photos + swatches)
       { protocol: "https", hostname: "onbasehq.com.au" },
