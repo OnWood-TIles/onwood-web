@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import { getTaxonomy, listRanges } from "../../lib/onbase/client";
-import { makeCandidates, pickMoodImages } from "../../lib/quiz";
+import { makeCandidates, MOOD_IMAGES } from "../../lib/quiz";
 import QuizClient from "./QuizClient";
 
 export const dynamic = "force-dynamic";
@@ -34,12 +34,11 @@ export default async function QuizPage() {
   // Dedupe colourways by room-shot url (a range can surface under >1 department).
   const seen = new Set<string>();
   const candidates = makeCandidates(lists.flat()).filter((c) => (seen.has(c.img) ? false : (seen.add(c.img), true)));
-  const moodImages = pickMoodImages(candidates);
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>
       <MarketingNav />
-      <QuizClient candidates={candidates} moodImages={moodImages} />
+      <QuizClient candidates={candidates} moodImages={MOOD_IMAGES} />
       <MarketingFooter />
     </div>
   );

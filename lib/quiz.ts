@@ -265,31 +265,21 @@ export function scoreQuiz(candidates: Candidate[], answers: Option[]): QuizResul
   return { persona, hero: pool[0] ?? null, runnersUp: pool.slice(1, 4) };
 }
 
-// Real room-shot image for each MOOD option, chosen from the catalogue by how
-// well a colourway matches that option's colour/vibe/look — so the "pick the
-// space that speaks to you" cards show real photos, not swatches, with no image
-// generation. Distinct images per option (won't reuse the same photo twice).
+// Curated mood-selector images — REAL rooms, but from the vision-board hero +
+// backdrop assets (public/images), NOT the product catalogue. This is the key
+// point: the space a customer picks can never be the exact tile they get matched
+// to, so there's no bias. Keyed by option id.
 export type MoodImages = Record<string, { img: string; alt: string }>;
-export function pickMoodImages(candidates: Candidate[]): MoodImages {
-  const out: MoodImages = {};
-  const used = new Set<string>();
-  for (const q of QUESTIONS) {
-    if (q.kind !== "mood") continue;
-    for (const o of q.options) {
-      let best: { c: Candidate; s: number } | null = null;
-      for (const c of candidates) {
-        let s = 0;
-        for (const cc of c.colourTags) if ((o.colour || []).includes(cc)) s += 3;
-        for (const v of c.vibe) if ((o.vibe || []).includes(v)) s += 2;
-        for (const l of c.look) if ((o.look || []).includes(l)) s += 2;
-        if (used.has(c.img)) s -= 6;
-        if (!best || s > best.s) best = { c, s };
-      }
-      if (best && best.s > 0) {
-        out[o.id] = { img: best.c.img, alt: `${o.label} style` };
-        used.add(best.c.img);
-      }
-    }
-  }
-  return out;
-}
+export const MOOD_IMAGES: MoodImages = {
+  // "Which space speaks to you?"
+  coastal: { img: "/images/hero-boards/kitchen-hamptons-white.jpg", alt: "A light, coastal white kitchen" },
+  modern: { img: "/images/hero-boards/kitchen-industrial-charcoal.jpg", alt: "A dark, modern charcoal kitchen" },
+  med: { img: "/images/hero-boards/vb-marrakesh-ensuite.jpg", alt: "A warm, patterned Mediterranean ensuite" },
+  natural: { img: "/images/hero-boards/vb-stackstone-living.jpg", alt: "A natural stone living space" },
+  // "This… or this?" — tone
+  light: { img: "/images/backdrops/pale-oak-l.jpg", alt: "Light, warm and airy" },
+  dark: { img: "/images/backdrops/dark-stone-l.jpg", alt: "Dark, moody and dramatic" },
+  // "Pattern… or pared-back?"
+  pattern: { img: "/images/hero-boards/vb-marrakesh-ensuite.jpg", alt: "Bold, patterned tiling" },
+  plain: { img: "/images/hero-boards/bath-coastal-white.jpg", alt: "Clean, simple, pared-back tiling" },
+};
