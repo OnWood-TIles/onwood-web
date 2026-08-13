@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { BlogPost } from "../../../lib/onbase/client";
 
 const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
-const blank = (): BlogPost => ({ slug: "", title: "", excerpt: "", coverImage: "", coverCaption: "", coverLink: "", category: "", author: "OnWood Tiles", date: new Date().toISOString().slice(0, 10), keywords: "", body: "", published: false });
+const blank = (): BlogPost => ({ slug: "", title: "", excerpt: "", coverImage: "", coverCaption: "", coverLink: "", category: "", author: "OnWood Tiles", date: new Date().toISOString().slice(0, 10), updatedDate: "", keywords: "", body: "", published: false });
 
 const input: React.CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", background: "var(--surface)", color: "var(--ink)", fontSize: 14.5, fontFamily: "var(--font-manrope), sans-serif" };
 const label: React.CSSProperties = { fontSize: 12, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#5a6067", marginBottom: 6, display: "block" };
@@ -81,7 +81,17 @@ export default function BlogEditor({ initialPosts }: { initialPosts: BlogPost[] 
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <div><span style={label}>Author</span><input style={input} value={cur.author} onChange={(e) => edit({ author: e.target.value })} /></div>
-              <div><span style={label}>Date</span><input type="date" style={input} value={cur.date.slice(0, 10)} onChange={(e) => edit({ date: e.target.value })} /></div>
+              <div><span style={label}>Published date</span><input type="date" style={input} value={cur.date.slice(0, 10)} onChange={(e) => edit({ date: e.target.value })} /></div>
+            </div>
+
+            <div>
+              <span style={label}>Last updated <span style={{ textTransform: "none", fontWeight: 600, color: "#8a8577", letterSpacing: 0 }}>· optional, for SEO freshness</span></span>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                <input type="date" style={{ ...input, maxWidth: 220 }} value={(cur.updatedDate || "").slice(0, 10)} onChange={(e) => edit({ updatedDate: e.target.value })} />
+                <button type="button" onClick={() => edit({ updatedDate: new Date().toISOString().slice(0, 10) })} style={{ background: "var(--ink)", color: "#fff", fontWeight: 700, border: "none", borderRadius: 8, padding: "9px 14px", cursor: "pointer", fontSize: 13 }}>Mark updated today</button>
+                {cur.updatedDate ? <button type="button" onClick={() => edit({ updatedDate: "" })} style={{ background: "none", color: "#b3402a", border: "1px solid var(--line)", borderRadius: 8, padding: "9px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>Clear</button> : null}
+              </div>
+              <p style={{ fontSize: 12, color: "#5a6067", marginTop: 6 }}>Shows an &ldquo;Updated&hellip;&rdquo; date and tells Google the page is fresh. Only set it when you&apos;ve <strong>genuinely revised</strong> the post &mdash; bumping the date without real edits can hurt trust.</p>
             </div>
 
             <div><span style={label}>Excerpt (shown on cards + Google)</span><textarea style={{ ...input, minHeight: 60, resize: "vertical" }} value={cur.excerpt} onChange={(e) => edit({ excerpt: e.target.value })} placeholder="One or two sentences that make people want to click." /></div>

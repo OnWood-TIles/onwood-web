@@ -14,7 +14,8 @@ async function findPost(slug: string): Promise<{ post: BlogPost; others: BlogPos
   const all = (await getBlog()).filter((p) => p.published);
   const post = all.find((p) => p.slug === slug);
   if (!post) return null;
-  return { post, others: all.filter((p) => p.slug !== slug).sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 3) };
+  const eff = (p: BlogPost) => p.updatedDate || p.date || "";
+  return { post, others: all.filter((p) => p.slug !== slug).sort((a, b) => eff(b).localeCompare(eff(a))).slice(0, 3) };
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -53,6 +54,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     description: post.excerpt || stripMarkdown(post.body, 155),
     image: post.coverImage || undefined,
     datePublished: post.date || undefined,
+    dateModified: post.updatedDate || post.date || undefined,
     author: { "@type": "Organization", name: post.author || "OnWood Tiles" },
     publisher: { "@type": "Organization", name: "OnWood Tiles", url: "https://onwoodtiles.com.au" },
     mainEntityOfPage: `https://onwoodtiles.com.au/blog/${post.slug}`,
@@ -70,7 +72,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
             <Link href="/blog" style={{ ...eyebrow, textDecoration: "none", color: "var(--accent)" }}>← The OnWood Journal</Link>
             <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap", margin: "18px 0 0" }}>
               {post.category ? <span style={{ padding: "5px 12px", borderRadius: 999, background: "color-mix(in srgb, var(--accent) 12%, var(--surface))", border: "1px solid var(--line)", fontSize: 12, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--accent)" }}>{post.category}</span> : null}
-              <span style={{ fontSize: 13, color: "var(--muted)" }}>{[fmtDate(post.date), `${mins} min read`].filter(Boolean).join(" · ")}</span>
+              <span style={{ fontSize: 13, color: "var(--muted)" }}>{[post.updatedDate ? `Updated ${fmtDate(post.updatedDate)}` : fmtDate(post.date), `${mins} min read`].filter(Boolean).join(" · ")}</span>
             </div>
             <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(30px,5vw,52px)", lineHeight: 1.05, margin: "16px 0 0" }}>{post.title}</h1>
             {post.excerpt ? <p style={{ fontSize: "clamp(16px,2vw,20px)", lineHeight: 1.6, color: "var(--muted)", margin: "18px auto 0", maxWidth: "50ch" }}>{post.excerpt}</p> : null}
@@ -103,7 +105,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
 
           <div style={{ maxWidth: 720, margin: "10px auto 0", padding: "0 24px" }}>
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: 22, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
-              <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>Written by {post.author}, {fmtDate(post.date)}</p>
+              <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>Written by {post.author}, {fmtDate(post.date)}{post.updatedDate ? ` · Updated ${fmtDate(post.updatedDate)}` : ""}</p>
               <Link href="/book" style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, textDecoration: "none", padding: "12px 24px", borderRadius: 999, fontSize: 14 }}>Book a showroom visit</Link>
             </div>
           </div>

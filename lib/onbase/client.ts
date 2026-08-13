@@ -208,7 +208,8 @@ export type BlogPost = {
   coverLink: string; // product page the hero credit links to
   category: string;
   author: string;
-  date: string; // ISO
+  date: string; // ISO (published)
+  updatedDate: string; // ISO last-updated (SEO dateModified); "" if never revised
   keywords: string; // comma-separated (SEO)
   body: string; // Markdown
   published: boolean;

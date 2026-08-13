@@ -43,7 +43,8 @@ function Cover({ src, alt, style }: { src: string; alt: string; style?: React.CS
 
 export default async function BlogIndex() {
   const all = await getBlog();
-  const posts = all.filter((p) => p.published).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  const eff = (p: BlogPost) => p.updatedDate || p.date || "";
+  const posts = all.filter((p) => p.published).sort((a, b) => eff(b).localeCompare(eff(a)));
   const featured = posts[0];
   const rest = posts.slice(1);
 
@@ -103,7 +104,7 @@ export default async function BlogIndex() {
                 <div style={{ padding: "clamp(22px,3vw,40px)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                     <span style={{ ...eyebrow, color: "var(--accent)" }}>{featured.category || "Latest"}</span>
-                    <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{fmtDate(featured.date)} · {readMins(featured)} min read</span>
+                    <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{(featured.updatedDate ? `Updated ${fmtDate(featured.updatedDate)}` : fmtDate(featured.date))} · {readMins(featured)} min read</span>
                   </div>
                   <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.02em", fontSize: "clamp(26px,3.2vw,40px)", lineHeight: 1.08, margin: "12px 0 0" }}>{featured.title}</h2>
                   <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0" }}>{featured.excerpt}</p>
