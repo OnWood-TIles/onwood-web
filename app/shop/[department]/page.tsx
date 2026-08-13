@@ -5,6 +5,7 @@ import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getTaxonomy, getFilterGroups, listRanges } from "../../../lib/onbase/client";
 import { buildFilterGroupVMs, parseActiveFilters } from "../../../lib/shopFilters";
+import { getDepartmentSeo } from "../../../lib/content";
 import { DepartmentShop } from "../../components/shop/DepartmentShop";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +15,15 @@ type Search = { c?: string; f?: string | string[] };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { department } = await params;
-  const taxonomy = await getTaxonomy();
+  const [taxonomy, seo] = await Promise.all([getTaxonomy(), getDepartmentSeo(department)]);
   const dept = taxonomy.find((d) => d.slug === department);
   return {
-    title: dept ? `${dept.label} | Shop` : "Shop",
-    description: dept ? `Browse ${dept.label.toLowerCase()} at OnWood Tiles - live availability from our Sunshine Coast showroom.` : undefined,
+    // Unique, keyworded title + description per department (SEO); falls back to a
+    // simple template for any department without curated copy yet.
+    title: seo?.metaTitle ?? (dept ? `${dept.label} | Shop` : "Shop"),
+    description:
+      seo?.metaDescription ??
+      (dept ? `Browse ${dept.label.toLowerCase()} at OnWood Tiles - live availability from our Sunshine Coast showroom.` : undefined),
     alternates: { canonical: `https://onwoodtiles.com.au/shop/${department}` },
   };
 }
@@ -34,7 +39,7 @@ export default async function DepartmentPage({
 }) {
   const { department } = await params;
   const { c, f } = await searchParams;
-  const [taxonomy, allFilterGroups] = await Promise.all([getTaxonomy(), getFilterGroups()]);
+  const [taxonomy, allFilterGroups, seo] = await Promise.all([getTaxonomy(), getFilterGroups(), getDepartmentSeo(department)]);
   const dept = taxonomy.find((d) => d.slug === department);
   if (!dept) notFound();
 
@@ -46,6 +51,15 @@ export default async function DepartmentPage({
 
   // All ranges for this department/category - filtered client-side.
   const allRanges = await listRanges({ department, category: activeCategory });
+
+  // Hero for the department intro band: prefer a real "installed" room shot, then a
+  // range hero, then any product image. Purely presentational (fails to null).
+  const deptHero =
+    allRanges.map((r) => r.swatches.find((s) => s.installedImage)?.installedImage).find(Boolean) ||
+    allRanges.map((r) => r.heroImage).find(Boolean) ||
+    allRanges.map((r) => r.swatches.find((s) => s.image)?.image).find(Boolean) ||
+    allRanges.map((r) => r.images?.[0]).find(Boolean) ||
+    null;
   const labelMap: Record<string, string> = {};
   for (const t of taxonomy) for (const cat of t.categories) labelMap[cat.slug] = cat.label;
 
@@ -92,9 +106,31 @@ export default async function DepartmentPage({
           <span style={{ margin: "0 8px" }}>/</span>
           <span style={{ color: "var(--ink)", fontWeight: 600 }}>{dept.label}</span>
         </nav>
-        <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,48px)", letterSpacing: "-.02em", margin: "0 0 22px" }}>
-          {dept.label}
-        </h1>
+        {seo ? (
+          <section style={{ display: "flex", flexWrap: "wrap", gap: "clamp(20px,4vw,44px)", alignItems: "center", margin: "0 0 30px" }}>
+            <div style={{ flex: "1 1 340px", minWidth: 0 }}>
+              <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 10px" }}>{seo.eyebrow}</p>
+              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,48px)", letterSpacing: "-.02em", margin: "0 0 16px" }}>
+                {seo.h1}
+              </h1>
+              {seo.intro.map((para, i) => (
+                <p key={i} style={{ fontSize: 16.5, lineHeight: 1.7, color: "#3a444a", maxWidth: "62ch", margin: "0 0 12px" }}>{para}</p>
+              ))}
+            </div>
+            {deptHero && (
+              <div style={{ flex: "1 1 300px", maxWidth: 460 }}>
+                <div style={{ borderRadius: 20, overflow: "hidden", aspectRatio: "4 / 3", border: "1px solid var(--line)", boxShadow: "0 24px 60px -34px rgba(30,20,10,.5)" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={deptHero} alt={`${dept.label} styled in a room by OnWood Tiles, Sunshine Coast`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+              </div>
+            )}
+          </section>
+        ) : (
+          <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,48px)", letterSpacing: "-.02em", margin: "0 0 22px" }}>
+            {dept.label}
+          </h1>
+        )}
 
         {dept.categories.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>

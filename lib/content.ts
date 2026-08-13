@@ -174,7 +174,7 @@ export const SPECIALS_TEASER = {
   eyebrow: "On now · Package deal",
   headA: "Floor-to-Ceiling",
   headB: "Package Deal.",
-  sub: "A complete bathroom of tiles — crisp Aspect gloss-white walls taken floor to ceiling, plus our Cottesloe limestone-look floor — supplied as one simple package. Supply only, collect from Baringa.",
+  sub: "A complete bathroom of tiles, crisp Aspect gloss-white walls taken floor to ceiling, plus our Cottesloe limestone-look floor, supplied as one simple package. Supply only, collect from Baringa.",
   chips: ["Walls + floor supplied", "Supply only · Baringa pickup"],
   cta: { label: "View all Specials", href: "/specials" },
   badge: { pct: "$989", label: "THE LOT" },
@@ -304,14 +304,14 @@ export const SPECIALS_PAGE = {
   eyebrow: "On now · while stocks last",
   title: "This month's",
   titleAccent: ".",
-  sub: "A couple of genuine deals from the Baringa showroom right now — plus free delivery across the Sunshine Coast. Supply only, while stocks last.",
+  sub: "A couple of genuine deals from the Baringa showroom right now, plus free delivery across the Sunshine Coast. Supply only, while stocks last.",
   items: [
     {
       pct: "SPECIAL",
       tag: "300×600mm rectified white gloss",
       name: "Aspect 36 Gloss White",
       now: "$16.95/m²",
-      note: "A crisp, bright rectified white gloss — a clean, timeless look for walls and splashbacks at a sharp price.",
+      note: "A crisp, bright rectified white gloss, a clean, timeless look for walls and splashbacks at a sharp price.",
       tile: "https://onwoodtiles.com.au/images/tileone/aspect-300x600-gloss.webp?v=1",
       room: "https://jwxkc2x6hmfp0lqp.public.blob.vercel-storage.com/website/installed/cmryfhxbu009drkhkg0ckkc0a-1785395853279.jpg",
       slugs: ["aspect-36-gloss-rectified"],
@@ -320,7 +320,7 @@ export const SPECIALS_PAGE = {
   freeDelivery: {
     badge: "Free delivery",
     title: "Free delivery across the Sunshine Coast.",
-    sub: "We'll get your tiles to site free within our Sunshine Coast delivery zones — just ask us about your suburb when you order.",
+    sub: "We'll get your tiles to site free within our Sunshine Coast delivery zones, just ask us about your suburb when you order.",
     cta: "Check my suburb",
     image: "/images/specials/delivery-truck.webp",
   },
@@ -329,15 +329,15 @@ export const SPECIALS_PAGE = {
     title: "Floor-to-Ceiling Package Deal",
     price: "$989",
     priceNote: "inc GST · supply only",
-    sub: "Walls and floor sorted in one go. Crisp Aspect gloss-white wall tiles taken floor to ceiling, paired with our Cottesloe Limestone floor — a clean, contemporary bathroom supplied as one simple package.",
+    sub: "Walls and floor sorted in one go. Crisp Aspect gloss-white wall tiles taken floor to ceiling, paired with our Cottesloe Limestone floor, a clean, contemporary bathroom supplied as one simple package.",
     image: "/images/specials/bathroom-bundle.webp",
     imageAlt:
       "Contemporary bathroom with floor-to-ceiling gloss white wall tiles and a light limestone-look tiled floor",
     features: [
-      "Floor-to-ceiling Aspect 300×450 gloss white wall tiles — all four walls of a 3×3m bathroom",
-      "Cottesloe 45 Limestone 450×450 floor tiles — the full 3×3m floor",
+      "Floor-to-ceiling Aspect 300×450 gloss white wall tiles, all four walls of a 3×3m bathroom",
+      "Cottesloe 45 Limestone 450×450 floor tiles, the full 3×3m floor",
       "Enough for the room with wastage allowed",
-      "Supply only — collect from our Baringa showroom",
+      "Supply only, collect from our Baringa showroom",
     ],
     cta: "Reserve this bathroom",
   },
@@ -347,26 +347,94 @@ export const SPECIALS_PAGE = {
     cta: "Reserve & enquire",
   },
   disclaimer:
-    "Prices are GST inclusive and supply only — per-square-metre specials are priced per m², and the Floor-to-Ceiling Package Deal is a fixed package price. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer.",
+    "Prices are GST inclusive and supply only. Per-square-metre specials are priced per m², and the Floor-to-Ceiling Package Deal is a fixed package price. Offers valid while advertised stock lasts and may be withdrawn without notice. Not in conjunction with any other offer.",
   termsTitle: "Specials terms & conditions",
   terms: [
     "All specials are supply only. Prices are in Australian dollars, GST inclusive, and quoted per square metre (m²) unless stated otherwise.",
     "Offers are available for a limited time and while advertised stock lasts. OnWood Tiles may change, extend or withdraw any special at any time without notice.",
     "Timber-look offer: 20% off is calculated on the normal supply price of tiles in our advertised timber-look porcelain range. Selected lines only; ranges and colours are subject to availability.",
     "Aspect 36 Gloss White is offered at the advertised special price while stocks last. Once current stock is sold, the special ends or moves to the next available batch.",
-    "Floor-to-Ceiling Package Deal ($989): the advertised price is for tiles only (supply only) — the floor-to-ceiling wall tiles plus the floor tiles — based on a bathroom of approximately 3m × 3m with 2.4m high walls (about 28.8m² of wall and 9m² of floor, plus wastage, supplied in full boxes). Your actual quantities depend on your room and layout; we'll confirm your exact requirements before you order.",
+    "Floor-to-Ceiling Package Deal ($989): the advertised price is for tiles only (supply only), the floor-to-ceiling wall tiles plus the floor tiles, based on a bathroom of approximately 3m × 3m with 2.4m high walls (about 28.8m² of wall and 9m² of floor, plus wastage, supplied in full boxes). Your actual quantities depend on your room and layout; we'll confirm your exact requirements before you order.",
     "Floor-to-Ceiling Package Deal is a fixed package price. If your bathroom needs less than the quantities above, the price is not reduced. If it needs more, the additional tiles are supplied at our normal retail (RRP) price.",
     "The Floor-to-Ceiling Package Deal is supply only and for collection from our Baringa showroom. The price does not include delivery, adhesive, grout, trims, waterproofing, installation, or any tapware, fittings or furniture shown in imagery. Delivery can be arranged and quoted separately.",
-    "Floor-to-Ceiling Package Deal: changing the tiles, colours or finishes shown may change the price. Tiles are batch-made — please order your full quantity at once and confirm a current physical sample before ordering.",
-    "Free delivery applies to standard tile orders delivered within OnWood Tiles' nominated Sunshine Coast delivery zones. It excludes bulk, oversized or remote-area freight, which may be quoted separately — please confirm your suburb with us before ordering.",
+    "Floor-to-Ceiling Package Deal: changing the tiles, colours or finishes shown may change the price. Tiles are batch-made, so please order your full quantity at once and confirm a current physical sample before ordering.",
+    "Free delivery applies to standard tile orders delivered within OnWood Tiles' nominated Sunshine Coast delivery zones. It excludes bulk, oversized or remote-area freight, which may be quoted separately, so please confirm your suburb with us before ordering.",
     "Tile specials cannot be used in conjunction with the free delivery special offer. All supply-only specials are pickup in store at Baringa.",
     "Specials cannot be used in conjunction with any other offer, discount or trade pricing, and have no cash value.",
-    "Tiles are a natural, batch-made product. Colour, shade, finish and size can vary between batches — always confirm with a current physical sample before ordering, and order your full quantity (including wastage) at once where possible.",
+    "Tiles are a natural, batch-made product. Colour, shade, finish and size can vary between batches, so always confirm with a current physical sample before ordering, and order your full quantity (including wastage) at once where possible.",
     "Room images are a guide for inspiration only and may not represent the exact tile, colour or layout supplied. Deposits and our standard Terms of Sale apply to all orders. Errors and omissions excepted.",
   ],
+};
+
+// ---- Department SEO copy ----------------------------------------------------
+// Per-department intro content for /shop/[department]. Google rewards RELEVANCE:
+// a keyworded (but honest, human-first) H1 + intro + unique meta description beats
+// a bare product grid with a one-word title. The nav LABEL/breadcrumb stays short
+// (from the OnBase taxonomy); the keyword variety lives here in the copy + meta.
+// Keyed by department SLUG so renaming a label in OnBase never breaks the match.
+// The hero image is derived on the page from the department's real "installed"
+// room shots (no asset to manage here). Add a new department by adding its slug.
+export type DepartmentSeo = {
+  eyebrow: string;
+  h1: string; // broad + keyworded, NOT a material-narrowing rename of the department
+  intro: string[]; // one or two short paragraphs (60-120 words total), human-first
+  metaTitle: string;
+  metaDescription: string;
+};
+
+export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
+  tiles: {
+    eyebrow: "Shop tiles",
+    h1: "Floor, Wall & Outdoor Tiles",
+    intro: [
+      "Our tile range brings together everything you need to finish a room beautifully, from wood-look and timber-look porcelain to classic ceramic and porcelain, honed natural stone, handmade-look gloss, mosaics and hard-wearing outdoor tiles.",
+      "You'll find everything from affordable everyday tiles to premium Italian and Spanish porcelain, with a look to suit any space and budget. Whether you're tiling a bathroom floor, a kitchen splashback, an outdoor entertaining area or a feature wall, our local, family-run team will help you choose the right tile for your space and your light. Every tile is supplied from our Baringa showroom on the Sunshine Coast.",
+    ],
+    metaTitle: "Tiles Sunshine Coast | Porcelain, Wood-Look & Stone",
+    metaDescription:
+      "Explore our full tile range on the Sunshine Coast, from wood-look and porcelain tiles to natural stone, mosaics and outdoor tiles. Supply only from our Baringa showroom.",
+  },
+  wastes: {
+    eyebrow: "Shop wastes & grates",
+    h1: "Shower Wastes, Floor Wastes & Grates",
+    intro: [
+      "Finish your bathroom or laundry with a waste that's as considered as the tiles around it. Our range covers linear shower channel wastes, tile-insert and square floor wastes and grates, in finishes from brushed brass and copper to gunmetal and stainless steel.",
+      "Choose a tile-insert waste to disappear neatly into your floor, or a designer channel to make a feature of it. Supplied from our Baringa showroom on the Sunshine Coast, with matching tapware and tiling essentials to complete the look.",
+    ],
+    metaTitle: "Shower & Floor Wastes & Grates | OnWood Tiles",
+    metaDescription:
+      "Shower channel wastes, tile-insert and square floor wastes and grates in brass, copper, gunmetal and stainless steel. Supply only from our Sunshine Coast showroom.",
+  },
+  "stone-cladding": {
+    eyebrow: "Shop stone cladding",
+    h1: "Stone Cladding & Stone Veneer",
+    intro: [
+      "Add texture and warmth with our stone cladding and stone veneer, a lighter, faster way to bring the look of natural stone to a feature wall, facade, fireplace or outdoor entertaining area.",
+      "Our stone is sourced and made right here in Australia, in ledgestone, dry-stack and stacked-stone styles across coastal and earthy tones, with matching corner pieces for a seamless wrap-around finish. Supplied from our Baringa showroom on the Sunshine Coast, with advice on coverage and installation to help you get it right.",
+    ],
+    metaTitle: "Stone Cladding & Veneer | Feature Walls | OnWood Tiles",
+    metaDescription:
+      "Australian-made stone cladding and veneer for feature walls, facades and fireplaces, in ledgestone, dry-stack and coastal looks. Supply only, Sunshine Coast.",
+  },
+  tapware: {
+    eyebrow: "Shop tapware",
+    h1: "Kitchen & Bathroom Tapware",
+    intro: [
+      "Pull the whole room together with tapware that matches your tiles and finishes. Our range features designer kitchen and bathroom mixer taps, including statement bridge mixers, in finishes from classic chrome to warm brushed brass and copper.",
+      "Chosen to coordinate with our wastes, tiles and accessories, so your fittings feel considered rather than an afterthought. Supplied from our Baringa showroom on the Sunshine Coast, with honest advice from a local, family-run team.",
+    ],
+    metaTitle: "Tapware | Kitchen & Bathroom Mixer Taps | OnWood",
+    metaDescription:
+      "Designer kitchen and bathroom tapware, including mixer taps and bridge mixers in chrome, brushed brass and copper. Supply only from our Sunshine Coast showroom.",
+  },
 };
 
 // ---- async getters (constants today, CMS/OnBase later) ----
 export async function getShopDetails(): Promise<ShopDetails> {
   return SHOP;
+}
+
+/** Per-department SEO intro content for /shop/[department] (null if none set). */
+export async function getDepartmentSeo(slug: string): Promise<DepartmentSeo | null> {
+  return DEPARTMENT_SEO[slug] ?? null;
 }

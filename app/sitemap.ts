@@ -30,12 +30,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-  // One page per shop department (/shop/[department]).
-  const departmentPages: MetadataRoute.Sitemap = departments.map((d) => ({
-    url: `${BASE}/shop/${d.slug}`,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  // One page per shop department (/shop/[department]) - only departments that
+  // actually have published products. Listing empty departments would submit
+  // thin/empty pages to Google (the mega-menu filters the same way).
+  const activeDeptSlugs = new Set(ranges.map((r) => r.department).filter(Boolean));
+  const departmentPages: MetadataRoute.Sitemap = departments
+    .filter((d) => activeDeptSlugs.has(d.slug))
+    .map((d) => ({
+      url: `${BASE}/shop/${d.slug}`,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
 
   // One page per product/range (/product/[slug]). De-dupe slugs defensively.
   const productPages: MetadataRoute.Sitemap = Array.from(

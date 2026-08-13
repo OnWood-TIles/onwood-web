@@ -128,6 +128,9 @@ export default async function GalleryPage({
               <p style={{ fontSize: 17.5, lineHeight: 1.7, color: "#3a444a", maxWidth: "56ch", margin: "18px auto 0" }}>
                 Browse our tiles and stone veneer for a little inspiration on your next project.
               </p>
+              <p style={{ fontSize: 15.5, lineHeight: 1.75, color: "#4a545a", maxWidth: "64ch", margin: "14px auto 0" }}>
+                From wood-look and porcelain tiles to natural stone, mosaics and stone veneer cladding, every photo is a real OnWood product styled in a room, with bathroom, kitchen, outdoor and feature-wall ideas to help you picture the finished space in your Sunshine Coast home.
+              </p>
               <p style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--muted)", margin: "16px auto 0", maxWidth: "60ch" }}>
                 Images are AI-generated or digitally rendered to show how a product may look installed. They are illustrations - colour, tone, scale and finish vary.{" "}
                 <Link href="/terms-of-use#ai-imagery" style={{ color: "var(--accent)", fontWeight: 700 }}>Read our imagery disclosure</Link>.
