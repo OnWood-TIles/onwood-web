@@ -3,13 +3,12 @@ import Image from "next/image";
 import StaffLoginForm from "./StaffLoginForm";
 
 export const metadata: Metadata = {
-  title: "Staff Preview - OnWood Tiles",
+  title: "Staff Login - OnWood Tiles",
   robots: { index: false, follow: false },
 };
 
-// Lightweight construction-preview login. Enters a shared password, which the
-// /api/preview-login handler swaps for the proxy-gate cookie. This is NOT the
-// eventual Payload CMS admin - just a gate to view the site while it is built.
+// Staff login. Enters a shared password, which the /api/preview-login handler
+// swaps for the staff cookie the proxy checks on /admin and other internal areas.
 export default async function StaffLoginPage({
   searchParams,
 }: {
@@ -57,7 +56,7 @@ export default async function StaffLoginPage({
             margin: "0 0 6px",
           }}
         >
-          Site preview
+          Staff login
         </h1>
         <p
           style={{
@@ -67,7 +66,7 @@ export default async function StaffLoginPage({
             margin: "0 0 22px",
           }}
         >
-          Staff access to the site under construction.
+          Sign in to manage the OnWood Tiles site.
         </p>
 
         <StaffLoginForm next={next || "/"} />

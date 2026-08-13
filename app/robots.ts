@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
 
 // Let search engines crawl the public pages and point them at the sitemap.
-// Private/internal areas stay out of search. (The still-gated marketing routes
-// aren't linked publicly and aren't in the sitemap, so they won't be crawled
-// until launch; the coming-soon splash they resolve to is intentionally indexable.)
+// Private/internal areas (trade portal, staff /admin, debug tools, APIs) stay out
+// of search.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
