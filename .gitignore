@@ -53,3 +53,5 @@ next-env.d.ts
 _work/
 
 .env*
+# scratch commit-message file
+_commit_msg.txt
