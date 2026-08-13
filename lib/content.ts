@@ -380,6 +380,8 @@ export type DepartmentSeo = {
   intro: string[]; // one or two short paragraphs (60-120 words total), human-first
   metaTitle: string;
   metaDescription: string;
+  links?: { label: string; href: string }[]; // internal "related" links under the intro (SEO internal-linking + UX)
+  faqs?: { q: string; a: string }[]; // visible FAQ block + FAQPage structured data (long-tail relevance)
 };
 
 export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
@@ -393,6 +395,19 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaTitle: "Tiles Sunshine Coast | Porcelain, Wood-Look & Stone",
     metaDescription:
       "Explore our full tile range on the Sunshine Coast, from wood-look and porcelain tiles to natural stone, mosaics and outdoor tiles. Supply only from our Baringa showroom.",
+    links: [
+      { label: "Outdoor tiles buying guide", href: "/blog/outdoor-tiles-sunshine-coast-guide" },
+      { label: "Browse the gallery", href: "/gallery?dept=tiles" },
+      { label: "Tile calculator", href: "/calculator" },
+      { label: "Find your tile quiz", href: "/quiz" },
+    ],
+    faqs: [
+      { q: "What tiles are best for outdoor areas on the Sunshine Coast?", a: "For patios, pool surrounds and alfresco areas, look for a slip-rated porcelain (for example R11) or a textured natural-look tile that copes with UV, moisture and coastal salt air. Pop into the Baringa showroom and we'll point you to the right finish for your space." },
+      { q: "Are porcelain tiles better than ceramic?", a: "Porcelain is denser, harder-wearing and lower-maintenance, which makes it ideal for floors and outdoor areas. Ceramic is a great-value choice for walls and splashbacks. We stock both, so it comes down to where the tile is going and the look you want." },
+      { q: "What are wood-look tiles?", a: "Wood-look (or timber-look) porcelain gives you the warmth and grain of timber with none of the sanding, sealing or water worries, so you can run the same floor through a bathroom, kitchen, living area and even outdoors." },
+      { q: "How many tiles do I need?", a: "Measure your area in square metres and add around 10% for cuts and wastage. Our free tile calculator gives you a quick estimate, or bring your measurements into the showroom and we'll help you work it out." },
+      { q: "Do you deliver tiles across the Sunshine Coast?", a: "Yes. We offer free delivery within our Sunshine Coast delivery zones, just ask us about your suburb, and you're welcome to collect from our Baringa showroom. We're supply only, so there's no on-site measure, but we're always happy to help you choose." },
+    ],
   },
   wastes: {
     eyebrow: "Shop wastes & grates",
@@ -404,6 +419,17 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaTitle: "Shower & Floor Wastes & Grates | OnWood Tiles",
     metaDescription:
       "Shower channel wastes, tile-insert and square floor wastes and grates in brass, copper, gunmetal and stainless steel. Supply only from our Sunshine Coast showroom.",
+    links: [
+      { label: "Shop tapware", href: "/shop/tapware" },
+      { label: "Shop tiles", href: "/shop/tiles" },
+      { label: "Browse the gallery", href: "/gallery" },
+    ],
+    faqs: [
+      { q: "What's the difference between a tile-insert waste and a standard floor waste?", a: "A tile-insert waste has a recessed tray you fill with your own floor tile, so the drain almost disappears into the floor. A standard floor waste or channel shows its metal finish as a deliberate design feature. It comes down to whether you want the drain to blend in or stand out." },
+      { q: "What finishes do your wastes and grates come in?", a: "Brushed brass, copper, gunmetal and stainless steel, so you can match your tapware, tiles and the rest of your fittings." },
+      { q: "Are your floor wastes suitable for laundries and outdoor areas?", a: "Yes. Our stainless steel options suit wet areas, laundries and outdoor spaces where durability matters most." },
+      { q: "What size shower channel do I need?", a: "Channel length depends on your shower size and the floor fall. Bring your measurements into the Baringa showroom and we'll help you choose a length and finish that works." },
+    ],
   },
   "stone-cladding": {
     eyebrow: "Shop stone cladding",
@@ -415,6 +441,16 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaTitle: "Stone Cladding & Veneer | Feature Walls | OnWood Tiles",
     metaDescription:
       "Australian-made stone cladding and veneer for feature walls, facades and fireplaces, in ledgestone, dry-stack and coastal looks. Supply only, Sunshine Coast.",
+    links: [
+      { label: "Browse the gallery", href: "/gallery?dept=stone" },
+      { label: "Shop tiles", href: "/shop/tiles" },
+    ],
+    faqs: [
+      { q: "Where can I use stone cladding?", a: "Feature walls, entry facades, fireplaces, outdoor kitchens, alfresco areas and retaining walls, indoors or out. Matching corner pieces let it wrap around edges for a seamless finish." },
+      { q: "Is your stone cladding Australian-made?", a: "Yes. Our stone cladding and veneer is sourced and made right here in Australia, in natural-look ledgestone, dry-stack and stacked-stone styles." },
+      { q: "How much stone cladding do I need?", a: "Measure your wall area in square metres and count your external corners separately, since corner pieces are ordered by length. Bring your measurements in and we'll help you work out the coverage." },
+      { q: "Can stone cladding go on an existing wall?", a: "In many cases yes, with the right preparation and adhesive for the surface. Talk to us about your wall and we'll advise on what's needed." },
+    ],
   },
   tapware: {
     eyebrow: "Shop tapware",
@@ -426,6 +462,17 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaTitle: "Tapware | Kitchen & Bathroom Mixer Taps | OnWood",
     metaDescription:
       "Designer kitchen and bathroom tapware, including mixer taps and bridge mixers in chrome, brushed brass and copper. Supply only from our Sunshine Coast showroom.",
+    links: [
+      { label: "Shop wastes & grates", href: "/shop/wastes" },
+      { label: "Shop tiles", href: "/shop/tiles" },
+      { label: "Browse the gallery", href: "/gallery" },
+    ],
+    faqs: [
+      { q: "What finishes does your tapware come in?", a: "Chrome, brushed brass and brushed copper, chosen to coordinate with our wastes, grates and tiles so your fittings feel like a set." },
+      { q: "Do you have tapware for both the kitchen and bathroom?", a: "Yes. Our range covers kitchen mixers and statement bridge mixers as well as bathroom tapware, all in coordinating finishes." },
+      { q: "Can you help me match tapware to my tiles?", a: "Absolutely. Bring your tile selections into the Baringa showroom and we'll help you coordinate finishes across your taps, wastes and tiles." },
+      { q: "Are you supply only?", a: "Yes, we're supply only across the Sunshine Coast, with free delivery in our delivery zones or collection from Baringa. We don't install, but we're always happy to help you choose." },
+    ],
   },
 };
 

@@ -92,6 +92,22 @@ export default async function DepartmentPage({
       { "@type": "ListItem", position: 3, name: dept.label, item: `${SITE}/shop/${dept.slug}` },
     ],
   };
+  // CollectionPage (this page is a category listing) + FAQPage (the visible Q&A below).
+  const collectionLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${dept.label} | OnWood Tiles`,
+    ...(seo?.metaDescription ? { description: seo.metaDescription } : {}),
+    url: `${SITE}/shop/${dept.slug}`,
+    isPartOf: { "@type": "WebSite", name: "OnWood Tiles", url: SITE },
+  };
+  const faqLd = seo?.faqs?.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: seo.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+      }
+    : null;
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
@@ -99,6 +115,16 @@ export default async function DepartmentPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd).replace(/</g, "\\u003c") }}
+      />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd).replace(/</g, "\\u003c") }}
+        />
+      )}
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(96px,16vw,150px) 28px 90px" }}>
         <nav style={{ fontSize: 13, color: "#8a8577", marginBottom: 14 }} aria-label="Breadcrumb">
@@ -132,6 +158,15 @@ export default async function DepartmentPage({
           </h1>
         )}
 
+        {seo?.links?.length ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", margin: "0 0 30px" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--muted)" }}>Related:</span>
+            {seo.links.map((l) => (
+              <Link key={l.href} href={l.href} style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent)", textDecoration: "none", padding: "6px 13px", borderRadius: 99, border: "1px solid var(--line)", background: "var(--surface)" }}>{l.label}</Link>
+            ))}
+          </div>
+        ) : null}
+
         {dept.categories.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
             {chip("Shop All", `/shop/${dept.slug}`, !activeCategory)}
@@ -154,6 +189,20 @@ export default async function DepartmentPage({
                 : undefined
           }
         />
+
+        {seo?.faqs?.length ? (
+          <section style={{ marginTop: 64, borderTop: "1px solid var(--line)", paddingTop: 44 }}>
+            <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(24px,3vw,34px)", letterSpacing: "-.02em", margin: "0 0 26px" }}>Frequently asked questions</h2>
+            <div style={{ display: "grid", gap: 22, maxWidth: 820 }}>
+              {seo.faqs.map((f, i) => (
+                <div key={i}>
+                  <h3 style={{ fontFamily: "var(--font-archivo)", fontWeight: 700, fontSize: 18.5, lineHeight: 1.3, margin: "0 0 7px", color: "var(--ink)" }}>{f.q}</h3>
+                  <p style={{ fontSize: 16, lineHeight: 1.7, color: "#3a444a", margin: 0 }}>{f.a}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </main>
       <MarketingFooter />
     </div>
