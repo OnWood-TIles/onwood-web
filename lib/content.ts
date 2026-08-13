@@ -389,8 +389,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop tiles",
     h1: "Floor, Wall & Outdoor Tiles",
     intro: [
-      "Our tile range brings together everything you need to finish a room beautifully, from wood-look and timber-look porcelain to classic ceramic and porcelain, honed natural stone, handmade-look gloss, mosaics and hard-wearing outdoor tiles.",
-      "You'll find everything from affordable everyday tiles to premium Italian and Spanish porcelain, with a look to suit any space and budget. Whether you're tiling a bathroom floor, a kitchen splashback, an outdoor entertaining area or a feature wall, our local, family-run team will help you choose the right tile for your space and your light. Every tile is supplied from our Baringa showroom on the Sunshine Coast.",
+      "From affordable everyday tiles to premium Italian and Spanish porcelain, our range spans wood-look and timber-look porcelain, ceramic, natural stone, handmade-look gloss, mosaics and hard-wearing outdoor tiles, for bathroom floors, kitchen splashbacks, feature walls and alfresco areas. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
     metaTitle: "Tiles Sunshine Coast | Porcelain, Wood-Look & Stone",
     metaDescription:
@@ -413,8 +412,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop wastes & grates",
     h1: "Shower Wastes, Floor Wastes & Grates",
     intro: [
-      "Finish your bathroom or laundry with a waste that's as considered as the tiles around it. Our range covers linear shower channel wastes, tile-insert and square floor wastes and grates, in finishes from brushed brass and copper to gunmetal and stainless steel.",
-      "Choose a tile-insert waste to disappear neatly into your floor, or a designer channel to make a feature of it. Supplied from our Baringa showroom on the Sunshine Coast, with matching tapware and tiling essentials to complete the look.",
+      "Finish your bathroom or laundry with a waste as considered as the tiles around it: linear shower channel wastes, tile-insert and square floor wastes and grates, in brushed brass, copper, gunmetal and stainless steel. Choose a tile-insert waste to disappear into your floor, or a designer channel to make a feature of it.",
     ],
     metaTitle: "Shower & Floor Wastes & Grates | OnWood Tiles",
     metaDescription:
@@ -435,8 +433,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop stone cladding",
     h1: "Stone Cladding & Stone Veneer",
     intro: [
-      "Add texture and warmth with our stone cladding and stone veneer, a lighter, faster way to bring the look of natural stone to a feature wall, facade, fireplace or outdoor entertaining area.",
-      "Our stone is sourced and made right here in Australia, in ledgestone, dry-stack and stacked-stone styles across coastal and earthy tones, with matching corner pieces for a seamless wrap-around finish. Supplied from our Baringa showroom on the Sunshine Coast, with advice on coverage and installation to help you get it right.",
+      "Add texture and warmth with our stone cladding and stone veneer, sourced and made right here in Australia. A lighter, faster way to bring the look of natural stone to a feature wall, facade, fireplace or outdoor area, in ledgestone, dry-stack and stacked-stone styles with matching corner pieces for a seamless finish.",
     ],
     metaTitle: "Stone Cladding & Veneer | Feature Walls | OnWood Tiles",
     metaDescription:
@@ -456,8 +453,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop tapware",
     h1: "Kitchen & Bathroom Tapware",
     intro: [
-      "Pull the whole room together with tapware that matches your tiles and finishes. Our range features designer kitchen and bathroom mixer taps, including statement bridge mixers, in finishes from classic chrome to warm brushed brass and copper.",
-      "Chosen to coordinate with our wastes, tiles and accessories, so your fittings feel considered rather than an afterthought. Supplied from our Baringa showroom on the Sunshine Coast, with honest advice from a local, family-run team.",
+      "Pull the room together with tapware that matches your tiles and finishes: designer kitchen and bathroom mixer taps, including statement bridge mixers, in classic chrome, warm brushed brass and copper. Chosen to coordinate with our wastes, tiles and accessories so your fittings feel considered.",
     ],
     metaTitle: "Tapware | Kitchen & Bathroom Mixer Taps | OnWood",
     metaDescription:

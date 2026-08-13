@@ -74,6 +74,14 @@ export default async function DepartmentPage({
   const rangeCount = allRanges.length;
   const colourCount = allRanges.reduce((n, r) => n + Math.max(1, r.swatches.length), 0);
 
+  // Tiles/stone departments get a prominent "Search by inspiration" CTA into the gallery.
+  const galleryDept: "tiles" | "stone" | undefined =
+    /stone|veneer|cladd/i.test(dept.slug) || /stone|veneer|cladd/i.test(dept.label)
+      ? "stone"
+      : /tile/i.test(dept.slug) || /tile/i.test(dept.label)
+        ? "tiles"
+        : undefined;
+
   const labelMap: Record<string, string> = {};
   for (const t of taxonomy) for (const cat of t.categories) labelMap[cat.slug] = cat.label;
 
@@ -196,7 +204,7 @@ export default async function DepartmentPage({
         )}
 
         {rangeCount > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "14px 32px", alignItems: "baseline", margin: "0 0 26px" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px 32px", alignItems: "baseline", margin: "0 0 20px" }}>
             {[{ n: rangeCount, l: rangeCount === 1 ? "range" : "ranges" }, { n: colourCount, l: colourCount === 1 ? "colour" : "colours" }].map((s) => (
               <span key={s.l} style={{ display: "inline-flex", alignItems: "baseline", gap: 8 }}>
                 <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 25, letterSpacing: "-.02em", color: "var(--ink)" }}>{s.n}</span>
@@ -206,14 +214,16 @@ export default async function DepartmentPage({
           </div>
         )}
 
-        {seo?.links?.length ? (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", margin: "0 0 30px" }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--muted)" }}>Related:</span>
-            {seo.links.map((l) => (
-              <Link key={l.href} href={l.href} style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent)", textDecoration: "none", padding: "6px 13px", borderRadius: 99, border: "1px solid var(--line)", background: "var(--surface)" }}>{l.label}</Link>
-            ))}
+        {galleryDept && (
+          <div style={{ display: "flex", justifyContent: "center", margin: "0 0 34px" }}>
+            <Link href={`/gallery?dept=${galleryDept}`} style={{ display: "inline-flex", alignItems: "center", gap: 12, background: "var(--ink)", color: "#fff6ee", fontWeight: 800, fontSize: 16, textDecoration: "none", padding: "16px 30px", borderRadius: 999, boxShadow: "0 16px 40px -22px rgba(32,48,58,.5)" }}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" />
+              </svg>
+              Search by inspiration <span aria-hidden>→</span>
+            </Link>
           </div>
-        ) : null}
+        )}
 
         {dept.categories.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
@@ -229,13 +239,6 @@ export default async function DepartmentPage({
           initialActive={initialActive}
           deptSlug={dept.slug}
           activeCategory={activeCategory}
-          galleryDept={
-            /stone|veneer|cladd/i.test(dept.slug) || /stone|veneer|cladd/i.test(dept.label)
-              ? "stone"
-              : /tile/i.test(dept.slug) || /tile/i.test(dept.label)
-                ? "tiles"
-                : undefined
-          }
         />
 
         {seo?.faqs?.length ? (

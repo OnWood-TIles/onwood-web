@@ -324,7 +324,7 @@ export function InFocusPanel({ range, productBase = "/product", label = "In focu
     null;
   const line = (range.description || "").trim();
   return (
-    <Link href={`${productBase}/${range.slug}`} className="ow-feature ow-featurecard" style={{ textDecoration: "none", color: "#fff6ee", background: "var(--deep)", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", display: "flex", minHeight: 250 }}>
+    <Link href={`${productBase}/${range.slug}`} className="ow-feature ow-featurecard" style={{ textDecoration: "none", color: "#fff6ee", background: "var(--sea)", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", display: "flex", minHeight: 250 }}>
       <div className="ow-featureimg" style={{ position: "relative", flex: "1 1 46%", minWidth: 130, overflow: "hidden" }}>
         {room ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -334,7 +334,7 @@ export function InFocusPanel({ range, productBase = "/product", label = "In focu
         )}
       </div>
       <div style={{ flex: "1 1 54%", minWidth: 190, padding: "22px 24px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 10 }}>
-        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent2)" }}>{label}</span>
+        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#d7f0f4" }}>{label}</span>
         <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(20px,2.2vw,26px)", letterSpacing: "-.02em", lineHeight: 1.1 }}>{range.name}</span>
         {line && <span style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,246,238,.72)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{line}</span>}
         <span style={{ marginTop: 6, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, fontSize: 14, color: "#fff6ee" }}>See the range <span aria-hidden>→</span></span>
