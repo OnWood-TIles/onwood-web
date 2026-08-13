@@ -119,7 +119,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
 
   const chips = [
     { icon: "truck" as const, label: `Delivery to ${s.name}` },
-    { icon: "pin" as const, label: `~${s.driveMins} min from Baringa` },
+    { icon: "pin" as const, label: s.proximityChip ?? `~${s.driveMins} min from Baringa` },
     { icon: "coast" as const, label: "Supply only" },
   ];
 
@@ -131,8 +131,8 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
     },
     {
       icon: "pin" as const,
-      title: `About ${s.driveMins} minutes away`,
-      body: `Our Baringa showroom is a short drive via ${s.driveVia}, so it is easy to see full-size boards and take samples home before you commit.`,
+      title: s.proximityCard?.title ?? `About ${s.driveMins} minutes away`,
+      body: s.proximityCard?.body ?? `Our Baringa showroom is a short drive via ${s.driveVia}, so it is easy to see full-size boards and take samples home before you commit.`,
     },
     {
       icon: "coast" as const,
@@ -334,7 +334,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
                   We deliver to {s.name}
                 </h2>
                 <p style={{ fontSize: 16, lineHeight: 1.7, color: "rgba(255,246,238,.82)", maxWidth: "52ch", margin: "0 0 10px" }}>
-                  We deliver across {s.name}, or you can collect from the showroom. Tell us your suburb for a delivery quote, we are about {s.driveMins} minutes south via {s.driveVia}.
+                  {s.deliveryLine ?? `We deliver across ${s.name}, or you can collect from the showroom. Tell us your suburb for a delivery quote, we are about ${s.driveMins} minutes south via ${s.driveVia}.`}
                 </p>
                 <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(255,246,238,.72)", margin: 0 }}>
                   {SHOP.name}, {address}
@@ -404,7 +404,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
         <section style={{ marginTop: 62 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 18 }}>
             {[
-              { name: "Showroom", tagline: "See the finishes in the flesh", body: `Full-size boards, big-format samples and a coffee. About ${s.driveMins} minutes from ${s.name}.`, cta: "Book a visit", href: "/book" },
+              { name: "Showroom", tagline: "See the finishes in the flesh", body: s.showroomLine ?? `Full-size boards, big-format samples and a coffee. About ${s.driveMins} minutes from ${s.name}.`, cta: "Book a visit", href: "/book" },
               { name: "Tile calculator", tagline: "How many boxes will you need?", body: "Give us your square metres, we will add the cuts and wastage for your job.", cta: "Work out my order", href: "/calculator" },
               { name: "Talk to us", tagline: "Choosing tiles for a project?", body: "Tell us about your build or reno and we will point you at the right finishes.", cta: "Get in touch", href: "/contact" },
             ].map((u) => (

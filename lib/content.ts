@@ -501,6 +501,15 @@ export type SuburbSeo = {
   guidance: { title: string; body: string; href: string; hrefLabel: string }[];
   faqs: { q: string; a: string }[];
   nearby: string[]; // surrounding suburbs this page also speaks to
+  /** Master-planned estate (Aura, Harmony) rather than a distinct town. */
+  estate?: boolean;
+  /** Proximity overrides for estates where the showroom sits inside or beside the
+   *  community, so the default "X minutes from Baringa" framing can be replaced
+   *  with the true local story. Each falls back to the drive-time copy. */
+  proximityChip?: string; // hero chip 2
+  proximityCard?: { title: string; body: string }; // "why us" value card 2
+  deliveryLine?: string; // delivery band paragraph
+  showroomLine?: string; // closing "Showroom" card body
 };
 
 export const SUBURBS: Record<string, SuburbSeo> = {
@@ -548,8 +557,306 @@ export const SUBURBS: Record<string, SuburbSeo> = {
       { q: "What tiles are best for a Maroochydore beach house or apartment?", a: "For coastal homes we recommend through-body porcelain: it handles salt air and humidity with almost no maintenance. Wood-look and light stone-looks suit the coastal style, and slip-rated porcelain is ideal for pools, balconies and alfresco areas." },
       { q: "Do you supply outdoor and pool tiles?", a: "Yes, slip-rated outdoor porcelain, pool-surround tiles and matching indoor tiles so your indoor-outdoor flow feels seamless." },
       { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Maroochydore project or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders in Maroochydore?", a: "Yes. As well as mum-and-dad renovators we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
     ],
     nearby: ["Mooloolaba", "Alexandra Headland", "Cotton Tree", "Kuluin", "Buderim", "Kawana", "Sippy Downs", "Bli Bli"],
+  },
+
+  aura: {
+    slug: "aura",
+    name: "Aura",
+    estate: true,
+    driveMins: 2,
+    driveVia: "the Sunshine Motorway",
+    proximityChip: "Showroom right here in Aura",
+    proximityCard: {
+      title: "Your tile shop is in Aura",
+      body: "Our showroom sits inside the Aura community at Baringa, so you can duck in between site visits, see full-size boards and carry samples home the same afternoon.",
+    },
+    deliveryLine: "We deliver right across Aura, Baringa, Nirimba, Banya and Bells Reach, or simply walk the full range in person, the showroom is only a few minutes from your build.",
+    showroomLine: "Full-size boards, big-format samples and a coffee, right here in the Aura community at Baringa.",
+    metaTitle: "Tile Shop Aura Baringa | Tiles for New Homes | OnWood Tiles",
+    metaDescription:
+      "OnWood Tiles is your local tile shop inside the Aura community at Baringa. Porcelain, wood-look and outdoor tiles for new builds and renovations across Nirimba, Banya and Bells Reach.",
+    intro: [
+      "Just moved into Aura, or building your new home here? OnWood Tiles is your neighbour, our showroom is right inside the community at Baringa, so choosing tiles is a five-minute job, not a trip up the coast.",
+      "We help new Aura homeowners, renovators and boutique builders pick tiles that suit brand-new coastal homes: hard-wearing, low-maintenance and easy to live with, from floors and bathrooms to alfresco and pool areas.",
+    ],
+    guidance: [
+      {
+        title: "Finishing a new build",
+        body: "Handover tiles, splashbacks, laundry and alfresco areas, the details that make a new Aura home feel like yours. We help you match floors, walls and outdoor tiles into one considered scheme.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Outdoor & pool areas",
+        body: "Aura living is indoor-outdoor. We stock slip-rated (R11 and above) porcelain and textured finishes that stay safe underfoot around pools, patios and BBQ zones, and tie back to your inside floor.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Bathrooms & ensuites",
+        body: "Large-format wall and floor tiles make compact new-build bathrooms feel bigger and are quicker for your tiler to lay, with fewer grout lines to keep clean. We carry the matching wastes and tapware too.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "For your builder or tiler",
+        body: "Working with a boutique builder or your own tiler? We supply the trade across Aura with trade pricing and online ordering, so your project team can order straight from our range.",
+        href: "/shop",
+        hrefLabel: "Shop everything",
+      },
+    ],
+    faqs: [
+      { q: "Where is OnWood Tiles in relation to Aura?", a: "We're right inside the Aura community, our showroom is at Baringa, so it's only a few minutes from anywhere in Aura, Nirimba, Banya or Bells Reach. Pop in any time to see full-size boards and take samples home." },
+      { q: "Do you deliver tiles in Aura?", a: "Yes, we deliver right across the Aura estate, or you can collect from the showroom since we're local, just tell us your street for a delivery quote." },
+      { q: "I've just built in Aura, what tiles suit a new home here?", a: "For new coastal homes we lean on through-body porcelain: it handles salt air and humidity with almost no upkeep. Wood-look and light stone-looks suit the relaxed Aura style, and slip-rated porcelain is ideal for pools, balconies and alfresco areas." },
+      { q: "Can you help match tiles across my whole house?", a: "Absolutely. Bring your plans or a photo into the showroom and we'll help you run a consistent look through floors, bathrooms, laundry, splashback and outdoor areas, with matching wastes, tapware and trims." },
+      { q: "Do you supply tilers and builders in Aura?", a: "Yes. As well as retail customers we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Baringa", "Nirimba", "Banya", "Bells Reach", "Pelican Waters", "Little Mountain", "Caloundra", "Bells Creek"],
+  },
+
+  harmony: {
+    slug: "harmony",
+    name: "Harmony",
+    estate: true,
+    driveMins: 10,
+    driveVia: "the Bruce Highway",
+    metaTitle: "Tile Shop Harmony Palmview | Tiles for New Homes | OnWood Tiles",
+    metaDescription:
+      "Local tile shop for the Harmony community at Palmview. Porcelain, wood-look and outdoor tiles for new builds and renovations, with delivery to Harmony or pickup from Baringa, about 10 minutes away.",
+    intro: [
+      "Building or just settled into Harmony at Palmview? OnWood Tiles is your local tile supplier, about ten minutes south at Baringa, and we deliver right across the Harmony estate.",
+      "We help new Harmony homeowners, renovators and boutique builders choose tiles made for brand-new coastal homes: hard-wearing, low-maintenance and easy to live with, indoors and out.",
+    ],
+    guidance: [
+      {
+        title: "Finishing a new build",
+        body: "Splashbacks, laundry, ensuites and alfresco, the finishing tiles that turn a new Harmony house into your home. We help you match floors, walls and outdoor tiles into one considered scheme.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Outdoor & pool areas",
+        body: "Harmony is built for indoor-outdoor living. Slip-rated (R11 and above) porcelain and textured finishes stay safe around pools, patios and BBQ areas, and can flow from your inside floor straight out to the alfresco.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Kitchens & splashbacks",
+        body: "A crisp splashback lifts a new kitchen. We stock gloss, matt and feature tiles that pair with your benchtop and cabinetry, plus the floor tiles to tie the open-plan living together.",
+        href: "/shop/tiles?f=location-use:splashback",
+        hrefLabel: "Splashback tiles",
+      },
+      {
+        title: "For your builder or tiler",
+        body: "If a boutique builder or your own tiler is doing the work, we supply the trade across Harmony with trade pricing and online ordering, so your project team can order straight from our range.",
+        href: "/shop",
+        hrefLabel: "Shop everything",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Harmony at Palmview?", a: "Yes, we deliver right across the Harmony estate and Palmview, just tell us your street for a delivery quote, or collect from our Baringa showroom about ten minutes away." },
+      { q: "How far is your showroom from Harmony?", a: "About a ten-minute drive south via the Bruce Highway to Baringa, an easy trip to see full-size boards, big-format samples and take a few home." },
+      { q: "I've just built in Harmony, what tiles suit a new home here?", a: "For new coastal homes we recommend through-body porcelain: it handles salt air and humidity with almost no upkeep. Wood-look and light stone-looks suit the relaxed Harmony style, and slip-rated porcelain is ideal for alfresco and pool areas." },
+      { q: "Can you help me choose tiles for the whole house?", a: "Yes, bring your plans or a photo in and we'll help you run a consistent look through floors, bathrooms, laundry, splashback and outdoor areas, with matching wastes, tapware and trims." },
+      { q: "Do you supply tilers and builders in Harmony?", a: "Yes. As well as retail customers we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Palmview", "Sippy Downs", "Meridan Plains", "Little Mountain", "Buderim", "Mooloolaba", "Caloundra"],
+  },
+
+  caloundra: {
+    slug: "caloundra",
+    name: "Caloundra",
+    driveMins: 12,
+    driveVia: "Caloundra Road",
+    metaTitle: "Tile Shop Caloundra | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Caloundra: porcelain, wood-look, outdoor and pool tiles for coastal homes and renovations, with delivery to Caloundra or pickup from Baringa, about 12 minutes away.",
+    intro: [
+      "Renovating or building in Caloundra? OnWood Tiles is your local Sunshine Coast tile supplier, about twelve minutes away at Baringa, and we deliver right across Caloundra.",
+      "From beach-house renos and unit refreshes to new family homes, we help mum-and-dad renovators and boutique builders choose tiles made for coastal living: hard-wearing, low-maintenance and lovely in the Queensland light.",
+    ],
+    guidance: [
+      {
+        title: "Renovating a beach home or unit",
+        body: "Caloundra's older beach homes and apartments renovate beautifully. Large-format, rectified tiles make compact spaces feel bigger and are faster to lay, with fewer grout lines to keep clean.",
+        href: "/shop/tiles?f=location-use:floor",
+        hrefLabel: "Floor tiles",
+      },
+      {
+        title: "Outdoor & pool areas",
+        body: "Salt air and bare feet are part of Caloundra life. We stock slip-rated (R11 and above) porcelain and textured finishes that stay safe around pools, patios and beachside courtyards.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Bathrooms & ensuites",
+        body: "Redoing a bathroom is the classic Caloundra reno. We carry the wall and floor tiles, plus matching wastes and tapware, to finish an ensuite or main bathroom in one place.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "Light, coastal looks",
+        body: "Wood-look planks, soft limestone-looks and crisp whites suit relaxed Caloundra homes: warm underfoot, easy to keep and they bounce the coastal light around a room.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Caloundra?", a: "Yes, we deliver across Caloundra and the surrounding beaches, just tell us your suburb for a delivery quote, or collect from our Baringa showroom about twelve minutes away." },
+      { q: "How far is your showroom from Caloundra?", a: "About a twelve-minute drive via Caloundra Road to Baringa, easy to pop in, see full-size boards and take samples home before you commit." },
+      { q: "What tiles are best for a Caloundra beach house?", a: "Through-body porcelain is the pick: it handles salt air and humidity with almost no maintenance. Wood-look and light stone-looks suit the coastal style, and slip-rated porcelain is ideal for pools, courtyards and balconies." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Caloundra job or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders in Caloundra?", a: "Yes. As well as mum-and-dad renovators we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Golden Beach", "Kings Beach", "Moffat Beach", "Dicky Beach", "Currimundi", "Aroona", "Pelican Waters", "Little Mountain"],
+  },
+
+  "pelican-waters": {
+    slug: "pelican-waters",
+    name: "Pelican Waters",
+    driveMins: 8,
+    driveVia: "Pelican Waters Boulevard",
+    metaTitle: "Tile Shop Pelican Waters | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Pelican Waters: large-format, wood-look and outdoor tiles for premium coastal homes and renovations, with delivery or pickup from nearby Baringa, about 8 minutes away.",
+    intro: [
+      "Building or renovating in Pelican Waters? OnWood Tiles is your closest tile showroom, just up the road at Baringa, about eight minutes away, and we deliver right across Pelican Waters.",
+      "From canal-front builds to elegant renovations, we help homeowners and boutique builders choose tiles that suit premium coastal living: large-format porcelain, natural stone-looks and seamless indoor-outdoor floors.",
+    ],
+    guidance: [
+      {
+        title: "Large-format & seamless floors",
+        body: "Pelican Waters homes love a calm, open look. Large-format rectified porcelain gives you fewer grout lines and a floor that carries from living to alfresco, easy to keep and beautifully understated.",
+        href: "/shop/tiles?f=location-use:floor",
+        hrefLabel: "Floor tiles",
+      },
+      {
+        title: "Indoor-outdoor & pools",
+        body: "With canals and pools everywhere here, we stock slip-rated (R11 and above) porcelain that matches your inside floor, so the transition from living room to poolside feels effortless and stays safe underfoot.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Bathrooms & ensuites",
+        body: "For a resort-style ensuite we carry large-format wall and floor tiles, natural stone-looks and the matching wastes and tapware, so a premium Pelican Waters bathroom comes together in one place.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "For your builder or tiler",
+        body: "Most Pelican Waters projects run through a builder or tiler. We supply the trade locally with trade pricing and online ordering, so your project team can order from our range and match your selections exactly.",
+        href: "/shop",
+        hrefLabel: "Shop everything",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Pelican Waters?", a: "Yes, and we're only about eight minutes away at Baringa, so delivery to Pelican Waters is easy, or you can collect from the showroom. Just tell us your street for a delivery quote." },
+      { q: "How far is your showroom from Pelican Waters?", a: "About eight minutes via Pelican Waters Boulevard to Baringa, the closest tile showroom to the estate, handy for seeing full-size boards and taking home samples." },
+      { q: "What tiles suit a Pelican Waters home?", a: "Large-format through-body porcelain is the go: understated, low-maintenance and it handles salt air and humidity. Natural stone-looks and slip-rated outdoor porcelain work beautifully around canals and pools." },
+      { q: "Can you help match tiles across a whole build?", a: "Yes, bring your plans or selections in and we'll help you run a consistent look through floors, bathrooms, laundry and outdoor areas, with matching wastes, tapware and trims." },
+      { q: "Do you supply builders and tilers in Pelican Waters?", a: "Yes. We run a trade partner program for boutique builders and tilers, with trade pricing and online ordering, ideal for the custom builds common in Pelican Waters. Get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Golden Beach", "Caloundra", "Aura", "Baringa", "Little Mountain", "Bells Creek", "Currimundi"],
+  },
+
+  "golden-beach": {
+    slug: "golden-beach",
+    name: "Golden Beach",
+    driveMins: 12,
+    driveVia: "Caloundra Road",
+    metaTitle: "Tile Shop Golden Beach | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Golden Beach: porcelain, wood-look and outdoor tiles for coastal homes and renovations, with delivery to Golden Beach or pickup from Baringa, about 12 minutes away.",
+    intro: [
+      "Renovating a home along Golden Beach? OnWood Tiles is your local tile supplier at Baringa, about twelve minutes away, and we deliver right across Golden Beach.",
+      "The waterfront homes and older beach shacks here renovate beautifully. We help mum-and-dad renovators and boutique builders choose tiles made for salt air and bare feet: durable, low-maintenance and relaxed.",
+    ],
+    guidance: [
+      {
+        title: "Renovating a waterfront home",
+        body: "Golden Beach's older homes are prime renovation territory. Wood-look and light stone-look porcelain refresh a tired floor and suit the laid-back waterfront style, warm underfoot and easy to keep.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Outdoor & courtyards",
+        body: "Between the passage and the beach, outdoor living is everything here. Slip-rated (R11 and above) porcelain stays safe around courtyards, patios and pools and stands up to salt air where other surfaces struggle.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Bathrooms & laundries",
+        body: "A bathroom or laundry refresh is the classic Golden Beach reno. We carry the wall and floor tiles, plus matching wastes and tapware, to finish the room without chasing parts around town.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "Built for salt air",
+        body: "Through-body porcelain shrugs off salt, moisture and UV where natural stone would need sealing and constant upkeep, the sensible choice for a home a few steps from the water.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Golden Beach?", a: "Yes, we deliver right across Golden Beach, just tell us your street for a delivery quote, or collect from our Baringa showroom about twelve minutes away." },
+      { q: "How far is your showroom from Golden Beach?", a: "About a twelve-minute drive via Caloundra Road to Baringa, easy to pop in, see full-size boards and take samples home." },
+      { q: "What tiles are best for a Golden Beach home?", a: "Through-body porcelain: it handles salt air and humidity with almost no maintenance. Wood-look and light stone-looks suit the waterfront style, and slip-rated porcelain is ideal for courtyards, patios and pools." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Golden Beach job or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders at Golden Beach?", a: "Yes. Alongside mum-and-dad renovators we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Caloundra", "Pelican Waters", "Kings Beach", "Currimundi", "Little Mountain", "Aroona", "Bells Creek"],
+  },
+
+  buderim: {
+    slug: "buderim",
+    name: "Buderim",
+    driveMins: 22,
+    driveVia: "the Sunshine Motorway",
+    metaTitle: "Tile Shop Buderim | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Buderim: porcelain, wood-look, outdoor and feature tiles for renovations and new homes, with delivery to Buderim or pickup from Baringa, about 22 minutes away.",
+    intro: [
+      "Renovating or building in Buderim? OnWood Tiles supplies tiles right across Buderim and the surrounding hillside, delivered from our Baringa showroom about twenty-two minutes away.",
+      "Buderim's established homes and leafy acreage renovate into something special. We help homeowners and boutique builders choose tiles that balance warmth and durability, from character renos to modern extensions.",
+    ],
+    guidance: [
+      {
+        title: "Character renovations",
+        body: "Buderim homes often mix old and new. Wood-look planks and honed stone-looks add warmth to a renovation, while large-format porcelain keeps open-plan living calm and easy to maintain.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Indoor-outdoor & alfresco",
+        body: "With the views and the climate, Buderim living spills outside. Slip-rated (R11 and above) porcelain carries your inside floor out to decks, alfresco and pool areas and stays safe underfoot.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Bathrooms & ensuites",
+        body: "A considered bathroom is worth doing once. We carry large-format wall and floor tiles, natural stone-looks and the matching wastes and tapware to pull a Buderim ensuite together.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "For your builder or tiler",
+        body: "Buderim renovations usually run through a builder or tiler. We supply the trade with trade pricing and online ordering, so your project team can order straight from our range and match your selections.",
+        href: "/shop",
+        hrefLabel: "Shop everything",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Buderim?", a: "Yes, we deliver right across Buderim and the surrounding suburbs, just tell us your street for a delivery quote, or collect from our Baringa showroom." },
+      { q: "How far is your showroom from Buderim?", a: "About a twenty-two-minute drive via the Sunshine Motorway to Baringa, worth the trip to see full-size boards, big-format samples and take a few home." },
+      { q: "What tiles suit a Buderim renovation?", a: "It depends on the home, but wood-look and honed stone-look porcelain add warmth to a character reno, while large-format tiles keep modern extensions calm and low-maintenance. Slip-rated porcelain is ideal for decks and alfresco." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Buderim project or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders in Buderim?", a: "Yes. As well as retail customers we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Sippy Downs", "Mooloolaba", "Maroochydore", "Mountain Creek", "Forest Glen", "Alexandra Headland", "Kunda Park"],
   },
 };
 
