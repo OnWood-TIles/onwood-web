@@ -312,6 +312,70 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
   );
 }
 
+// ── Feature panels that break up the product grid (double-width) ──────────────
+// An editorial "In focus" range: a big installed room shot + one line + "See the
+// range". Dark ink ground so it stands apart from the white product cards. The
+// whole panel links to the range. Spans 2 grid columns via `.ow-feature`.
+export function InFocusPanel({ range, productBase = "/product", label = "In focus" }: { range: WebsiteRange; productBase?: string; label?: string }) {
+  const room =
+    range.swatches.find((s) => s.installedImage)?.installedImage ||
+    range.heroImage ||
+    range.swatches.find((s) => s.image)?.image ||
+    null;
+  const line = (range.description || "").trim();
+  return (
+    <Link href={`${productBase}/${range.slug}`} className="ow-feature ow-featurecard" style={{ textDecoration: "none", color: "#fff6ee", background: "var(--deep)", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", display: "flex", minHeight: 250 }}>
+      <div className="ow-featureimg" style={{ position: "relative", flex: "1 1 46%", minWidth: 130, overflow: "hidden" }}>
+        {room ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={room} alt={imageAlt(range, { kind: "installed", swatch: range.swatches[0] })} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, var(--accent), var(--accent2))" }} />
+        )}
+      </div>
+      <div style={{ flex: "1 1 54%", minWidth: 190, padding: "22px 24px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent2)" }}>{label}</span>
+        <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(20px,2.2vw,26px)", letterSpacing: "-.02em", lineHeight: 1.1 }}>{range.name}</span>
+        {line && <span style={{ fontSize: 14, lineHeight: 1.55, color: "rgba(255,246,238,.72)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{line}</span>}
+        <span style={{ marginTop: 6, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, fontSize: 14, color: "#fff6ee" }}>See the range <span aria-hidden>→</span></span>
+      </div>
+    </Link>
+  );
+}
+
+// A "Special" feature: same footprint, terracotta ground, leads with the price.
+export function SpecialsPanel({ range, productBase = "/product" }: { range: WebsiteRange; productBase?: string }) {
+  const special = range.special || range.swatches.map((s) => s.special).find(Boolean) || null;
+  const img =
+    range.swatches.find((s) => s.installedImage)?.installedImage ||
+    range.heroImage ||
+    range.swatches.find((s) => s.image)?.image ||
+    null;
+  return (
+    <Link href={`${productBase}/${range.slug}`} className="ow-feature ow-featurecard" style={{ textDecoration: "none", color: "#fff6ee", background: "var(--accent)", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", display: "flex", minHeight: 250 }}>
+      <div style={{ flex: "1 1 54%", minWidth: 190, padding: "22px 24px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#ffe9de" }}>On special</span>
+        <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(20px,2.2vw,26px)", letterSpacing: "-.02em", lineHeight: 1.1 }}>{range.name}</span>
+        {special?.price != null && (
+          <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+            <span style={{ fontSize: 22, fontWeight: 800 }}>from ${special.price.toFixed(2)}</span>
+            {special.was != null && <span style={{ textDecoration: "line-through", opacity: 0.75, fontSize: 15 }}>${special.was.toFixed(2)}</span>}
+          </span>
+        )}
+        <span style={{ marginTop: 6, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, fontSize: 14, background: "#fff6ee", color: "var(--accent)", padding: "9px 16px", borderRadius: 999, alignSelf: "flex-start" }}>See the range <span aria-hidden>→</span></span>
+      </div>
+      <div className="ow-featureimg" style={{ position: "relative", flex: "1 1 46%", minWidth: 130, overflow: "hidden" }}>
+        {img ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={img} alt={imageAlt(range, { kind: "installed", swatch: range.swatches[0] })} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,.12)" }} />
+        )}
+      </div>
+    </Link>
+  );
+}
+
 // "Pairs well with" - complementary products chosen by surface, tone and use
 // (see lib/pairs.ts). Each card carries a short reason chip so the shopper can
 // see WHY it was suggested. Renders nothing when there is nothing worth showing.

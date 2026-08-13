@@ -325,13 +325,17 @@ async function buildShopMenu(): Promise<ShopMenuDept[]> {
       // "In focus" features a real product using ONLY its secondary ("see it
       // installed") photo, linking straight to that product. Pick the first
       // product in the department that has an installed photo.
-      const focus =
-        list
-          .map((r) => {
-            const installed = r.swatches[0]?.installedImage || r.swatches.find((s) => s.installedImage)?.installedImage || null;
-            return installed ? { image: installed, slug: r.slug, name: r.name } : null;
-          })
-          .find(Boolean) ?? null;
+      const focusCandidates = list
+        .map((r) => {
+          const installed = r.swatches[0]?.installedImage || r.swatches.find((s) => s.installedImage)?.installedImage || null;
+          return installed ? { image: installed, slug: r.slug, name: r.name } : null;
+        })
+        .filter((x): x is { image: string; slug: string; name: string } => !!x);
+      // Rotate the highlighted product daily (by day number) so the mega-menu
+      // "in focus" tile varies over time instead of being stuck on one product.
+      const focus = focusCandidates.length
+        ? focusCandidates[Math.floor(Date.now() / 86_400_000) % focusCandidates.length]
+        : null;
       const categories = d.categories
         .map((c) => ({ slug: c.slug, label: c.label, count: varCount(list.filter((r) => r.categories.includes(c.slug))) }))
         .filter((c) => c.count > 0);
