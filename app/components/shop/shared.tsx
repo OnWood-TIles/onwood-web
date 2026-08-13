@@ -39,6 +39,37 @@ export function AvailabilityPill({ availability, size = "sm" }: { availability: 
   );
 }
 
+// A static row of stars for a rating (whole or fractional). Server-safe. Uses a
+// clipped overlay so half/partial ratings render precisely. `label` sets the
+// accessible name (e.g. "Rated 4.5 out of 5").
+export function Stars({ value, size = 18, label }: { value: number; size?: number; label?: string }) {
+  const pct = `${Math.max(0, Math.min(5, value)) / 5 * 100}%`;
+  const Row = ({ fill }: { fill: string }) => (
+    <span aria-hidden style={{ display: "inline-flex", gap: 2 }}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <svg key={i} viewBox="0 0 24 24" width={size} height={size} style={{ display: "block" }}>
+          <path
+            d="M12 2.6l2.7 5.9 6.3.7-4.7 4.3 1.3 6.3L12 17l-5.6 2.8 1.3-6.3L3 9.2l6.3-.7z"
+            fill={fill}
+          />
+        </svg>
+      ))}
+    </span>
+  );
+  return (
+    <span
+      role="img"
+      aria-label={label ?? `Rated ${value.toFixed(1)} out of 5`}
+      style={{ position: "relative", display: "inline-block", lineHeight: 0 }}
+    >
+      <Row fill="#e2ddd0" />
+      <span style={{ position: "absolute", top: 0, left: 0, width: pct, overflow: "hidden", whiteSpace: "nowrap" }}>
+        <Row fill="#e6a52c" />
+      </span>
+    </span>
+  );
+}
+
 export function SpecialBadge({ special }: { special: { price: number | null; was: number | null } }) {
   // Sits over the thumbnail, so it uses a SOLID accent ground + cream text (not a
   // translucent tint) to stay legible on any image behind it.

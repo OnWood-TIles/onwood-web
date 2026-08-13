@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
-import { getRange, getTaxonomy, listPairCandidates } from "../../../lib/onbase/client";
+import { getRange, getReviews, getTaxonomy, listPairCandidates } from "../../../lib/onbase/client";
 import { pickPairs } from "../../../lib/pairs";
 import ProductView from "../../components/shop/ProductView";
+import ProductReviews from "../../components/shop/ProductReviews";
 import { TechnicalSpecs } from "../../components/shop/shared";
 
 export const dynamic = "force-dynamic";
@@ -79,6 +80,10 @@ export default async function ProductPage({
   ]);
   if (!range) notFound();
 
+  // Approved reviews for this product (keyed off the range/product id). Fails
+  // open to an empty summary, so a hiccup never breaks the product render.
+  const { reviews, average, count } = await getReviews(range.id);
+
   const dept = taxonomy.find((d) => d.slug === range.department);
   const catLabels = range.categories
     .map((c) => dept?.categories.find((x) => x.slug === c)?.label || c)
@@ -102,6 +107,27 @@ export default async function ProductPage({
   const image = rawImage ? (rawImage.startsWith("/") ? `${SITE}${rawImage}` : rawImage) : null;
   const description = range.description?.trim() || null;
   const category = dept?.label || catLabels[0] || null;
+  // Reviews enrich the Product schema with an aggregate rating + individual
+  // reviews (rich results / star ratings in search). Only emitted when there is
+  // at least one review - Google flags an aggregateRating with no reviews.
+  const reviewLd =
+    count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(average.toFixed(1)),
+            reviewCount: count,
+          },
+          review: reviews.map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+            author: { "@type": "Person", name: r.authorName },
+            ...(r.title ? { name: r.title } : {}),
+            reviewBody: r.body,
+            datePublished: r.createdAt,
+          })),
+        }
+      : {};
   const productLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -110,6 +136,7 @@ export default async function ProductPage({
     ...(description ? { description } : {}),
     brand: { "@type": "Brand", name: "OnWood Tiles" },
     ...(category ? { category } : {}),
+    ...reviewLd,
     url: `${SITE}/product/${slug}`,
   };
 
@@ -160,6 +187,13 @@ export default async function ProductPage({
               documents={range.documents}
             />
           }
+        />
+        <ProductReviews
+          productId={range.id}
+          productName={range.name}
+          reviews={reviews}
+          average={average}
+          count={count}
         />
       </main>
       <MarketingFooter />

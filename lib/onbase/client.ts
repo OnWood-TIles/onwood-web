@@ -238,6 +238,68 @@ export async function saveBlog(posts: BlogPost[]): Promise<BlogPost[]> {
   return Array.isArray(json?.data) ? json.data : [];
 }
 
+// ── Product reviews ─────────────────────────────────────────────────────────
+// Customer-facing reviews, moderated in OnBase (submissions land PENDING; only
+// approved ones come back on the read). READ fails-open (an empty summary never
+// breaks a product render); the WRITE fails closed (the API route needs to know
+// whether the review was actually accepted so it can tell the customer).
+export type ProductReview = {
+  id: string;
+  authorName: string;
+  rating: number; // 1-5
+  title: string | null;
+  body: string;
+  images: string[];
+  verified: boolean;
+  reply: string | null; // business reply, when set
+  repliedAt: string | null; // ISO
+  createdAt: string; // ISO
+};
+
+export type ReviewSummary = { reviews: ProductReview[]; average: number; count: number };
+
+/** Approved reviews + aggregate for one product. Fails open to an empty summary. */
+export function getReviews(productId: string): Promise<ReviewSummary> {
+  const empty: ReviewSummary = { reviews: [], average: 0, count: 0 };
+  return onbaseGet<ReviewSummary>(
+    `/api/v1/website/reviews?productId=${encodeURIComponent(productId)}`,
+    { revalidate: TTL_STOCK, tags: ["reviews", `reviews:${productId}`] },
+    empty,
+  ).then((r) =>
+    r && Array.isArray(r.reviews)
+      ? { reviews: r.reviews, average: Number(r.average) || 0, count: Number(r.count) || 0 }
+      : empty,
+  );
+}
+
+export type ReviewSubmission = {
+  productId: string;
+  authorName: string;
+  authorEmail: string;
+  rating: number; // 1-5
+  title?: string;
+  body: string;
+  images?: string[]; // https urls
+  orderRef?: string;
+  ip?: string;
+};
+
+/** Submit a new (PENDING, moderated) review server-to-server. WRITES fail closed. */
+export async function submitReview(payload: ReviewSubmission): Promise<{ id: string }> {
+  if (!KEY) throw new Error("ONBASE_API_KEY not configured");
+  const res = await fetch(`${BASE}/api/v1/website/reviews`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Review submit failed (${res.status})`);
+  const json = (await res.json()) as { data?: { ok?: boolean; id?: string } };
+  const id = json?.data?.id;
+  if (!id) throw new Error("Review submit failed (no id returned)");
+  return { id };
+}
+
 /** Published ranges, optionally narrowed by department/category/specials and
  *  attribute filters ({ colour: ["green"] } -> ?f=colour:green; OR within a
  *  group, AND across groups). */
