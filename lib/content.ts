@@ -526,7 +526,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
       {
         title: "Outdoor & pool areas",
         body: "Alfresco entertaining and pools are a way of life here. We stock slip-rated (R11 and above) porcelain and textured finishes that stay safe underfoot around pools, patios and BBQ areas.",
-        href: "/shop/tiles?c=outdoor",
+        href: "/shop/tiles?f=location-use:outdoor",
         hrefLabel: "Outdoor tiles",
       },
       {
