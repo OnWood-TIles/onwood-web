@@ -161,69 +161,66 @@ export default async function DepartmentPage({
           <span style={{ margin: "0 8px" }}>/</span>
           <span style={{ color: "var(--ink)", fontWeight: 600 }}>{dept.label}</span>
         </nav>
-        {seo ? (
-          <section style={{ display: "flex", flexWrap: "wrap", gap: "clamp(20px,4vw,44px)", alignItems: "center", margin: "0 0 30px" }}>
-            <div style={{ flex: "1 1 340px", minWidth: 0 }}>
-              <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 10px" }}>{seo.eyebrow}</p>
-              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,48px)", letterSpacing: "-.02em", margin: "0 0 16px" }}>
-                {seo.h1}
-              </h1>
-              {seo.intro.map((para, i) => (
-                <p key={i} style={{ fontSize: 16.5, lineHeight: 1.7, color: "#3a444a", maxWidth: "62ch", margin: "0 0 12px" }}>{para}</p>
+        <div className="ow-hero">
+          <div className="ow-hero-text">
+            {seo ? (
+              <>
+                <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 10px" }}>{seo.eyebrow}</p>
+                <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,46px)", letterSpacing: "-.02em", lineHeight: 1.06, margin: "0 0 16px" }}>{seo.h1}</h1>
+                {seo.intro.map((para, i) => (
+                  <p key={i} style={{ fontSize: 16.5, lineHeight: 1.7, color: "#3a444a", margin: "0 0 12px" }}>{para}</p>
+                ))}
+              </>
+            ) : (
+              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,46px)", letterSpacing: "-.02em", margin: 0 }}>{dept.label}</h1>
+            )}
+          </div>
+
+          {(featuredRoom || featuredFace || deptHero) && (
+            <div className="ow-hero-media">
+              {/* Sample stack: main installed room shot + an overlapping tile plate
+                  + an "In focus" chip linking to the (daily-rotating) featured range. */}
+              <div className="ow-hero-frame">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="ow-hero-img" src={(featuredRoom || featuredFace || deptHero) as string} alt={`${dept.label} styled in a room by OnWood Tiles, Sunshine Coast`} />
+              </div>
+              {featuredRoom && featuredFace && (
+                <div className="ow-hero-plate">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={featuredFace} alt={featured ? `${featured.name} tile close-up` : ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+              )}
+              {featured && (
+                <Link href={`/product/${featured.slug}`} style={{ position: "absolute", left: 14, top: 14, zIndex: 2, display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,246,238,.94)", color: "var(--ink)", textDecoration: "none", fontWeight: 700, fontSize: 12.5, padding: "7px 13px", borderRadius: 999, boxShadow: "0 6px 18px -8px rgba(30,20,10,.5)" }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--accent)" }}>In focus</span>
+                  {featured.name}
+                </Link>
+              )}
+            </div>
+          )}
+
+          {rangeCount > 0 && (
+            <div className="ow-hero-stats">
+              {[{ n: rangeCount, l: rangeCount === 1 ? "range" : "ranges" }, { n: colourCount, l: colourCount === 1 ? "colour" : "colours" }].map((s) => (
+                <span key={s.l} style={{ display: "inline-flex", alignItems: "baseline", gap: 8 }}>
+                  <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 25, letterSpacing: "-.02em", color: "var(--ink)" }}>{s.n}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "#8a8577" }}>{s.l}</span>
+                </span>
               ))}
             </div>
-            {(featuredRoom || featuredFace || deptHero) && (
-              <div style={{ flex: "1 1 320px", maxWidth: 480, width: "100%" }}>
-                {/* Sample stack: main installed room shot + an overlapping tile plate
-                    + an "In focus" chip linking to the (daily-rotating) featured range. */}
-                <div style={{ position: "relative", paddingBottom: featuredRoom && featuredFace ? 26 : 0, paddingRight: featuredRoom && featuredFace ? 22 : 0 }}>
-                  <div style={{ borderRadius: 20, overflow: "hidden", aspectRatio: "4 / 3", border: "1px solid var(--line)", boxShadow: "0 24px 60px -34px rgba(30,20,10,.5)", background: "#fff" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={(featuredRoom || featuredFace || deptHero) as string} alt={`${dept.label} styled in a room by OnWood Tiles, Sunshine Coast`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                  </div>
-                  {featuredRoom && featuredFace && (
-                    <div style={{ position: "absolute", right: 0, bottom: 0, width: "40%", maxWidth: 178, aspectRatio: "1 / 1", borderRadius: 14, overflow: "hidden", border: "4px solid var(--bg)", boxShadow: "0 16px 34px -18px rgba(30,20,10,.55)", background: "#fff" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={featuredFace} alt={featured ? `${featured.name} tile close-up` : ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                    </div>
-                  )}
-                  {featured && (
-                    <Link href={`/product/${featured.slug}`} style={{ position: "absolute", left: 14, top: 14, display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,246,238,.94)", color: "var(--ink)", textDecoration: "none", fontWeight: 700, fontSize: 12.5, padding: "7px 13px", borderRadius: 999, boxShadow: "0 6px 18px -8px rgba(30,20,10,.5)" }}>
-                      <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--accent)" }}>In focus</span>
-                      {featured.name}
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )}
-          </section>
-        ) : (
-          <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,48px)", letterSpacing: "-.02em", margin: "0 0 22px" }}>
-            {dept.label}
-          </h1>
-        )}
+          )}
 
-        {rangeCount > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px 32px", alignItems: "baseline", margin: "0 0 20px" }}>
-            {[{ n: rangeCount, l: rangeCount === 1 ? "range" : "ranges" }, { n: colourCount, l: colourCount === 1 ? "colour" : "colours" }].map((s) => (
-              <span key={s.l} style={{ display: "inline-flex", alignItems: "baseline", gap: 8 }}>
-                <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 25, letterSpacing: "-.02em", color: "var(--ink)" }}>{s.n}</span>
-                <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "#8a8577" }}>{s.l}</span>
-              </span>
-            ))}
-          </div>
-        )}
-
-        {galleryDept && (
-          <div style={{ display: "flex", justifyContent: "center", margin: "0 0 34px" }}>
-            <Link href={`/gallery?dept=${galleryDept}`} style={{ display: "inline-flex", alignItems: "center", gap: 12, background: "var(--ink)", color: "#fff6ee", fontWeight: 800, fontSize: 16, textDecoration: "none", padding: "16px 30px", borderRadius: 999, boxShadow: "0 16px 40px -22px rgba(32,48,58,.5)" }}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" />
-              </svg>
-              Search by inspiration <span aria-hidden>→</span>
-            </Link>
-          </div>
-        )}
+          {galleryDept && (
+            <div className="ow-hero-cta">
+              <Link href={`/gallery?dept=${galleryDept}`} style={{ display: "inline-flex", alignItems: "center", gap: 12, background: "var(--ink)", color: "#fff6ee", fontWeight: 800, fontSize: 16, textDecoration: "none", padding: "15px 28px", borderRadius: 999, boxShadow: "0 16px 40px -22px rgba(32,48,58,.5)" }}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="8" height="8" rx="1.5" /><rect x="13" y="3" width="8" height="8" rx="1.5" /><rect x="3" y="13" width="8" height="8" rx="1.5" /><rect x="13" y="13" width="8" height="8" rx="1.5" />
+                </svg>
+                Search by inspiration <span aria-hidden>→</span>
+              </Link>
+            </div>
+          )}
+        </div>
 
         {dept.categories.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
@@ -276,6 +273,26 @@ export default async function DepartmentPage({
           .ow-faq[open] .ow-faq-plus { transform: rotate(45deg); }
           .ow-util { transition: transform .2s ease, box-shadow .2s ease; }
           .ow-util:hover { transform: translateY(-3px); box-shadow: 0 24px 44px -28px rgba(32,48,58,.5); }
+
+          /* Department hero. Mobile: stacked text -> image -> stats -> button (all
+             centered, unchanged). Desktop (>=900px): a narrow text column with the
+             stats + button beneath it, and a larger image spanning the full height
+             on the right so it lines up with the heading and the button. */
+          .ow-hero { display: grid; grid-template-columns: 1fr; grid-template-areas: "text" "media" "stats" "cta"; gap: 20px; align-items: start; margin: 0 0 30px; }
+          .ow-hero-text { grid-area: text; min-width: 0; }
+          .ow-hero-media { grid-area: media; position: relative; min-width: 0; }
+          .ow-hero-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px -34px rgba(30,20,10,.5); background: #fff; aspect-ratio: 4 / 3; }
+          .ow-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+          .ow-hero-plate { position: absolute; right: 12px; bottom: 12px; z-index: 1; width: 34%; max-width: 168px; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 16px 34px -18px rgba(30,20,10,.55); background: #fff; }
+          .ow-hero-stats { grid-area: stats; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 32px; align-items: baseline; }
+          .ow-hero-cta { grid-area: cta; display: flex; justify-content: center; }
+          @media (min-width: 900px) {
+            .ow-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr); grid-template-areas: "text media" "stats media" "cta media"; column-gap: clamp(28px, 4vw, 52px); row-gap: 16px; }
+            .ow-hero-media { align-self: stretch; }
+            .ow-hero-frame { aspect-ratio: auto; height: 100%; min-height: 260px; }
+            .ow-hero-stats { justify-content: flex-start; margin-top: 6px; }
+            .ow-hero-cta { justify-content: flex-start; }
+          }
         `}</style>
       </main>
       <MarketingFooter />
