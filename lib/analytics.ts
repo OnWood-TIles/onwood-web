@@ -3,7 +3,10 @@
 // access token never reaches the browser. Needs one env var: VERCEL_TOKEN (a
 // Vercel access token). The project + team default to OnWood's own ids.
 const BASE = "https://api.vercel.com/v1/query/web-analytics";
-const TOKEN = process.env.VERCEL_TOKEN;
+// Sanitize: env vars set via PowerShell/CLI can pick up a BOM or trailing CR/LF,
+// which would corrupt the Bearer header (and 401 the analytics API). Strip
+// anything outside printable ASCII and trim - a Vercel token is plain ASCII.
+const TOKEN = (process.env.VERCEL_TOKEN ?? "").replace(/[^\x20-\x7E]/g, "").trim();
 const TEAM = process.env.VERCEL_TEAM_ID || "team_9BHMFJyfGE39zyKGZYcqvcvW";
 const PROJECT = process.env.VERCEL_PROJECT_ID || "prj_Cr9042cHzMHWB0ftJ2tWqyAV2Adu";
 

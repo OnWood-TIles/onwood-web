@@ -72,9 +72,13 @@ export async function POST(request: Request) {
       .toBuffer();
 
     const name = `reviews/${Date.now()}-${crypto.randomBytes(6).toString("hex")}.webp`;
+    // Sanitize the token (a PowerShell/CLI-set env var can carry a BOM / trailing
+    // CR that breaks the Blob auth header). A blob RW token is plain ASCII.
+    const token = (process.env.BLOB_READ_WRITE_TOKEN ?? "").replace(/[^\x20-\x7E]/g, "").trim();
     const blob = await put(name, webp, {
       access: "public",
       contentType: "image/webp",
+      token,
     });
 
     return NextResponse.json({ ok: true, url: blob.url });

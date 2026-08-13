@@ -187,13 +187,15 @@ export default async function ProductPage({
               documents={range.documents}
             />
           }
-        />
-        <ProductReviews
-          productId={range.id}
-          productName={range.name}
-          reviews={reviews}
-          average={average}
-          count={count}
+          reviewsSlot={
+            <ProductReviews
+              productId={range.id}
+              productName={range.name}
+              reviews={reviews}
+              average={average}
+              count={count}
+            />
+          }
         />
       </main>
       <MarketingFooter />

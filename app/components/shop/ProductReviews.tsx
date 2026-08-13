@@ -100,33 +100,19 @@ export default function ProductReviews({
         </p>
       )}
 
-      <div
-        style={{
-          marginTop: 22,
-          display: "grid",
-          gridTemplateColumns: count > 0 ? "minmax(0, 1.4fr) minmax(0, 1fr)" : "1fr",
-          gap: 40,
-          alignItems: "start",
-        }}
-        className="ow-reviews-grid"
-      >
-        {count > 0 && (
-          <div>
-            {reviews.map((r) => (
-              <ReviewCard key={r.id} review={r} />
-            ))}
-          </div>
-        )}
-        <div style={{ maxWidth: count > 0 ? "none" : 620 }}>
-          <ReviewForm productId={productId} productName={productName} hasReviews={count > 0} />
+      {count > 0 && (
+        <div style={{ marginTop: 12, maxWidth: 780 }}>
+          {reviews.map((r) => (
+            <ReviewCard key={r.id} review={r} />
+          ))}
         </div>
-      </div>
+      )}
 
-      <style>{`
-        @media (max-width: 860px) {
-          .ow-reviews-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+      {/* Collapsed by default (just a button) so the section stays tidy; the full
+          form opens on click. */}
+      <div style={{ marginTop: count > 0 ? 26 : 16, maxWidth: 620 }}>
+        <ReviewForm productId={productId} productName={productName} hasReviews={count > 0} collapsible />
+      </div>
     </section>
   );
 }

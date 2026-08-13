@@ -49,12 +49,17 @@ export default function ReviewForm({
   productId,
   productName,
   hasReviews,
+  collapsible = false,
 }: {
   productId: string;
   productName: string;
   /** When there are no approved reviews yet, invite the shopper to be the first. */
   hasReviews: boolean;
+  /** Start collapsed behind a button; the full form opens on click (keeps the
+   *  section tidy under the product stats). */
+  collapsible?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [photos, setPhotos] = useState<string[]>([]);
@@ -162,6 +167,24 @@ export default function ReviewForm({
           It&rsquo;ll appear on this page once our team has approved it. We appreciate you taking the time.
         </p>
       </div>
+    );
+  }
+
+  // Collapsed by default: a single tidy button that opens the full form on click.
+  if (collapsible && !open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rv-open"
+        style={{ display: "inline-flex", alignItems: "center", gap: 10, cursor: "pointer", fontFamily: "inherit", fontWeight: 800, fontSize: 15, color: "var(--accent)", background: "color-mix(in oklab, var(--accent) 8%, var(--surface))", border: "1.5px solid var(--accent)", borderRadius: 999, padding: "13px 26px" }}
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+        </svg>
+        {hasReviews ? "Write a review" : "Be the first to review"}
+        <style>{`.rv-open{transition:transform .18s ease, box-shadow .18s ease}.rv-open:hover{transform:translateY(-2px);box-shadow:0 14px 30px -16px rgba(208,106,69,.55)}`}</style>
+      </button>
     );
   }
 

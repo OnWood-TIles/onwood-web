@@ -27,6 +27,7 @@ export default function ProductView({
   showAvailability = false,
   pairs,
   specsSlot,
+  reviewsSlot,
   productBase = "/product",
 }: {
   range: WebsiteRange;
@@ -39,6 +40,8 @@ export default function ProductView({
   /** Technical specs / data sheet block. Rendered ABOVE "Pairs well with" - the
    *  technical information is more important, so it comes first. */
   specsSlot?: ReactNode;
+  /** Customer reviews block, rendered directly under the specs (statistics). */
+  reviewsSlot?: ReactNode;
   /** Base path for pair-card links ("/product" public, trade base for the portal). */
   productBase?: string;
   /** Pre-select this colourway (from ?c= deep links, e.g. colour-filter cards). */
@@ -411,6 +414,9 @@ export default function ProductView({
 
       {/* Technical data first - it's the more important information - then pairings. */}
       {specsSlot}
+
+      {/* Customer reviews sit directly under the statistics/specs. */}
+      {reviewsSlot}
 
       {pairs && pairs.length > 0 && (
         <section style={{ marginTop: 56 }}>
