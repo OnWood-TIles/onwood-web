@@ -294,7 +294,7 @@ export default async function WhyPage() {
               </Reveal>
               <Reveal delay={0.13}>
                 <p style={{ color: "#5a6067", fontSize: 15.5, lineHeight: 1.7, margin: "0 0 20px", maxWidth: 480 }}>
-                  Not right on our doorstep? We supply tiles across the Sunshine Coast with free local delivery, have a look at the{" "}
+                  Not right on our doorstep? We supply tiles across the Sunshine Coast and deliver to your suburb, have a look at the{" "}
                   <Link href="/tile-shop" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>areas we service</Link>.
                 </p>
               </Reveal>

@@ -11,12 +11,12 @@ const SITE = "https://onwoodtiles.com.au";
 export const metadata: Metadata = {
   title: "Tile Shop Sunshine Coast | Areas We Service | OnWood Tiles",
   description:
-    "OnWood Tiles supplies porcelain, wood-look and outdoor tiles across the Sunshine Coast, with free delivery to local suburbs and a showroom in Baringa. Find your area.",
+    "OnWood Tiles supplies porcelain, wood-look and outdoor tiles across the Sunshine Coast, with delivery to local suburbs and a showroom in Baringa. Find your area.",
   alternates: { canonical: `${SITE}/tile-shop` },
   openGraph: {
     title: "Tile Shop Sunshine Coast | Areas We Service | OnWood Tiles",
     description:
-      "Local tile supply across the Sunshine Coast with free delivery to your suburb and a Baringa showroom.",
+      "Local tile supply across the Sunshine Coast with delivery to your suburb and a Baringa showroom.",
     url: `${SITE}/tile-shop`,
     type: "website",
   },
@@ -61,7 +61,7 @@ export default async function TileShopHubPage() {
             Areas we {serif("service")}.
           </h1>
           <p style={{ fontSize: 17.5, lineHeight: 1.7, color: "#3a444a", maxWidth: "58ch", margin: "18px 0 0" }}>
-            OnWood Tiles is a local Sunshine Coast tile supplier. We stock porcelain, wood-look, outdoor and pool tiles built for coastal homes, with free delivery to suburbs across the coast and a showroom in Baringa.
+            OnWood Tiles is a local Sunshine Coast tile supplier. We stock porcelain, wood-look, outdoor and pool tiles built for coastal homes, with delivery to suburbs across the coast and a showroom in Baringa.
           </p>
           <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "#4a545a", maxWidth: "60ch", margin: "12px 0 0" }}>
             Pick your area below to see local delivery, drive time from our showroom, and tile guidance tailored to homes in your suburb.
@@ -83,7 +83,7 @@ export default async function TileShopHubPage() {
                   Tile Shop {s.name}
                 </span>
                 <span style={{ fontSize: 14.5, lineHeight: 1.6, color: "#5a6067", flex: 1 }}>
-                  ~{s.driveMins} min from our Baringa showroom · free delivery
+                  ~{s.driveMins} min from our Baringa showroom · delivery available
                 </span>
                 <span style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 800, fontSize: 14, color: "var(--accent)" }}>
                   View area <span aria-hidden>→</span>

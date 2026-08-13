@@ -118,7 +118,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
   )}`;
 
   const chips = [
-    { icon: "truck" as const, label: `Free delivery to ${s.name}` },
+    { icon: "truck" as const, label: `Delivery to ${s.name}` },
     { icon: "pin" as const, label: `~${s.driveMins} min from Baringa` },
     { icon: "coast" as const, label: "Supply only" },
   ];
@@ -126,8 +126,8 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
   const valueCards = [
     {
       icon: "truck" as const,
-      title: `Free delivery to ${s.name}`,
-      body: `We deliver right across ${s.name} at no charge within our zones. Tell us your suburb when you order, or collect from Baringa.`,
+      title: `Delivery to ${s.name}`,
+      body: `We deliver right across ${s.name}, just tell us your suburb for a delivery quote, or collect from Baringa. Ask us about any current delivery deals.`,
     },
     {
       icon: "pin" as const,
@@ -334,7 +334,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
                   We deliver to {s.name}
                 </h2>
                 <p style={{ fontSize: 16, lineHeight: 1.7, color: "rgba(255,246,238,.82)", maxWidth: "52ch", margin: "0 0 10px" }}>
-                  Free delivery across {s.name} within our zones, or collect from the showroom. We are about {s.driveMins} minutes south via {s.driveVia}.
+                  We deliver across {s.name}, or you can collect from the showroom. Tell us your suburb for a delivery quote, we are about {s.driveMins} minutes south via {s.driveVia}.
                 </p>
                 <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(255,246,238,.72)", margin: 0 }}>
                   {SHOP.name}, {address}

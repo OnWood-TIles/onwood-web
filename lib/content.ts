@@ -406,7 +406,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { q: "Are porcelain tiles better than ceramic?", a: "Porcelain is denser, harder-wearing and lower-maintenance, which makes it ideal for floors and outdoor areas. Ceramic is a great-value choice for walls and splashbacks. We stock both, so it comes down to where the tile is going and the look you want." },
       { q: "What are wood-look tiles?", a: "Wood-look (or timber-look) porcelain gives you the warmth and grain of timber with none of the sanding, sealing or water worries, so you can run the same floor through a bathroom, kitchen, living area and even outdoors." },
       { q: "How many tiles do I need?", a: "Measure your area in square metres and add around 10% for cuts and wastage. Our free tile calculator gives you a quick estimate, or bring your measurements into the showroom and we'll help you work it out." },
-      { q: "Do you deliver tiles across the Sunshine Coast?", a: "Yes. We offer free delivery within our Sunshine Coast delivery zones, just ask us about your suburb, and you're welcome to collect from our Baringa showroom. We're supply only, so there's no on-site measure, but we're always happy to help you choose." },
+      { q: "Do you deliver tiles across the Sunshine Coast?", a: "Yes, we deliver across the Sunshine Coast, just ask us for a delivery quote for your suburb, and you're welcome to collect from our Baringa showroom. We're supply only, so there's no on-site measure, but we're always happy to help you choose." },
     ],
   },
   wastes: {
@@ -468,7 +468,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { q: "What finishes does your tapware come in?", a: "Chrome, brushed brass and brushed copper, chosen to coordinate with our wastes, grates and tiles so your fittings feel like a set." },
       { q: "Do you have tapware for both the kitchen and bathroom?", a: "Yes. Our range covers kitchen mixers and statement bridge mixers as well as bathroom tapware, all in coordinating finishes." },
       { q: "Can you help me match tapware to my tiles?", a: "Absolutely. Bring your tile selections into the Baringa showroom and we'll help you coordinate finishes across your taps, wastes and tiles." },
-      { q: "Are you supply only?", a: "Yes, we're supply only across the Sunshine Coast, with free delivery in our delivery zones or collection from Baringa. We don't install, but we're always happy to help you choose." },
+      { q: "Are you supply only?", a: "Yes, we're supply only across the Sunshine Coast, with delivery to your suburb or collection from Baringa. We don't install, but we're always happy to help you choose." },
     ],
   },
 };
@@ -509,11 +509,11 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     name: "Maroochydore",
     driveMins: 20,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Maroochydore | Tiles + Free Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Maroochydore | Tiles + Local Delivery | OnWood Tiles",
     metaDescription:
-      "Your local tile shop for Maroochydore: porcelain, wood-look, outdoor and pool tiles built for coastal homes, with free delivery to Maroochydore. About 20 minutes away in Baringa.",
+      "Your local tile shop for Maroochydore: porcelain, wood-look, outdoor and pool tiles built for coastal homes, with delivery to Maroochydore or pickup from Baringa, about 20 minutes away.",
     intro: [
-      "Building or renovating in Maroochydore? OnWood Tiles is your local Sunshine Coast tile supplier, a short drive south in Baringa, with free delivery right across Maroochydore.",
+      "Building or renovating in Maroochydore? OnWood Tiles is your local Sunshine Coast tile supplier, a short drive south in Baringa, and we deliver right across Maroochydore.",
       "From beachfront apartments and canal-front homes to family builds, we help you choose tiles made for coastal living: hard-wearing, low-maintenance and beautiful in the Queensland light.",
     ],
     guidance: [
@@ -543,7 +543,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
       },
     ],
     faqs: [
-      { q: "Do you deliver tiles to Maroochydore?", a: "Yes. We offer free delivery across Maroochydore and the wider Sunshine Coast within our delivery zones, just tell us your suburb when you order. You're also welcome to collect from our Baringa showroom." },
+      { q: "Do you deliver tiles to Maroochydore?", a: "Yes, we deliver across Maroochydore and the wider Sunshine Coast, just tell us your suburb for a delivery quote when you order. You're also welcome to collect from our Baringa showroom." },
       { q: "How far is your showroom from Maroochydore?", a: "Our Baringa showroom is about a 20-minute drive south of Maroochydore via the Sunshine Motorway, an easy trip to see full-size boards, big-format samples and take a few home." },
       { q: "What tiles are best for a Maroochydore beach house or apartment?", a: "For coastal homes we recommend through-body porcelain: it handles salt air and humidity with almost no maintenance. Wood-look and light stone-looks suit the coastal style, and slip-rated porcelain is ideal for pools, balconies and alfresco areas." },
       { q: "Do you supply outdoor and pool tiles?", a: "Yes, slip-rated outdoor porcelain, pool-surround tiles and matching indoor tiles so your indoor-outdoor flow feels seamless." },
