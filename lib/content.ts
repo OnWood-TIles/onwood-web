@@ -64,6 +64,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/shop", label: "Shop All Tiles" },
       { href: "/#featured", label: "Currently On Trend" },
       { href: "/specials", label: "Monthly Specials" },
+      { href: "/tile-shop", label: "Areas We Service" },
       { href: "/book", label: "Book a Visit" },
     ],
   },
@@ -480,4 +481,81 @@ export async function getShopDetails(): Promise<ShopDetails> {
 /** Per-department SEO intro content for /shop/[department] (null if none set). */
 export async function getDepartmentSeo(slug: string): Promise<DepartmentSeo | null> {
   return DEPARTMENT_SEO[slug] ?? null;
+}
+
+// ---- Suburb / "areas we service" pages -------------------------------------
+// Local landing pages for the Sunshine Coast suburbs we supply. The whole point
+// (and the difference between "useful" and a Google doorway-spam page) is that
+// each one is genuinely tailored to that suburb: real drive time + delivery, and
+// tile guidance that fits the local homes and climate. Keyed by slug. Add a
+// suburb by adding an entry (drop in the drive time, character + tailored copy).
+export type SuburbSeo = {
+  slug: string;
+  name: string;
+  driveMins: number; // approx drive from the Baringa showroom
+  driveVia: string;
+  metaTitle: string;
+  metaDescription: string;
+  intro: string[]; // hero body (1-2 short paragraphs), speaks to the local customer
+  /** Tailored "tiles that suit these homes" blocks - the genuinely-useful core. */
+  guidance: { title: string; body: string; href: string; hrefLabel: string }[];
+  faqs: { q: string; a: string }[];
+  nearby: string[]; // surrounding suburbs this page also speaks to
+};
+
+export const SUBURBS: Record<string, SuburbSeo> = {
+  maroochydore: {
+    slug: "maroochydore",
+    name: "Maroochydore",
+    driveMins: 20,
+    driveVia: "the Sunshine Motorway",
+    metaTitle: "Tile Shop Maroochydore | Tiles + Free Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Maroochydore: porcelain, wood-look, outdoor and pool tiles built for coastal homes, with free delivery to Maroochydore. About 20 minutes away in Baringa.",
+    intro: [
+      "Building or renovating in Maroochydore? OnWood Tiles is your local Sunshine Coast tile supplier, a short drive south in Baringa, with free delivery right across Maroochydore.",
+      "From beachfront apartments and canal-front homes to family builds, we help you choose tiles made for coastal living: hard-wearing, low-maintenance and beautiful in the Queensland light.",
+    ],
+    guidance: [
+      {
+        title: "Built for the coast",
+        body: "Salt air and humidity are hard on some surfaces. For Maroochydore's beachside and canal homes we lean on through-body porcelain: it shrugs off salt, moisture and UV where natural stone would need sealing and upkeep.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Outdoor & pool areas",
+        body: "Alfresco entertaining and pools are a way of life here. We stock slip-rated (R11 and above) porcelain and textured finishes that stay safe underfoot around pools, patios and BBQ areas.",
+        href: "/shop/tiles?c=outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Light, coastal looks",
+        body: "Wood-look planks, soft limestone-looks and crisp whites suit the relaxed coastal style of Maroochydore homes and apartments: warm underfoot, easy to keep, and they bounce the coastal light.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Apartments & renovations",
+        body: "Renovating a unit or a bathroom? Large-format, rectified tiles make small coastal spaces feel bigger, and we supply the matching wastes, tapware and trims to finish the job in one place.",
+        href: "/shop",
+        hrefLabel: "Shop everything",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Maroochydore?", a: "Yes. We offer free delivery across Maroochydore and the wider Sunshine Coast within our delivery zones, just tell us your suburb when you order. You're also welcome to collect from our Baringa showroom." },
+      { q: "How far is your showroom from Maroochydore?", a: "Our Baringa showroom is about a 20-minute drive south of Maroochydore via the Sunshine Motorway, an easy trip to see full-size boards, big-format samples and take a few home." },
+      { q: "What tiles are best for a Maroochydore beach house or apartment?", a: "For coastal homes we recommend through-body porcelain: it handles salt air and humidity with almost no maintenance. Wood-look and light stone-looks suit the coastal style, and slip-rated porcelain is ideal for pools, balconies and alfresco areas." },
+      { q: "Do you supply outdoor and pool tiles?", a: "Yes, slip-rated outdoor porcelain, pool-surround tiles and matching indoor tiles so your indoor-outdoor flow feels seamless." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Maroochydore project or hold it for pickup at Baringa." },
+    ],
+    nearby: ["Mooloolaba", "Alexandra Headland", "Cotton Tree", "Kuluin", "Buderim", "Kawana", "Sippy Downs", "Bli Bli"],
+  },
+};
+
+export const SUBURB_LIST: SuburbSeo[] = Object.values(SUBURBS);
+
+/** Suburb landing-page content (null if we don't yet have a page for that slug). */
+export async function getSuburb(slug: string): Promise<SuburbSeo | null> {
+  return SUBURBS[slug] ?? null;
 }

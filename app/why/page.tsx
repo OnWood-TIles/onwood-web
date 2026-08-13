@@ -288,8 +288,14 @@ export default async function WhyPage() {
                 </h2>
               </Reveal>
               <Reveal delay={0.1}>
-                <p style={{ color: "#5a6067", fontSize: 16, lineHeight: 1.7, margin: "0 0 20px", maxWidth: 480 }}>
+                <p style={{ color: "#5a6067", fontSize: 16, lineHeight: 1.7, margin: "0 0 14px", maxWidth: 480 }}>
                   Full-size boards, big-format samples and honest Sunshine Coast light. Come and stand a tile next to your own colours before you commit, and take samples home the same day.
+                </p>
+              </Reveal>
+              <Reveal delay={0.13}>
+                <p style={{ color: "#5a6067", fontSize: 15.5, lineHeight: 1.7, margin: "0 0 20px", maxWidth: 480 }}>
+                  Not right on our doorstep? We supply tiles across the Sunshine Coast with free local delivery, have a look at the{" "}
+                  <Link href="/tile-shop" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 2 }}>areas we service</Link>.
                 </p>
               </Reveal>
               <Reveal delay={0.15}>
