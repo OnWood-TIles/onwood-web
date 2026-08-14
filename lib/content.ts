@@ -71,6 +71,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "Explore",
     links: [
+      { href: "/magazine", label: "Kiln, Our Magazine" },
       { href: "/quiz", label: "Find Your Tile" },
       { href: "/gallery", label: "Gallery" },
       { href: "/calculator", label: "Tile Calculator" },
