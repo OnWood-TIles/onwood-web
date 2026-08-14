@@ -30,6 +30,8 @@ export type MagLeaf = {
   titleAccent?: string; // trailing word rendered in Newsreader italic
   standfirst?: string;
   readMins?: number;
+  /** Continuation pages carry the running title here instead of the full head. */
+  contd?: string;
   blocks?: MagBlock[];
   pullquote?: string;
   /** Primary product slug -> resolves to a hero "installed" room shot. */

@@ -13,6 +13,7 @@ export type FlipLeaf = {
   titleAccent?: string;
   standfirst?: string;
   readMins?: number;
+  contd?: string;
   blocks?: MagBlock[];
   pullquote?: string;
   contents?: { n: string; title: string; section: string }[];
@@ -224,6 +225,21 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
             ))}
           </div>
         )}
+        <TieIn tie={leaf.tie} />
+      </div>
+    );
+  }
+
+  // Continuation page: a light running header instead of the full title block.
+  if (leaf.contd) {
+    return (
+      <div className="mag-pad">
+        <div className="mag-contd">
+          <span className="mag-contd-title">{leaf.contd}</span>
+          <span className="mag-contd-tag">continued</span>
+        </div>
+        <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
+        {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
         <TieIn tie={leaf.tie} />
       </div>
     );
@@ -617,6 +633,9 @@ const css = `
 .mag-book.loupe-on{cursor:none}
 /* content typography (rendered inside the fit wrapper) */
 .mag-pad{padding:clamp(20px,2.4vw,36px)}
+.mag-contd{display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:16px}
+.mag-contd-title{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.01em;font-size:19px;color:var(--ink)}
+.mag-contd-tag{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--terra)}
 .mag-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);margin-bottom:12px}
 .mag-h1{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.03em;line-height:.98;
   font-size:clamp(30px,4.4vw,50px);margin:0 0 4px;color:var(--ink)}

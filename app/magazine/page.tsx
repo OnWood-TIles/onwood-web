@@ -2,8 +2,70 @@ import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import MagazineFlip, { type FlipLeaf, type TieItem } from "./MagazineFlip";
-import { MAGAZINE, MAGAZINE_ISSUE } from "../../lib/magazine";
+import { MAGAZINE, MAGAZINE_ISSUE, type MagLeaf, type MagBlock } from "../../lib/magazine";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
+
+// ── Auto-paginate long articles across several A4 pages ────────────────────
+// A book never crams an 800-1150 word article onto one page; it flows it over
+// several readable pages. We split an article's blocks into page-sized chunks
+// (rough character budget), so each page holds ~one page of text at full size.
+// Part 1 keeps the title / standfirst / hero (less text room); later parts get
+// a light "continued" header. The pull quote + product tie-in ride the last part.
+function blockWeight(b: MagBlock): number {
+  if (b.t === "p" || b.t === "lead") return b.text.length + 40;
+  if (b.t === "list") return b.items.reduce((s, i) => s + i.length, 0) + b.items.length * 34;
+  if (b.t === "note") return b.text.length + 90;
+  if (b.t === "h") return 70;
+  if (b.t === "diagram") return 760;
+  return 60;
+}
+
+function paginateArticle(leaf: MagLeaf): MagLeaf[] {
+  if (leaf.kind !== "article" || !leaf.blocks || leaf.blocks.length === 0) return [leaf];
+  const FIRST = 1850; // part 1 shares the page with the hero + title
+  const REST = 3300; // later parts are text-only
+  const pages: MagBlock[][] = [];
+  let cur: MagBlock[] = [];
+  let used = 0;
+  let budget = FIRST;
+  for (const b of leaf.blocks) {
+    const w = blockWeight(b);
+    if (cur.length && used + w > budget) {
+      pages.push(cur);
+      cur = [];
+      used = 0;
+      budget = REST;
+    }
+    cur.push(b);
+    used += w;
+  }
+  if (cur.length) pages.push(cur);
+  if (pages.length === 1) return [leaf];
+
+  const runningTitle = [leaf.title, leaf.titleAccent].filter(Boolean).join(" ");
+  return pages.map((blocks, i) => {
+    const last = i === pages.length - 1;
+    if (i === 0) {
+      return { ...leaf, blocks, pullquote: undefined, tieIn: undefined };
+    }
+    return {
+      ...leaf,
+      id: `${leaf.id}-${i + 1}`,
+      contd: runningTitle,
+      title: undefined,
+      titleAccent: undefined,
+      standfirst: undefined,
+      readMins: undefined,
+      imageSlug: undefined,
+      imageUrl: undefined,
+      imageColour: undefined,
+      imageCaption: undefined,
+      blocks,
+      pullquote: last ? leaf.pullquote : undefined,
+      tieIn: last ? leaf.tieIn : undefined,
+    };
+  });
+}
 
 export const revalidate = 1800;
 
@@ -62,7 +124,7 @@ export default async function MagazinePage() {
   const ranges = await listRanges({ department: "tiles" });
   const byslug = new Map(ranges.map((r) => [r.slug, r]));
 
-  const leaves: FlipLeaf[] = MAGAZINE.map((leaf) => ({
+  const leaves: FlipLeaf[] = MAGAZINE.flatMap(paginateArticle).map((leaf) => ({
     id: leaf.id,
     kind: leaf.kind,
     section: leaf.section,
@@ -70,6 +132,7 @@ export default async function MagazinePage() {
     titleAccent: leaf.titleAccent,
     standfirst: leaf.standfirst,
     readMins: leaf.readMins,
+    contd: leaf.contd,
     blocks: leaf.blocks,
     pullquote: leaf.pullquote,
     contents: leaf.contents,
