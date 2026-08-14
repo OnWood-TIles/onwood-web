@@ -22,10 +22,16 @@ export const metadata: Metadata = {
 };
 
 // ── Image resolution against the live catalogue ───────────────────────────
-function heroFor(r?: WebsiteRange): string | null {
+function heroFor(r?: WebsiteRange, colour?: string): string | null {
   if (!r) return null;
-  const inst = (r.swatches || []).map((s) => s.installedImage).find(Boolean);
-  return inst || r.heroImage || (r.swatches || []).map((s) => s.image).find(Boolean) || null;
+  const swatches = r.swatches || [];
+  if (colour) {
+    const match = swatches.find((s) => s.colour?.toLowerCase() === colour.toLowerCase());
+    if (match?.installedImage) return match.installedImage;
+    if (match?.image) return match.image;
+  }
+  const inst = swatches.map((s) => s.installedImage).find(Boolean);
+  return inst || r.heroImage || swatches.map((s) => s.image).find(Boolean) || null;
 }
 function galleryFor(r: WebsiteRange | undefined, count: number): string[] {
   if (!r) return [];
@@ -67,15 +73,81 @@ export default async function MagazinePage() {
     blocks: leaf.blocks,
     pullquote: leaf.pullquote,
     contents: leaf.contents,
-    heroUrl: leaf.imageSlug ? heroFor(byslug.get(leaf.imageSlug)) : null,
+    heroUrl:
+      leaf.imageUrl ??
+      (leaf.imageSlug ? heroFor(byslug.get(leaf.imageSlug), leaf.imageColour) : null),
+    imageCaption: leaf.imageCaption,
     gallery: leaf.gallerySlug ? galleryFor(byslug.get(leaf.gallerySlug), 5) : undefined,
     tie: tieFor(leaf.tieIn, byslug),
   }));
+
+  const explore = [
+    {
+      href: "/gallery",
+      label: "The Gallery",
+      blurb: "Hundreds of rooms styled around real OnWood tiles. Filter by look, save your favourites.",
+      img: heroFor(byslug.get("estella-60")),
+    },
+    {
+      href: "/blog",
+      label: "Ideas & Inspiration",
+      blurb: "Guides and stories on choosing, laying and living with tile, from our journal.",
+      img: heroFor(byslug.get("terroir-60")),
+    },
+    {
+      href: "/vision-board",
+      label: "Vision Board",
+      blurb: "Pull the looks you love into one place and build your own board to bring in.",
+      img: heroFor(byslug.get("marrakesh-decor")),
+    },
+  ];
 
   return (
     <div style={{ background: "var(--bg)" }}>
       <MarketingNav />
       <MagazineFlip leaves={leaves} />
+
+      {/* See more inspiration */}
+      <section style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}>
+        <style>{`.kx-card{position:relative;display:block;border-radius:8px;overflow:hidden;text-decoration:none;background:#e9e3d8;aspect-ratio:4/3}
+.kx-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.kx-card:hover img{transform:scale(1.05)}
+.kx-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,26,32,0) 30%,rgba(14,26,32,.82) 100%)}
+.kx-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:22px;color:#fff}
+.kx-arrow{color:var(--accent)}`}</style>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "72px 40px 84px" }}>
+          <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto 40px" }}>
+            <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 12.5, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--accent)" }}>
+              Keep exploring
+            </div>
+            <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(28px,4vw,42px)", lineHeight: 1.05, margin: "10px 0 12px", color: "var(--ink)" }}>
+              See more inspiration
+            </h2>
+            <p style={{ fontFamily: "var(--font-manrope)", fontSize: 16, lineHeight: 1.6, color: "var(--muted)", margin: 0 }}>
+              The reading does not stop here. Wander the gallery, dive into our guides, or start saving the looks you love for your own place.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 22 }}>
+            {explore.map((c) => (
+              <a key={c.href} href={c.href} className="kx-card">
+                {c.img && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.img} alt={c.label} loading="lazy" />
+                )}
+                <div className="kx-scrim" />
+                <div className="kx-inner">
+                  <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 22, letterSpacing: "-.01em" }}>{c.label}</div>
+                  <p style={{ fontFamily: "var(--font-manrope)", fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 0", opacity: 0.92 }}>
+                    {c.blurb} <span className="kx-arrow">&rsaquo;</span>
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <MarketingFooter />
     </div>
   );

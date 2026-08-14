@@ -17,6 +17,7 @@ export type FlipLeaf = {
   pullquote?: string;
   contents?: { n: string; title: string; section: string }[];
   heroUrl?: string | null;
+  imageCaption?: string;
   gallery?: string[];
   tie?: TieItem[];
 };
@@ -195,10 +196,13 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
     return (
       <div className="mag-pad">
         {leaf.heroUrl && (
-          <div className="mag-hero mag-hero-wide">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={leaf.heroUrl} alt="" />
-          </div>
+          <figure className="mag-hero mag-hero-wide">
+            <div className="mag-hero-img">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={leaf.heroUrl} alt="" />
+            </div>
+            {leaf.imageCaption && <figcaption className="mag-cap">{leaf.imageCaption}</figcaption>}
+          </figure>
         )}
         <div className="mag-eyebrow">{leaf.section}</div>
         <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
@@ -238,10 +242,13 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
       <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
       {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
       {leaf.heroUrl && (
-        <div className="mag-hero">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={leaf.heroUrl} alt="" />
-        </div>
+        <figure className="mag-hero">
+          <div className="mag-hero-img">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={leaf.heroUrl} alt="" />
+          </div>
+          {leaf.imageCaption && <figcaption className="mag-cap">{leaf.imageCaption}</figcaption>}
+        </figure>
       )}
       <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
       {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
@@ -251,37 +258,61 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
 }
 
 export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(0); // left-hand page of the current spread
+  const [per, setPer] = useState(2); // pages per view: 2 = book spread, 1 = mobile
   const [showToc, setShowToc] = useState(false);
   const n = leaves.length;
   const trackRef = useRef<HTMLDivElement>(null);
   const touch = useRef<{ x: number; y: number } | null>(null);
 
+  // Two-up "book" on wide screens, single page on phones/tablets.
+  useEffect(() => {
+    const apply = () => {
+      const two = window.innerWidth >= 860;
+      setPer(two ? 2 : 1);
+      setIndex((i) => (two ? i - (i % 2) : i)); // snap to an even left page in book mode
+    };
+    apply();
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, []);
+
   const go = useCallback(
-    (to: number) => {
+    (dir: number) => {
       setIndex((prev) => {
-        const next = Math.max(0, Math.min(n - 1, to));
-        if (next !== prev) {
-          // reset the incoming leaf's scroll to the top
-          const el = trackRef.current?.children[next] as HTMLElement | undefined;
-          if (el) el.scrollTop = 0;
+        const next = Math.max(0, Math.min(n - 1, prev + dir * per));
+        const snapped = per === 2 ? next - (next % 2) : next;
+        if (snapped !== prev && trackRef.current) {
+          // reset the incoming leaves' scroll to the top
+          for (let k = snapped; k < snapped + per && k < n; k++) {
+            const el = trackRef.current.children[k] as HTMLElement | undefined;
+            if (el) el.scrollTop = 0;
+          }
         }
-        return next;
+        return snapped;
       });
     },
-    [n]
+    [n, per]
+  );
+
+  const jump = useCallback(
+    (to: number) => {
+      const snapped = per === 2 ? to - (to % 2) : to;
+      setIndex(Math.max(0, Math.min(n - 1, snapped)));
+    },
+    [n, per]
   );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); go(index + 1); }
-      else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(index - 1); }
-      else if (e.key === "Home") go(0);
-      else if (e.key === "End") go(n - 1);
+      if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); go(1); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(-1); }
+      else if (e.key === "Home") jump(0);
+      else if (e.key === "End") jump(n - 1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [index, go, n]);
+  }, [go, jump, n]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -290,16 +321,21 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
     if (!touch.current) return;
     const dx = e.changedTouches[0].clientX - touch.current.x;
     const dy = e.changedTouches[0].clientY - touch.current.y;
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-      go(index + (dx < 0 ? 1 : -1));
-    }
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) go(dx < 0 ? 1 : -1);
     touch.current = null;
   };
 
   const tocIndex = leaves.findIndex((l) => l.kind === "contents");
+  const leafPct = 100 / per;
+  const atStart = index === 0;
+  const atEnd = index + per >= n;
+  const pageLabel =
+    per === 2 && index + 1 < n
+      ? `${String(index + 1).padStart(2, "0")}-${String(Math.min(index + 2, n)).padStart(2, "0")}`
+      : String(index + 1).padStart(2, "0");
 
   return (
-    <div className="mag-stage">
+    <div className="mag-stage" data-per={per}>
       {/* Space Mono for editorial labels, loaded like the brochure */}
       <link
         rel="stylesheet"
@@ -307,54 +343,53 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
       />
       <style>{css}</style>
 
-      <div
-        className="mag-book"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
+      <div className="mag-book" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div
           ref={trackRef}
           className="mag-track"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          style={{ transform: `translateX(-${index * leafPct}%)` }}
         >
           {leaves.map((leaf) => (
-            <div className="mag-leaf" key={leaf.id}>
+            <div className="mag-leaf" key={leaf.id} style={{ flexBasis: `${leafPct}%` }}>
               <Leaf leaf={leaf} />
             </div>
           ))}
         </div>
 
-        {/* Edge tap zones (desktop) */}
-        <button className="mag-edge mag-edge-l" aria-label="Previous page" onClick={() => go(index - 1)} disabled={index === 0} />
-        <button className="mag-edge mag-edge-r" aria-label="Next page" onClick={() => go(index + 1)} disabled={index === n - 1} />
+        {/* Center gutter / fold (book mode only) */}
+        {per === 2 && <div className="mag-fold" aria-hidden="true" />}
+
+        {/* Edge tap zones */}
+        <button className="mag-edge mag-edge-l" aria-label="Previous page" onClick={() => go(-1)} disabled={atStart} />
+        <button className="mag-edge mag-edge-r" aria-label="Next page" onClick={() => go(1)} disabled={atEnd} />
       </div>
 
       {/* Controls */}
       <div className="mag-controls">
-        <button className="mag-btn" onClick={() => go(index - 1)} disabled={index === 0}>&lsaquo; Prev</button>
+        <button className="mag-btn" onClick={() => go(-1)} disabled={atStart}>&lsaquo; Prev</button>
         <div className="mag-mid">
           <button className="mag-toc-btn" onClick={() => setShowToc((s) => !s)}>Contents</button>
-          <span className="mag-count">{String(index + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
+          <span className="mag-count">{pageLabel} / {String(n).padStart(2, "0")}</span>
           <button className="mag-toc-btn" onClick={() => window.print()}>Print</button>
         </div>
-        <button className="mag-btn" onClick={() => go(index + 1)} disabled={index === n - 1}>Next &rsaquo;</button>
+        <button className="mag-btn" onClick={() => go(1)} disabled={atEnd}>Next &rsaquo;</button>
       </div>
 
       {/* progress */}
-      <div className="mag-progress"><span style={{ width: `${((index + 1) / n) * 100}%` }} /></div>
+      <div className="mag-progress"><span style={{ width: `${(Math.min(index + per, n) / n) * 100}%` }} /></div>
 
       {/* Contents overlay */}
       {showToc && (
         <div className="mag-toc-overlay" onClick={() => setShowToc(false)}>
           <div className="mag-toc-panel" onClick={(e) => e.stopPropagation()}>
             <div className="mag-eyebrow" style={{ marginBottom: 14 }}>Jump to</div>
-            <button className="mag-jump" onClick={() => { go(0); setShowToc(false); }}>
+            <button className="mag-jump" onClick={() => { jump(0); setShowToc(false); }}>
               <span className="mag-toc-n">00</span><span className="mag-toc-t">Cover</span>
             </button>
             {tocIndex >= 0 && leaves[tocIndex].contents?.map((c) => {
               const li = leaves.findIndex((l) => l.section?.startsWith(c.n));
               return (
-                <button key={c.n} className="mag-jump" onClick={() => { if (li >= 0) go(li); setShowToc(false); }}>
+                <button key={c.n} className="mag-jump" onClick={() => { if (li >= 0) jump(li); setShowToc(false); }}>
                   <span className="mag-toc-n">{c.n}</span>
                   <span className="mag-toc-t">{c.title}</span>
                 </button>
@@ -363,8 +398,6 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
           </div>
         </div>
       )}
-
-      {/* Print-only stacked version (each leaf a page) lives in CSS via .mag-leaf */}
     </div>
   );
 }
@@ -372,11 +405,15 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
 const css = `
 .mag-stage{--cream:${CREAM};--ink:${INK};--muted:${MUTED};--terra:${TERRA};--teal:${TEAL};--deep:${DEEP};--line:${LINE};
   display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 16px 30px;background:${DEEP};min-height:100vh}
-.mag-book{position:relative;width:min(94vw,880px);height:min(84vh,1180px);background:var(--cream);border-radius:6px;
+.mag-book{position:relative;width:min(96vw,1240px);height:min(84vh,1180px);background:var(--cream);border-radius:6px;
   box-shadow:0 40px 90px -30px rgba(0,0,0,.6),0 2px 0 rgba(255,255,255,.04);overflow:hidden}
 .mag-track{display:flex;height:100%;transition:transform .55s cubic-bezier(.5,0,.1,1);will-change:transform}
-.mag-leaf{flex:0 0 100%;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+.mag-leaf{flex-grow:0;flex-shrink:0;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
   color:var(--ink);font-family:var(--font-manrope),system-ui,sans-serif}
+/* the book gutter: a soft central fold shadow + hairline spine (book mode) */
+.mag-fold{position:absolute;top:0;bottom:0;left:calc(50% - 34px);width:68px;pointer-events:none;z-index:3;
+  background:linear-gradient(90deg,rgba(18,26,30,0) 0%,rgba(18,26,30,.05) 36%,rgba(18,26,30,.17) 50%,rgba(18,26,30,.05) 64%,rgba(18,26,30,0) 100%)}
+.mag-fold::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(18,26,30,.16)}
 .mag-leaf::-webkit-scrollbar{width:8px}.mag-leaf::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
 .mag-pad{padding:clamp(26px,4.4vw,52px)}
 .mag-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);margin-bottom:14px}
@@ -385,9 +422,12 @@ const css = `
 .mag-h1 em{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-weight:400;color:var(--teal)}
 .mag-standfirst{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:clamp(17px,2.4vw,21px);
   line-height:1.5;color:#41535d;margin:18px 0 22px;max-width:46ch}
-.mag-hero{border-radius:5px;overflow:hidden;margin:0 0 24px;aspect-ratio:16/10;background:#e9e3d8}
-.mag-hero img{width:100%;height:100%;object-fit:cover;display:block}
-.mag-hero-wide{aspect-ratio:16/9;margin-bottom:26px}
+.mag-hero{margin:0 0 24px}
+.mag-hero-img{border-radius:5px;overflow:hidden;aspect-ratio:16/10;background:#e9e3d8}
+.mag-hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+.mag-hero-wide{margin-bottom:26px}
+.mag-hero-wide .mag-hero-img{aspect-ratio:16/9}
+.mag-cap{font-size:12px;font-style:italic;color:var(--muted);margin:9px 2px 0;line-height:1.45}
 .mag-body{max-width:62ch}
 .mag-p{font-size:clamp(15px,1.7vw,16.5px);line-height:1.72;margin:0 0 16px;color:#28363f}
 .mag-lead{color:var(--ink);font-weight:800}
@@ -439,7 +479,7 @@ const css = `
 .mag-edge:disabled{cursor:default}
 .mag-edge-l{left:0}.mag-edge-r{right:0}
 /* controls */
-.mag-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;width:min(94vw,880px)}
+.mag-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;width:min(96vw,1240px)}
 .mag-btn{appearance:none;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;
   font-family:var(--font-manrope),sans-serif;font-weight:700;font-size:14px;border-radius:999px;padding:10px 20px;cursor:pointer}
 .mag-btn:hover:not(:disabled){background:var(--terra);border-color:var(--terra)}
@@ -449,7 +489,7 @@ const css = `
 .mag-toc-btn{appearance:none;background:none;border:none;color:#fff;opacity:.8;font-family:'Space Mono',monospace;
   font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:6px 4px}
 .mag-toc-btn:hover{opacity:1;color:var(--terra)}
-.mag-progress{width:min(94vw,880px);height:3px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}
+.mag-progress{width:min(96vw,1240px);height:3px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}
 .mag-progress span{display:block;height:100%;background:var(--terra);transition:width .5s ease}
 /* toc overlay */
 .mag-toc-overlay{position:fixed;inset:0;background:rgba(14,26,32,.7);z-index:40;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -467,8 +507,8 @@ const css = `
   .mag-stage{background:#fff;padding:0;display:block;min-height:0}
   .mag-book{width:100%;height:auto;box-shadow:none;border-radius:0;overflow:visible}
   .mag-track{display:block;transform:none !important}
-  .mag-leaf{height:auto;overflow:visible;page-break-after:always;break-after:page}
-  .mag-controls,.mag-progress,.mag-edge,.mag-cover-cue,.mag-toc-overlay{display:none !important}
+  .mag-leaf{height:auto;width:100% !important;overflow:visible;page-break-after:always;break-after:page}
+  .mag-controls,.mag-progress,.mag-edge,.mag-cover-cue,.mag-toc-overlay,.mag-fold{display:none !important}
   .mag-cover{height:96vh}
   .mag-hero,.mag-gallery img,.mag-tie-card img{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }

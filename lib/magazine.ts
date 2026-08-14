@@ -34,6 +34,12 @@ export type MagLeaf = {
   pullquote?: string;
   /** Primary product slug -> resolves to a hero "installed" room shot. */
   imageSlug?: string;
+  /** When set, pick this colourway's installed shot rather than the first. */
+  imageColour?: string;
+  /** Direct image override (e.g. the founder portrait); wins over imageSlug. */
+  imageUrl?: string;
+  /** Optional caption under the hero image. */
+  imageCaption?: string;
   /** Showcase gallery: multiple slugs / multiple shots of one slug. */
   gallerySlug?: string;
   /** Quiet "in the showroom" product tie-in (no prices), 2-3 slugs. */
@@ -59,7 +65,8 @@ export const MAGAZINE: MagLeaf[] = [
     title: "Kiln",
     standfirst:
       "A magazine about tiles, and the coastal homes they belong in.",
-    imageSlug: "arcadia-grande-612",
+    imageSlug: "cuadrado-60-grip",
+    imageColour: "Beige",
   },
 
   // ── EDITOR'S LETTER / WHY ONWOOD ──────────────────────────────────────
@@ -72,7 +79,8 @@ export const MAGAZINE: MagLeaf[] = [
     standfirst:
       "Every shop has a name. Most of them mean nothing. This one is at least honest about what it is.",
     readMins: 3,
-    imageSlug: "estella-60",
+    imageUrl: "/images/magazine/founder.webp",
+    imageCaption: "Reagan, in a kitchen that makes the point: even the splashback is tile.",
     blocks: [
       {
         t: "p",
