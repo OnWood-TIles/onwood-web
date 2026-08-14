@@ -562,7 +562,9 @@ const css = `
 [data-per="1"] .mag-book{width:var(--bw1);aspect-ratio:210 / 297}
 .mag-spread{position:absolute;inset:0;display:flex;transform-style:preserve-3d}
 .mag-page{position:relative;height:100%;overflow:hidden;background:var(--cream);
+  display:flex;flex-direction:column;justify-content:center;
   color:var(--ink);font-family:var(--font-manrope),system-ui,sans-serif}
+.mag-page.full{display:block}
 [data-per="2"] .mag-page{width:50%}
 [data-per="1"] .mag-page{width:100%;border-radius:7px;box-shadow:0 40px 90px -34px rgba(0,0,0,.6)}
 .mag-page.full{background:transparent}
@@ -571,8 +573,8 @@ const css = `
 [data-per="2"] .mag-page.right{border-radius:0 7px 7px 0;box-shadow:inset 26px 0 34px -26px rgba(16,26,32,.24),0 40px 90px -40px rgba(0,0,0,.55)}
 /* A blank left endpaper carries no shadow, so the right page floats like a cover. */
 [data-per="2"] .mag-page.left.full{box-shadow:none}
-/* content scaled to fit the page (no scroll); origin top-centre. */
-.mag-fit{width:100%;transform:scale(var(--fit,1));transform-origin:top center}
+/* content scaled to fit the page (no scroll); centred so there is no dead space. */
+.mag-fit{width:100%;transform:scale(var(--fit,1));transform-origin:center center}
 .mag-fold{position:absolute;top:0;bottom:0;left:calc(50% - 30px);width:60px;pointer-events:none;z-index:3;
   background:linear-gradient(90deg,rgba(18,26,32,0) 0%,rgba(18,26,32,.05) 38%,rgba(18,26,32,.16) 50%,rgba(18,26,32,.05) 62%,rgba(18,26,32,0) 100%)}
 .mag-fold::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(18,26,32,.14)}
@@ -604,30 +606,32 @@ const css = `
 .mag-h1{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.03em;line-height:.98;
   font-size:clamp(30px,4.4vw,50px);margin:0 0 4px;color:var(--ink)}
 .mag-h1 em{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-weight:400;color:var(--teal)}
-.mag-standfirst{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:clamp(17px,2.1vw,21px);
-  line-height:1.5;color:#41535d;margin:16px 0 20px;max-width:52ch}
-.mag-hero{margin:0 0 22px}
-.mag-hero-img{border-radius:5px;overflow:hidden;aspect-ratio:16/10;background:#e9e3d8}
+.mag-standfirst{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:19px;
+  line-height:1.5;color:#41535d;margin:14px 0 18px}
+.mag-hero{margin:0 0 20px}
+.mag-hero-img{border-radius:5px;overflow:hidden;aspect-ratio:16/9;background:#e9e3d8}
 .mag-hero-img img{width:100%;height:100%;object-fit:cover;display:block}
-.mag-hero-wide{margin-bottom:24px}
-.mag-hero-wide .mag-hero-img{aspect-ratio:16/9}
-.mag-cap{font-size:12px;font-style:italic;color:var(--muted);margin:9px 2px 0;line-height:1.45}
-.mag-body{max-width:70ch}
-.mag-p{font-size:15.5px;line-height:1.7;margin:0 0 14px;color:#28363f}
+.mag-hero-wide{margin-bottom:22px}
+.mag-cap{font-size:12px;font-style:italic;color:var(--muted);margin:8px 2px 0;line-height:1.45}
+/* Body flows in two magazine columns so it fills the A4 page. Headings,
+   standfirst, hero and pull quote sit outside it and span the full width. */
+.mag-body{columns:2;column-gap:26px;column-rule:1px solid var(--line);max-width:none}
+.mag-p{font-size:16px;line-height:1.62;margin:0 0 12px;color:#28363f}
+.mag-p:first-child{margin-top:0}
 .mag-lead{color:var(--ink);font-weight:800}
-.mag-sub{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.01em;font-size:20px;margin:22px 0 10px;color:var(--ink)}
-.mag-ul{margin:2px 0 16px;padding-left:0;list-style:none;max-width:70ch}
-.mag-ul li{position:relative;padding-left:22px;margin:0 0 10px;font-size:15px;line-height:1.6;color:#28363f}
-.mag-ul li::before{content:"";position:absolute;left:2px;top:9px;width:7px;height:7px;background:var(--teal);border-radius:2px;transform:rotate(45deg)}
+.mag-sub{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.01em;font-size:19px;margin:16px 0 9px;color:var(--ink);break-after:avoid}
+.mag-ul{margin:2px 0 14px;padding-left:0;list-style:none;break-inside:avoid}
+.mag-ul li{position:relative;padding-left:20px;margin:0 0 9px;font-size:15px;line-height:1.55;color:#28363f}
+.mag-ul li::before{content:"";position:absolute;left:2px;top:8px;width:7px;height:7px;background:var(--teal);border-radius:2px;transform:rotate(45deg)}
 .mag-note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:4px;
-  padding:15px 17px;margin:20px 0;max-width:60ch;font-size:14px;line-height:1.58;color:#3a4750}
+  padding:14px 16px;margin:16px 0;font-size:14px;line-height:1.55;color:#3a4750;break-inside:avoid}
 .mag-note-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);margin-bottom:6px}
-.mag-fig{margin:22px 0;max-width:62ch}
-.mag-fig svg{background:#fff;border:1px solid var(--line);border-radius:5px;padding:12px;display:block}
-.mag-fig figcaption{font-size:12.5px;color:var(--muted);margin-top:9px;line-height:1.5}
+.mag-fig{margin:18px 0;break-inside:avoid}
+.mag-fig svg{background:#fff;border:1px solid var(--line);border-radius:5px;padding:10px;display:block}
+.mag-fig figcaption{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
 .mag-pull{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.02em;
-  font-size:clamp(20px,2.6vw,27px);line-height:1.22;color:var(--teal);border-top:2px solid var(--line);border-bottom:2px solid var(--line);
-  padding:20px 0;margin:26px 0;max-width:26ch}
+  font-size:26px;line-height:1.2;color:var(--teal);border-top:2px solid var(--line);border-bottom:2px solid var(--line);
+  padding:18px 0;margin:20px 0 0;text-align:center}
 .mag-tie{margin:26px 0 4px;border-top:1px solid var(--line);padding-top:18px}
 .mag-tie-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
 .mag-tie-row{display:flex;gap:13px;flex-wrap:wrap}
