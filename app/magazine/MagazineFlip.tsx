@@ -1,24 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { MagBlock } from "../../lib/magazine";
+import type { MagBlock, MagLayout, Sidebar } from "../../lib/magazine";
 
 // ── Shapes the server hands us (content + resolved imagery) ───────────────
 export type TieItem = { name: string; href: string; thumb: string | null };
 export type FlipLeaf = {
   id: string;
-  kind: "cover" | "letter" | "contents" | "article" | "showcase" | "closing";
+  layout: MagLayout;
   section?: string;
+  kicker?: string;
   title?: string;
   titleAccent?: string;
   standfirst?: string;
+  intro?: string;
   readMins?: number;
-  contd?: string;
+  columns?: 1 | 2;
   blocks?: MagBlock[];
   pullquote?: string;
+  sidebar?: Sidebar;
   contents?: { n: string; title: string; section: string }[];
   heroUrl?: string | null;
   imageCaption?: string;
+  sideUrl?: string | null;
   gallery?: string[];
   tie?: TieItem[];
 };
@@ -105,13 +109,6 @@ function Blocks({ blocks }: { blocks: MagBlock[] }) {
               {b.items.map((it, j) => <li key={j}>{it}</li>)}
             </ul>
           );
-        if (b.t === "note")
-          return (
-            <aside key={i} className="mag-note">
-              {b.label && <div className="mag-note-label">{b.label}</div>}
-              <div>{b.text}</div>
-            </aside>
-          );
         if (b.t === "diagram") return <Diagram key={i} kind={b.kind} />;
         return null;
       })}
@@ -151,8 +148,19 @@ function Title({ title, accent, className }: { title?: string; accent?: string; 
   );
 }
 
+function SidebarBox({ s }: { s: Sidebar }) {
+  return (
+    <aside className="mag-side">
+      <div className="mag-side-label">{s.label}</div>
+      {s.title && <div className="mag-side-title">{s.title}</div>}
+      <p className="mag-side-body">{s.body}</p>
+    </aside>
+  );
+}
+
 function Leaf({ leaf }: { leaf: FlipLeaf }) {
-  if (leaf.kind === "cover") {
+  // ── COVER: full-bleed hero + masthead ────────────────────────────────
+  if (leaf.layout === "cover") {
     return (
       <div className="mag-cover">
         {leaf.heroUrl && (
@@ -170,7 +178,28 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
     );
   }
 
-  if (leaf.kind === "contents") {
+  // ── OPENER: full-bleed image, title overlaid at the foot ─────────────
+  if (leaf.layout === "opener") {
+    return (
+      <div className="mag-open">
+        {leaf.heroUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="mag-open-img" src={leaf.heroUrl} alt="" />
+        )}
+        <div className="mag-open-scrim" />
+        <div className="mag-open-inner">
+          <div className="mag-open-eyebrow">{leaf.section}{leaf.readMins ? `  ·  ${leaf.readMins} min read` : ""}</div>
+          <h1 className="mag-open-title">
+            {leaf.title}{leaf.titleAccent ? <> <em>{leaf.titleAccent}</em></> : null}
+          </h1>
+          {leaf.standfirst && <p className="mag-open-sub">{leaf.standfirst}</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // ── CONTENTS ─────────────────────────────────────────────────────────
+  if (leaf.layout === "contents") {
     return (
       <div className="mag-pad mag-contents">
         <div className="mag-eyebrow">{leaf.section}</div>
@@ -188,9 +217,10 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
     );
   }
 
-  if (leaf.kind === "letter" || leaf.kind === "closing") {
+  // ── LETTER: portrait + text ──────────────────────────────────────────
+  if (leaf.layout === "letter") {
     return (
-      <div className="mag-pad">
+      <div className="mag-pad mag-letter">
         {leaf.heroUrl && (
           <figure className="mag-hero mag-hero-wide">
             <div className="mag-hero-img">
@@ -205,18 +235,16 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
         {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
         <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
         {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
-        <TieIn tie={leaf.tie} />
       </div>
     );
   }
 
-  if (leaf.kind === "showcase") {
+  // ── GALLERY: image grid ──────────────────────────────────────────────
+  if (leaf.layout === "gallery") {
     return (
       <div className="mag-pad">
-        <div className="mag-eyebrow">{leaf.section}{leaf.readMins ? ` · ${leaf.readMins} min` : ""}</div>
-        <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
-        {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
-        <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
+        {leaf.kicker && <div className="mag-kicker">{leaf.kicker}</div>}
+        {leaf.intro && <p className="mag-galintro">{leaf.intro}</p>}
         {leaf.gallery && leaf.gallery.length > 0 && (
           <div className="mag-gallery">
             {leaf.gallery.map((src, i) => (
@@ -225,42 +253,71 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
             ))}
           </div>
         )}
+        <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
         <TieIn tie={leaf.tie} />
       </div>
     );
   }
 
-  // Continuation page: a light running header instead of the full title block.
-  if (leaf.contd) {
+  // ── SIDEBAR: a designed callout page ─────────────────────────────────
+  if (leaf.layout === "sidebar") {
+    return (
+      <div className="mag-pad mag-sidebarpage">
+        {leaf.kicker && <div className="mag-kicker">{leaf.kicker}</div>}
+        <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h2" />
+        {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
+        <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
+        {leaf.sidebar && <SidebarBox s={leaf.sidebar} />}
+        {leaf.heroUrl && (
+          <div className="mag-hero mag-hero-band">
+            <div className="mag-hero-img">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={leaf.heroUrl} alt="" />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── CLOSING: image + text ────────────────────────────────────────────
+  if (leaf.layout === "closing") {
     return (
       <div className="mag-pad">
-        <div className="mag-contd">
-          <span className="mag-contd-title">{leaf.contd}</span>
-          <span className="mag-contd-tag">continued</span>
-        </div>
+        {leaf.heroUrl && (
+          <figure className="mag-hero mag-hero-wide">
+            <div className="mag-hero-img">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={leaf.heroUrl} alt="" />
+            </div>
+          </figure>
+        )}
+        <div className="mag-eyebrow">{leaf.section}</div>
+        <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
+        {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
         <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
-        {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
         <TieIn tie={leaf.tie} />
       </div>
     );
   }
 
+  // ── FEATURE: designed text page (default) ────────────────────────────
   return (
     <div className="mag-pad">
-      <div className="mag-eyebrow">{leaf.section}{leaf.readMins ? ` · ${leaf.readMins} min read` : ""}</div>
-      <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
-      {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
-      {leaf.heroUrl && (
-        <figure className="mag-hero">
+      {leaf.kicker && <div className="mag-kicker">{leaf.kicker}</div>}
+      {leaf.sideUrl && (
+        <div className="mag-hero mag-hero-band">
           <div className="mag-hero-img">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={leaf.heroUrl} alt="" />
+            <img src={leaf.sideUrl} alt="" />
           </div>
-          {leaf.imageCaption && <figcaption className="mag-cap">{leaf.imageCaption}</figcaption>}
-        </figure>
+        </div>
       )}
-      <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
+      <div className={`mag-body ${leaf.columns === 2 ? "mag-cols2" : ""}`}>
+        {leaf.blocks && <Blocks blocks={leaf.blocks} />}
+      </div>
       {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
+      {leaf.sidebar && <SidebarBox s={leaf.sidebar} />}
       <TieIn tie={leaf.tie} />
     </div>
   );
@@ -271,7 +328,7 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
 //    magnifies it back to readable size on hover. ──────────────────────────
 function Page({ leaf, cls }: { leaf: FlipLeaf | null; cls?: string }) {
   const fitRef = useRef<HTMLDivElement>(null);
-  const isFull = !leaf || leaf.kind === "cover";
+  const isFull = !leaf || leaf.layout === "cover" || leaf.layout === "opener";
 
   useLayoutEffect(() => {
     if (isFull) return;
@@ -467,7 +524,7 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
     rightLeaf = per === 2 ? at(index + 1) : null;
   }
 
-  const tocIndex = leaves.findIndex((l) => l.kind === "contents");
+  const tocIndex = leaves.findIndex((l) => l.layout === "contents");
   // In book mode `index` is page-space (with a leading blank), so the left leaf
   // is index-1 and the right leaf is index in leaves[]. On mobile it is direct.
   const pad2 = (v: number) => String(v).padStart(2, "0");
@@ -647,10 +704,18 @@ const css = `
 .mag-hero-img img{width:100%;height:100%;object-fit:cover;display:block}
 .mag-hero-wide{margin-bottom:22px}
 .mag-cap{font-size:12px;font-style:italic;color:var(--muted);margin:8px 2px 0;line-height:1.45}
-/* Single readable column: an A4 portrait page is too narrow for two. Content is
-   paginated so each page holds about one page of text at full size. */
+/* Running title on a feature page (the article carries on from its opener). */
+.mag-kicker{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);
+  border-bottom:2px solid var(--line);padding-bottom:9px;margin-bottom:16px}
+.mag-h2{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.02em;line-height:1;
+  font-size:clamp(26px,3.2vw,38px);margin:0 0 4px;color:var(--ink)}
+.mag-h2 em{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-weight:400;color:var(--teal)}
+/* Body: one readable column by default; two where the page calls for it. A
+   short article page fits at full size, so no shrinking. */
 .mag-body{max-width:none}
-.mag-p{font-size:16.5px;line-height:1.6;margin:0 0 12px;color:#28363f}
+.mag-cols2{columns:2;column-gap:24px;column-rule:1px solid var(--line)}
+.mag-cols2 .mag-fig,.mag-cols2 .mag-sub{column-span:all}
+.mag-p{font-size:16px;line-height:1.6;margin:0 0 12px;color:#28363f}
 .mag-p:first-child{margin-top:0}
 .mag-lead{color:var(--ink);font-weight:800}
 .mag-sub{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.01em;font-size:19px;margin:16px 0 9px;color:var(--ink);break-after:avoid}
@@ -682,6 +747,29 @@ const css = `
 .mag-masthead{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.04em;font-size:clamp(60px,9vw,116px);line-height:.9;margin-bottom:14px}
 .mag-cover-sub{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:clamp(18px,2.4vw,24px);max-width:26ch;opacity:.95}
 .mag-cover-cue{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:24px;opacity:.75}
+/* opener: full-bleed image with the title overlaid at the foot */
+.mag-open{position:relative;height:100%;width:100%;color:#fff;overflow:hidden}
+.mag-open-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mag-open-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,26,32,.15) 0%,rgba(14,26,32,.05) 34%,rgba(14,26,32,.55) 68%,rgba(14,26,32,.9) 100%)}
+.mag-open-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(26px,3vw,48px)}
+.mag-open-eyebrow{font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;opacity:.92;margin-bottom:12px}
+.mag-open-title{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.03em;line-height:.96;
+  font-size:clamp(25px,3.4vw,42px);margin:0}
+.mag-open-title em{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-weight:400}
+.mag-open-sub{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:clamp(14px,1.7vw,18px);
+  line-height:1.45;margin:13px 0 0;max-width:44ch;opacity:.96}
+/* designed sidebar callout box */
+.mag-side{background:color-mix(in oklab, var(--terra) 8%, #fff);border:1px solid color-mix(in oklab, var(--terra) 24%, var(--line));
+  border-radius:6px;padding:16px 18px;margin:18px 0 0;break-inside:avoid}
+.mag-side-label{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--terra);margin-bottom:7px}
+.mag-side-title{font-family:var(--font-archivo),sans-serif;font-weight:800;font-size:17px;letter-spacing:-.01em;margin-bottom:6px;color:var(--ink)}
+.mag-side-body{font-size:14px;line-height:1.55;color:#3a4750;margin:0}
+.mag-sidebarpage .mag-side{margin-top:20px}
+/* a wide short "band" image across a text page */
+.mag-hero-band{margin:0 0 18px}
+.mag-hero-band .mag-hero-img{aspect-ratio:21/9}
+/* gallery intro */
+.mag-galintro{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:18px;line-height:1.5;color:#41535d;margin:0 0 16px}
 /* contents */
 .mag-contents .mag-h1{margin-bottom:22px}
 .mag-toc{list-style:none;margin:0;padding:0}

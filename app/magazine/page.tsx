@@ -2,73 +2,8 @@ import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import MagazineFlip, { type FlipLeaf, type TieItem } from "./MagazineFlip";
-import { MAGAZINE, MAGAZINE_ISSUE, type MagLeaf, type MagBlock } from "../../lib/magazine";
+import { MAGAZINE, MAGAZINE_ISSUE } from "../../lib/magazine";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
-
-// ── Auto-paginate long articles across several A4 pages ────────────────────
-// A book never crams an 800-1150 word article onto one page; it flows it over
-// several readable pages. We split an article's blocks into page-sized chunks
-// (rough character budget), so each page holds ~one page of text at full size.
-// Part 1 keeps the title / standfirst / hero (less text room); later parts get
-// a light "continued" header. The pull quote + product tie-in ride the last part.
-function blockWeight(b: MagBlock): number {
-  if (b.t === "p" || b.t === "lead") return b.text.length + 40;
-  if (b.t === "list") return b.items.reduce((s, i) => s + i.length, 0) + b.items.length * 34;
-  if (b.t === "note") return b.text.length + 90;
-  if (b.t === "h") return 70;
-  if (b.t === "diagram") return 760;
-  return 60;
-}
-
-const PAGINATED_KINDS = new Set(["article", "letter", "closing"]);
-function paginateArticle(leaf: MagLeaf): MagLeaf[] {
-  if (!PAGINATED_KINDS.has(leaf.kind) || !leaf.blocks || leaf.blocks.length === 0) return [leaf];
-  // Character budget per single-column A4 page (kept modest so text stays at
-  // full readable size; more pages is fine, that is what a book does).
-  const FIRST = 660; // part 1 shares the page with the hero + title
-  const REST = 1150; // later, text-only pages
-  const pages: MagBlock[][] = [];
-  let cur: MagBlock[] = [];
-  let used = 0;
-  let budget = FIRST;
-  for (const b of leaf.blocks) {
-    const w = blockWeight(b);
-    if (cur.length && used + w > budget) {
-      pages.push(cur);
-      cur = [];
-      used = 0;
-      budget = REST;
-    }
-    cur.push(b);
-    used += w;
-  }
-  if (cur.length) pages.push(cur);
-  if (pages.length === 1) return [leaf];
-
-  const runningTitle = [leaf.title, leaf.titleAccent].filter(Boolean).join(" ");
-  return pages.map((blocks, i) => {
-    const last = i === pages.length - 1;
-    if (i === 0) {
-      return { ...leaf, blocks, pullquote: undefined, tieIn: undefined };
-    }
-    return {
-      ...leaf,
-      id: `${leaf.id}-${i + 1}`,
-      contd: runningTitle,
-      title: undefined,
-      titleAccent: undefined,
-      standfirst: undefined,
-      readMins: undefined,
-      imageSlug: undefined,
-      imageUrl: undefined,
-      imageColour: undefined,
-      imageCaption: undefined,
-      blocks,
-      pullquote: last ? leaf.pullquote : undefined,
-      tieIn: last ? leaf.tieIn : undefined,
-    };
-  });
-}
 
 export const revalidate = 1800;
 
@@ -87,18 +22,9 @@ export const metadata: Metadata = {
 };
 
 // ── Image resolution against the live catalogue ───────────────────────────
-function heroFor(r?: WebsiteRange, colour?: string): string | null {
-  if (!r) return null;
-  const swatches = r.swatches || [];
-  if (colour) {
-    const match = swatches.find((s) => s.colour?.toLowerCase() === colour.toLowerCase());
-    if (match?.installedImage) return match.installedImage;
-    if (match?.image) return match.image;
-  }
-  const inst = swatches.map((s) => s.installedImage).find(Boolean);
-  return inst || r.heroImage || swatches.map((s) => s.image).find(Boolean) || null;
-}
-function galleryFor(r: WebsiteRange | undefined, count: number): string[] {
+// The distinct "installed" room shots for a product (3-8 each), used as the
+// magazine's photography.
+function shots(r?: WebsiteRange): string[] {
   if (!r) return [];
   const seen = new Set<string>();
   const out: string[] = [];
@@ -108,8 +34,20 @@ function galleryFor(r: WebsiteRange | undefined, count: number): string[] {
       out.push(s.installedImage);
     }
   }
-  if (r.heroImage && !seen.has(r.heroImage) && out.length < count) out.unshift(r.heroImage);
-  return out.slice(0, count);
+  return out;
+}
+// Pick a specific room shot: by colourway if named, else the Nth distinct shot,
+// falling back to the product hero so a page never renders imageless.
+function shotAt(r?: WebsiteRange, colour?: string, index = 0): string | null {
+  if (!r) return null;
+  if (colour) {
+    const m = (r.swatches || []).find((s) => s.colour?.toLowerCase() === colour.toLowerCase());
+    if (m?.installedImage) return m.installedImage;
+    if (m?.image) return m.image;
+  }
+  const arr = shots(r);
+  if (arr.length) return arr[((index % arr.length) + arr.length) % arr.length];
+  return r.heroImage || (r.swatches || []).map((s) => s.image).find(Boolean) || null;
 }
 function tieFor(slugs: string[] | undefined, byslug: Map<string, WebsiteRange>): TieItem[] {
   if (!slugs) return [];
@@ -127,23 +65,25 @@ export default async function MagazinePage() {
   const ranges = await listRanges({ department: "tiles" });
   const byslug = new Map(ranges.map((r) => [r.slug, r]));
 
-  const leaves: FlipLeaf[] = MAGAZINE.flatMap(paginateArticle).map((leaf) => ({
+  const leaves: FlipLeaf[] = MAGAZINE.map((leaf) => ({
     id: leaf.id,
-    kind: leaf.kind,
+    layout: leaf.layout,
     section: leaf.section,
+    kicker: leaf.kicker,
     title: leaf.title,
     titleAccent: leaf.titleAccent,
     standfirst: leaf.standfirst,
+    intro: leaf.intro,
     readMins: leaf.readMins,
-    contd: leaf.contd,
+    columns: leaf.columns,
     blocks: leaf.blocks,
     pullquote: leaf.pullquote,
+    sidebar: leaf.sidebar,
     contents: leaf.contents,
-    heroUrl:
-      leaf.imageUrl ??
-      (leaf.imageSlug ? heroFor(byslug.get(leaf.imageSlug), leaf.imageColour) : null),
+    heroUrl: leaf.imageUrl ?? shotAt(byslug.get(leaf.heroSlug || ""), leaf.heroColour, leaf.heroShot ?? 0),
     imageCaption: leaf.imageCaption,
-    gallery: leaf.gallerySlug ? galleryFor(byslug.get(leaf.gallerySlug), 5) : undefined,
+    sideUrl: leaf.sideSlug ? shotAt(byslug.get(leaf.sideSlug), leaf.sideColour, leaf.sideShot ?? 0) : null,
+    gallery: leaf.gallerySlug ? shots(byslug.get(leaf.gallerySlug)).slice(0, 6) : undefined,
     tie: tieFor(leaf.tieIn, byslug),
   }));
 
@@ -152,19 +92,19 @@ export default async function MagazinePage() {
       href: "/gallery",
       label: "The Gallery",
       blurb: "Hundreds of rooms styled around real OnWood tiles. Filter by look, save your favourites.",
-      img: heroFor(byslug.get("estella-60")),
+      img: shotAt(byslug.get("estella-60")),
     },
     {
       href: "/blog",
       label: "Ideas & Inspiration",
       blurb: "Guides and stories on choosing, laying and living with tile, from our journal.",
-      img: heroFor(byslug.get("terroir-60")),
+      img: shotAt(byslug.get("terroir-60")),
     },
     {
       href: "/vision-board",
       label: "Vision Board",
       blurb: "Pull the looks you love into one place and build your own board to bring in.",
-      img: heroFor(byslug.get("marrakesh-decor")),
+      img: shotAt(byslug.get("marrakesh-decor")),
     },
   ];
 
