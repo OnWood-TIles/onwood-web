@@ -549,9 +549,17 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
 const css = `
 .mag-stage{--cream:${CREAM};--ink:${INK};--muted:${MUTED};--terra:${TERRA};--teal:${TEAL};--deep:${DEEP};--line:${LINE};
   --lx:50%;--ly:50%;--lr:120px;--lz:2.35;
+  /* Available book height = viewport minus the nav, controls, progress + gaps.
+     Every page is locked to A4 portrait (210:297); a spread is two A4 pages
+     (420:297). Width is derived from that so the book always fits on screen. */
+  --bh:min(900px, calc(100vh - 244px));
+  --bw:min(96vw, calc(var(--bh) * 420 / 297));
+  --bw1:min(94vw, calc(var(--bh) * 210 / 297));
   display:flex;flex-direction:column;align-items:center;gap:14px;padding:104px 16px 34px;background:${DEEP};min-height:100vh}
-/* Book: transparent so a blank endpaper reads as "cover closed, one page showing". */
-.mag-book{position:relative;width:min(96vw,1200px);height:min(74vh,860px);margin:0 auto;perspective:2400px}
+/* Book: transparent so a blank endpaper reads as "cover closed, one page showing".
+   aspect-ratio keeps the two-page spread at exactly 2x A4. */
+.mag-book{position:relative;width:var(--bw);aspect-ratio:420 / 297;margin:0 auto;perspective:2600px}
+[data-per="1"] .mag-book{width:var(--bw1);aspect-ratio:210 / 297}
 .mag-spread{position:absolute;inset:0;display:flex;transform-style:preserve-3d}
 .mag-page{position:relative;height:100%;overflow:hidden;background:var(--cream);
   color:var(--ink);font-family:var(--font-manrope),system-ui,sans-serif}
@@ -591,7 +599,7 @@ const css = `
 .mag-book.loupe-on .mag-loupe,.mag-book.loupe-on .mag-loupe-ring{opacity:1}
 .mag-book.loupe-on{cursor:none}
 /* content typography (rendered inside the fit wrapper) */
-.mag-pad{padding:clamp(26px,3.2vw,46px)}
+.mag-pad{padding:clamp(20px,2.4vw,36px)}
 .mag-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);margin-bottom:12px}
 .mag-h1{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.03em;line-height:.98;
   font-size:clamp(30px,4.4vw,50px);margin:0 0 4px;color:var(--ink)}
@@ -653,7 +661,7 @@ const css = `
 .mag-edge:disabled{cursor:default}
 .mag-edge-l{left:0}.mag-edge-r{right:0}
 /* controls */
-.mag-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;width:min(96vw,1200px)}
+.mag-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;width:var(--bw)}
 .mag-btn{appearance:none;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;
   font-family:var(--font-manrope),sans-serif;font-weight:700;font-size:14px;border-radius:999px;padding:10px 20px;cursor:pointer}
 .mag-btn:hover:not(:disabled){background:var(--terra);border-color:var(--terra)}
@@ -663,7 +671,7 @@ const css = `
 .mag-toc-btn{appearance:none;background:none;border:none;color:#fff;opacity:.8;font-family:'Space Mono',monospace;
   font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:6px 4px}
 .mag-toc-btn:hover{opacity:1;color:var(--terra)}
-.mag-progress{width:min(96vw,1200px);height:3px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}
+.mag-progress{width:var(--bw);height:3px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}
 .mag-progress span{display:block;height:100%;background:var(--terra);transition:width .5s ease}
 /* toc overlay */
 .mag-toc-overlay{position:fixed;inset:0;background:rgba(14,26,32,.72);z-index:40;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -676,7 +684,8 @@ const css = `
   .mag-gallery img:first-child{aspect-ratio:4/3}
   .mag-edge{display:none}
 }
-/* PRINT: stack every leaf as its own page, natural size, no chrome */
+/* PRINT: stack every leaf as its own A4 page, natural size, no chrome */
+@page{size:A4 portrait;margin:14mm}
 @media print{
   .mag-stage{background:#fff;padding:0;display:block;min-height:0}
   .mag-book{width:100%;height:auto;perspective:none}
