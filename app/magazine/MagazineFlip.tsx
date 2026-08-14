@@ -583,10 +583,10 @@ const css = `
   /* Available book height = viewport minus the nav, controls, progress + gaps.
      Every page is locked to A4 portrait (210:297); a spread is two A4 pages
      (420:297). Width is derived from that so the book always fits on screen. */
-  --bh:min(900px, calc(100vh - 244px));
-  --bw:min(96vw, calc(var(--bh) * 420 / 297));
+  --bh:min(980px, calc(100vh - 172px));
+  --bw:min(97vw, calc(var(--bh) * 420 / 297));
   --bw1:min(94vw, calc(var(--bh) * 210 / 297));
-  display:flex;flex-direction:column;align-items:center;gap:14px;padding:104px 16px 34px;background:${DEEP};min-height:100vh}
+  display:flex;flex-direction:column;align-items:center;gap:12px;padding:78px 12px 22px;background:${DEEP};min-height:100vh}
 /* Book: transparent so a blank endpaper reads as "cover closed, one page showing".
    aspect-ratio keeps the two-page spread at exactly 2x A4. */
 .mag-book{position:relative;width:var(--bw);aspect-ratio:420 / 297;margin:0 auto;perspective:2600px}
@@ -647,10 +647,10 @@ const css = `
 .mag-hero-img img{width:100%;height:100%;object-fit:cover;display:block}
 .mag-hero-wide{margin-bottom:22px}
 .mag-cap{font-size:12px;font-style:italic;color:var(--muted);margin:8px 2px 0;line-height:1.45}
-/* Body flows in two magazine columns so it fills the A4 page. Headings,
-   standfirst, hero and pull quote sit outside it and span the full width. */
-.mag-body{columns:2;column-gap:26px;column-rule:1px solid var(--line);max-width:none}
-.mag-p{font-size:16px;line-height:1.62;margin:0 0 12px;color:#28363f}
+/* Single readable column: an A4 portrait page is too narrow for two. Content is
+   paginated so each page holds about one page of text at full size. */
+.mag-body{max-width:none}
+.mag-p{font-size:16.5px;line-height:1.6;margin:0 0 12px;color:#28363f}
 .mag-p:first-child{margin-top:0}
 .mag-lead{color:var(--ink);font-weight:800}
 .mag-sub{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.01em;font-size:19px;margin:16px 0 9px;color:var(--ink);break-after:avoid}

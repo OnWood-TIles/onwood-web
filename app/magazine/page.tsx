@@ -20,10 +20,13 @@ function blockWeight(b: MagBlock): number {
   return 60;
 }
 
+const PAGINATED_KINDS = new Set(["article", "letter", "closing"]);
 function paginateArticle(leaf: MagLeaf): MagLeaf[] {
-  if (leaf.kind !== "article" || !leaf.blocks || leaf.blocks.length === 0) return [leaf];
-  const FIRST = 1850; // part 1 shares the page with the hero + title
-  const REST = 3300; // later parts are text-only
+  if (!PAGINATED_KINDS.has(leaf.kind) || !leaf.blocks || leaf.blocks.length === 0) return [leaf];
+  // Character budget per single-column A4 page (kept modest so text stays at
+  // full readable size; more pages is fine, that is what a book does).
+  const FIRST = 660; // part 1 shares the page with the hero + title
+  const REST = 1150; // later, text-only pages
   const pages: MagBlock[][] = [];
   let cur: MagBlock[] = [];
   let used = 0;
