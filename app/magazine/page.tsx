@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
-import MagazineFlip, { type FlipLeaf, type TieItem } from "./MagazineFlip";
-import { MAGAZINE, MAGAZINE_ISSUE } from "../../lib/magazine";
+import PdfMagazine from "./PdfMagazine";
+import { MAGAZINE_ISSUE } from "../../lib/magazine";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
 
 export const revalidate = 1800;
@@ -59,55 +59,13 @@ function pick(r?: WebsiteRange, colour?: string, index = 0): Pic | null {
   const u = r.heroImage || (r.swatches || []).map((s) => s.image).find(Boolean);
   return u ? { url: u, caption: r.name } : null;
 }
-function gallery(r: WebsiteRange | undefined, n: number): Pic[] {
-  if (!r) return [];
-  return picks(r).slice(0, n).map((p) => ({ url: p.url, caption: credit(r.name, p.colour) }));
-}
-function tieFor(slugs: string[] | undefined, byslug: Map<string, WebsiteRange>): TieItem[] {
-  if (!slugs) return [];
-  return slugs
-    .map((slug) => {
-      const r = byslug.get(slug);
-      if (!r) return null;
-      const thumb = r.heroImage || (r.swatches || []).map((s) => s.image).find(Boolean) || null;
-      return { name: r.name, href: `/product/${slug}`, thumb } as TieItem;
-    })
-    .filter((x): x is TieItem => x !== null);
-}
-
 export default async function MagazinePage() {
   const ranges = await listRanges({ department: "tiles" });
   const byslug = new Map(ranges.map((r) => [r.slug, r]));
 
-  const leaves: FlipLeaf[] = MAGAZINE.map((leaf) => {
-    const heroPic = leaf.imageUrl
-      ? { url: leaf.imageUrl, caption: leaf.imageCaption ?? "" }
-      : pick(byslug.get(leaf.heroSlug || ""), leaf.heroColour, leaf.heroShot ?? 0);
-    const sidePic = leaf.sideSlug ? pick(byslug.get(leaf.sideSlug), leaf.sideColour, leaf.sideShot ?? 0) : null;
-    return {
-      id: leaf.id,
-      layout: leaf.layout,
-      section: leaf.section,
-      kicker: leaf.kicker,
-      title: leaf.title,
-      titleAccent: leaf.titleAccent,
-      standfirst: leaf.standfirst,
-      intro: leaf.intro,
-      readMins: leaf.readMins,
-      columns: leaf.columns,
-      blocks: leaf.blocks,
-      pullquote: leaf.pullquote,
-      sidebar: leaf.sidebar,
-      contents: leaf.contents,
-      heroUrl: heroPic?.url ?? null,
-      heroCaption: leaf.imageCaption ?? heroPic?.caption ?? null,
-      sideUrl: sidePic?.url ?? null,
-      sideCaption: sidePic?.caption ?? null,
-      gallery: leaf.gallerySlug ? gallery(byslug.get(leaf.gallerySlug), 6) : undefined,
-      tie: tieFor(leaf.tieIn, byslug),
-    };
-  });
-
+  // The magazine is a designed PDF (laid out by Claude Design), rendered page by
+  // page in the flip reader. A placeholder ships at public/kiln.pdf until the
+  // real one lands; swap that file to publish the designed edition.
   const explore = [
     {
       href: "/gallery",
@@ -132,7 +90,7 @@ export default async function MagazinePage() {
   return (
     <div style={{ background: "var(--bg)" }}>
       <MarketingNav />
-      <MagazineFlip leaves={leaves} />
+      <PdfMagazine src="/kiln.pdf" />
 
       {/* See more inspiration */}
       <section style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}>
