@@ -87,18 +87,25 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
   let popular: WebsiteRange[] = [];
   try {
     const all = await listRanges({ department: "tiles" });
+    const bySlug = new Map(all.map((r) => [r.slug, r]));
+    // Curated picks for this suburb come first (ordered), so each area shows a
+    // genuinely different, on-character set - browns/wood-look for Buderim,
+    // affordable 450s for Harmony, coastal large-format for Pelican Waters, etc.
+    const curated = (s.popularSlugs ?? [])
+      .map((sl) => bySlug.get(sl))
+      .filter((r): r is WebsiteRange => Boolean(r));
+    const chosen = new Set(curated.map((r) => r.slug));
+    // Backfill to ~8 with auto-picked tiles (a real room shot + outdoor rating
+    // look best), so the grid is always full even if a curated slug is missing.
     const hasRoom = (r: WebsiteRange) => r.swatches.some((sw) => sw.installedImage);
     const isOutdoor = (r: WebsiteRange) =>
       (r.filters?.["location-use"]?.includes("outdoor") ?? false) || r.categories.includes("outdoor");
-    // Score: room shot (2) + outdoor (1). Stable sort keeps feed order within a tier.
-    popular = [...all]
+    const auto = [...all]
       .map((r, i) => ({ r, i, score: (hasRoom(r) ? 2 : 0) + (isOutdoor(r) ? 1 : 0) }))
       .sort((a, b) => b.score - a.score || a.i - b.i)
-      .filter((x) => x.score > 0)
-      .slice(0, 8)
-      .map((x) => x.r);
-    // If nothing scored (no room shots / outdoor tags yet), fall back to the
-    // first few tiles so the section still shows real products.
+      .map((x) => x.r)
+      .filter((r) => !chosen.has(r.slug));
+    popular = [...curated, ...auto].slice(0, 8);
     if (popular.length === 0) popular = all.slice(0, 6);
   } catch {
     popular = [];
@@ -286,7 +293,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
             Tiles that suit {s.name} homes
           </h2>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: "#3a444a", maxWidth: "62ch", margin: "0 0 26px" }}>
-            A few honest pointers from people who fit tiles to Sunshine Coast homes every day. Follow a link to browse the exact range.
+            {s.guidanceIntro ?? "A few honest pointers from people who fit tiles to Sunshine Coast homes every day. Follow a link to browse the exact range."}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 18 }}>
             {s.guidance.map((g) => (
@@ -309,7 +316,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
               Popular for {s.name}
             </h2>
             <p style={{ fontSize: 16, lineHeight: 1.7, color: "#3a444a", maxWidth: "62ch", margin: "0 0 26px" }}>
-              Hard-wearing, coastal-friendly tiles our {s.name} customers reach for. Every one is a real OnWood product with live availability.
+              {s.popularIntro ?? `Hard-wearing, coastal-friendly tiles our ${s.name} customers reach for. Every one is a real OnWood product with live availability.`}
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
               {popular.map((r) => (

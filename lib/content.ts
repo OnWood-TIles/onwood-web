@@ -510,12 +510,22 @@ export type SuburbSeo = {
   proximityCard?: { title: string; body: string }; // "why us" value card 2
   deliveryLine?: string; // delivery band paragraph
   showroomLine?: string; // closing "Showroom" card body
+  /** Curated product slugs for "Popular for X" (ordered). Missing slugs are
+   *  skipped and the grid is topped up with auto-picked coastal tiles, so a
+   *  renamed or removed product never breaks the section. */
+  popularSlugs?: string[];
+  popularIntro?: string; // "Popular for X" section blurb
+  guidanceIntro?: string; // "Tiles that suit X homes" section blurb
 };
 
 export const SUBURBS: Record<string, SuburbSeo> = {
   maroochydore: {
     slug: "maroochydore",
     name: "Maroochydore",
+    popularSlugs: ["cabarita-612", "calcare-60-matt", "coastline-subway", "riviera-60-polished", "cottesloe-60", "formentera-45-in-out", "aspect-36-gloss", "cinerea-60"],
+    popularIntro: "The coastal-friendly tiles our Maroochydore customers reach for, from beach-house floors to unit splashbacks. Every one is a real OnWood product with live availability.",
+    guidanceIntro: "What actually works in a Maroochydore home, from salt-tough floors to easy-care apartment tiles. Follow a link to browse the exact range.",
+    deliveryLine: "We run tiles up to Maroochydore, the beaches and the canal homes most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about twenty minutes south.",
     driveMins: 20,
     driveVia: "the Sunshine Motorway",
     metaTitle: "Tile Shop Maroochydore | Tiles + Local Delivery | OnWood Tiles",
@@ -565,6 +575,9 @@ export const SUBURBS: Record<string, SuburbSeo> = {
   aura: {
     slug: "aura",
     name: "Aura",
+    popularSlugs: ["cabarita-60", "colonnade-60", "aspect-36-matt", "heartwood-212", "strata-60-matt", "cottesloe-60", "calcare-60-grip", "haven-45"],
+    popularIntro: "A versatile starting palette for a new Aura home: hard-wearing floors, an easy splashback and a warm wood-look, all real OnWood products with live availability.",
+    guidanceIntro: "Where new Aura homeowners and their builders usually start, from handover floors to alfresco. Follow a link to browse the exact range.",
     estate: true,
     driveMins: 2,
     driveVia: "the Sunshine Motorway",
@@ -621,6 +634,10 @@ export const SUBURBS: Record<string, SuburbSeo> = {
   harmony: {
     slug: "harmony",
     name: "Harmony",
+    popularSlugs: ["cottesloe-45", "alba-45", "haven-45", "peregian-45", "whitehaven-45", "relic-45", "formentera-45-matt", "cottesloe-45-grip"],
+    popularIntro: "Affordable, everyday 450 x 450 tiles that suit a new Harmony home, easy to lay and easy to live with. Every one is a real OnWood product with live availability.",
+    guidanceIntro: "Practical picks for a brand-new Harmony home, from open-plan floors to the splashback. Follow a link to browse the exact range.",
+    deliveryLine: "We deliver right across the Harmony estate and Palmview. Tell us your street for a delivery quote, or collect from Baringa, about ten minutes south.",
     estate: true,
     driveMins: 10,
     driveVia: "the Bruce Highway",
@@ -670,13 +687,17 @@ export const SUBURBS: Record<string, SuburbSeo> = {
   caloundra: {
     slug: "caloundra",
     name: "Caloundra",
+    popularSlugs: ["cabarita-60", "calcare-60-matt", "coastline-subway", "aspect-36-gloss", "cottesloe-60", "strata-60-matt", "formentera-45-in-out", "riviera-60-matt"],
+    popularIntro: "Coastal floors, easy-care splashbacks and slip-rated outdoor tiles our Caloundra customers reach for. Every one is a real OnWood product with live availability.",
+    guidanceIntro: "What works in a Caloundra beach home or unit, from salt-tough floors to bathroom walls. Follow a link to browse the exact range.",
+    deliveryLine: "Caloundra and the surrounding beaches are an easy run for us. Tell us your street for a delivery quote, or drop into the Baringa showroom, about twelve minutes up Caloundra Road.",
     driveMins: 12,
     driveVia: "Caloundra Road",
     metaTitle: "Tile Shop Caloundra | Tiles + Local Delivery | OnWood Tiles",
     metaDescription:
       "Your local tile shop for Caloundra: porcelain, wood-look, outdoor and pool tiles for coastal homes and renovations, with delivery to Caloundra or pickup from Baringa, about 12 minutes away.",
     intro: [
-      "Renovating or building in Caloundra? OnWood Tiles is your local Sunshine Coast tile supplier, about twelve minutes away at Baringa, and we deliver right across Caloundra.",
+      "Caloundra homes cop the salt air, and that is exactly what we plan around. OnWood Tiles is a Sunshine Coast tile shop about twelve minutes away at Baringa, and we deliver right across Caloundra.",
       "From beach-house renos and unit refreshes to new family homes, we help mum-and-dad renovators and boutique builders choose tiles made for coastal living: hard-wearing, low-maintenance and lovely in the Queensland light.",
     ],
     guidance: [
@@ -718,13 +739,17 @@ export const SUBURBS: Record<string, SuburbSeo> = {
   "pelican-waters": {
     slug: "pelican-waters",
     name: "Pelican Waters",
+    popularSlugs: ["arcadia-grande-612", "lustre-60-polished", "riviera-60-polished", "colonnade-612", "calcare-60-matt", "marchese-60-polished", "cuadrado-feature", "cabarita-612"],
+    popularIntro: "The large-format and polished coastal tiles that suit premium Pelican Waters homes: calm, low-maintenance and beautifully understated. Every one is a real OnWood product with live availability.",
+    guidanceIntro: "How to get the calm, high-end coastal look Pelican Waters is known for, inside and out. Follow a link to browse the exact range.",
+    deliveryLine: "Pelican Waters is practically next door, so getting tiles to your build is simple. We will quote delivery to your street, or you can collect from the showroom just up the road at Baringa.",
     driveMins: 8,
     driveVia: "Pelican Waters Boulevard",
     metaTitle: "Tile Shop Pelican Waters | Tiles + Local Delivery | OnWood Tiles",
     metaDescription:
       "Your local tile shop for Pelican Waters: large-format, wood-look and outdoor tiles for premium coastal homes and renovations, with delivery or pickup from nearby Baringa, about 8 minutes away.",
     intro: [
-      "Building or renovating in Pelican Waters? OnWood Tiles is your closest tile showroom, just up the road at Baringa, about eight minutes away, and we deliver right across Pelican Waters.",
+      "If you are building or renovating in Pelican Waters, your closest tile showroom is only up the road. OnWood Tiles is about eight minutes away at Baringa, and we deliver right across the estate.",
       "From canal-front builds to elegant renovations, we help homeowners and boutique builders choose tiles that suit premium coastal living: large-format porcelain, natural stone-looks and seamless indoor-outdoor floors.",
     ],
     guidance: [
@@ -766,6 +791,10 @@ export const SUBURBS: Record<string, SuburbSeo> = {
   "golden-beach": {
     slug: "golden-beach",
     name: "Golden Beach",
+    popularSlugs: ["whitehaven-45", "cinerea-60", "coastline-subway", "heartwood-212", "calcare-60-grip", "haven-45", "aspect-36-matt", "cabarita-60"],
+    popularIntro: "Light, low-maintenance coastal tiles that suit a Golden Beach renovation, with slip-rated options for courtyards and pools. Every one is a real OnWood product with live availability.",
+    guidanceIntro: "What holds up a few steps from the water at Golden Beach, from waterfront floors to outdoor areas. Follow a link to browse the exact range.",
+    deliveryLine: "We drop tiles to homes right along Golden Beach and the passage. Give us your address for a delivery quote, or collect from Baringa, roughly twelve minutes away.",
     driveMins: 12,
     driveVia: "Caloundra Road",
     metaTitle: "Tile Shop Golden Beach | Tiles + Local Delivery | OnWood Tiles",
@@ -814,13 +843,17 @@ export const SUBURBS: Record<string, SuburbSeo> = {
   buderim: {
     slug: "buderim",
     name: "Buderim",
+    popularSlugs: ["heartwood-212", "woodstock-212", "esplanade-60", "ironclad-612", "terroir-60", "esplanade-36", "seaglass-309x290", "marrakesh-decor"],
+    popularIntro: "Warm wood-looks, earthy browns and honed stone-looks that suit Buderim's established homes and leafy blocks. Every one is a real OnWood product with live availability.",
+    guidanceIntro: "What suits a Buderim renovation, from warm timber-look floors to a calm modern extension. Follow a link to browse the exact range.",
+    deliveryLine: "We deliver up the hill to Buderim and the surrounding acreage. Send us your address for a delivery quote, or make the trip to Baringa to see everything full size, about twenty-two minutes via the Sunshine Motorway.",
     driveMins: 22,
     driveVia: "the Sunshine Motorway",
     metaTitle: "Tile Shop Buderim | Tiles + Local Delivery | OnWood Tiles",
     metaDescription:
       "Your local tile shop for Buderim: porcelain, wood-look, outdoor and feature tiles for renovations and new homes, with delivery to Buderim or pickup from Baringa, about 22 minutes away.",
     intro: [
-      "Renovating or building in Buderim? OnWood Tiles supplies tiles right across Buderim and the surrounding hillside, delivered from our Baringa showroom about twenty-two minutes away.",
+      "From character Queenslanders to sharp new extensions, Buderim renovates like nowhere else on the coast. OnWood Tiles supplies the tiles, delivered from our Baringa showroom about twenty-two minutes away.",
       "Buderim's established homes and leafy acreage renovate into something special. We help homeowners and boutique builders choose tiles that balance warmth and durability, from character renos to modern extensions.",
     ],
     guidance: [
