@@ -22,32 +22,46 @@ export const metadata: Metadata = {
 };
 
 // ── Image resolution against the live catalogue ───────────────────────────
-// The distinct "installed" room shots for a product (3-8 each), used as the
-// magazine's photography.
-function shots(r?: WebsiteRange): string[] {
+export type Pic = { url: string; caption: string };
+
+// Distinct "installed" room shots for a product, each tagged with its colourway
+// so every image can carry a product + colour credit.
+function picks(r?: WebsiteRange): { url: string; colour: string | null }[] {
   if (!r) return [];
   const seen = new Set<string>();
-  const out: string[] = [];
+  const out: { url: string; colour: string | null }[] = [];
   for (const s of r.swatches || []) {
     if (s.installedImage && !seen.has(s.installedImage)) {
       seen.add(s.installedImage);
-      out.push(s.installedImage);
+      out.push({ url: s.installedImage, colour: s.colour || null });
     }
   }
   return out;
 }
-// Pick a specific room shot: by colourway if named, else the Nth distinct shot,
-// falling back to the product hero so a page never renders imageless.
-function shotAt(r?: WebsiteRange, colour?: string, index = 0): string | null {
+function credit(name: string, colour: string | null): string {
+  const c = colour ? colour.trim() : "";
+  return c ? `${name}, ${c}` : name;
+}
+// Pick one shot with its caption: by colourway if named, else the Nth distinct
+// shot, falling back to the product hero so a page never renders imageless.
+function pick(r?: WebsiteRange, colour?: string, index = 0): Pic | null {
   if (!r) return null;
   if (colour) {
     const m = (r.swatches || []).find((s) => s.colour?.toLowerCase() === colour.toLowerCase());
-    if (m?.installedImage) return m.installedImage;
-    if (m?.image) return m.image;
+    const u = m?.installedImage || m?.image;
+    if (u) return { url: u, caption: credit(r.name, m?.colour || colour) };
   }
-  const arr = shots(r);
-  if (arr.length) return arr[((index % arr.length) + arr.length) % arr.length];
-  return r.heroImage || (r.swatches || []).map((s) => s.image).find(Boolean) || null;
+  const arr = picks(r);
+  if (arr.length) {
+    const p = arr[((index % arr.length) + arr.length) % arr.length];
+    return { url: p.url, caption: credit(r.name, p.colour) };
+  }
+  const u = r.heroImage || (r.swatches || []).map((s) => s.image).find(Boolean);
+  return u ? { url: u, caption: r.name } : null;
+}
+function gallery(r: WebsiteRange | undefined, n: number): Pic[] {
+  if (!r) return [];
+  return picks(r).slice(0, n).map((p) => ({ url: p.url, caption: credit(r.name, p.colour) }));
 }
 function tieFor(slugs: string[] | undefined, byslug: Map<string, WebsiteRange>): TieItem[] {
   if (!slugs) return [];
@@ -65,46 +79,53 @@ export default async function MagazinePage() {
   const ranges = await listRanges({ department: "tiles" });
   const byslug = new Map(ranges.map((r) => [r.slug, r]));
 
-  const leaves: FlipLeaf[] = MAGAZINE.map((leaf) => ({
-    id: leaf.id,
-    layout: leaf.layout,
-    section: leaf.section,
-    kicker: leaf.kicker,
-    title: leaf.title,
-    titleAccent: leaf.titleAccent,
-    standfirst: leaf.standfirst,
-    intro: leaf.intro,
-    readMins: leaf.readMins,
-    columns: leaf.columns,
-    blocks: leaf.blocks,
-    pullquote: leaf.pullquote,
-    sidebar: leaf.sidebar,
-    contents: leaf.contents,
-    heroUrl: leaf.imageUrl ?? shotAt(byslug.get(leaf.heroSlug || ""), leaf.heroColour, leaf.heroShot ?? 0),
-    imageCaption: leaf.imageCaption,
-    sideUrl: leaf.sideSlug ? shotAt(byslug.get(leaf.sideSlug), leaf.sideColour, leaf.sideShot ?? 0) : null,
-    gallery: leaf.gallerySlug ? shots(byslug.get(leaf.gallerySlug)).slice(0, 6) : undefined,
-    tie: tieFor(leaf.tieIn, byslug),
-  }));
+  const leaves: FlipLeaf[] = MAGAZINE.map((leaf) => {
+    const heroPic = leaf.imageUrl
+      ? { url: leaf.imageUrl, caption: leaf.imageCaption ?? "" }
+      : pick(byslug.get(leaf.heroSlug || ""), leaf.heroColour, leaf.heroShot ?? 0);
+    const sidePic = leaf.sideSlug ? pick(byslug.get(leaf.sideSlug), leaf.sideColour, leaf.sideShot ?? 0) : null;
+    return {
+      id: leaf.id,
+      layout: leaf.layout,
+      section: leaf.section,
+      kicker: leaf.kicker,
+      title: leaf.title,
+      titleAccent: leaf.titleAccent,
+      standfirst: leaf.standfirst,
+      intro: leaf.intro,
+      readMins: leaf.readMins,
+      columns: leaf.columns,
+      blocks: leaf.blocks,
+      pullquote: leaf.pullquote,
+      sidebar: leaf.sidebar,
+      contents: leaf.contents,
+      heroUrl: heroPic?.url ?? null,
+      heroCaption: leaf.imageCaption ?? heroPic?.caption ?? null,
+      sideUrl: sidePic?.url ?? null,
+      sideCaption: sidePic?.caption ?? null,
+      gallery: leaf.gallerySlug ? gallery(byslug.get(leaf.gallerySlug), 6) : undefined,
+      tie: tieFor(leaf.tieIn, byslug),
+    };
+  });
 
   const explore = [
     {
       href: "/gallery",
       label: "The Gallery",
       blurb: "Hundreds of rooms styled around real OnWood tiles. Filter by look, save your favourites.",
-      img: shotAt(byslug.get("estella-60")),
+      img: pick(byslug.get("estella-60"))?.url ?? null,
     },
     {
       href: "/blog",
       label: "Ideas & Inspiration",
       blurb: "Guides and stories on choosing, laying and living with tile, from our journal.",
-      img: shotAt(byslug.get("terroir-60")),
+      img: pick(byslug.get("terroir-60"))?.url ?? null,
     },
     {
       href: "/vision-board",
       label: "Vision Board",
       blurb: "Pull the looks you love into one place and build your own board to bring in.",
-      img: shotAt(byslug.get("marrakesh-decor")),
+      img: pick(byslug.get("marrakesh-decor"))?.url ?? null,
     },
   ];
 

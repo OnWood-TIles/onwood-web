@@ -15,15 +15,16 @@ export type FlipLeaf = {
   standfirst?: string;
   intro?: string;
   readMins?: number;
-  columns?: 1 | 2;
+  columns?: 1 | 2 | 3;
   blocks?: MagBlock[];
   pullquote?: string;
   sidebar?: Sidebar;
   contents?: { n: string; title: string; section: string }[];
   heroUrl?: string | null;
-  imageCaption?: string;
+  heroCaption?: string | null;
   sideUrl?: string | null;
-  gallery?: string[];
+  sideCaption?: string | null;
+  gallery?: { url: string; caption: string }[];
   tie?: TieItem[];
 };
 
@@ -158,6 +159,16 @@ function SidebarBox({ s }: { s: Sidebar }) {
   );
 }
 
+// Small product credit chip shown on every image (name + colourway).
+function Credit({ text }: { text?: string | null }) {
+  if (!text) return null;
+  return <div className="mag-credit">{text}</div>;
+}
+
+function colClass(n?: 1 | 2 | 3) {
+  return n === 3 ? "mag-cols3" : n === 2 ? "mag-cols2" : "";
+}
+
 function Leaf({ leaf }: { leaf: FlipLeaf }) {
   // ── COVER: full-bleed hero + masthead ────────────────────────────────
   if (leaf.layout === "cover") {
@@ -178,6 +189,19 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
     );
   }
 
+  // ── PLATE: a full-bleed inspiration image, credit only ───────────────
+  if (leaf.layout === "plate") {
+    return (
+      <div className="mag-plate">
+        {leaf.heroUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="mag-plate-img" src={leaf.heroUrl} alt="" />
+        )}
+        <Credit text={leaf.heroCaption} />
+      </div>
+    );
+  }
+
   // ── OPENER: full-bleed image, title overlaid at the foot ─────────────
   if (leaf.layout === "opener") {
     return (
@@ -187,6 +211,7 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
           <img className="mag-open-img" src={leaf.heroUrl} alt="" />
         )}
         <div className="mag-open-scrim" />
+        <Credit text={leaf.heroCaption} />
         <div className="mag-open-inner">
           <div className="mag-open-eyebrow">{leaf.section}{leaf.readMins ? `  ·  ${leaf.readMins} min read` : ""}</div>
           <h1 className="mag-open-title">
@@ -227,19 +252,19 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={leaf.heroUrl} alt="" />
             </div>
-            {leaf.imageCaption && <figcaption className="mag-cap">{leaf.imageCaption}</figcaption>}
+            {leaf.heroCaption && <figcaption className="mag-cap">{leaf.heroCaption}</figcaption>}
           </figure>
         )}
         <div className="mag-eyebrow">{leaf.section}</div>
         <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
         {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
-        <div className="mag-body">{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
+        <div className={`mag-body ${colClass(leaf.columns)}`}>{leaf.blocks && <Blocks blocks={leaf.blocks} />}</div>
         {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
       </div>
     );
   }
 
-  // ── GALLERY: image grid ──────────────────────────────────────────────
+  // ── GALLERY: image grid, every image credited ────────────────────────
   if (leaf.layout === "gallery") {
     return (
       <div className="mag-pad">
@@ -247,9 +272,12 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
         {leaf.intro && <p className="mag-galintro">{leaf.intro}</p>}
         {leaf.gallery && leaf.gallery.length > 0 && (
           <div className="mag-gallery">
-            {leaf.gallery.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={src} alt="" loading="lazy" />
+            {leaf.gallery.map((g, i) => (
+              <figure className="mag-gcell" key={i}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={g.url} alt={g.caption} loading="lazy" />
+                <figcaption>{g.caption}</figcaption>
+              </figure>
             ))}
           </div>
         )}
@@ -302,18 +330,29 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
   }
 
   // ── FEATURE: designed text page (default) ────────────────────────────
+  // Two modes: a "start" page carries the full title block; a continuation
+  // page carries a light running kicker. Columns vary 1/2/3 per article.
   return (
     <div className="mag-pad">
-      {leaf.kicker && <div className="mag-kicker">{leaf.kicker}</div>}
+      {leaf.title ? (
+        <>
+          <div className="mag-eyebrow">{leaf.section}{leaf.readMins ? ` · ${leaf.readMins} min read` : ""}</div>
+          <Title title={leaf.title} accent={leaf.titleAccent} className="mag-h1" />
+          {leaf.standfirst && <p className="mag-standfirst">{leaf.standfirst}</p>}
+        </>
+      ) : (
+        leaf.kicker && <div className="mag-kicker">{leaf.kicker}</div>
+      )}
       {leaf.sideUrl && (
-        <div className="mag-hero mag-hero-band">
+        <figure className="mag-hero mag-hero-band">
           <div className="mag-hero-img">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={leaf.sideUrl} alt="" />
+            <img src={leaf.sideUrl} alt={leaf.sideCaption || ""} />
           </div>
-        </div>
+          {leaf.sideCaption && <figcaption className="mag-cap">{leaf.sideCaption}</figcaption>}
+        </figure>
       )}
-      <div className={`mag-body ${leaf.columns === 2 ? "mag-cols2" : ""}`}>
+      <div className={`mag-body ${colClass(leaf.columns)}`}>
         {leaf.blocks && <Blocks blocks={leaf.blocks} />}
       </div>
       {leaf.pullquote && <blockquote className="mag-pull">{leaf.pullquote}</blockquote>}
@@ -328,7 +367,7 @@ function Leaf({ leaf }: { leaf: FlipLeaf }) {
 //    magnifies it back to readable size on hover. ──────────────────────────
 function Page({ leaf, cls }: { leaf: FlipLeaf | null; cls?: string }) {
   const fitRef = useRef<HTMLDivElement>(null);
-  const isFull = !leaf || leaf.layout === "cover" || leaf.layout === "opener";
+  const isFull = !leaf || leaf.layout === "cover" || leaf.layout === "opener" || leaf.layout === "plate";
 
   useLayoutEffect(() => {
     if (isFull) return;
@@ -713,9 +752,15 @@ const css = `
 /* Body: one readable column by default; two where the page calls for it. A
    short article page fits at full size, so no shrinking. */
 .mag-body{max-width:none}
-.mag-cols2{columns:2;column-gap:24px;column-rule:1px solid var(--line)}
-.mag-cols2 .mag-fig,.mag-cols2 .mag-sub{column-span:all}
+.mag-cols2{columns:2;column-gap:22px;column-rule:1px solid var(--line)}
+.mag-cols3{columns:3;column-gap:18px;column-rule:1px solid var(--line)}
+.mag-cols2 .mag-fig,.mag-cols2 .mag-sub,.mag-cols3 .mag-fig,.mag-cols3 .mag-sub{column-span:all}
+.mag-cols3 .mag-p{font-size:14.5px;line-height:1.5}
 .mag-p{font-size:16px;line-height:1.6;margin:0 0 12px;color:#28363f}
+/* product credit chip, shown on every image */
+.mag-credit{position:absolute;left:0;bottom:0;z-index:2;max-width:82%;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff;
+  background:rgba(14,26,32,.62);backdrop-filter:blur(3px);padding:7px 12px;border-top-right-radius:6px;line-height:1.3}
 .mag-p:first-child{margin-top:0}
 .mag-lead{color:var(--ink);font-weight:800}
 .mag-sub{font-family:var(--font-archivo),sans-serif;font-weight:800;letter-spacing:-.01em;font-size:19px;margin:16px 0 9px;color:var(--ink);break-after:avoid}
@@ -747,6 +792,9 @@ const css = `
 .mag-masthead{font-family:var(--font-archivo),sans-serif;font-weight:900;letter-spacing:-.04em;font-size:clamp(60px,9vw,116px);line-height:.9;margin-bottom:14px}
 .mag-cover-sub{font-family:var(--font-newsreader),Georgia,serif;font-style:italic;font-size:clamp(18px,2.4vw,24px);max-width:26ch;opacity:.95}
 .mag-cover-cue{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:24px;opacity:.75}
+/* plate: a full-bleed inspiration image, credit only */
+.mag-plate{position:relative;height:100%;width:100%;overflow:hidden;background:#e9e3d8}
+.mag-plate-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 /* opener: full-bleed image with the title overlaid at the foot */
 .mag-open{position:relative;height:100%;width:100%;color:#fff;overflow:hidden}
 .mag-open-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -778,16 +826,25 @@ const css = `
 .mag-toc-n{font-family:'Space Mono',monospace;font-size:13px;color:var(--terra)}
 .mag-toc-t{font-family:var(--font-archivo),sans-serif;font-weight:800;font-size:18px;letter-spacing:-.01em}
 .mag-toc-s{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-/* gallery */
-.mag-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin:6px 0}
-.mag-gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:5px;background:#e9e3d8;display:block}
-.mag-gallery img:first-child{grid-column:1 / -1;aspect-ratio:16/9}
+/* gallery: image grid, each cell credited */
+.mag-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:6px 0}
+.mag-gcell{margin:0;position:relative;border-radius:5px;overflow:hidden;background:#e9e3d8}
+.mag-gcell img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.mag-gcell:first-child{grid-column:1 / -1}
+.mag-gcell:first-child img{aspect-ratio:16/9}
+.mag-gcell figcaption{position:absolute;left:0;bottom:0;font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:#fff;background:rgba(14,26,32,.6);padding:5px 9px;border-top-right-radius:5px;line-height:1.25}
 /* edges */
 .mag-edge{position:absolute;top:0;bottom:0;width:11%;border:none;background:transparent;cursor:pointer;z-index:8}
 .mag-edge:disabled{cursor:default}
 .mag-edge-l{left:0}.mag-edge-r{right:0}
 /* controls */
 .mag-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;width:var(--bw)}
+/* single-page (mobile): the control bar + progress match the narrow page, not
+   the wide book width, so they never overhang the page. */
+[data-per="1"] .mag-controls,[data-per="1"] .mag-progress{width:min(94vw,var(--bw1))}
+[data-per="1"] .mag-btn{padding:9px 15px;font-size:13px}
+[data-per="1"] .mag-mid{gap:11px}
 .mag-btn{appearance:none;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;
   font-family:var(--font-manrope),sans-serif;font-weight:700;font-size:14px;border-radius:999px;padding:10px 20px;cursor:pointer}
 .mag-btn:hover:not(:disabled){background:var(--terra);border-color:var(--terra)}

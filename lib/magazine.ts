@@ -22,8 +22,9 @@ export type MagBlock =
 export type MagLayout =
   | "cover"
   | "contents"
+  | "plate" // full-bleed inspiration image, NO title, just a small product credit
   | "opener" // full-bleed hero image, title overlaid
-  | "feature" // designed text page (1-2 cols) + optional pull quote / band image / sidebar
+  | "feature" // designed text page (1-3 cols) + optional pull quote / inset image / sidebar
   | "sidebar" // full-page designed callout (a "test" / definition)
   | "gallery" // image grid
   | "letter"
@@ -41,7 +42,7 @@ export type MagLeaf = {
   standfirst?: string;
   intro?: string; // short lead paragraph (opener)
   readMins?: number;
-  columns?: 1 | 2; // feature body column count
+  columns?: 1 | 2 | 3; // feature body column count (varies the look per article)
   blocks?: MagBlock[];
   pullquote?: string;
   sidebar?: Sidebar; // designed callout box on a feature page
@@ -103,13 +104,14 @@ export const MAGAZINE: MagLeaf[] = [
     ],
   },
 
-  // ── 01 · FOUNDER'S LETTER ─────────────────────────────────────────────
+  // ── 01 · FOUNDER'S LETTER (portrait + two columns) ────────────────────
   {
     id: "why-onwood",
     layout: "letter",
     section: "01 / From the founder",
     title: "Why we made a",
     titleAccent: "magazine",
+    columns: 2,
     standfirst:
       "Every shop has a name. Most mean nothing. Ours is at least honest about what it is.",
     imageUrl: "/images/magazine/founder.webp",
@@ -154,6 +156,7 @@ export const MAGAZINE: MagLeaf[] = [
     layout: "feature",
     section: "02 / History",
     kicker: "The white tile that went everywhere",
+    columns: 2,
     blocks: [
       {
         t: "p",
@@ -183,43 +186,41 @@ export const MAGAZINE: MagLeaf[] = [
     },
   },
 
-  // ── 03 · TERRAZZO ─────────────────────────────────────────────────────
+  // ── PLATE: a full-page inspiration image (no title, just a credit) ────
   {
-    id: "terrazzo-open",
-    layout: "opener",
-    section: "03 / Materials",
-    title: "The scraps of",
-    titleAccent: "Venice",
-    standfirst:
-      "Terrazzo was not invented. It was salvaged, by workers who were not allowed to waste marble and had no floor of their own worth the name.",
-    readMins: 3,
-    heroSlug: "graniglia-60-matt",
-    heroShot: 0,
+    id: "plate-estella",
+    layout: "plate",
+    heroSlug: "estella-60",
+    heroShot: 4,
   },
+
+  // ── 03 · TERRAZZO (single titled feature, two columns, inset image) ───
   {
     id: "terrazzo-feature",
     layout: "feature",
     section: "03 / Materials",
-    kicker: "The scraps of Venice",
+    title: "The scraps of",
+    titleAccent: "Venice",
+    readMins: 3,
+    columns: 2,
+    standfirst:
+      "Terrazzo was not invented. It was salvaged, by workers not allowed to waste marble who had no floor of their own worth the name.",
     blocks: [
       {
         t: "p",
-        text: "In sixteenth century Venice the marble mosaic trade was run by migrant workers from Friuli. Mosaic is brutally wasteful, and in a guild trade the offcuts were nobody's to bin. So they went home with the workers, who pressed the marble into a bed of lime on their own terraces and beat it flat.",
+        text: "In sixteenth century Venice the marble mosaic trade was run by migrant workers from Friuli. Mosaic is brutally wasteful, and the offcuts were nobody's to bin, so they went home with the workers, who pressed the marble into a bed of lime on their own terraces and beat it flat.",
       },
       {
         t: "p",
-        text: "The names are honest about it. Seminato means sown, because the chips were flung across a wet bed rather than placed. The first sealer, by the trade's own account, was goat's milk, noticed when a spill brought up the colour of the stone. Within a century these floors were in Venetian palaces.",
-      },
-      {
-        t: "p",
-        text: "Real terrazzo is a specialist trade with a price to match. Porcelain terrazzo look gives you the language for a fraction of the cost, but it is a photograph of a material, not the material. Neither is wrong. Just know which you are buying, because the difference shows most at the edges.",
+        text: "It works because of how it was made. Chips in a binder give a floor with no grain to fail along and no joints to open, one that can be ground back and repolished for a century. Porcelain terrazzo look gives you the language for a fraction of the cost, but know which you are buying, because the difference shows at the edges.",
       },
     ],
-    pullquote: "Nothing about the material changed. What changed was who was looking at it.",
+    sideSlug: "graniglia-60-lappato",
+    sideShot: 1,
     sidebar: {
       label: "The word",
       title: "Seminato",
-      body: "Italian for sown, as in scattering seed. It is the literal action: marble chips flung across a wet bed, then ground flat once set.",
+      body: "Italian for sown, as in scattering seed. That is the literal action: marble chips flung across a wet bed, then ground flat once set.",
     },
   },
 
@@ -241,6 +242,7 @@ export const MAGAZINE: MagLeaf[] = [
     layout: "feature",
     section: "04 / Feature",
     kicker: "When timber look stopped looking fake",
+    columns: 3,
     blocks: [
       {
         t: "p",
@@ -287,24 +289,25 @@ export const MAGAZINE: MagLeaf[] = [
     heroShot: 1,
   },
 
-  // ── 05 · PORCELAIN OR CERAMIC ─────────────────────────────────────────
+  // ── PLATE: inspiration ────────────────────────────────────────────────
   {
-    id: "porcelain-open",
-    layout: "opener",
-    section: "05 / Explainer",
-    title: "Porcelain or ceramic, in one",
-    titleAccent: "number",
-    standfirst:
-      "Two words used as if they mean the same thing, describing two genuinely different materials. The distinction is not marketing. It is a number you can measure.",
-    readMins: 3,
-    heroSlug: "calcare-60-matt",
-    heroShot: 0,
+    id: "plate-marrakesh",
+    layout: "plate",
+    heroSlug: "marrakesh-decor",
+    heroShot: 1,
   },
+
+  // ── 05 · PORCELAIN (single titled feature, one column, diagram) ───────
   {
     id: "porcelain-feature",
     layout: "feature",
     section: "05 / Explainer",
-    kicker: "Porcelain or ceramic, in one number",
+    title: "Porcelain or ceramic, in one",
+    titleAccent: "number",
+    readMins: 3,
+    columns: 1,
+    standfirst:
+      "Two words used as if they mean the same thing, describing two genuinely different materials. The distinction is not marketing. It is a number you can measure.",
     blocks: [
       {
         t: "p",
@@ -338,6 +341,7 @@ export const MAGAZINE: MagLeaf[] = [
     layout: "feature",
     section: "06 / Buying",
     kicker: "The two millimetres that decide a floor",
+    columns: 2,
     blocks: [
       {
         t: "p",
@@ -352,24 +356,25 @@ export const MAGAZINE: MagLeaf[] = [
     pullquote: "A tile can bow three millimetres and still be first quality.",
   },
 
-  // ── 07 · THERMAL MASS ─────────────────────────────────────────────────
+  // ── PLATE: inspiration ────────────────────────────────────────────────
   {
-    id: "thermal-open",
-    layout: "opener",
-    section: "07 / Climate",
-    title: "The coolest thing in the",
-    titleAccent: "house",
-    standfirst:
-      "Tile floors have been standard in hot climates for thousands of years. That is not tradition, it is thermodynamics. Though in the subtropics the argument is more interesting than most assume.",
-    readMins: 3,
-    heroSlug: "lustre-60-polished",
-    heroShot: 0,
+    id: "plate-arcadia",
+    layout: "plate",
+    heroSlug: "arcadia-grande-612",
+    heroShot: 1,
   },
+
+  // ── 07 · THERMAL MASS (single titled feature, two columns, diagram) ───
   {
     id: "thermal-feature",
     layout: "feature",
     section: "07 / Climate",
-    kicker: "The coolest thing in the house",
+    title: "The coolest thing in the",
+    titleAccent: "house",
+    readMins: 3,
+    columns: 2,
+    standfirst:
+      "Tile floors have been standard in hot climates for thousands of years. That is not tradition, it is thermodynamics.",
     blocks: [
       {
         t: "p",
