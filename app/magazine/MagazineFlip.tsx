@@ -335,6 +335,21 @@ export default function MagazineFlip({ leaves }: { leaves: FlipLeaf[] }) {
   const atStart = index <= 0;
   const atEnd = index + step >= n;
 
+  // Deep link: /magazine#p3 opens at leaf 3 (shareable, and handy for testing).
+  useEffect(() => {
+    const m = /^#p(\d+)$/.exec(window.location.hash);
+    if (!m) return;
+    const li = Math.max(0, Math.min(leaves.length - 1, parseInt(m[1], 10) - 1));
+    const raf = requestAnimationFrame(() => {
+      let p = per === 2 ? li + 1 : li;
+      if (per === 2) p -= p % 2;
+      setIndex(Math.max(0, p));
+    });
+    return () => cancelAnimationFrame(raf);
+    // run once after the responsive per is settled
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const commit = useCallback((to: number) => {
     setIndex(Math.max(0, to));
     setFlip(null);
