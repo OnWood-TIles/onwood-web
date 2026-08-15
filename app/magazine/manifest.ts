@@ -2,8 +2,7 @@
 // page images in public/magazine/pages (01.webp .. NN.webp). Kept as a bundled
 // constant (not a runtime fs read) because public/ is not reliably present in
 // the Vercel serverless filesystem. PAGE_W/PAGE_H are the rendered pixel size
-// of a single page, used so the flip viewer matches the PDF's real proportions
-// (this Batch is US Legal 8.5x14", not A4 — the viewer follows whatever ships).
+// of a single page, so the flip viewer matches the PDF's real proportions.
 export const MAGAZINE_PAGES = 36;
-export const MAGAZINE_PAGE_W = 1836;
-export const MAGAZINE_PAGE_H = 3024;
+export const MAGAZINE_PAGE_W = 1786;
+export const MAGAZINE_PAGE_H = 2523;
