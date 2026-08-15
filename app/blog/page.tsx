@@ -95,6 +95,40 @@ export default async function BlogIndex() {
           </div>
         </section>
 
+        {/* ── KILN MAGAZINE ── */}
+        <section style={{ padding: "6px 24px 10px" }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div className="bl-mag" style={{ position: "relative", overflow: "hidden", display: "grid", gridTemplateColumns: "minmax(0,0.86fr) minmax(0,1.14fr)", gap: "clamp(22px,4vw,52px)", alignItems: "center", borderRadius: 24, border: "1px solid var(--line)", background: "var(--deep)", color: "#F6F1E8", padding: "clamp(26px,3.4vw,48px)", boxShadow: "0 40px 80px -50px rgba(16,28,30,.6)" }}>
+              <span aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(560px 340px at 8% 122%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 62%)", pointerEvents: "none" }} />
+              {/* cover */}
+              <div className="bl-mag-cov" style={{ position: "relative", justifySelf: "center" }}>
+                <Link href="/magazine" aria-label="Open the Kiln magazine" style={{ display: "block" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/magazine/kiln-cover.webp" alt="Kiln magazine, Batch One cover" style={{ width: "min(316px,72vw)", height: "auto", borderRadius: 9, display: "block", transform: "rotate(-2.4deg)", boxShadow: "0 44px 72px -28px rgba(0,0,0,.72)" }} />
+                </Link>
+              </div>
+              {/* copy */}
+              <div style={{ position: "relative" }}>
+                <span style={{ ...eyebrow, color: "var(--accent2)" }}>New · Our magazine</span>
+                <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(28px,3.7vw,46px)", lineHeight: 1.05, margin: "12px 0 0" }}>
+                  Introducing <span style={{ color: "var(--accent2)" }}>Kiln</span>, {serif("Batch One")}
+                </h2>
+                <p style={{ fontSize: "clamp(15px,1.7vw,18px)", lineHeight: 1.65, color: "rgba(246,241,232,.76)", margin: "14px 0 0", maxWidth: "52ch" }}>
+                  Our new magazine about inspiration and a deeper understanding of what goes underfoot. Flick through it like a real magazine, from the white tile that went everywhere to a whole home dressed in a single tile.
+                </p>
+                <div className="bl-mag-btns" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 24 }}>
+                  <Link href="/magazine" className="bl-mag-cta" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 27px", borderRadius: 999 }}>
+                    Flip through Kiln <span aria-hidden>→</span>
+                  </Link>
+                  <a href="/kiln.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "transparent", color: "#F6F1E8", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 24px", borderRadius: 999, border: "1px solid rgba(246,241,232,.28)" }}>
+                    Download the PDF
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── FEATURED ── */}
         {featured ? (
           <section style={{ padding: "10px 24px 8px" }}>
@@ -172,7 +206,12 @@ export default async function BlogIndex() {
         .bl-gallink:hover{transform:translateY(-3px);box-shadow:0 40px 84px -44px rgba(16,28,30,.8)}
         .bl-gallink .bl-gallink-cta{transition:transform .25s ease}
         .bl-gallink:hover .bl-gallink-cta{transform:translateX(3px)}
+        .bl-mag-cov img{transition:transform .3s ease}
+        .bl-mag:hover .bl-mag-cov img{transform:rotate(-1deg) translateY(-5px)}
+        .bl-mag-cta{transition:transform .25s ease}
+        .bl-mag:hover .bl-mag-cta{transform:translateX(3px)}
         @media(max-width:860px){.bl-hero-grid{grid-template-columns:1fr!important;gap:28px!important}}
+        @media(max-width:760px){.bl-mag{grid-template-columns:1fr!important;text-align:center;gap:26px!important}.bl-mag-btns{justify-content:center}.bl-mag p{margin-left:auto!important;margin-right:auto!important}}
         @media(max-width:820px){.bl-feat{grid-template-columns:1fr!important}.bl-feat-img{min-height:0!important;aspect-ratio:16/10!important}.bl-cta{grid-template-columns:1fr!important}}
       `}</style>
     </div>
