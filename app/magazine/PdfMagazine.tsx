@@ -171,8 +171,8 @@ export default function PdfMagazine({
 
   const spread = (key: string) => (
     <div className="pdf-spread" key={key}>
-      <div className="pdf-page left"><PageImg slot={leftLeaf} /></div>
-      {per === 2 && <div className="pdf-page right"><PageImg slot={rightLeaf} /></div>}
+      <div className={`pdf-page left${leftLeaf.blank ? " is-blank" : ""}`}><PageImg slot={leftLeaf} /></div>
+      {per === 2 && <div className={`pdf-page right${rightLeaf.blank ? " is-blank" : ""}`}><PageImg slot={rightLeaf} /></div>}
     </div>
   );
 
@@ -205,7 +205,7 @@ export default function PdfMagazine({
           </div>
         )}
 
-        {per === 2 && <div className="pdf-fold" aria-hidden="true" />}
+        {per === 2 && !leftLeaf.blank && !rightLeaf.blank && <div className="pdf-fold" aria-hidden="true" />}
 
         <div className="pdf-loupe" aria-hidden="true">
           <div className="pdf-loupe-scale">{spread("loupe")}</div>
@@ -252,6 +252,8 @@ const css = `
 .pdf-blank{width:100%;height:100%;background:transparent}
 [data-per="2"] .pdf-page.left{border-radius:7px 0 0 7px;box-shadow:inset -26px 0 34px -26px rgba(16,26,32,.24),0 40px 90px -40px rgba(0,0,0,.55)}
 [data-per="2"] .pdf-page.right{border-radius:0 7px 7px 0;box-shadow:inset 26px 0 34px -26px rgba(16,26,32,.24),0 40px 90px -40px rgba(0,0,0,.55)}
+/* Endpaper / trailing side sits against the black stage, not as a white page. */
+.pdf-page.is-blank,[data-per="2"] .pdf-page.is-blank{background:transparent;box-shadow:none;border-radius:0}
 .pdf-fold{position:absolute;top:0;bottom:0;left:calc(50% - 30px);width:60px;pointer-events:none;z-index:3;
   background:linear-gradient(90deg,rgba(18,26,32,0),rgba(18,26,32,.05) 38%,rgba(18,26,32,.16) 50%,rgba(18,26,32,.05) 62%,rgba(18,26,32,0))}
 .pdf-fold::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(18,26,32,.14)}
