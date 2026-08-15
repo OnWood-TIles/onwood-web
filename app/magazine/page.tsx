@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import PdfMagazine from "./PdfMagazine";
-import { MAGAZINE_PAGES } from "./manifest";
+import { MAGAZINE_PAGES, MAGAZINE_PAGE_W, MAGAZINE_PAGE_H } from "./manifest";
 import { MAGAZINE_ISSUE } from "../../lib/magazine";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
 
@@ -91,7 +91,7 @@ export default async function MagazinePage() {
   return (
     <div style={{ background: "var(--bg)" }}>
       <MarketingNav />
-      <PdfMagazine pages={pageCount} download="/kiln.pdf" />
+      <PdfMagazine pages={pageCount} download="/kiln.pdf" pageW={MAGAZINE_PAGE_W} pageH={MAGAZINE_PAGE_H} />
 
       {/* See more inspiration */}
       <section style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}>

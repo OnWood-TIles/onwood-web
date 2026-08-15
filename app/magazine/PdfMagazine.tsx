@@ -13,9 +13,23 @@ const DEEP = "#0e1a20";
 const CREAM = "#fbfaf6";
 const TERRA = "#d06a45";
 
-export default function PdfMagazine({ pages, download, base = "/magazine/pages" }: { pages: number; download: string; base?: string }) {
+export default function PdfMagazine({
+  pages,
+  download,
+  pageW = 210,
+  pageH = 297,
+  base = "/magazine/pages",
+}: {
+  pages: number;
+  download: string;
+  pageW?: number; // real page pixel size, so the book matches the PDF's shape
+  pageH?: number; // (this Batch is US Legal, not A4) instead of assuming A4
+  base?: string;
+}) {
   const total = pages;
   const pageUrl = (pi: number) => `${base}/${String(pi + 1).padStart(2, "0")}.webp`;
+  const par = pageW / pageH; // single-page aspect (width / height)
+  const spar = (2 * pageW) / pageH; // two-up spread aspect
 
   const [per, setPer] = useState(2);
   const [index, setIndex] = useState(0);
@@ -163,7 +177,7 @@ export default function PdfMagazine({ pages, download, base = "/magazine/pages" 
   );
 
   return (
-    <div className="pdf-stage" data-per={per}>
+    <div className="pdf-stage" data-per={per} style={{ ["--par" as string]: par.toFixed(4), ["--spar" as string]: spar.toFixed(4) }}>
       <style>{css}</style>
 
       <div
@@ -217,9 +231,10 @@ export default function PdfMagazine({ pages, download, base = "/magazine/pages" 
 
 const css = `
 .pdf-stage{--deep:${DEEP};--cream:${CREAM};--terra:${TERRA};--lx:50%;--ly:50%;--lr:120px;--lz:2.35;
+  --par:0.7071;--spar:1.4142;
   --bh:min(980px, calc(100vh - 172px));
-  --bw:min(97vw, calc(var(--bh) * 420 / 297));
-  --bw1:min(94vw, calc(var(--bh) * 210 / 297));
+  --bw:min(97vw, calc(var(--bh) * var(--spar)));
+  --bw1:min(94vw, calc(var(--bh) * var(--par)));
   display:flex;flex-direction:column;align-items:center;gap:12px;padding:78px 12px 22px;background:${DEEP};min-height:100vh}
 .pdf-loading{display:flex;flex-direction:column;align-items:center;gap:16px;color:#fff;opacity:.85;padding:120px 0}
 .pdf-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:${TERRA};animation:pdfspin 1s linear infinite}
@@ -227,8 +242,8 @@ const css = `
 @keyframes pdfspin{to{transform:rotate(360deg)}}
 .pdf-page-loading{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#efeae1,#e4ded3)}
 .pdf-loadtxt{font-family:'Space Mono',var(--font-manrope),monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-.pdf-book{position:relative;width:var(--bw);aspect-ratio:420 / 297;margin:0 auto;perspective:2600px}
-[data-per="1"] .pdf-book{width:var(--bw1);aspect-ratio:210 / 297}
+.pdf-book{position:relative;width:var(--bw);aspect-ratio:var(--spar);margin:0 auto;perspective:2600px}
+[data-per="1"] .pdf-book{width:var(--bw1);aspect-ratio:var(--par)}
 .pdf-spread{position:absolute;inset:0;display:flex;transform-style:preserve-3d}
 .pdf-page{position:relative;height:100%;overflow:hidden;background:var(--cream)}
 [data-per="2"] .pdf-page{width:50%}
