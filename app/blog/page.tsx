@@ -114,7 +114,7 @@ export default async function BlogIndex() {
                   Introducing <span style={{ color: "var(--accent2)" }}>Kiln</span>, {serif("Batch One")}
                 </h2>
                 <p style={{ fontSize: "clamp(15px,1.7vw,18px)", lineHeight: 1.65, color: "rgba(246,241,232,.76)", margin: "14px 0 0", maxWidth: "52ch" }}>
-                  Our new magazine about inspiration and a deeper understanding of what goes underfoot. Flick through it like a real magazine, from the white tile that went everywhere to a whole home dressed in a single tile.
+                  Our new magazine about inspiration, and a deeper understanding of what goes underfoot. Flick through Batch One just like a real magazine, or download a copy to keep.
                 </p>
                 <div className="bl-mag-btns" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 24 }}>
                   <Link href="/magazine" className="bl-mag-cta" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 27px", borderRadius: 999 }}>

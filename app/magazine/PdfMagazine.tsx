@@ -1,45 +1,21 @@
 "use client";
 
-// Kiln reader, PDF edition. Renders the pages of a designed magazine PDF (laid
-// out by Claude Design) into the flick-through book: two-page spread with the
-// cover alone on the right, a real page-turn on flick, a hover magnifier, and a
-// print button. No code-drawn layout, the pages ARE the designed PDF.
-//
-// pdf.js is loaded from a CDN (UMD build, sets window.pdfjsLib) and each page is
-// rasterised to a high-res image so the magnifier stays crisp.
+// Kiln reader. Shows the pages of the designed magazine (laid out by Claude
+// Design, rendered to high-res images with PDFium so the colours are exact) in
+// a flick-through book: two-page spread with the cover alone on the right, a
+// real page-turn on flick, a hover magnifier, and a download link. The pages
+// ARE the designed artwork, served as static images and lazily loaded, so the
+// cover appears instantly and only the pages you view are fetched.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function loadPdfJs(): Promise<any> {
-  const w = window as any;
-  if (w.pdfjsLib) return Promise.resolve(w.pdfjsLib);
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = `${PDFJS}/pdf.min.js`;
-    s.onload = () => {
-      const lib = (window as any).pdfjsLib;
-      if (!lib) return reject(new Error("pdfjsLib missing"));
-      lib.GlobalWorkerOptions.workerSrc = `${PDFJS}/pdf.worker.min.js`;
-      resolve(lib);
-    };
-    s.onerror = () => reject(new Error("failed to load pdf.js"));
-    document.head.appendChild(s);
-  });
-}
-
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const DEEP = "#0e1a20";
 const CREAM = "#fbfaf6";
 const TERRA = "#d06a45";
 
-export default function PdfMagazine({ src }: { src: string }) {
-  const [total, setTotal] = useState<number | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-  const [, bump] = useState(0); // re-render when the page cache changes
+export default function PdfMagazine({ pages, download, base = "/magazine/pages" }: { pages: number; download: string; base?: string }) {
+  const total = pages;
+  const pageUrl = (pi: number) => `${base}/${String(pi + 1).padStart(2, "0")}.webp`;
 
   const [per, setPer] = useState(2);
   const [index, setIndex] = useState(0);
@@ -49,63 +25,6 @@ export default function PdfMagazine({ src }: { src: string }) {
   const bookRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const touch = useRef<{ x: number; y: number } | null>(null);
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const pdfRef = useRef<any>(null);
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-  const cacheRef = useRef<Map<number, string>>(new Map()); // 0-based pdf page -> jpeg dataURL
-  const inflightRef = useRef<Set<number>>(new Set());
-  const viewCenterRef = useRef(0); // current pdf page in view, for safe eviction
-
-  // Open the PDF (fast) - pages are rasterised lazily on demand below, so a big
-  // magazine shows its cover immediately instead of pre-rendering every page.
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const lib = await loadPdfJs();
-        const pdf = await lib.getDocument(src).promise;
-        if (!alive) return;
-        pdfRef.current = pdf;
-        setTotal(pdf.numPages);
-      } catch (e) {
-        if (alive) setErr((e as Error)?.message || "could not open the PDF");
-      }
-    })();
-    return () => { alive = false; };
-  }, [src]);
-
-  // Render one PDF page (0-based) to a cached JPEG dataURL, evicting far pages so
-  // memory stays bounded no matter how many pages the magazine has.
-  const ensure = useCallback(
-    async (pi: number) => {
-      const pdf = pdfRef.current;
-      if (!pdf || total == null || pi < 0 || pi >= total) return;
-      if (cacheRef.current.has(pi) || inflightRef.current.has(pi)) return;
-      inflightRef.current.add(pi);
-      try {
-        const page = await pdf.getPage(pi + 1);
-        const viewport = page.getViewport({ scale: 2 });
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) await page.render({ canvasContext: ctx, viewport }).promise;
-        cacheRef.current.set(pi, canvas.toDataURL("image/jpeg", 0.82));
-        // Evict only pages far from the CURRENT view (never a visible/prefetched one).
-        if (cacheRef.current.size > 24) {
-          const c = viewCenterRef.current;
-          const far = [...cacheRef.current.keys()].sort((a, b) => Math.abs(b - c) - Math.abs(a - c))[0];
-          if (far != null && Math.abs(far - c) > 12) cacheRef.current.delete(far);
-        }
-        bump((x) => x + 1);
-      } catch {
-        /* a failed page render just shows a placeholder */
-      } finally {
-        inflightRef.current.delete(pi);
-      }
-    },
-    [total]
-  );
 
   // Book (2-up) on wide screens, single page on phones.
   useEffect(() => {
@@ -120,24 +39,26 @@ export default function PdfMagazine({ src }: { src: string }) {
   }, []);
 
   // Book mode prepends a blank endpaper so the cover opens alone on the right.
-  const nPages = total ?? 0;
-  const n = total == null ? 0 : per === 2 ? nPages + 1 : nPages;
+  const nPages = total;
+  const n = per === 2 ? nPages + 1 : nPages;
   const pdfIndexOf = (leafPos: number) => (per === 2 ? leafPos - 1 : leafPos);
   type Slot = { blank: boolean; url: string | null };
   const at = (leafPos: number): Slot => {
     const pi = pdfIndexOf(leafPos);
     if (pi < 0 || pi >= nPages) return { blank: true, url: null };
-    return { blank: false, url: cacheRef.current.get(pi) ?? null };
+    return { blank: false, url: pageUrl(pi) };
   };
   const step = per;
 
-  // Render the pages around the current view (+ a small prefetch ahead).
+  // Warm the browser cache for the pages around the current view so flips are
+  // instant, without ever loading the whole magazine at once.
   useEffect(() => {
-    if (total == null) return;
     const center = per === 2 ? index - 1 : index;
-    viewCenterRef.current = Math.max(0, center);
-    for (let pi = center - 2; pi <= center + per + 5; pi++) ensure(pi);
-  }, [index, per, total, ensure]);
+    for (let pi = center - 2; pi <= center + per + 4; pi++) {
+      if (pi >= 0 && pi < total) { const im = new Image(); im.src = pageUrl(pi); }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, per, total]);
   const atStart = index <= 0;
   const atEnd = index + step >= n;
 
@@ -215,9 +136,8 @@ export default function PdfMagazine({ src }: { src: string }) {
   }
 
   const pad2 = (v: number) => String(v).padStart(2, "0");
-  const tot = total ?? 0;
+  const tot = total;
   const label = (() => {
-    if (total == null) return "--";
     if (per !== 2) return pad2(index + 1);
     const showL = index >= 1 ? index : null; // left leaf -> pdf page (index-1) -> 1-based = index
     const showR = index < tot ? index + 1 : null;
@@ -246,67 +166,51 @@ export default function PdfMagazine({ src }: { src: string }) {
     <div className="pdf-stage" data-per={per}>
       <style>{css}</style>
 
-      {total == null && !err && (
-        <div className="pdf-loading">
-          <div className="pdf-spin" />
-          <div className="pdf-loadtxt">Opening the magazine</div>
-        </div>
-      )}
-      {err && (
-        <div className="pdf-loading">
-          <div className="pdf-loadtxt">The magazine could not be opened. {err}</div>
-        </div>
-      )}
+      <div
+        className={`pdf-book${loupe && !flip ? " loupe-on" : ""}`}
+        ref={bookRef}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onMouseMove={onMove}
+        onMouseEnter={() => setLoupe(true)}
+        onMouseLeave={() => setLoupe(false)}
+      >
+        {spread("static")}
 
-      {total != null && (
-        <>
+        {per === 2 && flip && (
           <div
-            className={`pdf-book${loupe && !flip ? " loupe-on" : ""}`}
-            ref={bookRef}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-            onMouseMove={onMove}
-            onMouseEnter={() => setLoupe(true)}
-            onMouseLeave={() => setLoupe(false)}
+            className={`pdf-sheet ${flip.dir === 1 ? "fwd" : "bwd"}`}
+            ref={sheetRef}
+            onTransitionEnd={(e) => {
+              if (e.propertyName === "transform") commit(flip.from + flip.dir * step);
+            }}
           >
-            {spread("static")}
-
-            {per === 2 && flip && (
-              <div
-                className={`pdf-sheet ${flip.dir === 1 ? "fwd" : "bwd"}`}
-                ref={sheetRef}
-                onTransitionEnd={(e) => {
-                  if (e.propertyName === "transform") commit(flip.from + flip.dir * step);
-                }}
-              >
-                <div className="pdf-face front"><PageImg slot={sheetFront} /></div>
-                <div className="pdf-face back"><PageImg slot={sheetBack} /></div>
-                <div className="pdf-shade" />
-              </div>
-            )}
-
-            {per === 2 && <div className="pdf-fold" aria-hidden="true" />}
-
-            <div className="pdf-loupe" aria-hidden="true">
-              <div className="pdf-loupe-scale">{spread("loupe")}</div>
-            </div>
-            <div className="pdf-loupe-ring" aria-hidden="true" />
-
-            <button className="pdf-edge l" aria-label="Previous page" onClick={() => go(-1)} disabled={atStart} />
-            <button className="pdf-edge r" aria-label="Next page" onClick={() => go(1)} disabled={atEnd} />
+            <div className="pdf-face front"><PageImg slot={sheetFront} /></div>
+            <div className="pdf-face back"><PageImg slot={sheetBack} /></div>
+            <div className="pdf-shade" />
           </div>
+        )}
 
-          <div className="pdf-controls">
-            <button className="pdf-btn" onClick={() => go(-1)} disabled={atStart}>&lsaquo; Prev</button>
-            <div className="pdf-mid">
-              <span className="pdf-count">{label} / {pad2(tot)}</span>
-              <a className="pdf-toc-btn" href={src} target="_blank" rel="noopener">Download PDF</a>
-            </div>
-            <button className="pdf-btn" onClick={() => go(1)} disabled={atEnd}>Next &rsaquo;</button>
-          </div>
-          <div className="pdf-progress"><span style={{ width: `${tot ? (Math.min(per === 2 ? index : index + 1, tot) / tot) * 100 : 0}%` }} /></div>
-        </>
-      )}
+        {per === 2 && <div className="pdf-fold" aria-hidden="true" />}
+
+        <div className="pdf-loupe" aria-hidden="true">
+          <div className="pdf-loupe-scale">{spread("loupe")}</div>
+        </div>
+        <div className="pdf-loupe-ring" aria-hidden="true" />
+
+        <button className="pdf-edge l" aria-label="Previous page" onClick={() => go(-1)} disabled={atStart} />
+        <button className="pdf-edge r" aria-label="Next page" onClick={() => go(1)} disabled={atEnd} />
+      </div>
+
+      <div className="pdf-controls">
+        <button className="pdf-btn" onClick={() => go(-1)} disabled={atStart}>&lsaquo; Prev</button>
+        <div className="pdf-mid">
+          <span className="pdf-count">{label} / {pad2(tot)}</span>
+          <a className="pdf-toc-btn" href={download} target="_blank" rel="noopener">Download PDF</a>
+        </div>
+        <button className="pdf-btn" onClick={() => go(1)} disabled={atEnd}>Next &rsaquo;</button>
+      </div>
+      <div className="pdf-progress"><span style={{ width: `${tot ? (Math.min(per === 2 ? index : index + 1, tot) / tot) * 100 : 0}%` }} /></div>
     </div>
   );
 }

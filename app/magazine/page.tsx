@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import PdfMagazine from "./PdfMagazine";
+import { MAGAZINE_PAGES } from "./manifest";
 import { MAGAZINE_ISSUE } from "../../lib/magazine";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
 
@@ -62,10 +63,10 @@ function pick(r?: WebsiteRange, colour?: string, index = 0): Pic | null {
 export default async function MagazinePage() {
   const ranges = await listRanges({ department: "tiles" });
   const byslug = new Map(ranges.map((r) => [r.slug, r]));
+  const pageCount = MAGAZINE_PAGES;
 
-  // The magazine is a designed PDF (laid out by Claude Design), rendered page by
-  // page in the flip reader. A placeholder ships at public/kiln.pdf until the
-  // real one lands; swap that file to publish the designed edition.
+  // The magazine is designed by Claude Design and rendered to exact-colour page
+  // images (public/magazine/pages) with a downloadable PDF at public/kiln.pdf.
   const explore = [
     {
       href: "/gallery",
@@ -90,7 +91,7 @@ export default async function MagazinePage() {
   return (
     <div style={{ background: "var(--bg)" }}>
       <MarketingNav />
-      <PdfMagazine src="/kiln.pdf" />
+      <PdfMagazine pages={pageCount} download="/kiln.pdf" />
 
       {/* See more inspiration */}
       <section style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}>
