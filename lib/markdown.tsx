@@ -81,11 +81,37 @@ export function Markdown({ source, directives }: { source: string; directives?: 
     // the standard imagery disclosure on every guide (and any hint/sidenote).
     // The label after ::: (e.g. "note") is optional and currently cosmetic.
     if (/^:::/.test(t)) {
+      const label = t.slice(3).trim().toLowerCase(); // "note" | "gallery" | "wide" | ""
       i++; // consume the opening fence
       const buf: string[] = [];
-      while (i < lines.length && lines[i].trim() !== ":::") { buf.push(lines[i].trim()); i++; }
+      while (i < lines.length && lines[i].trim() !== ":::") { buf.push(lines[i]); i++; }
       if (i < lines.length) i++; // consume the closing fence
-      const text = buf.filter(Boolean).join(" ");
+
+      // :::gallery / :::wide  — image-forward blocks that break out wider than the
+      // text column (for the visual guides). Each inner line is a product image
+      // [![Product · Colour](img)](/product/slug) or a plain ![alt](img).
+      if (label === "gallery" || label === "wide") {
+        const figs = buf.map((b) => b.trim()).filter(Boolean).map((ln, j) => {
+          const lm = ln.match(/^\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)$/);
+          const im = ln.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+          let capTxt = "", src: string | null = null, link: string | null = null;
+          if (lm) { capTxt = decodeEntities(lm[1]); src = safeUrl(lm[2]); link = safeUrl(lm[3]); }
+          else if (im) { capTxt = decodeEntities(im[1]); src = safeUrl(im[2]); }
+          if (!src) return null;
+          /* eslint-disable-next-line @next/next/no-img-element */
+          const image = <img src={src} alt={capTxt} loading="lazy" />;
+          return (
+            <figure key={j} className="bl-gfig">
+              {link ? <a href={link}>{image}</a> : image}
+              {capTxt ? <figcaption>{link ? <a href={link} className="bl-figcredit">{capTxt} <span aria-hidden>→</span></a> : capTxt}</figcaption> : null}
+            </figure>
+          );
+        }).filter(Boolean);
+        if (figs.length) out.push(<div key={k()} className={label === "wide" ? "bl-wide" : "bl-gallery"}>{figs}</div>);
+        continue;
+      }
+
+      const text = buf.map((b) => b.trim()).filter(Boolean).join(" ");
       if (text) out.push(<aside key={k()} className="bl-note">{inline(text, k())}</aside>);
       continue;
     }

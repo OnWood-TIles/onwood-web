@@ -158,6 +158,12 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         .bl-prose .bl-fig figcaption{margin-top:9px;font-size:13px;color:var(--muted);text-align:center;font-family:var(--font-manrope)}
         .bl-prose .bl-figcredit{color:var(--accent);font-weight:700;text-decoration:none}
         .bl-prose .bl-figcredit:hover{text-decoration:underline}
+        .bl-prose .bl-gallery{width:min(1060px,calc(100vw - 28px));margin:34px 0 34px 50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px}
+        .bl-prose .bl-gfig{margin:0}
+        .bl-prose .bl-gfig img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px;border:1px solid var(--line);display:block}
+        .bl-prose .bl-gfig figcaption{margin-top:7px;font-size:12px;color:var(--muted);text-align:center}
+        .bl-prose .bl-wide{width:min(1060px,calc(100vw - 28px));margin:34px 0 34px 50%;transform:translateX(-50%)}
+        .bl-prose .bl-wide .bl-gfig img{aspect-ratio:16/9;border-radius:18px}
         .bl-prose .bl-hr{border:none;border-top:1px solid var(--line);margin:36px 0}
         .bl-prose .bl-code{background:color-mix(in srgb,var(--ink) 8%,transparent);padding:2px 6px;border-radius:5px;font-size:.9em}
       `}</style>
