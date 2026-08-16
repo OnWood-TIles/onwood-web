@@ -12,6 +12,7 @@ const NICHE_BG = "linear-gradient(160deg, color-mix(in srgb, var(--accent) 16%, 
 
 export default function BlogSearch({ posts, featuredSlug }: { posts: Item[]; featuredSlug: string }) {
   const [q, setQ] = useState("");
+  const [visible, setVisible] = useState(9); // compress the browse list; "See more" reveals the rest
   const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const searching = words.length > 0;
   const base = searching ? posts : posts.filter((p) => p.slug !== featuredSlug);
@@ -21,6 +22,8 @@ export default function BlogSearch({ posts, featuredSlug }: { posts: Item[]; fea
         return words.every((w) => hay.includes(w));
       })
     : base;
+  // Search shows every match; browsing shows a reasonable number, then "See more".
+  const shown = searching ? results : results.slice(0, visible);
 
   return (
     <section style={{ padding: "40px 24px 20px" }}>
@@ -45,7 +48,7 @@ export default function BlogSearch({ posts, featuredSlug }: { posts: Item[]; fea
 
         {results.length ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 22 }}>
-            {results.map((p) => (
+            {shown.map((p) => (
               <Link key={p.slug} href={`/blog/${p.slug}`} className="bl-card" style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", height: "100%" }}>
                 <div style={{ aspectRatio: "16/10", background: NICHE_BG, overflow: "hidden" }}>
                   {p.coverImage ? (
@@ -70,6 +73,17 @@ export default function BlogSearch({ posts, featuredSlug }: { posts: Item[]; fea
             No guides match &ldquo;{q}&rdquo; yet. Try another word, or{" "}
             <Link href="/shop" style={{ color: "var(--accent)", fontWeight: 700 }}>browse the shop</Link>.
           </p>
+        )}
+
+        {!searching && results.length > shown.length && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 28 }}>
+            <button
+              onClick={() => setVisible((v) => v + 6)}
+              style={{ appearance: "none", cursor: "pointer", background: "var(--surface)", border: "1px solid var(--line)", color: "var(--ink)", fontFamily: "inherit", fontWeight: 800, fontSize: 15, padding: "13px 30px", borderRadius: 999 }}
+            >
+              See more guides <span aria-hidden>↓</span> <span style={{ color: "var(--muted)", fontWeight: 600 }}>({results.length - shown.length} more)</span>
+            </button>
+          </div>
         )}
       </div>
     </section>

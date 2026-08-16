@@ -5,36 +5,18 @@
 // the guide's prose explains why the right floor depends on the room, not the
 // raw average. Server component (no hooks).
 
-const CRITERIA = ["Value", "Looks", "Durability", "Water", "Repair", "Style range", "Comfort", "Upkeep"] as const;
-
-// scores are in CRITERIA order: [value, looks, durability, water, repair, style, comfort, upkeep]
-type Floor = { name: string; tag: string; scores: number[] };
-const FLOORS: Floor[] = [
-  { name: "Hybrid vinyl", tag: "LVP / SPC plank", scores: [4, 4, 4, 5, 4, 4, 4, 5] },
-  { name: "Porcelain tile", tag: "incl. stone & timber look", scores: [3, 5, 5, 5, 2, 5, 2, 5] },
-  { name: "Timber-look porcelain", tag: "wood look, tile tough", scores: [3, 4, 5, 5, 2, 5, 2, 5] },
-  { name: "Laminate", tag: "click-together boards", scores: [5, 3, 3, 2, 3, 4, 3, 4] },
-  { name: "Engineered / solid timber", tag: "real hardwood", scores: [2, 5, 3, 1, 4, 4, 4, 3] },
-  { name: "Polished concrete", tag: "ground & sealed slab", scores: [3, 4, 5, 4, 2, 3, 1, 4] },
-  { name: "Natural stone", tag: "marble, travertine, slate", scores: [1, 5, 4, 4, 2, 4, 2, 2] },
-  { name: "Carpet", tag: "wool or synthetic pile", scores: [4, 3, 2, 1, 2, 3, 5, 2] },
-];
-const overall = (s: number[]) => Math.round((s.reduce((a, b) => a + b, 0) / s.length) * 20);
+import { CRITERIA, FLOORS, overall, band } from "../../lib/floorScores";
 
 const ROOMS = [
   { room: "Bathroom & ensuite", pick: "Porcelain tile", why: "Fully waterproof and slip-rated, the safe long-term choice where water rules." },
-  { room: "Kitchen", pick: "Porcelain or hybrid vinyl", why: "Both shrug off spills, grease and dropped pans and wipe clean in seconds." },
+  { room: "Kitchen", pick: "Porcelain or hybrid", why: "Both shrug off spills, grease and dropped pans and wipe clean in seconds." },
   { room: "Living & dining", pick: "Timber-look porcelain or timber", why: "The warmth of timber, with tile toughness if the room sees heavy traffic." },
   { room: "Bedrooms", pick: "Carpet or timber", why: "Where bare feet land first, comfort and warmth underfoot win over hard surfaces." },
   { room: "Hallway & entry", pick: "Porcelain tile", why: "The hardest-working stretch of the house handles grit, wheels and wet shoes best on tile." },
-  { room: "Laundry", pick: "Porcelain or hybrid vinyl", why: "Overflows and detergent are no threat to a waterproof floor." },
+  { room: "Laundry", pick: "Porcelain or hybrid", why: "Overflows and detergent are no threat to a waterproof floor." },
   { room: "Outdoor & alfresco", pick: "External porcelain or stone", why: "Only tile and stone truly survive UV, rain and Queensland storms outside." },
   { room: "Pool surround", pick: "R11 porcelain or stone", why: "Grippy when wet, cool underfoot and unbothered by chlorine and sun." },
 ];
-
-function band(v: number) {
-  return v >= 80 ? "a" : v >= 70 ? "b" : v >= 60 ? "c" : "d";
-}
 
 export default function FloorScores() {
   return (
@@ -77,7 +59,7 @@ export default function FloorScores() {
         </table>
       </div>
       <p className="fs-legend">
-        Each measure is scored out of 5 where 5 is best for the buyer (Value = affordable to buy and lay, Water = wet areas and outdoors, Comfort = warmth and softness underfoot, Upkeep = easy to keep clean). Overall is the average as a score out of 100. It is a fair all-rounder, but read it alongside the room guide below, because the best floor is the one that fits the room, not the one with the highest average.
+        Each measure is scored out of 5 where 5 is best for the buyer. Value = affordable to buy and lay, Water = wet areas and outdoors, Comfort = warmth and softness underfoot, Upkeep = easy to keep clean, Expansion = dimensional stability so it barely moves and needs no big expansion gaps, Trims = how cleanly it finishes at walls and doorways with few transition strips. Overall is the average as a score out of 100. Read it alongside the room guide below, because the best floor is the one that fits the room, not the one with the highest average.
       </p>
 
       <h3 className="fs-roomtitle">The best floor for each room</h3>
@@ -94,7 +76,7 @@ export default function FloorScores() {
       <style>{`
         .fs-wrap{width:min(1060px,calc(100vw - 28px));margin:34px 0 34px 50%;transform:translateX(-50%)}
         .fs-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface);-webkit-overflow-scrolling:touch}
-        .fs-table{border-collapse:collapse;width:100%;min-width:820px;font-family:var(--font-manrope),system-ui,sans-serif}
+        .fs-table{border-collapse:collapse;width:100%;min-width:1080px;font-family:var(--font-manrope),system-ui,sans-serif}
         .fs-table thead th{position:sticky;top:0;background:var(--deep);color:#f6f1e8;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:12px 10px;text-align:center;white-space:nowrap}
         .fs-table thead th.fs-name{text-align:left}
         .fs-table th.fs-name{position:sticky;left:0;z-index:2;background:var(--surface);text-align:left;padding:12px 14px;min-width:190px;border-right:1px solid var(--line)}
