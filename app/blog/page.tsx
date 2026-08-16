@@ -45,8 +45,12 @@ export default async function BlogIndex() {
   const all = await getBlog();
   const eff = (p: BlogPost) => p.updatedDate || p.date || "";
   const posts = all.filter((p) => p.published).sort((a, b) => eff(b).localeCompare(eff(a)));
-  const featured = posts[0];
-  const rest = posts.slice(1);
+  // The pinned post is always the big featured slot (regardless of date). Pinned
+  // by slug (the feed strips unknown fields, so a `pinned` flag would not survive);
+  // falls back to a `pinned` flag, then to the newest post.
+  const PINNED_SLUG = "best-floor-covering-for-every-room";
+  const featured = posts.find((p) => p.slug === PINNED_SLUG) ?? posts.find((p) => p.pinned) ?? posts[0];
+  const rest = posts.filter((p) => p !== featured);
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>

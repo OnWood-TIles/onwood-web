@@ -55,7 +55,7 @@ function inline(text: string, keyBase: string): React.ReactNode[] {
   return nodes;
 }
 
-export function Markdown({ source }: { source: string }) {
+export function Markdown({ source, directives }: { source: string; directives?: Record<string, React.ReactNode> }) {
   const lines = (source || "").replace(/\r\n/g, "\n").split("\n");
   const out: React.ReactNode[] = [];
   let i = 0, key = 0;
@@ -66,6 +66,15 @@ export function Markdown({ source }: { source: string }) {
     const t = line.trim();
 
     if (!t) { i++; continue; }
+
+    // custom directive on its own line: [[name]] -> a component supplied by the
+    // caller (e.g. the interactive comparison table on the flooring guide).
+    const dir = t.match(/^\[\[([\w-]+)\]\]$/);
+    if (dir) {
+      const node = directives?.[dir[1]];
+      if (node) out.push(<React.Fragment key={k()}>{node}</React.Fragment>);
+      i++; continue;
+    }
 
     // callout / sidenote box:  :::note   ...   :::
     // A shaded aside in slightly smaller type, set apart from the body. Used for

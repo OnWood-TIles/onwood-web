@@ -222,6 +222,7 @@ export type BlogPost = {
   keywords: string; // comma-separated (SEO)
   body: string; // Markdown
   published: boolean;
+  pinned?: boolean; // when true, this is the big featured post on /blog (a "pinned" post) regardless of date
 };
 
 /** Blog posts authored on the site's own /admin blog editor. */

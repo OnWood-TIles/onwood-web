@@ -5,6 +5,7 @@ import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getBlog, type BlogPost } from "../../../lib/onbase/client";
 import { Markdown, stripMarkdown } from "../../../lib/markdown";
+import FloorScores from "../FloorScores";
 
 export const dynamic = "force-dynamic";
 
@@ -100,7 +101,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
 
           {/* ── BODY ── */}
           <div className="bl-prose" style={{ maxWidth: 720, margin: "0 auto", padding: "40px 24px 20px" }}>
-            <Markdown source={post.body} />
+            <Markdown source={post.body} directives={{ "floor-scores": <FloorScores /> }} />
           </div>
 
           <div style={{ maxWidth: 720, margin: "10px auto 0", padding: "0 24px" }}>
