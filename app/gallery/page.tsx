@@ -117,23 +117,19 @@ export default async function GalleryPage({
       <MarketingNav />
       <main>
         {/* ── HERO ── */}
-        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(96px,16vw,150px) 24px 26px" }}>
+        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(92px,10vw,112px) 24px 16px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 80% -10%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1040, margin: "0 auto", position: "relative", textAlign: "center" }}>
             <Reveal>
               <p style={eyebrow}>The gallery</p>
-              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(34px,6vw,64px)", lineHeight: 1.03, margin: "14px 0 0" }}>
+              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(30px,4.6vw,50px)", lineHeight: 1.03, margin: "10px 0 0" }}>
                 Find your {serif("look")}.
               </h1>
-              <p style={{ fontSize: 17.5, lineHeight: 1.7, color: "#3a444a", maxWidth: "56ch", margin: "18px auto 0" }}>
+              <p style={{ fontSize: 16, lineHeight: 1.6, color: "#3a444a", maxWidth: "56ch", margin: "12px auto 0" }}>
                 Browse our tiles and stone veneer for a little inspiration on your next project.
               </p>
-              <p style={{ fontSize: 15.5, lineHeight: 1.75, color: "#4a545a", maxWidth: "64ch", margin: "14px auto 0" }}>
+              <p style={{ fontSize: 14, lineHeight: 1.58, color: "#4a545a", maxWidth: "68ch", margin: "9px auto 0" }}>
                 From wood-look and porcelain tiles to natural stone, mosaics and stone veneer cladding, every photo is a real OnWood product styled in a room, with bathroom, kitchen, outdoor and feature-wall ideas to help you picture the finished space in your Sunshine Coast home.
-              </p>
-              <p style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--muted)", margin: "16px auto 0", maxWidth: "60ch" }}>
-                Images are AI-generated or digitally rendered to show how a product may look installed. They are illustrations - colour, tone, scale and finish vary.{" "}
-                <Link href="/terms-of-use#ai-imagery" style={{ color: "var(--accent)", fontWeight: 700 }}>Read our imagery disclosure</Link>.
               </p>
             </Reveal>
           </div>
@@ -149,7 +145,14 @@ export default async function GalleryPage({
               <Link href="/shop" style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, textDecoration: "none", padding: "13px 26px", borderRadius: 999 }}>Browse the shop</Link>
             </div>
           ) : (
-            <GalleryClient items={unique} groups={groups} initialActive={initialActive} initialDept={initialDept} />
+            <>
+              <GalleryClient items={unique} groups={groups} initialActive={initialActive} initialDept={initialDept} />
+              {/* Imagery disclosure — below the wall, not in the intro. */}
+              <p style={{ maxWidth: "64ch", margin: "44px auto 0", textAlign: "center", fontSize: 12.5, lineHeight: 1.6, color: "var(--muted)", padding: "0 20px" }}>
+                Images are AI-generated or digitally rendered to show how a product may look installed. They are illustrations - colour, tone, scale and finish vary.{" "}
+                <Link href="/terms-of-use#ai-imagery" style={{ color: "var(--accent)", fontWeight: 700 }}>Read our imagery disclosure</Link>.
+              </p>
+            </>
           )}
         </section>
       </main>

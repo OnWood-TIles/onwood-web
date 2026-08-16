@@ -133,16 +133,25 @@ async function onbaseGet<T>(path: string, opts: FetchOpts, fallback: T): Promise
 const abs = (u?: string | null): string | null | undefined =>
   u && u.startsWith("/") ? `${BASE}${u}` : u;
 
+// Supplier-hosted product photos (e.g. ABI on abiinteriors.com.au) are routed
+// through our caching proxy (/api/img) so they are served from our own storage
+// and survive the supplier moving/renaming files. Our own images (blob room
+// shots, onbase uploads) are already self-hosted and pass through untouched.
+const SUPPLIER_HOST = /^https:\/\/([a-z0-9-]+\.)?abiinteriors\.com\.au\//i;
+const selfHost = (u?: string | null): string | null | undefined =>
+  u && SUPPLIER_HOST.test(u) ? `https://onwoodtiles.com.au/api/img?u=${encodeURIComponent(u)}` : u;
+const img = (u?: string | null) => selfHost(abs(u));
+
 function normalizeRange(r: WebsiteRange): WebsiteRange {
   return {
     ...r,
-    heroImage: abs(r.heroImage) ?? null,
-    images: (r.images ?? []).map((i) => abs(i) as string),
+    heroImage: img(r.heroImage) ?? null,
+    images: (r.images ?? []).map((i) => img(i) as string),
     swatches: (r.swatches ?? []).map((s) => ({
       ...s,
-      image: abs(s.image) ?? null,
-      installedImage: abs(s.installedImage) ?? null,
-      images: s.images?.map((i) => abs(i) as string),
+      image: img(s.image) ?? null,
+      installedImage: img(s.installedImage) ?? null,
+      images: s.images?.map((i) => img(i) as string),
     })),
     documents: (r.documents ?? []).map((d) => ({ ...d, url: abs(d.url) as string })),
   };
