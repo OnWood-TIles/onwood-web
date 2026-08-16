@@ -107,7 +107,10 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
           <div style={{ maxWidth: 720, margin: "10px auto 0", padding: "0 24px" }}>
             <div style={{ borderTop: "1px solid var(--line)", paddingTop: 22, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
               <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>Written by {post.author}, {fmtDate(post.date)}{post.updatedDate ? ` · Updated ${fmtDate(post.updatedDate)}` : ""}</p>
-              <Link href="/book" style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, textDecoration: "none", padding: "12px 24px", borderRadius: 999, fontSize: 14 }}>Book a showroom visit</Link>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link href="/shop" style={{ border: "1px solid var(--line)", background: "var(--surface)", color: "var(--ink)", fontWeight: 800, textDecoration: "none", padding: "12px 22px", borderRadius: 999, fontSize: 14 }}>Browse the shop</Link>
+                <Link href="/book" style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, textDecoration: "none", padding: "12px 24px", borderRadius: 999, fontSize: 14 }}>Book a showroom visit</Link>
+              </div>
             </div>
           </div>
         </article>

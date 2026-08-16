@@ -4,6 +4,7 @@ import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import Reveal from "../components/ui/Reveal";
 import { getBlog, type BlogPost } from "../../lib/onbase/client";
+import BlogSearch from "./BlogSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,8 @@ export default async function BlogIndex() {
   const PINNED_SLUG = "best-floor-covering-for-every-room";
   const featured = posts.find((p) => p.slug === PINNED_SLUG) ?? posts.find((p) => p.pinned) ?? posts[0];
   const rest = posts.filter((p) => p !== featured);
+  // Minimal, serialisable data for the client-side blog search (searches all posts).
+  const searchData = posts.map((p) => ({ slug: p.slug, title: p.title, excerpt: p.excerpt, category: p.category, coverImage: p.coverImage, keywords: p.keywords, mins: readMins(p) }));
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)", minHeight: "100vh" }}>
@@ -163,32 +166,7 @@ export default async function BlogIndex() {
         )}
 
         {/* ── GRID ── */}
-        {rest.length > 0 && (
-          <section style={{ padding: "40px 24px 20px" }}>
-            <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 22 }}>
-                <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.02em", fontSize: "clamp(22px,2.6vw,30px)", margin: 0 }}>More {serif("reads")}</h2>
-                <span style={{ fontSize: 13, color: "var(--muted)" }}>{rest.length} more guide{rest.length === 1 ? "" : "s"}</span>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 22 }}>
-                {rest.map((p) => (
-                  <Link key={p.slug} href={`/blog/${p.slug}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)", background: "var(--surface)", height: "100%" }} className="bl-card">
-                    <div style={{ aspectRatio: "16/10" }}><Cover src={p.coverImage} alt={p.title} /></div>
-                    <div style={{ padding: 20, display: "flex", flexDirection: "column", flex: 1 }}>
-                      <div style={{ display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap" }}>
-                        <span style={{ ...eyebrow, fontSize: 11, color: "var(--accent)" }}>{p.category || "Guide"}</span>
-                        <span style={{ fontSize: 12, color: "var(--muted)" }}>{readMins(p)} min</span>
-                      </div>
-                      <h3 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, letterSpacing: "-.015em", fontSize: 20, lineHeight: 1.16, margin: "10px 0 0" }}>{p.title}</h3>
-                      <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--muted)", margin: "10px 0 0" }}>{p.excerpt}</p>
-                      <span style={{ marginTop: "auto", paddingTop: 16, fontWeight: 800, color: "var(--accent)", fontSize: 14 }}>Read →</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        {rest.length > 0 && <BlogSearch posts={searchData} featuredSlug={featured.slug} />}
 
         {/* ── CTA ── */}
         <section style={{ padding: "70px 24px 90px" }}>
