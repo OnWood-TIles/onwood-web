@@ -235,7 +235,7 @@ const css = `
   --bh:min(980px, calc(100vh - 172px));
   --bw:min(97vw, calc(var(--bh) * var(--spar)));
   --bw1:min(94vw, calc(var(--bh) * var(--par)));
-  display:flex;flex-direction:column;align-items:center;gap:12px;padding:78px 12px 22px;background:${DEEP};min-height:100vh}
+  display:flex;flex-direction:column;align-items:center;gap:12px;padding:78px 12px 22px;background:${DEEP};min-height:100vh;overflow-x:clip}
 .pdf-loading{display:flex;flex-direction:column;align-items:center;gap:16px;color:#fff;opacity:.85;padding:120px 0}
 .pdf-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:${TERRA};animation:pdfspin 1s linear infinite}
 .pdf-spin.small{width:22px;height:22px;border-width:2px}
@@ -267,7 +267,7 @@ const css = `
 .pdf-face.back{transform:rotateY(180deg)}
 .pdf-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.16),rgba(0,0,0,0) 30%);opacity:0;transition:opacity .66s}
 .pdf-sheet.go .pdf-shade{opacity:1}
-.pdf-loupe{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .12s ease;clip-path:circle(var(--lr) at var(--lx) var(--ly))}
+.pdf-loupe{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;overflow:hidden;transition:opacity .12s ease;clip-path:circle(var(--lr) at var(--lx) var(--ly))}
 .pdf-loupe-scale{position:absolute;inset:0;transform:scale(var(--lz));transform-origin:var(--lx) var(--ly)}
 .pdf-loupe-ring{position:absolute;z-index:7;pointer-events:none;width:calc(var(--lr) * 2);height:calc(var(--lr) * 2);
   left:var(--lx);top:var(--ly);transform:translate(-50%,-50%);border-radius:50%;opacity:0;transition:opacity .12s ease;
