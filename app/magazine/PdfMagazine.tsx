@@ -164,7 +164,7 @@ export default function PdfMagazine({
       <div className="pdf-blank" />
     ) : slot.url ? (
       // eslint-disable-next-line @next/next/no-img-element
-      <img className="pdf-img" src={slot.url} alt="" draggable={false} />
+      <img className="pdf-img" src={slot.url} alt="Kiln magazine page" draggable={false} />
     ) : (
       <div className="pdf-page-loading"><div className="pdf-spin small" /></div>
     );

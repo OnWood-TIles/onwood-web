@@ -150,7 +150,7 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={piece.src} alt=""
+            src={piece.src} alt="A room styled with OnWood tiles"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: 4 }}
           />
         </div>
