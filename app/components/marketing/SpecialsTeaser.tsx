@@ -170,6 +170,13 @@ export default function SpecialsTeaser() {
               <span aria-hidden="true">&rarr;</span>
             </Link>
           </Reveal>
+
+          <Reveal delay={0.4}>
+            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(255,255,255,.7)" }}>
+              *Terms &amp; conditions apply — see the{" "}
+              <Link href="/specials#terms" style={{ color: "#fff", textDecoration: "underline" }}>specials terms</Link>.
+            </p>
+          </Reveal>
         </div>
 
         {/* Right column */}

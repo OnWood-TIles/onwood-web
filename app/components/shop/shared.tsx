@@ -70,7 +70,17 @@ export function Stars({ value, size = 18, label }: { value: number; size?: numbe
   );
 }
 
-export function SpecialBadge({ special }: { special: { price: number | null; was: number | null } }) {
+// Price unit suffix so a bare "$29.90" reads as "$29.90/m²" (or " each"). Empty
+// when the unit is unknown, so we never guess a wrong unit.
+export function priceUnitSuffix(u?: string | null): string {
+  if (u == null || u === "") return "";
+  if (u === "Per Unit") return " each";
+  if (u === "m2") return "/m²";
+  if (u === "LM") return "/lm";
+  return `/${u}`;
+}
+
+export function SpecialBadge({ special, unit }: { special: { price: number | null; was: number | null }; unit?: string | null }) {
   // Sits over the thumbnail, so it uses a SOLID accent ground + cream text (not a
   // translucent tint) to stay legible on any image behind it.
   return (
@@ -89,7 +99,7 @@ export function SpecialBadge({ special }: { special: { price: number | null; was
       }}
     >
       SPECIAL
-      {special.price != null && <span style={{ fontSize: 13 }}>${special.price.toFixed(2)}</span>}
+      {special.price != null && <span style={{ fontSize: 13 }}>${special.price.toFixed(2)}{priceUnitSuffix(unit)}</span>}
       {special.was != null && (
         <span style={{ textDecoration: "line-through", opacity: 0.72, fontWeight: 600, fontSize: 11.5 }}>
           ${special.was.toFixed(2)}
@@ -197,7 +207,7 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
         {range.watermarkSecondary && roomShot && <Watermark mode="room" />}
         {range.special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
-            <SpecialBadge special={range.special} />
+            <SpecialBadge special={range.special} unit={range.unit} />
           </div>
         )}
         <div style={saveOverlay}>
@@ -311,7 +321,7 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
         {(swatch.watermarkSecondary ?? range.watermarkSecondary) && roomShot && <Watermark mode="room" />}
         {special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
-            <SpecialBadge special={special} />
+            <SpecialBadge special={special} unit={range.unit} />
           </div>
         )}
         <div style={saveOverlay}>
@@ -389,7 +399,7 @@ export function SpecialsPanel({ range, productBase = "/product" }: { range: Webs
         <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(20px,2.2vw,26px)", letterSpacing: "-.02em", lineHeight: 1.1 }}>{range.name}</span>
         {special?.price != null && (
           <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <span style={{ fontSize: 22, fontWeight: 800 }}>from ${special.price.toFixed(2)}</span>
+            <span style={{ fontSize: 22, fontWeight: 800 }}>from ${special.price.toFixed(2)}{priceUnitSuffix(range.unit)}</span>
             {special.was != null && <span style={{ textDecoration: "line-through", opacity: 0.75, fontSize: 15 }}>${special.was.toFixed(2)}</span>}
           </span>
         )}

@@ -236,7 +236,7 @@ export default async function WhyPage() {
         <section style={{ background: "linear-gradient(160deg,#1A5563,#123C46)", color: "#fff", padding: "84px 40px", marginTop: 70 }}>
           <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 24, textAlign: "center" }} className="wy-stats">
             {([
-              { display: "1000s", label: "Products to choose from" },
+              { display: "450+", label: "Products to choose from" },
               { display: "4551", label: "Baringa showroom, on your doorstep" },
               { count: 100, suffix: "%", label: "Local, independent & Sunshine Coast owned" },
             ] as { display?: string; count?: number; suffix?: string; label: string }[]).map((s, i) => (

@@ -4,7 +4,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
-import { AvailabilityPill, Watermark, ColourwayCard } from "./shared";
+import { AvailabilityPill, Watermark, ColourwayCard, priceUnitSuffix } from "./shared";
 import SaveButton from "../wishlist/SaveButton";
 import { pairSwatch } from "../../../lib/pairs";
 import { familySlug } from "../../../lib/family";
@@ -208,8 +208,6 @@ export default function ProductView({
             )}
             {watermarked && <Watermark />}
           </div>
-          {/* Imagery disclosure - shown once per product page, adjacent to the main image. */}
-          <ProductDisclosure />
         </div>
 
         {/* identity + options */}
@@ -251,6 +249,7 @@ export default function ProductView({
                 {special.price != null && (
                   <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, color: "var(--accent)" }}>
                     ${special.price.toFixed(2)}
+                    <span style={{ fontSize: 15, fontWeight: 700 }}>{priceUnitSuffix(range.unit)}</span>
                   </span>
                 )}
                 {special.was != null && (
@@ -274,6 +273,10 @@ export default function ProductView({
           {range.description && (
             <p style={{ marginTop: 18, fontSize: 15.5, lineHeight: 1.7, color: "#3a4750" }}>{range.description}</p>
           )}
+
+          {/* Imagery disclosure — placed after the name + price so the product,
+              not a warning, is the first thing a shopper reads. */}
+          <ProductDisclosure />
 
           {/* options / colours — also shown for a SINGLE colour so its name + thumbnail
               still appear (same chip as a multi-variant range, just one of them). */}

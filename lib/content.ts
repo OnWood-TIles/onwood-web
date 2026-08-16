@@ -213,9 +213,9 @@ export const STORY = {
   headA: "We don't just sell tiles.",
   headB: "We help you get the whole room right.",
   p1: "Every OnWood project starts with your space, your light and your budget. We help you choose, match and pull the whole look together, from the tiles to the finishing details, so you end up with a room you'll love for years.",
-  p2: "Not just tiles: we finish the job with the tapware, adhesives, trims and accessories to match. Honest advice from a local, family-run Sunshine Coast family team with no franchise script, no pushy upsell.",
+  p2: "Not just tiles: we help finish the job with the adhesives, trims, wastes and a select range of tapware to match. Honest advice from a local, family-run Sunshine Coast team with no franchise script, no pushy upsell.",
   stats: [
-    { to: 1000, suffix: "s", label: "Products to choose from", isPostcode: true },
+    { to: 450, suffix: "+", label: "Products to choose from", isPostcode: true },
     { to: 4551, suffix: "", label: "Baringa, on your doorstep", isPostcode: true },
     { to: 100, suffix: "%", label: "Local & independent" },
   ],
@@ -338,7 +338,7 @@ export const SPECIALS_PAGE = {
     features: [
       "Floor-to-ceiling Aspect 300×450 gloss white wall tiles, all four walls of a 3×3m bathroom",
       "Cottesloe 45 Limestone 450×450 floor tiles, the full 3×3m floor",
-      "Enough for the room with wastage allowed",
+      "Covers about 28.8m² of walls + 9m² of floor (approx 3×3m bathroom), wastage allowed",
       "Supply only, collect from our Baringa showroom",
     ],
     cta: "Reserve this bathroom",
@@ -820,7 +820,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
       },
       {
         title: "Bathrooms & laundries",
-        body: "A bathroom or laundry refresh is the classic Golden Beach reno. We carry the wall and floor tiles, plus matching wastes and tapware, to finish the room without chasing parts around town.",
+        body: "A bathroom or laundry refresh is the classic Golden Beach reno. We carry the wall and floor tiles, plus matching wastes, trims and a select range of tapware, so more of the job comes from one place.",
         href: "/shop/tiles?f=location-use:bathroom",
         hrefLabel: "Bathroom tiles",
       },
@@ -970,7 +970,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
       },
       {
         title: "Bathrooms & laundries",
-        body: "A bathroom or laundry refresh is the classic Currimundi reno. We carry the wall and floor tiles, plus matching wastes and tapware, to finish the room without chasing parts around town.",
+        body: "A bathroom or laundry refresh is the classic Currimundi reno. We carry the wall and floor tiles, plus matching wastes, trims and a select range of tapware, so more of the job comes from one place.",
         href: "/shop/tiles?f=location-use:bathroom",
         hrefLabel: "Bathroom tiles",
       },

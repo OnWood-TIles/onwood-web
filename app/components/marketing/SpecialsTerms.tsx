@@ -6,7 +6,7 @@ import { SPECIALS_PAGE } from "../../../lib/content";
 export default function SpecialsTerms() {
   const { termsTitle, terms } = SPECIALS_PAGE;
   return (
-    <section style={{ padding: "6px 40px 84px", maxWidth: 900, margin: "0 auto" }}>
+    <section id="terms" style={{ padding: "6px 40px 84px", maxWidth: 900, margin: "0 auto", scrollMarginTop: 90 }}>
       <Reveal>
         <div style={{ borderRadius: 18, border: "1px solid var(--line)", background: "var(--surface)", padding: "clamp(22px,3vw,34px)" }}>
           <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 18, letterSpacing: "0.02em", margin: 0, color: "var(--ink)" }}>

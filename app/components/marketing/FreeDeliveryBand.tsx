@@ -53,6 +53,10 @@ export default function FreeDeliveryBand() {
             >
               {d.cta} →
             </a>
+            <p style={{ margin: "14px 0 0", fontSize: 12, color: "rgba(255,255,255,.72)" }}>
+              *Terms &amp; conditions apply — see the{" "}
+              <a href="#terms" style={{ color: "#fff", textDecoration: "underline" }}>terms at the bottom of this page</a>.
+            </p>
           </div>
         </div>
       </Reveal>

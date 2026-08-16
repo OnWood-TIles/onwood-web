@@ -112,6 +112,12 @@ export default function PackageDeal() {
                 {p.cta} →
               </a>
             </Reveal>
+            <Reveal delay={0.26}>
+              <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(255,255,255,.66)" }}>
+                *Terms &amp; conditions apply — see the{" "}
+                <a href="#terms" style={{ color: "#fff", textDecoration: "underline" }}>terms at the bottom of this page</a>.
+              </p>
+            </Reveal>
           </div>
         </div>
       </div>
