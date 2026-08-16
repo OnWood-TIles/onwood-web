@@ -24,7 +24,7 @@ const TRADE_PUBLIC = [
 ];
 
 // Internal-only paths: require the staff cookie in ALL cases.
-const ALWAYS_GATED = ["/debug", "/kitchen-sink", "/admin", "/api/admin"];
+const ALWAYS_GATED = ["/debug", "/kitchen-sink", "/admin", "/api/admin", "/floor-scores-editor"];
 
 function matches(pathname: string, list: string[]): boolean {
   return list.some((p) => pathname === p || pathname.startsWith(p + "/"));
