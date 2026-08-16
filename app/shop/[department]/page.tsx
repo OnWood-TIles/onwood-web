@@ -155,7 +155,7 @@ export default async function DepartmentPage({
         />
       )}
       <MarketingNav />
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(96px,16vw,150px) 28px 90px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,10vw,112px) 28px 90px" }}>
         <nav style={{ fontSize: 13, color: "#8a8577", marginBottom: 14 }} aria-label="Breadcrumb">
           <Link href="/shop" style={{ color: "inherit", textDecoration: "none" }}>Shop</Link>
           <span style={{ margin: "0 8px" }}>/</span>
@@ -165,14 +165,14 @@ export default async function DepartmentPage({
           <div className="ow-hero-text">
             {seo ? (
               <>
-                <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 10px" }}>{seo.eyebrow}</p>
-                <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,46px)", letterSpacing: "-.02em", lineHeight: 1.06, margin: "0 0 16px" }}>{seo.h1}</h1>
+                <p style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 7px" }}>{seo.eyebrow}</p>
+                <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(25px,3.1vw,37px)", letterSpacing: "-.02em", lineHeight: 1.05, margin: "0 0 10px" }}>{seo.h1}</h1>
                 {seo.intro.map((para, i) => (
-                  <p key={i} style={{ fontSize: 16.5, lineHeight: 1.7, color: "#3a444a", margin: "0 0 12px" }}>{para}</p>
+                  <p key={i} style={{ fontSize: 14.5, lineHeight: 1.58, color: "#3a444a", margin: "0 0 8px" }}>{para}</p>
                 ))}
               </>
             ) : (
-              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(30px,4vw,46px)", letterSpacing: "-.02em", margin: 0 }}>{dept.label}</h1>
+              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(25px,3.1vw,37px)", letterSpacing: "-.02em", margin: 0 }}>{dept.label}</h1>
             )}
           </div>
 
@@ -278,18 +278,18 @@ export default async function DepartmentPage({
              centered, unchanged). Desktop (>=900px): a narrow text column with the
              stats + button beneath it, and a larger image spanning the full height
              on the right so it lines up with the heading and the button. */
-          .ow-hero { display: grid; grid-template-columns: 1fr; grid-template-areas: "text" "media" "stats" "cta"; gap: 20px; align-items: start; margin: 0 0 30px; }
+          .ow-hero { display: grid; grid-template-columns: 1fr; grid-template-areas: "text" "media" "stats" "cta"; gap: 16px; align-items: start; margin: 0 0 20px; }
           .ow-hero-text { grid-area: text; min-width: 0; }
           .ow-hero-media { grid-area: media; position: relative; min-width: 0; }
-          .ow-hero-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px -34px rgba(30,20,10,.5); background: #fff; aspect-ratio: 4 / 3; }
+          .ow-hero-frame { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px -34px rgba(30,20,10,.5); background: #fff; aspect-ratio: 16 / 10; }
           .ow-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
           .ow-hero-plate { position: absolute; right: 12px; bottom: 12px; z-index: 1; width: 34%; max-width: 168px; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 16px 34px -18px rgba(30,20,10,.55); background: #fff; }
           .ow-hero-stats { grid-area: stats; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 32px; align-items: baseline; }
           .ow-hero-cta { grid-area: cta; display: flex; justify-content: center; }
           @media (min-width: 900px) {
-            .ow-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr); grid-template-areas: "text media" "stats media" "cta media"; column-gap: clamp(28px, 4vw, 52px); row-gap: 16px; }
+            .ow-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); grid-template-areas: "text media" "stats media" "cta media"; column-gap: clamp(28px, 4vw, 52px); row-gap: 14px; }
             .ow-hero-media { align-self: stretch; }
-            .ow-hero-frame { aspect-ratio: auto; height: 100%; min-height: 260px; }
+            .ow-hero-frame { aspect-ratio: auto; height: 100%; min-height: 200px; }
             .ow-hero-stats { justify-content: flex-start; margin-top: 6px; }
             .ow-hero-cta { justify-content: flex-start; }
           }

@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Counts 0 -> `to` when scrolled into view. Honours prefers-reduced-motion
-// (shows the final value immediately). Matches the reference `data-count`.
+// SSR-renders the FINAL value (so no-JS visitors, prefers-reduced-motion users
+// and crawlers/Google always see the real number — never a "0"), then counts
+// 0 -> `to` when scrolled into view for JS users who allow motion.
 export default function CountUp({
   to,
   suffix = "",
@@ -18,7 +19,7 @@ export default function CountUp({
   style?: React.CSSProperties;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [val, setVal] = useState(0);
+  const [val, setVal] = useState(to); // start at final so the served HTML is correct
   const done = useRef(false);
 
   useEffect(() => {
