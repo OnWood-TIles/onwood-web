@@ -59,7 +59,7 @@ export default function FloorScores() {
         </table>
       </div>
       <p className="fs-legend">
-        Each measure is scored out of 5 where 5 is best for the buyer. Value = affordable to buy and lay, Water = wet areas and outdoors, Comfort = warmth and softness underfoot, Upkeep = easy to keep clean, Expansion = dimensional stability so it barely moves and needs no big expansion gaps, Trims = how cleanly it finishes at walls and doorways with few transition strips. Overall is the average as a score out of 100. Read it alongside the room guide below, because the best floor is the one that fits the room, not the one with the highest average.
+        Each measure is scored out of 5 where 5 is best for the buyer. Value = affordable to buy and lay, Water = wet areas and outdoors, Comfort = warmth and softness underfoot, Upkeep = easy to keep clean, Expansion = dimensional stability so it barely moves and needs no big expansion gaps, Trims = how cleanly it finishes at walls and doorways with few transition strips, Acoustics = how quiet it is underfoot. Overall is the average as a score out of 100. Read it alongside the room guide below, because the best floor is the one that fits the room, not the one with the highest average.
       </p>
 
       <h3 className="fs-roomtitle">The best floor for each room</h3>
@@ -76,7 +76,7 @@ export default function FloorScores() {
       <style>{`
         .fs-wrap{width:min(1060px,calc(100vw - 28px));margin:34px 0 34px 50%;transform:translateX(-50%)}
         .fs-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface);-webkit-overflow-scrolling:touch}
-        .fs-table{border-collapse:collapse;width:100%;min-width:1080px;font-family:var(--font-manrope),system-ui,sans-serif}
+        .fs-table{border-collapse:collapse;width:100%;min-width:1180px;font-family:var(--font-manrope),system-ui,sans-serif}
         .fs-table thead th{position:sticky;top:0;background:var(--deep);color:#f6f1e8;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:12px 10px;text-align:center;white-space:nowrap}
         .fs-table thead th.fs-name{text-align:left}
         .fs-table th.fs-name{position:sticky;left:0;z-index:2;background:var(--surface);text-align:left;padding:12px 14px;min-width:190px;border-right:1px solid var(--line)}

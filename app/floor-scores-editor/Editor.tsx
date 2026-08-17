@@ -66,7 +66,7 @@ export default function Editor() {
         .fe-btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
         .fe-btn:hover{filter:brightness(.97)}
         .fe-tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface);-webkit-overflow-scrolling:touch}
-        .fe-table{border-collapse:collapse;width:100%;min-width:1120px;font-family:var(--font-manrope),system-ui,sans-serif}
+        .fe-table{border-collapse:collapse;width:100%;min-width:1220px;font-family:var(--font-manrope),system-ui,sans-serif}
         .fe-table thead th{position:sticky;top:0;background:var(--deep);color:#f6f1e8;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:12px 8px;text-align:center;white-space:nowrap}
         .fe-table th.fe-name{position:sticky;left:0;z-index:2;text-align:left;padding:12px 14px;min-width:200px;border-right:1px solid var(--line);background:var(--surface)}
         .fe-table thead th.fe-name{background:var(--deep)}
