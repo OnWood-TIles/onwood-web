@@ -7,6 +7,7 @@ import { useShopMenu } from "./ShopMenuProvider";
 import ShopMegaMenu from "./ShopMegaMenu";
 import type { NavItem } from "../../../lib/onbase/client";
 import styles from "./marketingNav.module.css";
+import SiteSearch from "./SiteSearch";
 
 // Fixed marketing header transcribed from .refwork/tiles-sections/00-header-header.html.
 // Adds a scrolled state (background/blur intensify past 12px) and a mobile
@@ -127,6 +128,7 @@ export default function MarketingNav() {
             </a>
           ),
         )}
+        <SiteSearch variant="icon" />
         <a
           href="/book"
           style={{
@@ -228,6 +230,7 @@ export default function MarketingNav() {
               </a>
             ),
           )}
+          <div style={{ marginTop: 8 }}><SiteSearch variant="mobile" /></div>
           <a href="/book" className={styles.mobileBook} onClick={closeMenu}>Book a visit</a>
         </div>
       ) : null}

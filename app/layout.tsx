@@ -88,6 +88,19 @@ const jsonLd = {
     addressCountry: "AU",
   },
   areaServed: "Sunshine Coast, Queensland",
+  // Approx Baringa coordinates. Refine to the exact Google Maps pin once the
+  // Google Business Profile is set up.
+  geo: { "@type": "GeoCoordinates", latitude: -26.7975, longitude: 153.1015 },
+  hasMap: "https://www.google.com/maps/search/?api=1&query=OnWood+Tiles+2%2F11+Packer+Road+Baringa+QLD+4551",
+  priceRange: "$$",
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "10:00",
+      closes: "16:00",
+    },
+  ],
   sameAs: [
     "https://www.instagram.com/onwood_tiles",
     "https://www.facebook.com/share/18qX1BsNrf/",
