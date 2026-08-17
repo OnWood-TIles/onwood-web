@@ -17,7 +17,7 @@ const ROOMS = [
   { room: "Hallway & entry", pick: "Porcelain tile", why: "The hardest-working stretch of the house handles grit, wheels and wet shoes best on tile." },
   { room: "Laundry", pick: "Porcelain or hybrid", why: "Overflows and detergent are no threat to a waterproof floor." },
   { room: "Outdoor & alfresco", pick: "External porcelain or stone", why: "Only tile and stone truly survive UV, rain and Queensland storms outside." },
-  { room: "Pool surround", pick: "R11 porcelain or stone", why: "Grippy when wet, cool underfoot and unbothered by chlorine and sun." },
+  { room: "Pool surround", pick: "P5 porcelain or stone", why: "Grippy when wet, cool underfoot and unbothered by chlorine and sun." },
 ];
 
 const SCENARIOS = [
