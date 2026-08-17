@@ -109,6 +109,51 @@ export function SpecialBadge({ special, unit }: { special: { price: number | nul
   );
 }
 
+// How many DISTINCT standard prices sit across a range's colourways - drives the
+// "from $X" prefix (a range whose members are all the same price shows a flat price).
+export function distinctSwatchPrices(range: WebsiteRange): number {
+  return new Set(range.swatches.map((s) => s.price).filter((x): x is number => x != null)).size;
+}
+
+// The customer-facing price. A special wins (sale price in accent + a struck "was",
+// falling back to the standard price as the "was" so the saving always reads). Else
+// the standard retail price (GST incl.). Renders nothing when there is no price
+// (hidden in OnBase, or no cost on file). `from` prefixes "from" for multi-price ranges.
+export function PriceTag({
+  price,
+  special,
+  unit,
+  from = false,
+  size = "sm",
+}: {
+  price?: number | null;
+  special?: { price: number | null; was: number | null } | null;
+  unit?: string | null;
+  from?: boolean;
+  size?: "sm" | "lg";
+}) {
+  const big = size === "lg";
+  const num: React.CSSProperties = { fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: big ? 26 : 16, letterSpacing: "-.01em" };
+  if (special?.price != null) {
+    const was = special.was ?? price;
+    return (
+      <span style={{ display: "inline-flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ ...num, color: "var(--accent)" }}>${special.price.toFixed(2)}{priceUnitSuffix(unit)}</span>
+        {was != null && (
+          <span style={{ textDecoration: "line-through", color: "#a8a294", fontWeight: 600, fontSize: big ? 15 : 12.5 }}>${was.toFixed(2)}</span>
+        )}
+      </span>
+    );
+  }
+  if (price == null) return null;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
+      {from && <span style={{ fontSize: big ? 12.5 : 11, fontWeight: 700, color: "#8a8577", textTransform: "uppercase", letterSpacing: ".08em" }}>from</span>}
+      <span style={{ ...num, color: "var(--ink)" }}>${price.toFixed(2)}{priceUnitSuffix(unit)}</span>
+    </span>
+  );
+}
+
 // Brand watermark overlaid on a product photo when the product opts in (OnBase
 // Website tab). Deliberately GHOSTLY (low opacity + soft shadow) so it brands
 // without dominating. Non-interactive. `mode` handles the card cross-fade:
@@ -263,6 +308,11 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
             </span>
           )}
         </div>
+        {(range.special?.price != null || range.price != null) && (
+          <div style={{ marginTop: 10 }}>
+            <PriceTag price={range.price} special={range.special} unit={range.unit} from={distinctSwatchPrices(range) > 1} />
+          </div>
+        )}
       </div>
     </Link>
   );
@@ -348,6 +398,11 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
           )}
           {swatch.colour}
         </p>
+        {(swatch.special?.price != null || range.special?.price != null || swatch.price != null || range.price != null) && (
+          <div style={{ marginTop: 8 }}>
+            <PriceTag price={swatch.price ?? range.price} special={swatch.special ?? range.special} unit={range.unit} />
+          </div>
+        )}
       </div>
     </Link>
   );

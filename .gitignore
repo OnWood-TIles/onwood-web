@@ -51,6 +51,7 @@ next-env.d.ts
 
 # scratch/experiment working files (local only — AI render experiments etc.)
 _work/
+_jc/
 
 .env*
 # scratch commit-message file

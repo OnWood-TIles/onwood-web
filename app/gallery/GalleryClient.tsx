@@ -27,6 +27,8 @@ export type GalleryItem = {
   rf: Record<string, string[]>;
   /** This colourway's own colour-filter value slugs (per-swatch accuracy). */
   sc: string[];
+  /** Effective price (GST incl.) for the price filter/sort; null = no price. */
+  price?: number | null;
 };
 
 type Dept = "all" | "tiles" | "stone";
@@ -37,6 +39,24 @@ const AND_GROUPS = new Set(["location-use", "location", "use", "suitability", "l
 
 // Render in pages so only a batch mounts at once (fast first paint, small DOM).
 const PER_PAGE = 60;
+
+// Price bands + sort options — kept identical to the shop (DepartmentShop) so the
+// gallery narrows and orders the same way.
+const PRICE_BANDS: { key: string; label: string; min: number; max: number }[] = [
+  { key: "u30", label: "Under $30", min: 0, max: 30 },
+  { key: "30-50", label: "$30 to $50", min: 30, max: 50 },
+  { key: "50-80", label: "$50 to $80", min: 50, max: 80 },
+  { key: "80up", label: "$80 and up", min: 80, max: Infinity },
+];
+const SORTS: { key: string; label: string }[] = [
+  { key: "featured", label: "Featured" },
+  { key: "price-asc", label: "Price: low to high" },
+  { key: "price-desc", label: "Price: high to low" },
+  { key: "name", label: "Name: A to Z" },
+];
+
+// "Price" rendered as a filter group so it sits inside the Refine bar with the others.
+const PRICE_GROUP = { slug: "price", label: "Price", values: PRICE_BANDS.map((b) => ({ slug: b.key, label: b.label })) };
 
 const eyebrow: React.CSSProperties = { fontSize: 12, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase" };
 
@@ -56,6 +76,8 @@ export default function GalleryClient({
   const [search, setSearch] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [visible, setVisible] = useState(PER_PAGE);
+  const [sort, setSort] = useState("featured");
+  const [priceBands, setPriceBands] = useState<string[]>([]);
   // Focus management for the lightbox dialog: remember the trigger that opened
   // it (to restore focus on close) and move focus onto the Close button when it
   // opens, so keyboard/screen-reader users land inside the dialog.
@@ -84,14 +106,15 @@ export default function GalleryClient({
       return next;
     });
 
-  const clearAll = () => { setActive({}); syncUrl(dept, {}); };
+  const clearAll = () => { setActive({}); setPriceBands([]); syncUrl(dept, {}); };
+  const togglePriceBand = (k: string) => setPriceBands((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
   const pickDept = (d: Dept) => { setDept(d); syncUrl(d, active); };
 
   // AND across groups; OR within (except AND_GROUPS). Colour matches per-swatch
   // (sc); other groups match the range's values (rf). Mirrors the shop exactly.
   const shown = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return items.filter((it) => {
+    const filtered = items.filter((it) => {
       if (dept !== "all" && it.group !== dept) return false;
       for (const [g, vals] of Object.entries(active)) {
         if (!vals.length) continue;
@@ -104,13 +127,30 @@ export default function GalleryClient({
         if (!ok) return false;
       }
       if (q && !(it.name.toLowerCase().includes(q) || it.colour.toLowerCase().includes(q))) return false;
+      if (priceBands.length) {
+        const p = it.price;
+        if (p == null) return false;
+        const inAny = priceBands.some((k) => { const b = PRICE_BANDS.find((x) => x.key === k); return !!b && p >= b.min && p < b.max; });
+        if (!inAny) return false;
+      }
       return true;
     });
-  }, [items, dept, active, search]);
+    if (sort === "featured") return filtered;
+    const arr = [...filtered];
+    if (sort === "name") { arr.sort((a, b) => a.name.localeCompare(b.name)); return arr; }
+    arr.sort((a, b) => {
+      const pa = a.price ?? null, pb = b.price ?? null;
+      if (pa == null && pb == null) return 0;
+      if (pa == null) return 1;
+      if (pb == null) return -1;
+      return sort === "price-asc" ? pa - pb : pb - pa;
+    });
+    return arr;
+  }, [items, dept, active, search, priceBands, sort]);
 
   // Any filter/department/search change invalidates the lightbox index and
   // resets paging back to the first batch.
-  useEffect(() => { setLightbox(null); setVisible(PER_PAGE); }, [dept, active, search]);
+  useEffect(() => { setLightbox(null); setVisible(PER_PAGE); }, [dept, active, search, priceBands, sort]);
 
   const deptChips: { key: Dept; label: string }[] = [
     { key: "all", label: `All (${items.length})` },
@@ -174,10 +214,18 @@ export default function GalleryClient({
         </div>
       )}
 
-      {/* ── Filter bar (same as the shop) ── */}
-      {groups.length > 0 && (
-        <FilterBar groups={groups} active={active} onToggle={toggle} onClearAll={clearAll} search={search} onSearchChange={setSearch} />
-      )}
+      {/* ── Filter bar with price group + sort (same as the shop) ── */}
+      <FilterBar
+        groups={[...groups, PRICE_GROUP]}
+        active={priceBands.length ? { ...active, price: priceBands } : active}
+        onToggle={(g, v) => (g === "price" ? togglePriceBand(v) : toggle(g, v))}
+        onClearAll={clearAll}
+        search={search}
+        onSearchChange={setSearch}
+        sort={sort}
+        sortOptions={SORTS}
+        onSortChange={setSort}
+      />
 
       <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 18px", textAlign: "center" }}>
         {shown.length} {shown.length === 1 ? "image" : "images"}

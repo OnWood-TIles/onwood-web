@@ -9,7 +9,7 @@ import { getBusiness, listRanges, type WebsiteRange } from "../../lib/onbase/cli
 export const metadata: Metadata = {
   title: "Why OnWood Tiles",
   description:
-    "We don't just sell tiles - we help you get the whole room right. A curated Sunshine Coast tile range, honest advice, live stock, and supply + installation by hand from our Baringa showroom.",
+    "We don't just sell tiles - we help you get the whole room right. A curated Sunshine Coast tile range, honest advice, and the finishing details to match, from our Baringa showroom.",
   alternates: { canonical: "https://onwoodtiles.com.au/why" },
 };
 
@@ -57,14 +57,8 @@ const VALUES = [
 const STEPS = [
   { n: 1, title: "Visit the showroom", body: "See full-size boards and big-format samples in honest coastal light, and take samples home the same day." },
   { n: 2, title: "We match your space", body: "Bring photos or plans. We help you choose colour, size and layout for the way your room actually runs." },
-  { n: 3, title: "Order with live stock", body: "What you see is what we can supply. We check real stock before you commit, so there are no surprises." },
+  { n: 3, title: "Order your tiles", body: "Choose in store or online, then collect from Baringa or have your tiles delivered to your Sunshine Coast suburb." },
   { n: 4, title: "Follow-up and aftercare", body: "Once your tiles are down, we're still here. Ask us about cleaning, sealing and keeping your surface looking its best for years to come." },
-];
-
-const QUOTES = [
-  { text: "The team matched a wood-look porcelain to our deck perfectly. Half the house has asked where the floor is from.", name: "Hannah P.", place: "Pelican Waters" },
-  { text: "Honest advice, no upsell, and the samples went home with us the same day. Made choosing so much easier.", name: "Dan & Mel", place: "Buderim" },
-  { text: "Beautiful zellige for our splashback and it turned up exactly when they said. Genuinely lovely to deal with.", name: "Priya S.", place: "Caloundra" },
 ];
 
 function gatherImages(ranges: WebsiteRange[]): string[] {
@@ -319,31 +313,6 @@ export default async function WhyPage() {
                 </div>
               </Reveal>
             </div>
-          </div>
-        </section>
-
-        {/* ── Testimonials ─────────────────────────────────────── */}
-        <section style={{ maxWidth: 1240, margin: "0 auto", padding: "70px 40px 40px" }}>
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
-            <Reveal><div style={{ ...eyebrow, color: "var(--sea)" }}>From Sunshine Coast homes</div></Reveal>
-            <Reveal delay={0.05}>
-              <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.02em", margin: "12px 0 0" }}>
-                People stop and {serif("look down.")}
-              </h2>
-            </Reveal>
-          </div>
-          <div className="wy-quotes">
-            {QUOTES.map((q, i) => (
-              <Reveal key={q.name} delay={i * 0.07}>
-                <figure className="wy-quote">
-                  <div aria-hidden style={{ fontFamily: "var(--font-newsreader)", fontStyle: "italic", fontSize: 44, lineHeight: 0.4, color: "var(--accent)", height: 20 }}>&ldquo;</div>
-                  <blockquote style={{ margin: 0, fontSize: 15.5, lineHeight: 1.65, color: "var(--ink)" }}>{q.text}</blockquote>
-                  <figcaption style={{ marginTop: 16, fontSize: 13.5, fontWeight: 700 }}>
-                    {q.name} <span style={{ color: "var(--muted)", fontWeight: 500 }}>&middot; {q.place}</span>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            ))}
           </div>
         </section>
 

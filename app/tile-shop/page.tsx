@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
-import { SUBURB_LIST, SHOP } from "../../lib/content";
+import { SUBURB_LIST, COLLECTION_LIST, SHOP } from "../../lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -90,24 +90,34 @@ export default async function TileShopHubPage() {
                 </span>
               </Link>
             ))}
+          </div>
+        </section>
 
-            {/* More suburbs are being added */}
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", border: "1px dashed var(--line)", borderRadius: 18, background: "transparent", padding: "26px 26px 24px", color: "#8a8577" }}>
-              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#8a8577" }}>Coming soon</span>
-              <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 20, letterSpacing: "-.01em", lineHeight: 1.2, margin: "10px 0 8px", color: "var(--ink)" }}>
-                More suburbs on the way
-              </span>
-              <span style={{ fontSize: 14.5, lineHeight: 1.6 }}>
-                We are adding pages for more Sunshine Coast suburbs. In the meantime we deliver to Maroochydore and surrounding suburbs, and right across the coast within our zones.
-              </span>
-            </div>
+        {/* ── Shop tiles by look ── */}
+        <section style={{ marginTop: 56, borderTop: "1px solid var(--line)", paddingTop: 40 }}>
+          <p style={eyebrow}>Shop by look and use</p>
+          <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(22px,2.8vw,32px)", letterSpacing: "-.02em", margin: "10px 0 6px" }}>
+            Browse tiles by the job
+          </h2>
+          <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "#4a545a", maxWidth: "60ch", margin: "0 0 20px" }}>
+            Know what you are tiling? Jump straight to the tiles that suit the room or look you have in mind, each a real product with a price.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
+            {COLLECTION_LIST.map((c) => (
+              <Link key={c.slug} href={`/tiles/${c.slug}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: "var(--surface)", border: "1px solid var(--line)", fontSize: 14, fontWeight: 700, color: "var(--ink)", textDecoration: "none" }}>
+                {c.name}
+              </Link>
+            ))}
+            <Link href="/tiles" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: "transparent", border: "1px dashed var(--line)", fontSize: 14, fontWeight: 700, color: "#8a8577", textDecoration: "none" }}>
+              All collections →
+            </Link>
           </div>
         </section>
 
         {/* ── Closing note ── */}
         <section style={{ marginTop: 56, borderTop: "1px solid var(--line)", paddingTop: 36 }}>
           <p style={{ fontSize: 15.5, lineHeight: 1.7, color: "#4a545a", maxWidth: "62ch", margin: "0 0 18px" }}>
-            Not sure if we reach you? Our Baringa showroom ({SHOP.suburb}, {SHOP.state}) is central to the Sunshine Coast, and we deliver across the region within our zones. Get in touch and tell us your suburb.
+            Not sure if we reach you? Our Baringa showroom ({SHOP.suburb}, {SHOP.state}) is in the southern Sunshine Coast, and we deliver across the region within our zones. Get in touch and tell us your suburb.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Link href="/shop/tiles" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff6ee", fontWeight: 800, fontSize: 15.5, textDecoration: "none", padding: "14px 26px", borderRadius: 999, boxShadow: "0 16px 40px -22px rgba(208,106,69,.7)" }}>

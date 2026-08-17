@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getBlog, getTaxonomy, listRanges } from "../lib/onbase/client";
-import { SUBURB_LIST } from "../lib/content";
+import { SUBURB_LIST, COLLECTION_LIST } from "../lib/content";
 
 // Sitemap for onwoodtiles.com.au. Now that the site is LIVE this lists the full
 // public + indexable storefront: the marketing/utility pages, the blog + each
@@ -58,6 +58,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/specials`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/vision-board`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/gallery`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/tiles`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/sunshine-coast`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/tile-shops-near-me`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/tile-shop`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/magazine`, changeFrequency: "monthly", priority: 0.7 },
@@ -78,11 +81,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // One page per tile collection (/tiles/[collection]).
+  const collectionPages: MetadataRoute.Sitemap = COLLECTION_LIST.map((c) => ({
+    url: `${BASE}/tiles/${c.slug}`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   return [
     ...staticPages,
     ...departmentPages,
     ...productPages,
     ...suburbPages,
+    ...collectionPages,
     ...blogPosts,
   ];
 }

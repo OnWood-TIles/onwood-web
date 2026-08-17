@@ -90,10 +90,11 @@ export default async function ProductPage({
     .filter(Boolean);
   const pairs = pickPairs(range, allRanges, dept?.label);
 
-  // schema.org/Product structured data (rich results). Deliberately price-free:
-  // the owner never publishes prices, so we emit NO offers/price/availability -
-  // only descriptive fields. Any field that isn't available is omitted rather
-  // than sent as null/empty. Same in-page <script> technique as app/layout.tsx.
+  // schema.org/Product structured data (rich results). Emits an Offer when a price
+  // is published (special price wins, else the standard "from" price) so search can
+  // show a price; a product with the price hidden in OnBase emits no Offer. Any
+  // field that isn't available is omitted rather than sent as null/empty. Same
+  // in-page <script> technique as app/layout.tsx.
   const SITE = "https://onwoodtiles.com.au";
   // Pick a representative product image: the range hero, else the first
   // colourway's swatch photo, else the first gallery image. normalizeRange has
@@ -128,6 +129,21 @@ export default async function ProductPage({
           })),
         }
       : {};
+  // Offer: the price actually shown (a range-level special wins, else the standard
+  // "from" price), GST-inclusive AUD. Omitted when the price is hidden / unset.
+  const offerPrice = range.special?.price ?? range.price ?? null;
+  const offerLd =
+    offerPrice != null
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "AUD",
+            price: offerPrice.toFixed(2),
+            availability: range.availability === "out" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+            url: `${SITE}/product/${slug}`,
+          },
+        }
+      : {};
   const productLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -136,6 +152,7 @@ export default async function ProductPage({
     ...(description ? { description } : {}),
     brand: { "@type": "Brand", name: "OnWood Tiles" },
     ...(category ? { category } : {}),
+    ...offerLd,
     ...reviewLd,
     url: `${SITE}/product/${slug}`,
   };

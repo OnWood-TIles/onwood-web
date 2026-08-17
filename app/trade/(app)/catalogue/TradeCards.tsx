@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { PriceDisplayGst, Swatch, WebsiteRange } from "../../../../lib/onbase/client";
-import { AvailabilityPill, SpecialBadge, Watermark } from "../../../components/shop/shared";
+import { AvailabilityPill, Watermark } from "../../../components/shop/shared";
 import { useCart } from "../CartProvider";
 import { boxesFor, coveragePerUnit, hasBoxes, isAreaUnit, roundUpToBox, round3, stepFor, stepQty, unitLabel, unitsForArea } from "../../../../lib/boxQty";
 import ImageDisclosure from "../../../components/legal/ImageDisclosure";
@@ -173,11 +173,6 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
         )}
         {range.watermarkPrimary && <Watermark mode={roomShot ? "yield" : "static"} />}
         {range.watermarkSecondary && roomShot && <Watermark mode="room" />}
-        {range.special && (
-          <div style={{ position: "absolute", top: 10, left: 10 }}>
-            <SpecialBadge special={range.special} />
-          </div>
-        )}
       </div>
       </Link>
       <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
@@ -219,7 +214,6 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
   const [open, setOpen] = useState(false);
   const image = swatch.image || range.heroImage || null;
   const roomShot = swatch.installedImage || null;
-  const special = swatch.special ?? range.special ?? null;
   const priced = swatch.trade?.tradePrice != null;
   const s: Summary = {
     anyPriced: priced,
@@ -246,11 +240,6 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
         )}
         {(swatch.watermarkPrimary ?? range.watermarkPrimary) && <Watermark mode={roomShot ? "yield" : "static"} />}
         {(swatch.watermarkSecondary ?? range.watermarkSecondary) && roomShot && <Watermark mode="room" />}
-        {special && (
-          <div style={{ position: "absolute", top: 10, left: 10 }}>
-            <SpecialBadge special={special} />
-          </div>
-        )}
       </div>
       </Link>
       <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>

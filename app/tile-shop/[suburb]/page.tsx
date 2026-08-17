@@ -316,7 +316,7 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
               Popular for {s.name}
             </h2>
             <p style={{ fontSize: 16, lineHeight: 1.7, color: "#3a444a", maxWidth: "62ch", margin: "0 0 26px" }}>
-              {s.popularIntro ?? `Hard-wearing, coastal-friendly tiles our ${s.name} customers reach for. Every one is a real OnWood product with live availability.`}
+              {s.popularIntro ?? `Hard-wearing, coastal-friendly tiles our ${s.name} customers reach for. Every one is a real OnWood product.`}
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
               {popular.map((r) => (

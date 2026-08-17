@@ -60,6 +60,9 @@ export default async function GalleryPage({
           watermark: (sw.watermarkSecondary ?? r.watermarkSecondary) || false,
           rf: r.filters ?? {},
           sc: sw.colours ?? [],
+          // Effective price for the gallery's price filter/sort (mirrors the shop):
+          // this colourway's special or standard price, else the range's.
+          price: sw.special?.price ?? sw.price ?? r.special?.price ?? r.price ?? null,
         });
       }
     }
@@ -117,18 +120,18 @@ export default async function GalleryPage({
       <MarketingNav />
       <main>
         {/* ── HERO ── */}
-        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(92px,10vw,112px) 24px 16px" }}>
+        <section style={{ position: "relative", overflow: "hidden", padding: "clamp(92px,10vw,112px) 20px 16px" }}>
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(1200px 480px at 80% -10%, color-mix(in srgb, var(--sea) 12%, transparent), transparent 60%)", pointerEvents: "none" }} />
-          <div style={{ maxWidth: 1040, margin: "0 auto", position: "relative", textAlign: "center" }}>
+          <div style={{ maxWidth: 1240, margin: "0 auto", position: "relative" }}>
             <Reveal>
               <p style={eyebrow}>The gallery</p>
-              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(30px,4.6vw,50px)", lineHeight: 1.03, margin: "10px 0 0" }}>
+              <h1 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.03em", fontSize: "clamp(30px,4.6vw,50px)", lineHeight: 1.03, margin: "12px 0 0" }}>
                 Find your {serif("look")}.
               </h1>
-              <p style={{ fontSize: 16, lineHeight: 1.6, color: "#3a444a", maxWidth: "56ch", margin: "12px auto 0" }}>
+              <p style={{ fontSize: 16.5, lineHeight: 1.65, color: "#3a444a", maxWidth: "60ch", margin: "14px 0 0" }}>
                 Browse our tiles and stone veneer for a little inspiration on your next project.
               </p>
-              <p style={{ fontSize: 14, lineHeight: 1.58, color: "#4a545a", maxWidth: "68ch", margin: "9px auto 0" }}>
+              <p style={{ fontSize: 14.5, lineHeight: 1.6, color: "#4a545a", maxWidth: "66ch", margin: "9px 0 0" }}>
                 From wood-look and porcelain tiles to natural stone, mosaics and stone veneer cladding, every photo is a real OnWood product styled in a room, with bathroom, kitchen, outdoor and feature-wall ideas to help you picture the finished space in your Sunshine Coast home.
               </p>
             </Reveal>

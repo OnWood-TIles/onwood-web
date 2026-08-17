@@ -138,6 +138,16 @@ export default async function DepartmentPage({
     { name: "Baringa showroom", tagline: "See the finishes in the flesh", body: `${SHOP.street}, ${SHOP.suburb}. Drop in for a coffee and a fistful of samples.`, cta: "Book a visit", href: "/book" },
   ];
 
+  // Present the grid shuffled each visit so the default "Featured" order isn't just
+  // alphabetical (which parks the same Aspect whites on top). The page is
+  // force-dynamic, so it reshuffles per visit; picking a Sort option overrides it.
+  // Mirrors the gallery. The hero/featured picks above use the original order.
+  const gridRanges = [...allRanges];
+  for (let i = gridRanges.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [gridRanges[i], gridRanges[j]] = [gridRanges[j], gridRanges[i]];
+  }
+
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
       <script
@@ -230,7 +240,7 @@ export default async function DepartmentPage({
         )}
 
         <DepartmentShop
-          allRanges={allRanges}
+          allRanges={gridRanges}
           groups={shownGroups}
           labelMap={labelMap}
           initialActive={initialActive}

@@ -53,6 +53,8 @@ export type Swatch = {
   availability: Availability;
   qty?: number;
   special?: { price: number | null; was: number | null } | null;
+  /** Standard retail price (GST incl.) shown when there is no special. null = hidden / none. */
+  price?: number | null;
   /** Overlay the brand logo on the primary product photo / the secondary
    *  "see it installed" photo (independent). */
   watermarkPrimary?: boolean;
@@ -84,6 +86,8 @@ export type WebsiteRange = {
   heroImage?: string | null;
   images: string[];
   special?: { price: number | null; was: number | null } | null;
+  /** Standard retail price (GST incl.); for a grouped range this is the lowest member ("from"). null = hidden / none. */
+  price?: number | null;
   /** Overlay the brand logo on the range hero (primary) / installed (secondary). */
   watermarkPrimary?: boolean;
   watermarkSecondary?: boolean;

@@ -25,6 +25,7 @@ export default function ProductView({
   shopLabel = "Shop",
   renderActions,
   showAvailability = false,
+  hideSpecial = false,
   pairs,
   specsSlot,
   reviewsSlot,
@@ -56,6 +57,9 @@ export default function ProductView({
   /** Show the live stock availability pill (In stock / Low / Order in). OFF for the
    *  public storefront - stock is trade-only; the trade portal opts in. */
   showAvailability?: boolean;
+  /** Suppress consumer "special" pricing/badges. Specials are a customer-facing
+   *  promotion; the trade portal shows trade pricing (RRP + Your Price) only. */
+  hideSpecial?: boolean;
 }) {
   const initialIdx = initialColour
     ? Math.max(0, range.swatches.findIndex((s) => s.colour.toLowerCase() === initialColour.toLowerCase()))
@@ -77,7 +81,9 @@ export default function ProductView({
   const wmSecondary = (swatch?.watermarkSecondary ?? range.watermarkSecondary) ?? false;
   const watermarked = view === "room" && installed ? wmSecondary : wmPrimary;
 
-  const special = swatch?.special ?? range.special ?? null;
+  const special = hideSpecial ? null : (swatch?.special ?? range.special ?? null);
+  // Standard retail price for the selected colour (GST incl.); null = hidden / none.
+  const price = swatch?.price ?? range.price ?? null;
 
   // Close the zoom lightbox on Escape; lock body scroll while it's open.
   useEffect(() => {
@@ -239,28 +245,34 @@ export default function ProductView({
             {range.name}
           </h1>
 
-          {(showAvailability || (special && (special.price != null || special.was != null))) && (
+          {(showAvailability || price != null || (special && (special.price != null || special.was != null))) && (
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
             {showAvailability && (
               <AvailabilityPill availability={swatch?.availability ?? range.availability} size="md" />
             )}
-            {special && (special.price != null || special.was != null) && (
+            {special && special.price != null ? (
               <span style={{ display: "inline-flex", alignItems: "baseline", gap: 9 }}>
-                {special.price != null && (
-                  <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, color: "var(--accent)" }}>
-                    ${special.price.toFixed(2)}
-                    <span style={{ fontSize: 15, fontWeight: 700 }}>{priceUnitSuffix(range.unit)}</span>
-                  </span>
-                )}
-                {special.was != null && (
+                <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, color: "var(--accent)" }}>
+                  ${special.price.toFixed(2)}
+                  <span style={{ fontSize: 15, fontWeight: 700 }}>{priceUnitSuffix(range.unit)}</span>
+                </span>
+                {(special.was ?? price) != null && (
                   <span style={{ textDecoration: "line-through", color: "#8a8577", fontWeight: 600, fontSize: 16 }}>
-                    ${special.was.toFixed(2)}
+                    ${(special.was ?? price)!.toFixed(2)}
                   </span>
                 )}
                 <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".1em", color: "var(--accent)" }}>SPECIAL</span>
               </span>
-            )}
+            ) : price != null ? (
+              <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, color: "var(--ink)" }}>
+                ${price.toFixed(2)}
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#5a6067" }}>{priceUnitSuffix(range.unit)}</span>
+              </span>
+            ) : null}
           </div>
+          )}
+          {((special && special.price != null) || price != null) && (
+            <p style={{ margin: "6px 0 0", fontSize: 12, color: "#9a9488" }}>Price includes GST. Supply only; delivery quoted separately.</p>
           )}
 
           {/* Per-sheet goods (mosaics): help the shopper size the job in m². */}

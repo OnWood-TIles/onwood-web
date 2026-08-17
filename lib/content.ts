@@ -64,8 +64,20 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/shop", label: "Shop All Tiles" },
       { href: "/#featured", label: "Currently On Trend" },
       { href: "/specials", label: "Monthly Specials" },
+      { href: "/sunshine-coast", label: "Tiles Sunshine Coast" },
       { href: "/tile-shop", label: "Areas We Service" },
       { href: "/book", label: "Book a Visit" },
+    ],
+  },
+  {
+    title: "Popular tiles",
+    links: [
+      { href: "/tiles/outdoor", label: "Outdoor Tiles" },
+      { href: "/tiles/timber-look", label: "Timber-Look Tiles" },
+      { href: "/tiles/bathroom", label: "Bathroom Tiles" },
+      { href: "/tiles/white", label: "White Tiles" },
+      { href: "/tiles/floor", label: "Floor Tiles" },
+      { href: "/tile-shops-near-me", label: "Tile Shops Near Me" },
     ],
   },
   {
@@ -101,8 +113,8 @@ export const HERO = {
   headC: "",
   headAccent: "better tiles.",
   sub: "Floor, wall and outdoor tiles, chosen and matched with care by a local family team.",
-  ctaPrimary: { label: "See what's on trend", href: "#featured" },
-  ctaSecondary: { label: "Step into the showroom", href: "#showroom" },
+  ctaPrimary: { label: "Shop Now", href: "/shop/tiles" },
+  ctaSecondary: { label: "Search by Inspiration", href: "/gallery" },
 };
 
 export type Collection = {
@@ -524,7 +536,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "maroochydore",
     name: "Maroochydore",
     popularSlugs: ["cabarita-612", "calcare-60-matt", "coastline-subway", "riviera-60-polished", "cottesloe-60", "formentera-45-in-out", "aspect-36-gloss", "cinerea-60"],
-    popularIntro: "The coastal-friendly tiles our Maroochydore customers reach for, from beach-house floors to unit splashbacks. Every one is a real OnWood product with live availability.",
+    popularIntro: "The coastal-friendly tiles our Maroochydore customers reach for, from beach-house floors to unit splashbacks. Every one is a real OnWood product.",
     guidanceIntro: "What actually works in a Maroochydore home, from salt-tough floors to easy-care apartment tiles. Follow a link to browse the exact range.",
     deliveryLine: "We run tiles up to Maroochydore, the beaches and the canal homes most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about twenty minutes south.",
     driveMins: 20,
@@ -577,7 +589,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "aura",
     name: "Aura",
     popularSlugs: ["cabarita-60", "colonnade-60", "aspect-36-matt", "heartwood-212", "strata-60-matt", "cottesloe-60", "calcare-60-grip", "haven-45"],
-    popularIntro: "A versatile starting palette for a new Aura home: hard-wearing floors, an easy splashback and a warm wood-look, all real OnWood products with live availability.",
+    popularIntro: "A versatile starting palette for a new Aura home: hard-wearing floors, an easy splashback and a warm wood-look, all real OnWood products.",
     guidanceIntro: "Where new Aura homeowners and their builders usually start, from handover floors to alfresco. Follow a link to browse the exact range.",
     estate: true,
     driveMins: 2,
@@ -636,7 +648,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "harmony",
     name: "Harmony",
     popularSlugs: ["cottesloe-45", "alba-45", "haven-45", "peregian-45", "whitehaven-45", "relic-45", "formentera-45-matt", "cottesloe-45-grip"],
-    popularIntro: "Affordable, everyday 450 x 450 tiles that suit a new Harmony home, easy to lay and easy to live with. Every one is a real OnWood product with live availability.",
+    popularIntro: "Affordable, everyday 450 x 450 tiles that suit a new Harmony home, easy to lay and easy to live with. Every one is a real OnWood product.",
     guidanceIntro: "Practical picks for a brand-new Harmony home, from open-plan floors to the splashback. Follow a link to browse the exact range.",
     deliveryLine: "We deliver right across the Harmony estate and Palmview. Tell us your street for a delivery quote, or collect from Baringa, about ten minutes south.",
     estate: true,
@@ -689,7 +701,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "caloundra",
     name: "Caloundra",
     popularSlugs: ["cabarita-60", "calcare-60-matt", "coastline-subway", "aspect-36-gloss", "cottesloe-60", "strata-60-matt", "formentera-45-in-out", "riviera-60-matt"],
-    popularIntro: "Coastal floors, easy-care splashbacks and slip-rated outdoor tiles our Caloundra customers reach for. Every one is a real OnWood product with live availability.",
+    popularIntro: "Coastal floors, easy-care splashbacks and slip-rated outdoor tiles our Caloundra customers reach for. Every one is a real OnWood product.",
     guidanceIntro: "What works in a Caloundra beach home or unit, from salt-tough floors to bathroom walls. Follow a link to browse the exact range.",
     deliveryLine: "Caloundra and the surrounding beaches are an easy run for us. Tell us your street for a delivery quote, or drop into the Baringa showroom, about twelve minutes up Caloundra Road.",
     driveMins: 12,
@@ -741,7 +753,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "pelican-waters",
     name: "Pelican Waters",
     popularSlugs: ["arcadia-grande-612", "lustre-60-polished", "riviera-60-polished", "colonnade-612", "calcare-60-matt", "marchese-60-polished", "cuadrado-feature", "cabarita-612"],
-    popularIntro: "The large-format and polished coastal tiles that suit premium Pelican Waters homes: calm, low-maintenance and beautifully understated. Every one is a real OnWood product with live availability.",
+    popularIntro: "The large-format and polished coastal tiles that suit premium Pelican Waters homes: calm, low-maintenance and beautifully understated. Every one is a real OnWood product.",
     guidanceIntro: "How to get the calm, high-end coastal look Pelican Waters is known for, inside and out. Follow a link to browse the exact range.",
     deliveryLine: "Pelican Waters is practically next door, so getting tiles to your build is simple. We will quote delivery to your street, or you can collect from the showroom just up the road at Baringa.",
     driveMins: 8,
@@ -793,7 +805,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "golden-beach",
     name: "Golden Beach",
     popularSlugs: ["whitehaven-45", "cinerea-60", "coastline-subway", "heartwood-212", "calcare-60-grip", "haven-45", "aspect-36-matt", "cabarita-60"],
-    popularIntro: "Light, low-maintenance coastal tiles that suit a Golden Beach renovation, with slip-rated options for courtyards and pools. Every one is a real OnWood product with live availability.",
+    popularIntro: "Light, low-maintenance coastal tiles that suit a Golden Beach renovation, with slip-rated options for courtyards and pools. Every one is a real OnWood product.",
     guidanceIntro: "What holds up a few steps from the water at Golden Beach, from waterfront floors to outdoor areas. Follow a link to browse the exact range.",
     deliveryLine: "We drop tiles to homes right along Golden Beach and the passage. Give us your address for a delivery quote, or collect from Baringa, roughly twelve minutes away.",
     driveMins: 12,
@@ -845,7 +857,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "buderim",
     name: "Buderim",
     popularSlugs: ["heartwood-212", "woodstock-212", "esplanade-60", "ironclad-612", "terroir-60", "esplanade-36", "seaglass-309x290", "marrakesh-decor"],
-    popularIntro: "Warm wood-looks, earthy browns and honed stone-looks that suit Buderim's established homes and leafy blocks. Every one is a real OnWood product with live availability.",
+    popularIntro: "Warm wood-looks, earthy browns and honed stone-looks that suit Buderim's established homes and leafy blocks. Every one is a real OnWood product.",
     guidanceIntro: "What suits a Buderim renovation, from warm timber-look floors to a calm modern extension. Follow a link to browse the exact range.",
     deliveryLine: "We deliver up the hill to Buderim and the surrounding acreage. Send us your address for a delivery quote, or make the trip to Baringa to see everything full size, about twenty-two minutes via the Sunshine Motorway.",
     driveMins: 22,
@@ -897,7 +909,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "mooloolaba",
     name: "Mooloolaba",
     popularSlugs: ["riviera-60-polished", "arcadia-60", "coastline-subway", "lustre-60-polished", "alabastro-60", "formentera-45-in-out", "aspect-36-gloss-wave", "cinerea-60"],
-    popularIntro: "Easy-care coastal tiles our Mooloolaba customers choose for beachfront units, canal homes and holiday-let refreshes. Every one is a real OnWood product with live availability.",
+    popularIntro: "Easy-care coastal tiles our Mooloolaba customers choose for beachfront units, canal homes and holiday-let refreshes. Every one is a real OnWood product.",
     guidanceIntro: "What holds up in a home this close to the water, from unit floors to a bright splashback. Follow a link to browse the exact range.",
     deliveryLine: "We run tiles down to Mooloolaba, the Esplanade and the canal streets most weeks. Send your address for a delivery quote, or collect from Baringa, around twenty minutes south.",
     driveMins: 20,
@@ -949,7 +961,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "currimundi",
     name: "Currimundi",
     popularSlugs: ["cottesloe-60", "haven-45", "strata-60-matt", "cabarita-60", "calcare-60-grip", "aspect-36-matt", "relic-45", "heartwood-212"],
-    popularIntro: "Durable, good-value tiles our Currimundi customers reach for when they refresh a family home. Every one is a real OnWood product with live availability.",
+    popularIntro: "Durable, good-value tiles our Currimundi customers reach for when they refresh a family home. Every one is a real OnWood product.",
     guidanceIntro: "Sensible picks for a Currimundi family home, from hard-wearing floors to an easy bathroom. Follow a link to browse the exact range.",
     deliveryLine: "Currimundi is a quick run for us. Tell us your street for a delivery quote, or pick up from the Baringa showroom, about ten minutes away.",
     driveMins: 10,
@@ -1001,7 +1013,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "little-mountain",
     name: "Little Mountain",
     popularSlugs: ["estella-60", "cabarita-60", "strata-60-matt", "cottesloe-45", "haven-30", "calcare-60-matt", "aspect-36-matt", "formentera-45-matt"],
-    popularIntro: "Practical, low-maintenance tiles that suit a Little Mountain family home, easy to lay and easy to live with. Every one is a real OnWood product with live availability.",
+    popularIntro: "Practical, low-maintenance tiles that suit a Little Mountain family home, easy to lay and easy to live with. Every one is a real OnWood product.",
     guidanceIntro: "Where Little Mountain families usually start, from open-plan floors to the bathroom. Follow a link to browse the exact range.",
     deliveryLine: "We deliver right across Little Mountain, and the showroom is only a few minutes down the road at Baringa if you would rather collect.",
     driveMins: 8,
@@ -1053,7 +1065,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "meridan-plains",
     name: "Meridan Plains",
     popularSlugs: ["colonnade-60", "cabarita-60", "strata-612-matt", "cottesloe-60", "calcare-60-grip", "haven-45", "aspect-36-gloss", "heartwood-212"],
-    popularIntro: "A versatile starting palette for a newer Meridan Plains home: hard-wearing floors, an easy splashback and a warm wood-look. Every one is a real OnWood product with live availability.",
+    popularIntro: "A versatile starting palette for a newer Meridan Plains home: hard-wearing floors, an easy splashback and a warm wood-look. Every one is a real OnWood product.",
     guidanceIntro: "Where new Meridan Plains homeowners and their builders usually start, from handover floors to alfresco. Follow a link to browse the exact range.",
     deliveryLine: "Meridan Plains is just up the road, so delivery is easy and pickup from Baringa is barely ten minutes. Give us your street for a quote.",
     driveMins: 8,
@@ -1105,7 +1117,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "birtinya",
     name: "Birtinya",
     popularSlugs: ["arcadia-grande-612", "lustre-60-matt", "colonnade-612", "cabarita-612", "riviera-60-matt", "coastline-subway", "strata-612-matt", "cinerea-60"],
-    popularIntro: "The contemporary large-format tiles that suit Birtinya's new waterfront homes, apartments and townhouses. Every one is a real OnWood product with live availability.",
+    popularIntro: "The contemporary large-format tiles that suit Birtinya's new waterfront homes, apartments and townhouses. Every one is a real OnWood product.",
     guidanceIntro: "How to get the crisp, contemporary look new Birtinya homes are built for, inside and out. Follow a link to browse the exact range.",
     deliveryLine: "We deliver across Birtinya and the Kawana suburbs, or collect from Baringa, around a twelve-minute drive. Send your address for a delivery quote.",
     driveMins: 12,
@@ -1157,7 +1169,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "sippy-downs",
     name: "Sippy Downs",
     popularSlugs: ["estella-36", "cabarita-60", "strata-60-matt", "haven-45", "cottesloe-60", "aspect-36-matt", "calcare-60-matt", "peregian-45"],
-    popularIntro: "Tough, easy-care tiles that suit a Sippy Downs family home or investment property. Every one is a real OnWood product with live availability.",
+    popularIntro: "Tough, easy-care tiles that suit a Sippy Downs family home or investment property. Every one is a real OnWood product.",
     guidanceIntro: "Practical picks for a Sippy Downs home, whether you live in it or lease it out. Follow a link to browse the exact range.",
     deliveryLine: "We deliver to Sippy Downs, Chancellor Park and the university end most weeks. Tell us your street for a quote, or collect from Baringa about fifteen minutes south.",
     driveMins: 15,
@@ -1209,7 +1221,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "alexandra-headland",
     name: "Alexandra Headland",
     popularSlugs: ["riviera-60-polished", "lustre-60-polished", "coastline-subway", "arcadia-60", "marchese-60-polished", "formentera-45-in-out", "cinerea-60", "aspect-36-gloss"],
-    popularIntro: "Refined coastal tiles our Alexandra Headland customers choose for beachside units and premium home renovations. Every one is a real OnWood product with live availability.",
+    popularIntro: "Refined coastal tiles our Alexandra Headland customers choose for beachside units and premium home renovations. Every one is a real OnWood product.",
     guidanceIntro: "How to get a calm, high-end beach look at Alex that still copes with the salt. Follow a link to browse the exact range.",
     deliveryLine: "We bring tiles down to Alex and the headland streets regularly. Send your address for a delivery quote, or collect from the Baringa showroom, around twenty minutes away.",
     driveMins: 20,
@@ -1261,7 +1273,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "coolum-beach",
     name: "Coolum Beach",
     popularSlugs: ["heartwood-212", "cabarita-60", "calcare-60-grip", "esplanade-36", "whitehaven-45", "coastline-subway", "cinerea-60", "formentera-45-in-out"],
-    popularIntro: "Easy, sun-washed tiles that suit a laid-back Coolum home, with slip-rated options for the outdoor areas. Every one is a real OnWood product with live availability.",
+    popularIntro: "Easy, sun-washed tiles that suit a laid-back Coolum home, with slip-rated options for the outdoor areas. Every one is a real OnWood product.",
     guidanceIntro: "What works in a relaxed Coolum beach home, from wood-look floors to the alfresco. Follow a link to browse the exact range.",
     deliveryLine: "Coolum is a comfortable delivery run for us up the Sunshine Motorway. Tell us your address for a quote, and if you would like to see boards full size the Baringa showroom is worth the trip.",
     driveMins: 35,
@@ -1313,7 +1325,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "noosaville",
     name: "Noosaville",
     popularSlugs: ["arcadia-grande-612", "lustre-60-polished", "hakkari-natural-stone-tile", "colonnade-612", "marchese-60-polished", "riviera-60-polished", "alabastro-60", "ironclad-612"],
-    popularIntro: "The calm, natural and large-format tiles that suit Noosa's premium coastal homes. Every one is a real OnWood product with live availability.",
+    popularIntro: "The calm, natural and large-format tiles that suit Noosa's premium coastal homes. Every one is a real OnWood product.",
     guidanceIntro: "How to get the understated, high-end Noosa look, inside and out. Follow a link to browse the exact range.",
     deliveryLine: "We deliver right up to Noosa and Noosaville. Given the distance most Noosa customers have their tiles delivered, though you are always welcome to visit the Baringa showroom to choose in person first.",
     driveMins: 50,
@@ -1365,7 +1377,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "nambour",
     name: "Nambour",
     popularSlugs: ["heartwood-212", "cottesloe-45", "esplanade-36", "haven-45", "cabarita-60", "marrakesh-decor", "relic-45", "aspect-36-matt"],
-    popularIntro: "Warm, good-value tiles that suit a Nambour character home or a budget-conscious reno. Every one is a real OnWood product with live availability.",
+    popularIntro: "Warm, good-value tiles that suit a Nambour character home or a budget-conscious reno. Every one is a real OnWood product.",
     guidanceIntro: "What suits a Nambour Queenslander or hinterland home, from warm timber-look floors to a value bathroom. Follow a link to browse the exact range.",
     deliveryLine: "We deliver out to Nambour and the surrounding hinterland towns. Send your address for a delivery quote, or make the trip down to Baringa to see everything full size.",
     driveMins: 30,
@@ -1417,7 +1429,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "palmwoods",
     name: "Palmwoods",
     popularSlugs: ["woodstock-212", "terroir-60", "esplanade-60", "graniglia-60-matt", "cottesloe-60", "marrakesh-decor", "calcare-60-grip", "hakkari-natural-stone-tile"],
-    popularIntro: "Warm, natural tiles that suit Palmwoods acreage, cottages and new hinterland builds. Every one is a real OnWood product with live availability.",
+    popularIntro: "Warm, natural tiles that suit Palmwoods acreage, cottages and new hinterland builds. Every one is a real OnWood product.",
     guidanceIntro: "What suits a Palmwoods home, from warm timber-look floors to an alfresco that copes with hinterland weather. Follow a link to browse the exact range.",
     deliveryLine: "We deliver up to Palmwoods and the nearby hinterland villages. Tell us your address for a quote, or come down to the Baringa showroom to see boards and samples in person.",
     driveMins: 25,
@@ -1469,7 +1481,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     slug: "maleny",
     name: "Maleny",
     popularSlugs: ["hakkari-natural-stone-tile", "terroir-60", "heartwood-212", "marrakesh-decor", "esplanade-36", "cortile", "contour-60", "woodstock-212"],
-    popularIntro: "Warm, grounded tiles that suit the character cottages and modern retreats of Maleny and Montville. Every one is a real OnWood product with live availability.",
+    popularIntro: "Warm, grounded tiles that suit the character cottages and modern retreats of Maleny and Montville. Every one is a real OnWood product.",
     guidanceIntro: "What suits a home up in the cool hinterland air, from warm floors to a character feature wall. Follow a link to browse the exact range.",
     deliveryLine: "We deliver up the range to Maleny and Montville. Most hinterland customers have their tiles delivered, and you are welcome to visit Baringa first to choose from full-size boards.",
     driveMins: 40,
@@ -1523,4 +1535,229 @@ export const SUBURB_LIST: SuburbSeo[] = Object.values(SUBURBS);
 /** Suburb landing-page content (null if we don't yet have a page for that slug). */
 export async function getSuburb(slug: string): Promise<SuburbSeo | null> {
   return SUBURBS[slug] ?? null;
+}
+
+// ── Tile collection landing pages ("shop tiles by look / use") ───────────────
+// Genuine curated pages for high-intent searches (outdoor tiles, bathroom tiles,
+// white tiles, timber-look tiles, etc.). The route pulls REAL matching products
+// from the live catalogue at request time, either by a live filter group/value or
+// by a keyword in the product name (for looks with no filter, e.g. timber-look),
+// and deep-links into the filtered shop. Wired into the /tile-shop hub, the footer
+// and the sitemap so they are discoverable on-site, not orphan pages.
+export type TileCollection = {
+  slug: string;
+  name: string; // H1, e.g. "Outdoor tiles"
+  eyebrow: string; // kicker, e.g. "Shop by use"
+  metaTitle: string;
+  metaDescription: string;
+  intro: string[]; // 2 hero paragraphs
+  filterGroup?: string; // curate by a live filter group…
+  filterValues?: string[]; // …matching any of these values
+  keywords?: string[]; // …or by a keyword in the product name (looks with no filter)
+  shopHref: string; // deep-link into the filtered shop
+  guidanceIntro?: string;
+  guidance: { title: string; body: string; href: string; hrefLabel: string }[];
+  faqs: { q: string; a: string }[];
+  related: { label: string; href: string }[];
+};
+
+export const TILE_COLLECTIONS: Record<string, TileCollection> = {
+  outdoor: {
+    slug: "outdoor",
+    name: "Outdoor tiles",
+    eyebrow: "Shop by use",
+    metaTitle: "Outdoor Tiles Sunshine Coast | Non-Slip & Pool | OnWood Tiles",
+    metaDescription:
+      "Outdoor tiles for Sunshine Coast patios, alfresco areas and pool surrounds. Slip-rated porcelain built for sun, salt and rain, with local delivery and a Baringa showroom.",
+    intro: [
+      "Queensland outdoor living is hard on a surface. Sun, salt air, sudden downpours and bare feet all ask a lot of a tile. Our outdoor range is slip-rated porcelain chosen to take it, from alfresco floors to pool surrounds.",
+      "Every tile here is a real OnWood product with a price. Browse the looks below, then order online or see the full-size boards at our Baringa showroom.",
+    ],
+    filterGroup: "location-use",
+    filterValues: ["outdoor"],
+    shopHref: "/shop/tiles?f=location-use:outdoor",
+    guidanceIntro: "A few honest pointers for choosing tiles that live outside on the Sunshine Coast.",
+    guidance: [
+      { title: "Grip where it counts", body: "Around pools and on wet patios, look for a higher slip rating and a textured face. It reads as barely there underfoot but makes a real difference when the tiles are wet.", href: "/tiles/floor", hrefLabel: "Floor tiles" },
+      { title: "Match inside to out", body: "Running the same look from your living floor onto the alfresco makes a small home feel bigger. Many of our floor tiles have an outdoor-rated match.", href: "/tiles/floor", hrefLabel: "Floor tiles" },
+      { title: "Timber warmth, tile toughness", body: "Wood-look porcelain gives you the warmth of decking on a surface that will not grey off, splinter or need oiling every season.", href: "/tiles/timber-look", hrefLabel: "Timber-look tiles" },
+    ],
+    faqs: [
+      { q: "Are your outdoor tiles non-slip?", a: "The tiles in this range are slip-rated porcelain suited to outdoor and wet areas. Ratings vary by tile, so the slip rating is listed on each product page. For pool surrounds and wet patios we can point you to the higher-rated options." },
+      { q: "Can I use the same tile indoors and outdoors?", a: "Often yes. A number of our ranges offer an indoor floor tile and an outdoor-rated match in the same look, so you can flow one surface from the living room to the alfresco. Ask us and we will confirm which ranges pair up." },
+      { q: "Do you deliver outdoor tiles on the Sunshine Coast?", a: "Yes. We deliver across the Sunshine Coast from our Baringa base, or you can collect. Tell us your suburb for a delivery quote. We supply tiles only and do not install." },
+    ],
+    related: [
+      { label: "Floor tiles", href: "/tiles/floor" },
+      { label: "Timber-look tiles", href: "/tiles/timber-look" },
+      { label: "Bathroom tiles", href: "/tiles/bathroom" },
+      { label: "Areas we service", href: "/tile-shop" },
+    ],
+  },
+  "timber-look": {
+    slug: "timber-look",
+    name: "Timber-look tiles",
+    eyebrow: "Shop by look",
+    metaTitle: "Timber-Look Tiles Sunshine Coast | Wood-Look Porcelain | OnWood Tiles",
+    metaDescription:
+      "Wood-look and timber-look porcelain tiles on the Sunshine Coast. The warmth of a timber floor with none of the upkeep, ready for indoors, outdoors and wet areas.",
+    intro: [
+      "It is in our name. Timber-look tiles give you the warmth and grain of a timber floor on a surface that shrugs off water, scratches and Queensland humidity. No sanding, no oiling, no cupped boards after a wet summer.",
+      "These are real porcelain planks with a price, chosen for believable grain and colour. Browse the looks below, then order online or come and stand on the full-size boards in Baringa.",
+    ],
+    keywords: ["timber", "wood", "oak", "spotted gum", "blackbutt", "walnut", "teak", "hickory", "cabarita", "plank", "grain", "birch", "elm"],
+    shopHref: "/shop/tiles",
+    guidanceIntro: "Why so many Sunshine Coast homes are choosing tile over timber.",
+    guidance: [
+      { title: "Built for wet feet", body: "Unlike real timber, a wood-look tile does not mind a wet towel, a splash from the pool or a mopped floor, so it works in bathrooms, laundries and alfresco areas too.", href: "/tiles/bathroom", hrefLabel: "Bathroom tiles" },
+      { title: "Take it outside", body: "Many timber-look ranges include an outdoor-rated tile, so your deck and your living floor can be the same warm plank without the annual re-oil.", href: "/tiles/outdoor", hrefLabel: "Outdoor tiles" },
+      { title: "Lay it like a floorboard", body: "Long plank formats and a brick-bond lay make a genuinely convincing floor. We will help you work out quantities for the pattern you want.", href: "/calculator", hrefLabel: "Tile calculator" },
+    ],
+    faqs: [
+      { q: "Do timber-look tiles really look like wood?", a: "Modern porcelain printing has come a long way. Up close you see real grain, knots and colour variation across the range, and underfoot it stays cool and flat. The best way to judge is to see a full-size board, which we have in the showroom." },
+      { q: "Where can I use wood-look tiles?", a: "Just about anywhere. Because they are porcelain, they suit living floors, bathrooms, laundries and, in the outdoor-rated ranges, patios and alfresco areas. One warm look can run through the whole home." },
+      { q: "Are they cheaper than timber flooring?", a: "Prices are on every product page so you can compare. Beyond the tile price, a wood-look tile skips the ongoing sanding and oiling a timber floor needs, which many owners value over the life of the floor." },
+    ],
+    related: [
+      { label: "Outdoor tiles", href: "/tiles/outdoor" },
+      { label: "Floor tiles", href: "/tiles/floor" },
+      { label: "Shop all tiles", href: "/shop/tiles" },
+      { label: "Areas we service", href: "/tile-shop" },
+    ],
+  },
+  white: {
+    slug: "white",
+    name: "White tiles",
+    eyebrow: "Shop by colour",
+    metaTitle: "White Tiles Sunshine Coast | Wall & Floor | OnWood Tiles",
+    metaDescription:
+      "White tiles for walls, floors and splashbacks on the Sunshine Coast. Gloss and matt whites, subways and large format, with prices and local delivery.",
+    intro: [
+      "White never dates. It bounces the Queensland light around a room, makes a small bathroom feel bigger and sits happily under any tapware or cabinetry you pair it with. Our white range spans crisp gloss, soft matt, classic subways and large-format walls and floors.",
+      "Each tile is a real OnWood product with a price. Browse the whites below, then order online or see them full-size at the Baringa showroom.",
+    ],
+    filterGroup: "colour",
+    filterValues: ["white"],
+    shopHref: "/shop/tiles?f=colour:white",
+    guidanceIntro: "How to make white work, from choosing a finish to picking a grout.",
+    guidance: [
+      { title: "Gloss or matt?", body: "Gloss whites reflect the most light and wipe clean easily, which suits splashbacks and shower walls. Matt whites hide water spotting and give a calmer, more contemporary feel underfoot.", href: "/tiles/splashback", hrefLabel: "Splashback tiles" },
+      { title: "It is all in the grout", body: "A white grout keeps a wall seamless, while a grey or greige grout turns the same white subway into a feature. A small choice that changes the whole look.", href: "/blog", hrefLabel: "Read our guides" },
+      { title: "White on the floor", body: "Large-format white floor tiles make open-plan living feel bright and expansive. Choose a matt or textured face for grip in wet areas.", href: "/tiles/floor", hrefLabel: "Floor tiles" },
+    ],
+    faqs: [
+      { q: "Are white tiles hard to keep clean?", a: "Not really. Porcelain and ceramic wipe clean, and a white face actually hides dust and lint better than a dark one. On floors and in showers it is the grout that shows wear, so a slightly toned grout can be easier to live with than bright white." },
+      { q: "What white tile is best for a splashback?", a: "A gloss white subway is the classic, easy-clean splashback, and it never dates. For a more seamless look, a large-format matt white keeps grout lines to a minimum. Both are in our white range." },
+      { q: "Do you deliver white tiles locally?", a: "Yes, across the Sunshine Coast from Baringa, or collect in store. We supply tiles only. Tell us your suburb for a delivery quote." },
+    ],
+    related: [
+      { label: "Splashback tiles", href: "/tiles/splashback" },
+      { label: "Bathroom tiles", href: "/tiles/bathroom" },
+      { label: "Floor tiles", href: "/tiles/floor" },
+      { label: "Areas we service", href: "/tile-shop" },
+    ],
+  },
+  bathroom: {
+    slug: "bathroom",
+    name: "Bathroom tiles",
+    eyebrow: "Shop by use",
+    metaTitle: "Bathroom Tiles Sunshine Coast | Floor, Wall & Shower | OnWood Tiles",
+    metaDescription:
+      "Bathroom tiles on the Sunshine Coast: floor, wall and shower tiles in porcelain and ceramic. Slip-rated floors, easy-clean walls, prices and local delivery.",
+    intro: [
+      "A bathroom asks a lot of a tile: grip underfoot when it is wet, an easy-clean face on the walls, and a look you will still love in ten years. Our bathroom range covers floors, walls and shower recesses in hard-wearing porcelain and ceramic.",
+      "Every tile is a real OnWood product with a price. Browse the looks below, then order online or see the full-size boards in Baringa.",
+    ],
+    filterGroup: "location-use",
+    filterValues: ["bathroom"],
+    shopHref: "/shop/tiles?f=location-use:bathroom",
+    guidanceIntro: "Practical pointers for choosing tiles that make a bathroom easy to live with.",
+    guidance: [
+      { title: "Grip on the floor", body: "Bathroom floors get wet, so look for a matt or textured face with a slip rating suited to wet areas. The rating is on each product page.", href: "/tiles/floor", hrefLabel: "Floor tiles" },
+      { title: "Easy-clean walls", body: "A gloss or satin wall tile wipes down in seconds and keeps a shower bright. Larger formats mean fewer grout lines to scrub.", href: "/tiles/white", hrefLabel: "White tiles" },
+      { title: "One look, floor to wall", body: "Carrying a similar tone across floor and walls makes a small bathroom feel calm and larger. Mix a matt floor with a gloss wall in the same family.", href: "/gallery", hrefLabel: "See it in a room" },
+    ],
+    faqs: [
+      { q: "What tiles are best for a shower floor?", a: "A smaller tile or mosaic on a shower floor gives more grout lines for grip and follows the fall to the drain more easily, while a slip-rated finish keeps it safe underfoot. We can point you to suitable options for wet areas." },
+      { q: "Can I use large tiles in a small bathroom?", a: "Yes, and it often helps. Fewer grout lines make a small room feel more open and are easier to keep clean. On the floor, choose a matt or textured face for grip." },
+      { q: "Do you deliver bathroom tiles on the Sunshine Coast?", a: "Yes, from our Baringa base across the Sunshine Coast, or collect in store. We supply tiles only and do not install. Tell us your suburb for a delivery quote." },
+    ],
+    related: [
+      { label: "Floor tiles", href: "/tiles/floor" },
+      { label: "White tiles", href: "/tiles/white" },
+      { label: "Splashback tiles", href: "/tiles/splashback" },
+      { label: "Areas we service", href: "/tile-shop" },
+    ],
+  },
+  splashback: {
+    slug: "splashback",
+    name: "Splashback tiles",
+    eyebrow: "Shop by use",
+    metaTitle: "Splashback Tiles Sunshine Coast | Kitchen & Subway | OnWood Tiles",
+    metaDescription:
+      "Kitchen splashback tiles on the Sunshine Coast: subways, gloss, matt and feature tiles that wipe clean and lift a kitchen. Prices and local delivery.",
+    intro: [
+      "The splashback is the one part of a kitchen you see at eye level all day, so it earns its keep as both a feature and a wipe-clean surface. Our splashback range runs from the timeless subway to bold feature tiles that become the talking point of the room.",
+      "Each tile is a real OnWood product with a price. Browse the looks below, then order online or see them full-size in Baringa.",
+    ],
+    filterGroup: "location-use",
+    filterValues: ["splashback"],
+    shopHref: "/shop/tiles?f=location-use:splashback",
+    guidanceIntro: "How to pick a splashback that lifts the kitchen and still wipes clean.",
+    guidance: [
+      { title: "The classic subway", body: "A gloss subway is the safe, timeless choice. Change the grout colour or the lay pattern, stacked or herringbone, to make it feel current.", href: "/tiles/white", hrefLabel: "White tiles" },
+      { title: "Make it the feature", body: "If the cabinetry is simple, a patterned or textured splashback is where you can have fun without committing the whole room to a look.", href: "/shop/tiles", hrefLabel: "Browse all tiles" },
+      { title: "Keep it wipe-clean", body: "Behind a cooktop, a gloss or satin face and minimal grout lines make daily cleaning easy. Larger tiles mean fewer joins.", href: "/gallery", hrefLabel: "See it in a room" },
+    ],
+    faqs: [
+      { q: "What is the most popular splashback tile?", a: "The subway tile remains the most popular, because it suits almost any kitchen and never dates. Beyond that, we see plenty of large-format and feature tiles chosen to make the splashback a talking point." },
+      { q: "Are patterned splashbacks hard to keep clean?", a: "Most of our patterned tiles have a smooth, sealed porcelain or ceramic face that wipes clean like any other tile. The pattern is printed and fired in, not raised, so grease and splashes come straight off." },
+      { q: "Do you deliver splashback tiles locally?", a: "Yes, across the Sunshine Coast from Baringa, or collect in store. We supply tiles only. Tell us your suburb for a delivery quote." },
+    ],
+    related: [
+      { label: "White tiles", href: "/tiles/white" },
+      { label: "Bathroom tiles", href: "/tiles/bathroom" },
+      { label: "Shop all tiles", href: "/shop/tiles" },
+      { label: "Areas we service", href: "/tile-shop" },
+    ],
+  },
+  floor: {
+    slug: "floor",
+    name: "Floor tiles",
+    eyebrow: "Shop by use",
+    metaTitle: "Floor Tiles Sunshine Coast | Porcelain & Timber-Look | OnWood Tiles",
+    metaDescription:
+      "Floor tiles on the Sunshine Coast: hard-wearing porcelain in stone, concrete and timber looks for living areas, wet areas and outdoors. Prices and local delivery.",
+    intro: [
+      "The floor is the biggest surface in the house and the one that takes the most punishment, from sandy feet to dropped pans. Our floor range is hard-wearing porcelain in stone, concrete and timber looks, chosen to stay looking good for the long haul.",
+      "Every tile is a real OnWood product with a price. Browse the looks below, then order online or see the full-size boards in Baringa.",
+    ],
+    filterGroup: "location-use",
+    filterValues: ["floor"],
+    shopHref: "/shop/tiles?f=location-use:floor",
+    guidanceIntro: "What to weigh up when you are choosing a floor that has to last.",
+    guidance: [
+      { title: "Grip for wet areas", body: "In bathrooms, laundries and near pools, a matt or textured face with a wet-area slip rating keeps the floor safe. The rating is on each product page.", href: "/tiles/bathroom", hrefLabel: "Bathroom tiles" },
+      { title: "Go large to feel open", body: "Large-format floor tiles have fewer grout lines, so an open-plan living area feels bigger and is easier to keep clean.", href: "/shop/tiles?f=size:large-format", hrefLabel: "Large-format tiles" },
+      { title: "Timber warmth underfoot", body: "Wood-look porcelain brings the warmth of a timber floor to living areas and stays flat and cool in the Queensland heat.", href: "/tiles/timber-look", hrefLabel: "Timber-look tiles" },
+    ],
+    faqs: [
+      { q: "What is the toughest tile for floors?", a: "Porcelain is the hard-wearing choice for floors: it is dense, low-maintenance and resists scratches and stains. Most of our floor range is porcelain for exactly this reason." },
+      { q: "Can I run the same floor tile through the whole house?", a: "Yes, and it is a great way to make a home feel calm and larger. Just make sure wet areas use a tile with a suitable slip rating, which many ranges offer alongside the standard floor tile." },
+      { q: "Do you deliver floor tiles on the Sunshine Coast?", a: "Yes, from Baringa across the Sunshine Coast, or collect in store. We supply tiles only and do not install. Tell us your suburb for a delivery quote." },
+    ],
+    related: [
+      { label: "Timber-look tiles", href: "/tiles/timber-look" },
+      { label: "Outdoor tiles", href: "/tiles/outdoor" },
+      { label: "Bathroom tiles", href: "/tiles/bathroom" },
+      { label: "Areas we service", href: "/tile-shop" },
+    ],
+  },
+};
+
+export const COLLECTION_LIST: TileCollection[] = Object.values(TILE_COLLECTIONS);
+
+/** Tile-collection landing-page content (null if the slug has no collection). */
+export async function getCollection(slug: string): Promise<TileCollection | null> {
+  return TILE_COLLECTIONS[slug] ?? null;
 }

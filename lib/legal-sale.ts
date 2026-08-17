@@ -27,7 +27,7 @@ export const TERMS_OF_SALE: LegalDoc = {
       heading: "Quotes and pricing",
       blocks: [
         { type: "p", text: "Unless we say otherwise, a written quote is valid for 30 days. Prices are in Australian dollars and, unless stated, include GST." },
-        { type: "p", text: "Prices can change, and a quote does not guarantee stock. We confirm the final price when we accept your order. On our website, advertised specials show a price; everyday products show availability rather than a price, and pricing for trade partners is set per their account." },
+        { type: "p", text: "Prices can change, and a quote does not guarantee stock. We confirm the final price when we accept your order. Prices shown on our website are for supply only, are in Australian dollars, include GST, and do not include freight or delivery, which is quoted separately (see clause 11). Pricing for trade partners is set per their account and may be shown excluding GST." },
         { type: "p", text: "Freight is quoted separately unless the quote says otherwise (see clause 11)." },
       ],
     },

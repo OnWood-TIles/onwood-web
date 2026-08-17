@@ -37,6 +37,7 @@ export default function TradeProductView({
       shopBase="/trade/catalogue"
       shopLabel="Catalogue"
       showAvailability
+      hideSpecial
       pairs={pairs}
       specsSlot={specsSlot}
       productBase="/trade/catalogue/product"
