@@ -115,6 +115,7 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
         }
         @page{size:A4;margin:0}
         @media print{
+          *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
           .print-bar{display:none!important}
           .bx-wrap{background:#fff!important;padding:0!important;gap:0!important}
           .bx-pad{padding-top:0!important}

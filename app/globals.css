@@ -274,3 +274,18 @@ body {
 .ow-range-card:hover .ow-wm-room {
   opacity: 0.4;
 }
+
+/* ---- Print: force background colours/images to render even when the browser's
+   "Background graphics" toggle is OFF (it is off by default in Chrome, Edge,
+   Firefox and Safari). Without this, background bands, coloured swatches and
+   page fills print as white. print-color-adjust is inherited, so applying it
+   broadly guarantees a WYSIWYG print for the product brochure, the magazine and
+   any other page a customer saves to PDF. ---- */
+@media print {
+  html,
+  body,
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
