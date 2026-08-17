@@ -103,10 +103,9 @@ export default async function BlogIndex() {
         </section>
 
         {/* ── KILN MAGAZINE ── */}
-        <section style={{ padding: "6px 24px 10px" }}>
+        <section style={{ padding: "28px 24px 32px" }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-            <div className="bl-mag" style={{ position: "relative", overflow: "hidden", display: "grid", gridTemplateColumns: "minmax(0,0.86fr) minmax(0,1.14fr)", gap: "clamp(22px,4vw,52px)", alignItems: "center", borderRadius: 24, border: "1px solid var(--line)", background: "var(--deep)", color: "#F6F1E8", padding: "clamp(26px,3.4vw,48px)", boxShadow: "0 40px 80px -50px rgba(16,28,30,.6)" }}>
-              <span aria-hidden style={{ position: "absolute", inset: 0, background: "radial-gradient(560px 340px at 8% 122%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 62%)", pointerEvents: "none" }} />
+            <div className="bl-mag" style={{ position: "relative", display: "grid", gridTemplateColumns: "minmax(0,0.86fr) minmax(0,1.14fr)", gap: "clamp(22px,4vw,52px)", alignItems: "center", color: "var(--ink)", padding: "clamp(14px,2.4vw,30px) clamp(4px,1.5vw,18px)" }}>
               {/* cover */}
               <div className="bl-mag-cov" style={{ position: "relative", justifySelf: "center" }}>
                 <Link href="/magazine" aria-label="Open the Kiln magazine" style={{ display: "block" }}>
@@ -120,14 +119,14 @@ export default async function BlogIndex() {
                 <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(28px,3.7vw,46px)", lineHeight: 1.05, margin: "12px 0 0" }}>
                   Introducing <span style={{ color: "var(--accent2)" }}>Kiln</span>, {serif("Batch One")}
                 </h2>
-                <p style={{ fontSize: "clamp(15px,1.7vw,18px)", lineHeight: 1.65, color: "rgba(246,241,232,.76)", margin: "14px 0 0", maxWidth: "52ch" }}>
+                <p style={{ fontSize: "clamp(15px,1.7vw,18px)", lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0", maxWidth: "52ch" }}>
                   Our new magazine about inspiration, and a deeper understanding of what goes underfoot. Flick through Batch One just like a real magazine, or download a copy to keep.
                 </p>
                 <div className="bl-mag-btns" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 24 }}>
                   <Link href="/magazine" className="bl-mag-cta" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 27px", borderRadius: 999 }}>
                     Flip through Kiln <span aria-hidden>→</span>
                   </Link>
-                  <a href="/kiln.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "transparent", color: "#F6F1E8", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 24px", borderRadius: 999, border: "1px solid rgba(246,241,232,.28)" }}>
+                  <a href="/kiln.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "var(--surface)", color: "var(--ink)", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 24px", borderRadius: 999, border: "1px solid var(--line)" }}>
                     Download the PDF
                   </a>
                 </div>
