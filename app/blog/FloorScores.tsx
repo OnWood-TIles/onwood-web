@@ -12,10 +12,26 @@ const ROOMS = [
   { room: "Kitchen", pick: "Porcelain or hybrid", why: "Both shrug off spills, grease and dropped pans and wipe clean in seconds." },
   { room: "Living & dining", pick: "Timber-look porcelain or timber", why: "The warmth of timber, with tile toughness if the room sees heavy traffic." },
   { room: "Bedrooms", pick: "Carpet or timber", why: "Where bare feet land first, comfort and warmth underfoot win over hard surfaces." },
+  { room: "Media room", pick: "Carpet", why: "The best sound absorption plus soft, warm comfort, so it stays quiet and cosy through a long movie." },
+  { room: "Upstairs", pick: "Hybrid or carpet", why: "Both soften footfall and impact noise to the rooms below, which is what matters most on a second storey." },
   { room: "Hallway & entry", pick: "Porcelain tile", why: "The hardest-working stretch of the house handles grit, wheels and wet shoes best on tile." },
   { room: "Laundry", pick: "Porcelain or hybrid", why: "Overflows and detergent are no threat to a waterproof floor." },
   { room: "Outdoor & alfresco", pick: "External porcelain or stone", why: "Only tile and stone truly survive UV, rain and Queensland storms outside." },
   { room: "Pool surround", pick: "R11 porcelain or stone", why: "Grippy when wet, cool underfoot and unbothered by chlorine and sun." },
+];
+
+const SCENARIOS = [
+  { situation: "Rental property", pick: "Tile, vinyl or carpet", why: "Tile is the most durable and can outlast many tenancies; vinyl and carpet are cheap enough to refresh between tenants without pain." },
+  { situation: "Low-traffic luxury home", pick: "Natural stone or timber", why: "Where wear is light, natural stone and engineered timber deliver the most impressive, genuinely luxurious feel underfoot." },
+  { situation: "Short-term resale", pick: "Carpet or laminate", why: "Carpet is the cheapest way to make a home present clean and fresh; laminate gives the most convincing timber look on a tight budget." },
+  { situation: "Apartment living", pick: "Hybrid", why: "The best acoustic rating for keeping impact noise off the neighbours below, though most floors work with the right acoustic underlay." },
+  { situation: "Wheelchair access", pick: "Porcelain or vinyl plank", why: "Both take the pressure and constant movement of wheels with little long-term wear, and lay flat and level for an easy roll." },
+  { situation: "Children & pets", pick: "Porcelain or vinyl plank", why: "Spill-proof, scratch-friendly and quick to wipe clean, so muddy paws and dropped cups are no drama." },
+  { situation: "Allergies or asthma", pick: "Porcelain, hybrid or vinyl", why: "Hard floors hold no dust, dander or mould the way carpet can, and wipe fully clean." },
+  { situation: "Coastal home", pick: "Porcelain", why: "Shrugs off salt air, sand and wet feet, and flows straight out to the alfresco in a grip finish." },
+  { situation: "Holiday or short-stay let", pick: "Porcelain or hybrid", why: "Waterproof, hard-wearing and fast to clean between guests, with no delicate finish to baby." },
+  { situation: "Commercial office", pick: "Carpet tiles", why: "Kind to office chairs, quiet underfoot, and any damaged tile lifts out and swaps in one at a time." },
+  { situation: "Commercial common areas", pick: "Concrete, vinyl or porcelain", why: "Built for large spans that need minimal expansion and trims, with the toughness to take constant traffic." },
 ];
 
 export default function FloorScores() {
@@ -69,6 +85,17 @@ export default function FloorScores() {
             <span className="fs-rname">{r.room}</span>
             <span className="fs-rpick">{r.pick}</span>
             <span className="fs-rwhy">{r.why}</span>
+          </div>
+        ))}
+      </div>
+
+      <h3 className="fs-roomtitle">The best floor for your situation</h3>
+      <div className="fs-rooms">
+        {SCENARIOS.map((s) => (
+          <div key={s.situation} className="fs-room">
+            <span className="fs-rname">{s.situation}</span>
+            <span className="fs-rpick">{s.pick}</span>
+            <span className="fs-rwhy">{s.why}</span>
           </div>
         ))}
       </div>
