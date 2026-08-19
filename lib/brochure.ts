@@ -63,6 +63,28 @@ const titleCase = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.
 const NUM = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const numWord = (n: number) => NUM[n] ?? String(n);
 
+// The brochure cover card is a fixed size, so a long website description spills
+// off the first page. Trim it to a clean intro that always fits: keep whole
+// sentences up to a safe character budget (the least-important trailing detail
+// drops off), falling back to a word-boundary cut with an ellipsis only if even
+// the first sentence is longer than the budget. This is cover-only - the full
+// description is untouched everywhere else (product page, shop).
+function coverIntro(text: string, max = 380): string {
+  const t = text.trim().replace(/\s+/g, " ");
+  if (t.length <= max) return t;
+  const sentences = t.match(/[^.!?]+[.!?]+(?:\s|$)/g) ?? [t];
+  let out = "";
+  for (const s of sentences) {
+    if ((out + s).trim().length > max) break;
+    out += s;
+  }
+  out = out.trim();
+  if (out.length >= 80) return out; // kept at least one whole sentence
+  const slice = t.slice(0, max);
+  const cut = slice.lastIndexOf(" ");
+  return (cut > 0 ? slice.slice(0, cut) : slice).trim() + "…";
+}
+
 export async function getFamilyBrochure(slug: string): Promise<BrochureData | null> {
   const [ranges, taxonomy] = await Promise.all([listPairCandidates(), getTaxonomy()]);
   const groups = groupFamilies(ranges);
@@ -176,7 +198,7 @@ export async function getFamilyBrochure(slug: string): Promise<BrochureData | nu
     department: primary.department ?? null,
     accentWord: deptLabel,
     eyebrow,
-    description: primary.description ?? `${familyName} at OnWood Tiles.`,
+    description: coverIntro(primary.description ?? `${familyName} at OnWood Tiles.`),
     rangeSummary,
     hero,
     colours,

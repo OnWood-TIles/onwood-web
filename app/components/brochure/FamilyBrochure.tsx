@@ -147,7 +147,7 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
               <span className="eyebrow">{eyebrow}</span>
             </div>
             <h1 style={{ margin: 0, font: `900 ${h1Size}px/0.96 Archivo,sans-serif`, letterSpacing: "-.03em", overflowWrap: "anywhere" }}>{familyName}<br /><em style={{ font: `italic 400 ${h1Size}px/0.98 Newsreader,serif`, color: TEAL }}>{accentWord}</em></h1>
-            <p style={{ margin: "20px 0 0", font: "400 16.5px/1.6 Manrope,sans-serif", color: MUTED, maxWidth: "46ch" }}>{description}</p>
+            <p style={{ margin: "20px 0 0", font: "400 16.5px/1.6 Manrope,sans-serif", color: MUTED, maxWidth: "46ch", display: "-webkit-box", WebkitLineClamp: 10, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{description}</p>
           </div>
         </div>
 
