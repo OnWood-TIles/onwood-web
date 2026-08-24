@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getBlog, getTaxonomy, listRanges } from "../lib/onbase/client";
 import { SUBURB_LIST, COLLECTION_LIST } from "../lib/content";
+import { SPECIALS_ENABLED } from "../lib/flags";
 
 // Sitemap for onwoodtiles.com.au. Now that the site is LIVE this lists the full
 // public + indexable storefront: the marketing/utility pages, the blog + each
@@ -55,7 +56,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${BASE}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/shop`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/specials`, changeFrequency: "weekly", priority: 0.8 },
+    ...(SPECIALS_ENABLED
+      ? [{ url: `${BASE}/specials`, changeFrequency: "weekly" as const, priority: 0.8 }]
+      : []),
+    { url: `${BASE}/showroom`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/vision-board`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/gallery`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/tiles`, changeFrequency: "weekly", priority: 0.7 },

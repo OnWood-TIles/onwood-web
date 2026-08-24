@@ -7,8 +7,10 @@ import FreeDeliveryBand from "../components/marketing/FreeDeliveryBand";
 import PackageDeal from "../components/marketing/PackageDeal";
 import ReserveBand from "../components/marketing/ReserveBand";
 import SpecialsTerms from "../components/marketing/SpecialsTerms";
+import { redirect } from "next/navigation";
 import { SPECIALS_PAGE, type Special } from "../../lib/content";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
+import { SPECIALS_ENABLED } from "../../lib/flags";
 
 export const metadata: Metadata = {
   title: "Specials",
@@ -59,6 +61,8 @@ function feedToSpecial(r: WebsiteRange): Special | null {
 }
 
 export default async function SpecialsPage() {
+  // Specials are hidden pre-opening (no live offers yet) — send visitors to the shop.
+  if (!SPECIALS_ENABLED) redirect("/shop");
   // Curated cards first, then every OTHER product flagged on special in OnBase —
   // so adding a special price in OnBase auto-lists it here (and on the catalogue).
   const feed = await listRanges({ specialsOnly: true });

@@ -10,6 +10,7 @@
 //     cached by default in 16). Stock uses a short TTL; catalogue a longer one.
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { SPECIALS_ENABLED } from "../flags";
 
 const BASE = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const KEY = process.env.ONBASE_API_KEY;
@@ -149,10 +150,15 @@ const img = (u?: string | null) => selfHost(abs(u));
 function normalizeRange(r: WebsiteRange): WebsiteRange {
   return {
     ...r,
+    // Specials master switch: when off, strip every feed-driven special so no SPECIAL
+    // badge/price renders anywhere (shop, product, search, pairs). Restores instantly
+    // when SPECIALS_ENABLED flips back to true.
+    special: SPECIALS_ENABLED ? r.special : null,
     heroImage: img(r.heroImage) ?? null,
     images: (r.images ?? []).map((i) => img(i) as string),
     swatches: (r.swatches ?? []).map((s) => ({
       ...s,
+      special: SPECIALS_ENABLED ? s.special : null,
       image: img(s.image) ?? null,
       installedImage: img(s.installedImage) ?? null,
       images: s.images?.map((i) => img(i) as string),

@@ -5,6 +5,7 @@ import { ThemeProvider, themeNoFlashScript } from "./components/ui/ThemeProvider
 import { NavConfigProvider } from "./components/marketing/NavConfigProvider";
 import { ShopMenuProvider } from "./components/marketing/ShopMenuProvider";
 import WishlistFab from "./components/wishlist/WishlistFab";
+import ShowroomBanner from "./components/marketing/ShowroomBanner";
 import { Analytics } from "@vercel/analytics/next";
 import { getNav, getShopMenu } from "../lib/onbase/client";
 
@@ -147,6 +148,7 @@ export default async function RootLayout({
               </div>
             </ShopMenuProvider>
             <WishlistFab />
+            <ShowroomBanner />
           </NavConfigProvider>
         </ThemeProvider>
         {/* Cookieless traffic analytics (no consent banner required). */}

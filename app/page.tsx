@@ -10,6 +10,7 @@ import Testimonials from "./components/marketing/Testimonials";
 import Contact from "./components/marketing/Contact";
 import MarketingFooter from "./components/marketing/MarketingFooter";
 import { getBusiness } from "../lib/onbase/client";
+import { SPECIALS_ENABLED } from "../lib/flags";
 
 // The OnWood Tiles homepage, rebuilt faithfully from the Claude Design
 // reference. Sections in reference order.
@@ -21,7 +22,7 @@ export default async function Home() {
       <main>
         <Hero />
         <FeaturedProducts />
-        <SpecialsTeaser />
+        {SPECIALS_ENABLED && <SpecialsTeaser />}
         <Showroom />
         <Story />
         <Testimonials />

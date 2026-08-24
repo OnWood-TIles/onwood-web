@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { NAV_LINKS } from "../../../lib/content";
+import { SPECIALS_ENABLED } from "../../../lib/flags";
 import { useNavConfig } from "./NavConfigProvider";
 import { useShopMenu } from "./ShopMenuProvider";
 import ShopMegaMenu from "./ShopMegaMenu";
@@ -23,8 +24,8 @@ export default function MarketingNav() {
   const designed = useNavConfig();
   const shopDepts = useShopMenu();
   const rawItems: NavItem[] = designed.length
-    ? designed
-    : [...NAV_LINKS.map((l) => ({ label: l.label, href: l.href })), { label: "Specials", href: "/specials" }];
+    ? designed.filter((i) => SPECIALS_ENABLED || i.href !== "/specials")
+    : [...NAV_LINKS.map((l) => ({ label: l.label, href: l.href })), ...(SPECIALS_ENABLED ? [{ label: "Specials", href: "/specials" }] : [])];
   // The Shop mega-menu is always rendered as the shop entry, so drop any "Shop"
   // item from the designed/built-in list to avoid a duplicate Shop button.
   const items: NavItem[] = rawItems.filter(
