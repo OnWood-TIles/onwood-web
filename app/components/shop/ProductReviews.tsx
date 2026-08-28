@@ -79,7 +79,7 @@ export default function ProductReviews({
   count: number;
 }) {
   return (
-    <section style={{ marginTop: 64 }} aria-label="Customer reviews">
+    <section id="reviews" style={{ marginTop: 64, scrollMarginTop: 96 }} aria-label="Customer reviews">
       <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 820, fontSize: "clamp(24px,3vw,30px)", letterSpacing: "-.015em", margin: "0 0 4px" }}>
         Reviews<span style={{ color: "var(--accent)" }}>.</span>
       </h2>
