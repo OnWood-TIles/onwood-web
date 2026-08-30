@@ -6,6 +6,7 @@ import { NavConfigProvider } from "./components/marketing/NavConfigProvider";
 import { ShopMenuProvider } from "./components/marketing/ShopMenuProvider";
 import WishlistFab from "./components/wishlist/WishlistFab";
 import ShowroomBanner from "./components/marketing/ShowroomBanner";
+import PresenceBeacon from "./components/PresenceBeacon";
 import { Analytics } from "@vercel/analytics/next";
 import { getNav, getShopMenu } from "../lib/onbase/client";
 
@@ -153,6 +154,8 @@ export default async function RootLayout({
         </ThemeProvider>
         {/* Cookieless traffic analytics (no consent banner required). */}
         <Analytics />
+        {/* Live-visitor heartbeat for the /admin dashboard (no cookies, no PII). */}
+        <PresenceBeacon />
       </body>
     </html>
   );

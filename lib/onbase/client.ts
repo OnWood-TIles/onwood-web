@@ -320,6 +320,46 @@ export async function submitReview(payload: ReviewSubmission): Promise<{ id: str
   return { id };
 }
 
+// ── Live presence ("visitors now") ─────────────────────────────────────────────
+
+/** Record one visitor heartbeat in OnBase (server-to-server). Best-effort: a
+ *  failed ping must never surface to the visitor, so all errors are swallowed. */
+export async function pingPresence(sessionId: string, path?: string): Promise<void> {
+  if (!KEY) return;
+  try {
+    await fetch(`${BASE}/api/v1/website/presence`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, path }),
+      cache: "no-store",
+    });
+  } catch {
+    /* best-effort */
+  }
+}
+
+export type PresenceNow = { active: number; pages: { path: string; count: number }[] };
+
+/** Live count of visitors on the site right now (last ~30s), for the staff
+ *  /admin dashboard. Fails open to an empty snapshot. */
+export async function getPresence(): Promise<PresenceNow> {
+  const empty: PresenceNow = { active: 0, pages: [] };
+  if (!KEY) return empty;
+  try {
+    const res = await fetch(`${BASE}/api/v1/website/presence`, {
+      headers: { Authorization: `Bearer ${KEY}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return empty;
+    const json = (await res.json()) as { data?: PresenceNow };
+    const d = json?.data;
+    if (!d || typeof d.active !== "number") return empty;
+    return { active: d.active, pages: Array.isArray(d.pages) ? d.pages : [] };
+  } catch {
+    return empty;
+  }
+}
+
 /** Published ranges, optionally narrowed by department/category/specials and
  *  attribute filters ({ colour: ["green"] } -> ?f=colour:green; OR within a
  *  group, AND across groups). */

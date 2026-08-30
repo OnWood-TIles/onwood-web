@@ -3,6 +3,7 @@ import Link from "next/link";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getAnalytics, type TopRow } from "../../../lib/analytics";
+import LiveVisitors from "./LiveVisitors";
 
 export const metadata: Metadata = { title: "Analytics", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -34,6 +35,9 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
         <p style={{ color: "#5a6067", fontSize: 15, lineHeight: 1.65, maxWidth: 680, margin: "10px 0 26px" }}>
           Live visitor traffic for onwoodtiles.com.au, straight from Vercel — the same numbers as the Vercel dashboard, without leaving your site.
         </p>
+
+        {/* Live "visitors right now" - independent of Vercel; updates every ~10s. */}
+        <LiveVisitors />
 
         {!a.configured ? (
           <SetupCard />
