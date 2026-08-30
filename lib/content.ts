@@ -1528,6 +1528,320 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     ],
     nearby: ["Montville", "Mapleton", "Witta", "Conondale", "Landsborough", "Mooloolah Valley", "Flaxton"],
   },
+
+  beerwah: {
+    slug: "beerwah",
+    name: "Beerwah",
+    popularSlugs: ["heartwood-212", "esplanade-60", "cabarita-60", "strata-60-matt", "calcare-60-grip", "colonnade-60", "haven-45", "terroir-60"],
+    popularIntro: "The hard-wearing floors and warm wood-looks Beerwah homeowners and their builders reach for, from town homes to acreage. Every one is a real OnWood product.",
+    guidanceIntro: "What actually works in a Beerwah home or on an acreage block, from tough floors to alfresco. Follow a link to browse the exact range.",
+    deliveryLine: "We run tiles down Steve Irwin Way to Beerwah and the hinterland most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about 15 minutes away.",
+    driveMins: 15,
+    driveVia: "Steve Irwin Way",
+    metaTitle: "Tile Shop Beerwah | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Beerwah: hard-wearing porcelain, wood-look, outdoor and pool tiles for hinterland homes and acreage, with delivery to Beerwah or pickup from Baringa, about 15 minutes away.",
+    intro: [
+      "Building or renovating around Beerwah? OnWood Tiles is a quick run down Steve Irwin Way in Baringa, and we deliver right across Beerwah and the surrounding hinterland.",
+      "From town homes to acreage blocks and sheds, we help you choose tiles that earn their keep: hard-wearing, low-maintenance porcelain that handles busy family life and the odd muddy boot.",
+    ],
+    guidance: [
+      {
+        title: "Made for busy, practical homes",
+        body: "Beerwah homes cop plenty of foot traffic, pets and the odd muddy boot. Through-body porcelain floors take it all in their stride and wipe clean, with none of the sealing a timber or natural-stone floor needs.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Acreage, sheds & alfresco",
+        body: "Big blocks mean big outdoor areas. We stock slip-rated (R11 and above) porcelain for patios, pool surrounds, sheds and outdoor kitchens that stays safe and solid underfoot in all weather.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Warm wood-look floors",
+        body: "For a relaxed hinterland feel, wood-look planks bring the warmth of timber to living areas and verandahs without the upkeep, and they suit both a new build and an older Beerwah home.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "One stop for the whole job",
+        body: "Floors, bathroom walls, splashbacks, laundry and the matching wastes and tapware, all from one place, so your Beerwah project comes together without chasing parts across town.",
+        href: "/shop",
+        hrefLabel: "Shop everything",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Beerwah?", a: "Yes, we deliver across Beerwah and the surrounding hinterland, just tell us your street for a delivery quote when you order. You're also welcome to collect from our Baringa showroom." },
+      { q: "How far is your showroom from Beerwah?", a: "About a 15-minute drive down Steve Irwin Way from Beerwah to our Baringa showroom, an easy trip to see full-size boards and take a few samples home." },
+      { q: "What tiles suit a Beerwah home or acreage block?", a: "Hard-wearing through-body porcelain floors handle busy family and acreage life with almost no upkeep. Wood-look planks add warmth, and slip-rated outdoor porcelain is ideal for patios, sheds and pool surrounds." },
+      { q: "Do you supply outdoor and pool tiles?", a: "Yes, slip-rated outdoor porcelain, pool-surround tiles and matching indoor tiles so your alfresco flows naturally from inside." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Beerwah project or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders in Beerwah?", a: "Yes. Alongside homeowners we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Glass House Mountains", "Landsborough", "Peachester", "Beerburrum", "Mooloolah Valley", "Caloundra"],
+  },
+
+  landsborough: {
+    slug: "landsborough",
+    name: "Landsborough",
+    popularSlugs: ["cottesloe-60", "heartwood-212", "coastline-subway", "cabarita-60", "alba-45", "haven-45", "esplanade-36", "calcare-60-matt"],
+    popularIntro: "Classic whites and warm timber-looks that suit Landsborough's character homes and new estates alike. Every one is a real OnWood product.",
+    guidanceIntro: "What suits a Landsborough home, whether you're renovating a Queenslander or building fresh. Follow a link to browse the exact range.",
+    deliveryLine: "We deliver into Landsborough and the hinterland most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about 15 minutes down Steve Irwin Way.",
+    driveMins: 15,
+    driveVia: "Steve Irwin Way",
+    metaTitle: "Tile Shop Landsborough | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your local tile shop for Landsborough: classic white, wood-look and outdoor tiles for character homes and new estates, with delivery to Landsborough or pickup from Baringa, about 15 minutes away.",
+    intro: [
+      "Renovating a character home or building in one of Landsborough's new estates? OnWood Tiles is just down Steve Irwin Way in Baringa, and we deliver right across town.",
+      "Landsborough mixes old Queenslanders with brand-new builds, so we help you choose tiles that suit either: classic whites and warm timber-looks for character homes, and clean, durable porcelain for new estate living.",
+    ],
+    guidance: [
+      {
+        title: "Renovating a character home",
+        body: "Older Landsborough homes suit a classic look. Crisp white floor tiles and subway-style splashbacks keep the character while giving you a hard-wearing, easy-care surface that a timber floor can't.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "New estate builds",
+        body: "Building fresh? Large-format rectified porcelain lays fast with fewer grout lines, makes rooms feel bigger and ties your floors, bathrooms and alfresco into one clean scheme.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "Warm timber-look floors",
+        body: "Wood-look planks bring warmth to a Queenslander's living areas or a new build's open plan, with the durability of porcelain and none of timber's sanding, sealing or water worries.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Verandahs & outdoor",
+        body: "Landsborough living spills onto the verandah. Slip-rated (R11 and above) porcelain carries your inside floor out to decks, patios and pool areas and stays safe underfoot through dew and rain.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Landsborough?", a: "Yes, we deliver across Landsborough and the surrounding hinterland, just tell us your street for a delivery quote. You're welcome to collect from Baringa too." },
+      { q: "How far is your showroom from Landsborough?", a: "About a 13 to 15-minute drive down Steve Irwin Way from Landsborough to our Baringa showroom, easy to pop in for full-size boards and samples." },
+      { q: "What tiles suit a Landsborough home?", a: "For character Queenslanders, classic white floors and subway splashbacks keep the era right while wearing far better than timber. New estate homes suit large-format porcelain, and wood-look planks add warmth to either." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Landsborough project or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders in Landsborough?", a: "Yes. As well as homeowners we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Beerwah", "Mooloolah Valley", "Glass House Mountains", "Peachester", "Maleny", "Caloundra"],
+  },
+
+  "glass-house-mountains": {
+    slug: "glass-house-mountains",
+    name: "Glass House Mountains",
+    popularSlugs: ["calcare-60-grip", "strata-60-grip", "colonnade-612", "cabarita-612", "graniglia-60-grip", "ironclad-612", "terroir-60", "woodstock-212"],
+    popularIntro: "Tough outdoor porcelain and earthy stone-looks built for acreage living, big alfresco areas and sheds. Every one is a real OnWood product.",
+    guidanceIntro: "What stands up to acreage life around the Glass House Mountains, from alfresco to sheds. Follow a link to browse the exact range.",
+    deliveryLine: "Most Glass House Mountains customers have their tiles delivered to the block. Tell us your street for a delivery quote, or visit the Baringa showroom about twenty minutes down Steve Irwin Way to choose in person.",
+    driveMins: 20,
+    driveVia: "Steve Irwin Way",
+    metaTitle: "Tile Shop Glass House Mountains | Tiles Delivered | OnWood Tiles",
+    metaDescription:
+      "Tiles for Glass House Mountains homes and acreage: tough outdoor porcelain, earthy stone-looks and wood-looks for big alfresco areas, sheds and pools, delivered from OnWood Tiles at Baringa.",
+    intro: [
+      "Out on the acreage around the Glass House Mountains, homes are built for big skies, big blocks and big alfresco living. OnWood Tiles delivers tough, good-looking tiles from our Baringa showroom, about twenty minutes down Steve Irwin Way.",
+      "From rural-residential builds to sheds, pool areas and outdoor kitchens, we help you choose earthy, hard-wearing porcelain that suits the landscape and stands up to everything acreage life throws at it.",
+    ],
+    guidance: [
+      {
+        title: "Big alfresco & outdoor living",
+        body: "With that mountain outlook, the outdoor area is the main event. Slip-rated (R11 and above) porcelain in stone and concrete looks handles patios, outdoor kitchens and pool surrounds and stays safe underfoot in every season.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Earthy, grounded looks",
+        body: "Stone-look, terrazzo-look and concrete-look porcelain sit naturally against the Glass House landscape, bringing an earthy, grounded feel to floors indoors and out without the upkeep of real stone.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Sheds, studios & workshops",
+        body: "Acreage means sheds and studios. Industrial concrete-look and heavy-duty porcelain floors take knocks, spills and traffic and clean up with a hose or a mop, ready for the next job.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Pools & entertaining",
+        body: "A pool is almost standard out here. We stock textured, slip-rated surround tiles and matching indoor floors so the whole entertaining area flows as one, inside to out.",
+        href: "/shop/tiles?f=location-use:floor",
+        hrefLabel: "Floor tiles",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to the Glass House Mountains?", a: "Yes, we deliver to Glass House Mountains and the surrounding acreage from our Baringa base, just tell us your street for a delivery quote." },
+      { q: "How far is your showroom from the Glass House Mountains?", a: "About a twenty-minute drive down Steve Irwin Way. Many acreage customers have their tiles delivered, though you're welcome to visit the showroom first to see full-size boards and big-format samples." },
+      { q: "What tiles suit an acreage home out here?", a: "For acreage homes we lean on tough through-body porcelain in earthy stone, terrazzo and concrete looks. Slip-rated outdoor porcelain suits big alfresco areas, sheds and pool surrounds, and wood-look planks warm the living areas." },
+      { q: "Do you supply outdoor and pool tiles?", a: "Yes, slip-rated outdoor and pool-surround porcelain, plus matching indoor floors so your alfresco and entertaining areas flow together." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and deliver to your Glass House Mountains project." },
+      { q: "Do you supply tilers and builders in the area?", a: "Yes. As well as homeowners we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Beerwah", "Beerburrum", "Landsborough", "Peachester", "Elimbah"],
+  },
+
+  "bli-bli": {
+    slug: "bli-bli",
+    name: "Bli Bli",
+    popularSlugs: ["cottesloe-45", "haven-45", "cabarita-60", "strata-60-matt", "aspect-36-matt", "peregian-45", "relic-45", "heartwood-212"],
+    popularIntro: "Easy-care family floors and smart-value large-format that suit new Bli Bli builds and estate homes. Every one is a real OnWood product.",
+    guidanceIntro: "What works in a busy Bli Bli family home, from tough floors to easy bathrooms. Follow a link to browse the exact range.",
+    deliveryLine: "We deliver across Bli Bli, Parklakes and the riverside estates most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about 25 minutes away.",
+    driveMins: 25,
+    driveVia: "the Sunshine Motorway",
+    metaTitle: "Tile Shop Bli Bli | Tiles + Local Delivery | OnWood Tiles",
+    metaDescription:
+      "Your tile shop for Bli Bli: value large-format, wood-look and easy-care porcelain for new family homes and estates like Parklakes, with delivery to Bli Bli or pickup from Baringa.",
+    intro: [
+      "Building in Parklakes or renovating a family home in Bli Bli? OnWood Tiles supplies the Sunshine Coast from our Baringa showroom and delivers across Bli Bli and the riverside estates.",
+      "Bli Bli is young-family country, so we focus on tiles that work hard for busy households: easy-care floors, value large-format and warm wood-looks that look great and forgive everyday life.",
+    ],
+    guidance: [
+      {
+        title: "Family-proof floors",
+        body: "Kids, pets and everyday traffic are no match for through-body porcelain. It wipes clean, resists scratches and never needs sealing, so a Bli Bli family floor still looks good years down the track.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Smart-value large-format",
+        body: "Large 450 and 600 tiles cover more ground for less, lay quickly and make open-plan living feel bigger, a smart choice for a new Bli Bli build or estate home on a budget.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Easy bathrooms & laundries",
+        body: "Large-format wall and floor tiles make compact new-build bathrooms and laundries feel bigger and quicker to lay, with fewer grout lines to keep clean. We carry the matching wastes and tapware too.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+      {
+        title: "Alfresco for the backyard",
+        body: "Bli Bli backyards are made for entertaining. Slip-rated (R11 and above) porcelain runs your inside floor out to the patio and pool and stays safe underfoot year round.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Bli Bli?", a: "Yes, we deliver across Bli Bli, Parklakes and the riverside estates, just tell us your street for a delivery quote when you order. You're also welcome to collect from our Baringa showroom." },
+      { q: "How far is your showroom from Bli Bli?", a: "About a 25-minute drive from Bli Bli via the Sunshine Motorway. Pop in to see full-size boards, or let us deliver straight to your build." },
+      { q: "What tiles are best for a new Bli Bli family home?", a: "Easy-care through-body porcelain floors handle kids and pets with no sealing, value large-format covers open-plan living affordably, and wood-look planks add warmth. Slip-rated outdoor porcelain suits the backyard and pool." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and either deliver to your Bli Bli project or hold it for pickup at Baringa." },
+      { q: "Do you supply tilers and builders in Bli Bli?", a: "Yes. Alongside mum-and-dad renovators we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Maroochydore", "Nambour", "Pacific Paradise", "Coolum", "Marcoola", "Diddillibah"],
+  },
+
+  "peregian-springs": {
+    slug: "peregian-springs",
+    name: "Peregian Springs",
+    popularSlugs: ["arcadia-grande-612", "lustre-60-matt", "riviera-60-polished", "colonnade-612", "marchese-60-matt", "cinerea-60", "calcare-60-matt", "estella-60"],
+    popularIntro: "Premium large-format, polished and stone-look tiles that match the considered style of Peregian Springs homes. Every one is a real OnWood product.",
+    guidanceIntro: "What suits a considered Peregian Springs build or renovation, from polished floors to seamless indoor-outdoor. Follow a link to browse the exact range.",
+    deliveryLine: "Most Peregian Springs customers have their tiles delivered up the coast. Tell us your street for a delivery quote, or visit the Baringa showroom to choose from full-size boards first.",
+    driveMins: 35,
+    driveVia: "the Sunshine Motorway",
+    metaTitle: "Tile Shop Peregian Springs | Tiles Delivered | OnWood Tiles",
+    metaDescription:
+      "Tiles for Peregian Springs homes: premium large-format porcelain, polished and stone-looks for considered new builds and renovations, delivered from OnWood Tiles on the Sunshine Coast.",
+    intro: [
+      "Peregian Springs is a considered, master-planned pocket of the northern Sunshine Coast, where new homes deserve tiles to match. OnWood Tiles delivers from our Baringa showroom, and we make the trip worth skipping with big-format samples and a full online range.",
+      "For architect-influenced builds and quality renovations, we help homeowners and builders choose premium large-format, polished and natural stone-look porcelain that sets a calm, considered tone through the whole home.",
+    ],
+    guidance: [
+      {
+        title: "Premium large-format",
+        body: "Big 600x1200 and 600x600 rectified porcelain lays with fine grout lines for a seamless, high-end finish that suits the calibre of a Peregian Springs home, indoors and out.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Polished & stone-looks",
+        body: "Soft polished porcelain and natural stone-looks bring quiet luxury to living areas, ensuites and entrances, with the durability and easy care that real marble and stone can't offer.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Considered indoor-outdoor",
+        body: "Peregian living blurs inside and out. We match your interior floor to a slip-rated (R11 and above) outdoor version so the alfresco, pool and courtyard read as one continuous space.",
+        href: "/shop/tiles?f=location-use:outdoor",
+        hrefLabel: "Outdoor tiles",
+      },
+      {
+        title: "Ensuites & bathrooms",
+        body: "Large-format walls and floors make ensuites feel like a retreat, with fewer grout lines and a clean, calm look. We carry the matching wastes and tapware to finish the scheme.",
+        href: "/shop/tiles?f=location-use:bathroom",
+        hrefLabel: "Bathroom tiles",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Peregian Springs?", a: "Yes, we deliver to Peregian Springs and the northern beaches. Most customers up this way have their tiles delivered, just tell us your street for a quote." },
+      { q: "How far is your showroom from Peregian Springs?", a: "About a 35-minute drive north via the Sunshine Motorway. Many Peregian Springs customers choose from our online range and big-format samples and have everything delivered, though the showroom is always open if you'd like to visit." },
+      { q: "What tiles suit a Peregian Springs home?", a: "Premium large-format, soft polished and natural stone-look porcelain suit the considered style of Peregian Springs homes, with the durability real stone can't match. Slip-rated outdoor versions carry the look to alfresco and pool." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and deliver to your Peregian Springs project." },
+      { q: "Do you supply tilers and builders in Peregian Springs?", a: "Yes. As well as homeowners we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Coolum Beach", "Peregian Beach", "Marcus Beach", "Noosa", "Yaroomba", "Twin Waters"],
+  },
+
+  "peregian-beach": {
+    slug: "peregian-beach",
+    name: "Peregian Beach",
+    popularSlugs: ["cottesloe-60", "hakkari-natural-stone-tile", "coastline-subway", "riviera-60-polished", "whitehaven-45", "cinerea-60", "seaglass-309x290", "esplanade-60"],
+    popularIntro: "Coastal whites, natural stone-looks and salt-tough porcelain for relaxed Peregian Beach homes. Every one is a real OnWood product.",
+    guidanceIntro: "What suits a Peregian Beach house or coastal renovation, from breezy whites to salt-tough floors. Follow a link to browse the exact range.",
+    deliveryLine: "Most Peregian Beach customers have their tiles delivered up the coast. Tell us your street for a delivery quote, or visit the Baringa showroom to see full-size boards and samples first.",
+    driveMins: 38,
+    driveVia: "the Sunshine Motorway",
+    metaTitle: "Tile Shop Peregian Beach | Tiles Delivered | OnWood Tiles",
+    metaDescription:
+      "Tiles for Peregian Beach homes and renovations: coastal whites, natural stone-looks and salt-tough porcelain for beach-house living, delivered from OnWood Tiles on the Sunshine Coast.",
+    intro: [
+      "Peregian Beach keeps its relaxed, village feel, and its beach houses call for tiles that are light, natural and salt-tough. OnWood Tiles delivers up the coast from our Baringa showroom, with the full range online and samples to try at home.",
+      "For coastal renovations and boutique builds, we help you choose crisp whites, natural stone-looks and textured feature tiles that catch the beachside light and shrug off salt air and sand.",
+    ],
+    guidance: [
+      {
+        title: "Coastal light & whites",
+        body: "Crisp white and soft off-white porcelain bounce the beachside light through a Peregian Beach home and keep that easy, breezy coastal feel underfoot and on the walls.",
+        href: "/shop/tiles",
+        hrefLabel: "Browse tiles",
+      },
+      {
+        title: "Natural stone-looks & texture",
+        body: "Natural stone-look porcelain and textured feature tiles add organic warmth to a beach house without the sealing and staining worries of real stone by the sea.",
+        href: "/gallery?dept=tiles",
+        hrefLabel: "See the gallery",
+      },
+      {
+        title: "Salt-tough & low-maintenance",
+        body: "Salt air and sand are hard on surfaces. Through-body porcelain handles both with almost no upkeep, ideal for a Peregian Beach house you'd rather enjoy than maintain.",
+        href: "/shop/tiles?f=location-use:floor",
+        hrefLabel: "Floor tiles",
+      },
+      {
+        title: "Splashbacks & features",
+        body: "A glass mosaic or a subway splashback adds a coastal accent to a kitchen or bathroom. We carry the feature tiles and the matching wastes and tapware to pull the beach-house look together.",
+        href: "/shop/tiles?f=location-use:splashback",
+        hrefLabel: "Splashback tiles",
+      },
+    ],
+    faqs: [
+      { q: "Do you deliver tiles to Peregian Beach?", a: "Yes, we deliver to Peregian Beach and the surrounding coast. Most customers up this way have their tiles delivered, just tell us your street for a quote." },
+      { q: "How far is your showroom from Peregian Beach?", a: "About a 38-minute drive north via the Sunshine Motorway. Many Peregian Beach customers browse the online range, order samples and have everything delivered, and you're welcome to visit the Baringa showroom any time." },
+      { q: "What tiles suit a Peregian Beach house?", a: "Light whites and off-whites suit the coastal feel, natural stone-looks add texture, and through-body porcelain shrugs off salt air and sand with almost no maintenance. Glass mosaics make lovely coastal splashbacks." },
+      { q: "Are you a supply-only tile shop?", a: "Yes, we're supply only. We don't install, but we'll help you choose, work out your quantities, and deliver to your Peregian Beach project." },
+      { q: "Do you supply tilers and builders in Peregian Beach?", a: "Yes. As well as homeowners we run a trade partner program for tilers and boutique builders, with trade pricing and online ordering, just get in touch or apply through the Trade area of our site." },
+    ],
+    nearby: ["Peregian Springs", "Marcus Beach", "Coolum Beach", "Sunrise Beach", "Noosa", "Castaways Beach"],
+  },
 };
 
 export const SUBURB_LIST: SuburbSeo[] = Object.values(SUBURBS);
