@@ -4,13 +4,13 @@ export const WEBSITE_TERMS_OF_USE: LegalDoc = {
   eyebrow: "Website Terms",
   title: "Website Terms of Use",
   intro:
-    "This website, onwoodtiles.com.au (the site), is operated by OnWood Tiles, a registered business name of Reagan Genrich (ABN 41 522 687 021), a sole trader with a showroom at 2/11 Packer Road, Baringa QLD 4551.",
+    "This website, onwoodtiles.com.au (the site), is operated by OnWood Tiles, a registered business name of Reagan Genrich (ABN 41 522 687 021), a sole trader based in Baringa, QLD 4551.",
   sections: [
     {
       id: "about-these-terms",
       heading: "About these terms",
       blocks: [
-        { type: "p", text: "This website, onwoodtiles.com.au (the site), is operated by OnWood Tiles, a registered business name of Reagan Genrich (ABN 41 522 687 021), a sole trader with a showroom at 2/11 Packer Road, Baringa QLD 4551." },
+        { type: "p", text: "This website, onwoodtiles.com.au (the site), is operated by OnWood Tiles, a registered business name of Reagan Genrich (ABN 41 522 687 021), a sole trader based in Baringa, QLD 4551." },
         { type: "p", text: "In these terms, \"we\", \"us\" and \"our\" mean OnWood Tiles, and \"you\" means the person or business using the site." },
         { type: "p", text: "By accessing or using the site, you agree to these terms. If you do not agree, please do not use the site." },
         { type: "p", text: "These terms are not our terms of sale. They govern your use of this website only. If you buy products from us, that purchase is governed by our Terms and Conditions of Sale, which apply in addition to these terms. If there is any inconsistency between the two documents in relation to a sale, the Terms and Conditions of Sale prevail." },
@@ -307,7 +307,7 @@ export const WEBSITE_TERMS_OF_USE: LegalDoc = {
       blocks: [
         { type: "p", text: "Questions about these terms?" },
         { type: "sub", text: "OnWood Tiles" },
-        { type: "p", text: "2/11 Packer Road, Baringa QLD 4551" },
+        { type: "p", text: "Baringa QLD 4551" },
         { type: "p", text: "sales@onwoodtiles.com.au" },
         { type: "p", text: "0447 766 553" },
         { type: "p", text: "ABN 41 522 687 021" },

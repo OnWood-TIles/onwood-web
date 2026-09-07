@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
-import { SHOP, SUBURB_LIST, COLLECTION_LIST } from "../../lib/content";
+import { SHOP, SUBURB_LIST, COLLECTION_LIST, showroomAddress, BARINGA_DIRECTIONS } from "../../lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -26,15 +26,15 @@ const eyebrow: React.CSSProperties = {
 };
 
 const FAQS = [
-  { q: "Where is your tile shop?", a: `Our showroom is at ${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}, in the southern Sunshine Coast and easy to reach from Caloundra, Kawana, Maroochydore and the surrounding suburbs. It is the best place to see full-size boards and take samples home.` },
+  { q: "Where is your tile shop?", a: `We are based in ${SHOP.suburb}, in the southern Sunshine Coast and easy to reach from Caloundra, Kawana, Maroochydore and the surrounding suburbs. Our new Baringa showroom is coming soon - it will be the best place to see full-size boards and take samples home.` },
   { q: "Do you deliver, or do I need to come in?", a: "Both. You are welcome to visit the Baringa showroom, and we also deliver tiles across the Sunshine Coast. Tell us your suburb for a delivery quote, or collect your order in store." },
   { q: "Are prices shown online?", a: "Yes. Every tile on the website shows a price (including GST), so you can compare and plan your budget before you visit or order. Prices are supply only and do not include delivery, which we quote separately." },
   { q: "Do you install tiles?", a: "No, we are a supply-only tile shop. We help you choose the right tiles and get them to you, and you or your tiler handle the install. We are happy to work in with your tiler on quantities." },
 ];
 
 export default async function NearMePage() {
-  const address = `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`OnWood Tiles, ${address}`)}`;
+  const address = showroomAddress();
+  const directionsUrl = BARINGA_DIRECTIONS;
 
   const businessLd = {
     "@context": "https://schema.org",
@@ -42,7 +42,7 @@ export default async function NearMePage() {
     name: "OnWood Tiles",
     url: `${SITE}/tile-shops-near-me`,
     email: SHOP.email,
-    address: { "@type": "PostalAddress", streetAddress: SHOP.street, addressLocality: SHOP.suburb, addressRegion: SHOP.state, postalCode: SHOP.postcode, addressCountry: "AU" },
+    address: { "@type": "PostalAddress", addressLocality: SHOP.suburb, addressRegion: SHOP.state, postalCode: SHOP.postcode, addressCountry: "AU" },
     areaServed: SUBURB_LIST.map((s) => ({ "@type": "City", name: s.name })),
   };
   const faqLd = {

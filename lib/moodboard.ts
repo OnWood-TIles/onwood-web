@@ -365,7 +365,7 @@ export async function buildMoodboardPdf(
   const bg = (page: PDFPage) => page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: CREAM });
   const footer = (page: PDFPage) => {
     page.drawLine({ start: { x: M, y: 52 }, end: { x: W - M, y: 52 }, thickness: 0.75, color: LINE });
-    page.drawText(safe("2/11 Packer Road, Baringa QLD   ·   onwoodtiles.com.au   ·   sales@onwoodtiles.com.au"), { x: M, y: 36, size: 8, font: mono, color: MUTED });
+    page.drawText(safe("Baringa QLD   ·   onwoodtiles.com.au   ·   sales@onwoodtiles.com.au"), { x: M, y: 36, size: 8, font: mono, color: MUTED });
   };
 
   // ── gather the finishes (grouped, deduped; benchtop pieces list first) ───────

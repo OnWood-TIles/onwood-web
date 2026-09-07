@@ -17,7 +17,7 @@ const ZOHO_HOST = process.env.ZOHO_SMTP_HOST || "smtp.zoho.com.au";
 const ZOHO_PORT = Number(process.env.ZOHO_SMTP_PORT) || 465;
 const MAIL_FROM = process.env.MAIL_FROM || `OnWood Tiles <${ZOHO_USER}>`;
 const SALES_TO = process.env.ENQUIRY_TO || "sales@onwoodtiles.com.au";
-const ADDRESS = process.env.SHOWROOM_ADDRESS || "2/11 Packer Rd, Baringa QLD 4551";
+const ADDRESS = process.env.SHOWROOM_ADDRESS || "New showroom coming soon to Baringa";
 const SHOP_PHONE = process.env.SHOWROOM_PHONE || "";
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -70,8 +70,9 @@ async function getContact(): Promise<{ phone: string; email: string; address: st
     const res = await fetch(`${ONBASE_API_URL}/api/v1/business`, { headers: { Authorization: `Bearer ${ONBASE_API_KEY}` }, cache: "no-store" });
     if (!res.ok) return fallback;
     const { data } = await res.json();
-    const address = [data?.addressLine1, data?.addressLine2].filter(Boolean).join(", ");
-    return { phone: data?.phone || SHOP_PHONE, email: data?.email || SALES_TO, address: address || ADDRESS };
+    // Don't surface the OnBase street address on the public booking flow while we
+    // relocate - phone/email still come from OnBase, the address stays the placeholder.
+    return { phone: data?.phone || SHOP_PHONE, email: data?.email || SALES_TO, address: ADDRESS };
   } catch { return fallback; }
 }
 

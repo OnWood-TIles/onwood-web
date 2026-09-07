@@ -5,7 +5,7 @@ import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { RangeCard } from "../../components/shop/shared";
 import { listRanges, type WebsiteRange } from "../../../lib/onbase/client";
-import { getSuburb, SHOP } from "../../../lib/content";
+import { getSuburb, SHOP, showroomAddress, BARINGA_DIRECTIONS } from "../../../lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -119,10 +119,8 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
     null;
   const heroRange = popular[0] ?? null;
 
-  const address = `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-    `OnWood Tiles, ${address}`,
-  )}`;
+  const address = showroomAddress();
+  const directionsUrl = BARINGA_DIRECTIONS;
 
   const chips = [
     { icon: "truck" as const, label: `Delivery to ${s.name}` },
@@ -157,7 +155,6 @@ export default async function SuburbPage({ params }: { params: Promise<Params> }
     email: SHOP.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: SHOP.street,
       addressLocality: SHOP.suburb,
       addressRegion: SHOP.state,
       postalCode: SHOP.postcode,

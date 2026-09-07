@@ -5,12 +5,12 @@ import MarketingFooter from "../components/marketing/MarketingFooter";
 import ContactForm from "../components/marketing/ContactForm";
 import Reveal from "../components/ui/Reveal";
 import { getBusiness } from "../../lib/onbase/client";
-import { SHOP } from "../../lib/content";
+import { SHOP, showroomAddress, BARINGA_DIRECTIONS } from "../../lib/content";
 
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with OnWood Tiles. Send us a message, call the showroom, or find directions to our Baringa store on the Sunshine Coast.",
+    "Get in touch with OnWood Tiles. Send us a message, call, or email us. Our new Baringa showroom on the Sunshine Coast is coming soon.",
   alternates: { canonical: "https://onwoodtiles.com.au/contact" },
 };
 
@@ -56,19 +56,17 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   const business = await getBusiness();
   const phone = (business?.phone || "").trim();
   const email = (business?.email || SHOP.email).trim();
-  const addr1 = (business?.addressLine1 || SHOP.street).trim();
-  const addr2 = (business?.addressLine2 || `${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`).trim();
-  const fullAddr = [addr1, addr2].filter(Boolean).join(", ");
+  // We're relocating within Baringa, so there's no public street address yet.
+  // Show the "coming soon" placeholder rather than any (now old) OnBase address.
+  // Restore `business?.addressLine1 || SHOP.street` once the new address is set.
+  const showroom = showroomAddress();
   const hoursSummary = (business?.openHoursSummary || SHOP.hours).trim();
   const openHours = (business?.openHours || []).filter((d) => d && d.day);
-  // Pin by COORDINATES, not a name/address search. OnWood isn't listed on Google
-  // Maps yet, so a name/address query snaps to whichever business is registered at
-  // the address (a competitor). Coordinates drop a plain, unlabelled pin. Swap to
-  // the OnWood place ID once the listing is live. Packer Road, Baringa (Aura).
-  const MAP_LAT = -26.8078;
-  const MAP_LNG = 153.0677;
-  const mapEmbed = `https://maps.google.com/maps?q=${MAP_LAT},${MAP_LNG}&z=16&output=embed`;
-  const directions = `https://www.google.com/maps/dir/?api=1&destination=${MAP_LAT},${MAP_LNG}`;
+  // No exact pin while we're between showrooms - centre the map on the Baringa
+  // suburb so visitors know the area. Swap back to precise coordinates / the
+  // OnWood place ID once the new address is confirmed and listed on Google.
+  const mapEmbed = `https://maps.google.com/maps?q=Baringa+QLD+4551&z=13&output=embed`;
+  const directions = BARINGA_DIRECTIONS;
   const telHref = `tel:${phone.replace(/[^0-9+]/g, "")}`;
 
   return (
@@ -85,7 +83,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </Reveal>
           <Reveal delay={0.12}>
             <p style={{ color: "#5a6067", fontSize: 17, lineHeight: 1.7, margin: "20px auto 0", maxWidth: 560 }}>
-              Questions about a tile, a colour, stock, or a room you&rsquo;re planning? Send us a message, call the showroom, or drop in for a coffee and a fistful of samples. We&rsquo;d love to help.
+              Questions about a tile, a colour, stock, or a room you&rsquo;re planning? Send us a message, call, or email and we&rsquo;ll help you pick tiles and organise samples. Our new Baringa showroom is coming soon. We&rsquo;d love to help.
             </p>
           </Reveal>
         </section>
@@ -107,7 +105,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
                 <ReachCard label="Email us" value={email} href={`mailto:${email}`} icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="3" /><path d="m3 6 9 6 9-6" /></svg>} />
               </Reveal>
               <Reveal delay={0.18}>
-                <ReachCard label="Visit the showroom" value={fullAddr} href={directions} external icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>} />
+                <ReachCard label="Showroom" value={showroom} href={directions} external icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>} />
               </Reveal>
               <Reveal delay={0.22}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 6, padding: "4px 2px" }}>
@@ -137,7 +135,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
             <Reveal><div style={{ ...eyebrow, color: "var(--sea)" }}>Find us</div></Reveal>
             <Reveal delay={0.05}>
               <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.02em", margin: "12px 0 0" }}>
-                The Baringa {serif("showroom.")}
+                Coming soon to {serif("Baringa.")}
               </h2>
             </Reveal>
           </div>
@@ -146,7 +144,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
               <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", border: "1px solid var(--line)", boxShadow: "0 24px 56px -26px rgba(32,48,58,.34)", minHeight: 340, height: "100%" }}>
                 <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg,var(--accent),var(--accent2))", zIndex: 2 }} aria-hidden />
                 <iframe
-                  title="Map to the OnWood Tiles Baringa showroom"
+                  title="Map of Baringa, where the new OnWood Tiles showroom is coming soon"
                   src={mapEmbed}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -158,8 +156,8 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
               <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 22, padding: "28px 26px", boxShadow: "0 20px 50px -30px rgba(32,48,58,.3)", display: "flex", flexDirection: "column", gap: 20 }}>
                 <div>
                   <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Showroom</div>
-                  <div style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.4 }}>{addr1}</div>
-                  <div style={{ fontSize: 15, color: "var(--muted)" }}>{addr2}</div>
+                  <div style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.4 }}>{showroom}</div>
+                  <div style={{ fontSize: 15, color: "var(--muted)" }}>Baringa, Sunshine Coast QLD</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>Opening hours</div>
@@ -177,7 +175,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
                   )}
                 </div>
                 <div style={{ fontSize: 13.5, color: "var(--muted)", lineHeight: 1.6 }}>
-                  Free parking right out the front, and the kettle&rsquo;s usually on. Look for the ONWOOD sign.
+                  We&rsquo;re setting up our new Baringa showroom now. In the meantime, call or email and we&rsquo;ll help you choose tiles and organise samples.
                 </div>
                 <a href={directions} target="_blank" rel="noopener noreferrer" className="ct-dir" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: "var(--ink)", color: "var(--surface)", fontWeight: 800, fontSize: 15, padding: "14px 20px", borderRadius: 999, textDecoration: "none" }}>
                   Get directions <span aria-hidden>&rarr;</span>

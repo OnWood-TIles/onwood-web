@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFamilyBrochure } from "../../../lib/brochure";
 import { getBusiness } from "../../../lib/onbase/client";
+import { showroomAddress } from "../../../lib/content";
 import FamilyBrochure, { type BrochureContact } from "../../components/brochure/FamilyBrochure";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,8 @@ export default async function BrochurePage({ params }: { params: Promise<Params>
   const [data, business] = await Promise.all([getFamilyBrochure(family), getBusiness()]);
   if (!data) notFound();
 
-  const address = [business?.addressLine1 || "2/11 Packer Rd", business?.addressLine2 || "Baringa QLD 4551"].filter(Boolean).join(", ");
+  // No street address while we relocate within Baringa - show the placeholder.
+  const address = showroomAddress();
   const contact: BrochureContact = {
     website: "onwoodtiles.com.au",
     address,

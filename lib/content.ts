@@ -25,7 +25,10 @@ export type ShopDetails = {
 
 export const SHOP: ShopDetails = {
   name: "OnWood Tiles",
-  street: "2/11 Packer Road",
+  // No fixed public showroom address right now - we're relocating within Baringa.
+  // Left blank on purpose so nothing renders a stale street address; the site
+  // shows SHOWROOM_PLACEHOLDER (below) everywhere the address used to appear.
+  street: "",
   suburb: "Baringa",
   state: "QLD",
   postcode: "4551",
@@ -37,6 +40,27 @@ export const SHOP: ShopDetails = {
     pinterest: "https://au.pinterest.com/OnWoodTiles/",
   },
 };
+
+// We're moving to a new showroom in Baringa; the street address isn't confirmed
+// yet. Until it is, the site shows this line anywhere a street address used to
+// appear. When the new address is locked in: set SHOP.street/postcode and flip
+// HAS_SHOWROOM_ADDRESS to true - showroomAddress() then reverts to the full
+// address automatically and every page picks it up.
+export const HAS_SHOWROOM_ADDRESS = false;
+export const SHOWROOM_PLACEHOLDER = "New showroom coming soon to Baringa";
+
+// Human-facing showroom line: the full street address once we have one, else the
+// "coming soon" placeholder. Use this anywhere the address is shown to visitors.
+export function showroomAddress(): string {
+  return HAS_SHOWROOM_ADDRESS && SHOP.street
+    ? `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`
+    : SHOWROOM_PLACEHOLDER;
+}
+
+// Google Maps directions target for the general Baringa area (no exact pin until
+// the new showroom address is confirmed). Used by footers and landing pages.
+export const BARINGA_DIRECTIONS =
+  "https://www.google.com/maps/dir/?api=1&destination=Baringa+QLD+4551";
 
 // Root-relative so the nav works from BOTH the homepage and /specials
 // (bare "#id" only scrolls on the homepage). On the homepage "/#id" still

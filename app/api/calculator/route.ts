@@ -118,7 +118,7 @@ function estimateHtml(firstName: string | undefined, lines: [string, string][], 
       <tr><td style="padding:16px 40px 34px;">
         <a href="https://onwoodtiles.com.au/shop" style="display:inline-block;background:#d06a45;color:#fff;font-weight:800;font-size:15px;text-decoration:none;padding:13px 26px;border-radius:999px;">Browse the range</a>
       </td></tr>
-      <tr><td style="padding:20px 40px;border-top:1px solid #e6e2d8;"><p style="margin:0;font-size:12px;color:#8a959b;">2/11 Packer Road, Baringa &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a></p></td></tr>
+      <tr><td style="padding:20px 40px;border-top:1px solid #e6e2d8;"><p style="margin:0;font-size:12px;color:#8a959b;">Baringa, Sunshine Coast &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a></p></td></tr>
     </table>
   </td></tr></table>
 </body></html>`;

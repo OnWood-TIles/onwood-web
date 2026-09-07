@@ -5,6 +5,7 @@ import MarketingFooter from "../components/marketing/MarketingFooter";
 import Reveal from "../components/ui/Reveal";
 import CountUp from "../components/ui/CountUp";
 import { getBusiness, listRanges, type WebsiteRange } from "../../lib/onbase/client";
+import { showroomAddress } from "../../lib/content";
 
 export const metadata: Metadata = {
   title: "Why OnWood Tiles",
@@ -106,7 +107,9 @@ function CTA({ href, label, primary }: { href: string; label: string; primary?: 
 export default async function WhyPage() {
   const [business, ranges] = await Promise.all([getBusiness(), listRanges()]);
   const pics = gatherImages(ranges);
-  const addr = business ? [business.addressLine1, business.addressLine2].filter(Boolean).join(", ") : "Baringa, Sunshine Coast";
+  // Relocating within Baringa - show the "coming soon" placeholder rather than
+  // any (now old) OnBase address. Open hours below still come from OnBase.
+  const addr = showroomAddress();
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>

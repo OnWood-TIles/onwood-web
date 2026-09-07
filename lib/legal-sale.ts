@@ -4,14 +4,14 @@ export const TERMS_OF_SALE: LegalDoc = {
   eyebrow: "Terms of Sale",
   title: "Terms and Conditions of Sale",
   intro:
-    "OnWood Tiles (ABN 41 522 687 021) is a family owned and operated tile and flooring supplier based at 2/11 Packer Road, Baringa QLD 4551. OnWood Tiles is a registered business name of Reagan Genrich (sole trader). In these terms, \"we\", \"us\" and \"our\" mean OnWood Tiles, and \"you\" means the person or business buying from us.",
+    "OnWood Tiles (ABN 41 522 687 021) is a family owned and operated tile and flooring supplier based in Baringa, QLD 4551. OnWood Tiles is a registered business name of Reagan Genrich (sole trader). In these terms, \"we\", \"us\" and \"our\" mean OnWood Tiles, and \"you\" means the person or business buying from us.",
   sections: [
     {
       id: "about-us",
       heading: "About us",
       blocks: [
-        { type: "p", text: "OnWood Tiles (ABN 41 522 687 021) is a family owned and operated tile and flooring supplier based at 2/11 Packer Road, Baringa QLD 4551. OnWood Tiles is a registered business name of Reagan Genrich (sole trader). In these terms, \"we\", \"us\" and \"our\" mean OnWood Tiles, and \"you\" means the person or business buying from us." },
-        { type: "p", text: "We are a supplier of products. We do not carry out tiling, flooring or installation work. You can reach us any time at sales@onwoodtiles.com.au or at the Baringa showroom." },
+        { type: "p", text: "OnWood Tiles (ABN 41 522 687 021) is a family owned and operated tile and flooring supplier based in Baringa, QLD 4551. OnWood Tiles is a registered business name of Reagan Genrich (sole trader). In these terms, \"we\", \"us\" and \"our\" mean OnWood Tiles, and \"you\" means the person or business buying from us." },
+        { type: "p", text: "We are a supplier of products. We do not carry out tiling, flooring or installation work. You can reach us any time at sales@onwoodtiles.com.au, and our new Baringa showroom is opening soon." },
       ],
     },
     {
@@ -248,7 +248,7 @@ export const TERMS_OF_SALE: LegalDoc = {
       blocks: [
         { type: "p", text: "Questions about these terms or an order?" },
         { type: "p", text: "OnWood Tiles" },
-        { type: "p", text: "2/11 Packer Road, Baringa QLD 4551" },
+        { type: "p", text: "Baringa QLD 4551" },
         { type: "p", text: "sales@onwoodtiles.com.au" },
         { type: "p", text: "0447 766 553" },
         { type: "p", text: "ABN 41 522 687 021" },

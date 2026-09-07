@@ -265,7 +265,7 @@ async function addOnConnectContact(
 
 // Styled to match the other OnWood emails (book-a-visit, welcome): a warm cream
 // ground, a teal-ink header band with a Courier-mono eyebrow + terracotta accent.
-const CONTACT_ADDR = process.env.SHOWROOM_ADDRESS || "2/11 Packer Road, Baringa QLD 4551";
+const CONTACT_ADDR = process.env.SHOWROOM_ADDRESS || "Baringa, Sunshine Coast QLD";
 const MONO_LBL = "font-family:'Courier New',monospace;font-size:10px;letter-spacing:.14em;color:#86A6AC";
 
 function emailShell(eyebrow: string, heading: string, body: string): string {

@@ -5,7 +5,7 @@ import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { RangeCard } from "../../components/shop/shared";
 import { listRanges, type WebsiteRange } from "../../../lib/onbase/client";
-import { getCollection, COLLECTION_LIST, SHOP, type TileCollection } from "../../../lib/content";
+import { getCollection, COLLECTION_LIST, SHOP, showroomAddress, type TileCollection } from "../../../lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -74,7 +74,7 @@ export default async function CollectionPage({ params }: { params: Promise<Param
     null;
   const heroRange = products[0] ?? null;
 
-  const address = `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
+  const address = showroomAddress();
   // Other collections (for the "more collections" strip), this one excluded.
   const others = COLLECTION_LIST.filter((x) => x.slug !== c.slug);
 

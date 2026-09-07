@@ -174,7 +174,7 @@ export const PRIVACY_POLICY: LegalDoc = {
       id: "complaints",
       heading: "Complaints",
       blocks: [
-        { type: "p", text: "If you think we have mishandled your personal information, please tell us first so we can fix it. Email sales@onwoodtiles.com.au with \"Privacy complaint\" in the subject line, or write to us at 2/11 Packer Road, Baringa QLD 4551." },
+        { type: "p", text: "If you think we have mishandled your personal information, please tell us first so we can fix it. Email sales@onwoodtiles.com.au with \"Privacy complaint\" in the subject line, or write to us at Baringa QLD 4551." },
         { type: "p", text: "We will acknowledge your complaint promptly and aim to respond substantively within 30 days." },
         { type: "p", text: "If you are not satisfied with our response, you can contact the Office of the Australian Information Commissioner:" },
         { type: "list", items: [
@@ -210,7 +210,7 @@ export const PRIVACY_POLICY: LegalDoc = {
       heading: "Contact us",
       blocks: [
         { type: "p", text: "OnWood Tiles" },
-        { type: "p", text: "2/11 Packer Road, Baringa QLD 4551" },
+        { type: "p", text: "Baringa QLD 4551" },
         { type: "p", text: "sales@onwoodtiles.com.au" },
         { type: "p", text: "0447 766 553" },
         { type: "p", text: "ABN 41 522 687 021" },

@@ -3,6 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import type { Business, DayHours } from "../../../lib/onbase/client";
+import { showroomAddress } from "../../../lib/content";
 import MarketingConsent, { MARKETING_CONSENT_TEXT } from "../marketing/MarketingConsent";
 
 // Book-a-Visit flow (adapted from the Claude Design, on the OnWood theme):
@@ -46,7 +47,8 @@ const monIndex = (d: Date) => (d.getDay() + 6) % 7;
 
 export default function BookAVisit({ business }: { business: Business | null }) {
   const hours = business?.openHours?.length ? business.openHours : DEFAULT_HOURS;
-  const address = [business?.addressLine1 || "2/11 Packer Rd", business?.addressLine2 || "Baringa QLD 4551"].filter(Boolean).join(", ");
+  // No street address while we relocate within Baringa - show the placeholder.
+  const address = showroomAddress();
   const phone = business?.phone || "";
 
   const [purpose, setPurpose] = useState<string | null>(null);

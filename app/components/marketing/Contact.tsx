@@ -3,7 +3,7 @@
 // form on the right. The form is the SAME component used on the /contact page
 // (ContactForm -> name/phone/email/message -> /api/enquiry), so the two never
 // drift apart. Keeps id="contact" so /#contact anchor links still land here.
-import { CONTACT, SHOP } from "../../../lib/content";
+import { CONTACT, SHOP, showroomAddress } from "../../../lib/content";
 import ContactForm from "./ContactForm";
 import styles from "./Contact.module.css";
 
@@ -30,7 +30,7 @@ function chip(bg: string, color: string): React.CSSProperties {
 }
 
 export default function Contact({ hours }: { hours?: string }) {
-  const address = `Showroom · ${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
+  const address = `Showroom · ${showroomAddress()}`;
 
   return (
     <section

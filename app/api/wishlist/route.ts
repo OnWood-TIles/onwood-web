@@ -103,7 +103,7 @@ function boardHtml(firstName: string | undefined, list: string, count: number): 
         <p style="margin:16px 0 0;font-size:13.5px;line-height:1.6;color:#8a959b;">Bring these to our Baringa showroom and we will help you match quantities, finishes and the rest of the room.</p>
       </td></tr>
       <tr><td style="padding:16px 40px 34px;"><a href="${SITE}/book" style="display:inline-block;background:#d06a45;color:#fff;font-weight:800;font-size:15px;text-decoration:none;padding:13px 26px;border-radius:999px;">Book a showroom visit</a></td></tr>
-      <tr><td style="padding:20px 40px;border-top:1px solid #e6e2d8;"><p style="margin:0;font-size:12px;color:#8a959b;">2/11 Packer Road, Baringa &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a></p></td></tr>
+      <tr><td style="padding:20px 40px;border-top:1px solid #e6e2d8;"><p style="margin:0;font-size:12px;color:#8a959b;">Baringa, Sunshine Coast &middot; <a href="mailto:sales@onwoodtiles.com.au" style="color:#1e7a8c;text-decoration:none;">sales@onwoodtiles.com.au</a></p></td></tr>
     </table>
   </td></tr></table>
 </body></html>`;

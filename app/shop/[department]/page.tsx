@@ -135,7 +135,7 @@ export default async function DepartmentPage({
   const UTILITY = [
     { name: "Tile calculator", tagline: "How many boxes will you need?", body: "Give us your square metres, we will add the cuts and wastage.", cta: "Work out my order", href: "/calculator" },
     { name: "Vision board", tagline: "Build the whole room, tile by tile", body: "Tiles, stone, timber and tapware on one live board you can share.", cta: "Start a board", href: "/vision-board" },
-    { name: "Baringa showroom", tagline: "See the finishes in the flesh", body: `${SHOP.street}, ${SHOP.suburb}. Drop in for a coffee and a fistful of samples.`, cta: "Book a visit", href: "/book" },
+    { name: "Baringa showroom", tagline: "See the finishes in the flesh", body: `New showroom coming soon to ${SHOP.suburb}. Get in touch and we will help you match finishes and organise samples.`, cta: "Book a visit", href: "/book" },
   ];
 
   // Present the grid shuffled each visit so the default "Featured" order isn't just

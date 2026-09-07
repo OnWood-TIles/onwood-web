@@ -81,9 +81,11 @@ const jsonLd = {
   email: "sales@onwoodtiles.com.au",
   telephone: "+61 447 766 553",
   image: "https://onwoodtiles.com.au/onwood-logo-white.png",
+  // No street address while we relocate within Baringa - locality/region/postcode
+  // only (a valid PostalAddress). Add streetAddress back once the new showroom
+  // address is confirmed.
   address: {
     "@type": "PostalAddress",
-    streetAddress: "2/11 Packer Road",
     addressLocality: "Baringa",
     addressRegion: "QLD",
     postalCode: "4551",
@@ -93,7 +95,7 @@ const jsonLd = {
   // Approx Baringa coordinates. Refine to the exact Google Maps pin once the
   // Google Business Profile is set up.
   geo: { "@type": "GeoCoordinates", latitude: -26.7975, longitude: 153.1015 },
-  hasMap: "https://www.google.com/maps/search/?api=1&query=OnWood+Tiles+2%2F11+Packer+Road+Baringa+QLD+4551",
+  hasMap: "https://www.google.com/maps/search/?api=1&query=Baringa+QLD+4551",
   priceRange: "$$",
   openingHoursSpecification: [
     {

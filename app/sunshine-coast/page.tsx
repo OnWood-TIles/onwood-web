@@ -4,7 +4,7 @@ import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import { RangeCard } from "../components/shop/shared";
 import { listRanges, type WebsiteRange } from "../../lib/onbase/client";
-import { SHOP, SUBURB_LIST, COLLECTION_LIST } from "../../lib/content";
+import { SHOP, SUBURB_LIST, COLLECTION_LIST, showroomAddress, BARINGA_DIRECTIONS } from "../../lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +28,7 @@ const eyebrow: React.CSSProperties = {
 };
 
 const FAQS = [
-  { q: "Are you a Sunshine Coast tile shop?", a: `Yes. Our showroom is at ${SHOP.street}, ${SHOP.suburb}, in the southern Sunshine Coast, and we deliver tiles across the Coast and the hinterland. We are a local, family-run supplier.` },
+  { q: "Are you a Sunshine Coast tile shop?", a: `Yes. We are a local, family-run tile supplier based in ${SHOP.suburb}, in the southern Sunshine Coast, and we deliver tiles across the Coast and the hinterland. Our new Baringa showroom is coming soon.` },
   { q: "What tiles suit a coastal home?", a: "For homes near the water we lean towards hard-wearing porcelain that copes with salt air and humidity, matt or textured floors for grip, and outdoor-rated ranges for alfresco areas and pool surrounds. Light, warm tones tend to suit the relaxed coastal look." },
   { q: "Do you deliver across the whole Sunshine Coast?", a: "Yes, from Caloundra and Kawana up to Maroochydore, Buderim and the hinterland. Tell us your suburb for a delivery quote, or collect from Baringa." },
   { q: "Do prices include GST?", a: "Yes. Every tile on the website shows a price including GST, so you can plan your budget before you order or visit. Prices are for supply only and do not include delivery, which we quote separately." },
@@ -52,8 +52,8 @@ export default async function SunshineCoastPage() {
     popular.map((r) => r.swatches.find((s) => s.installedImage)?.installedImage).find(Boolean) ||
     popular.map((r) => r.heroImage).find(Boolean) ||
     null;
-  const address = `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`OnWood Tiles, ${address}`)}`;
+  const address = showroomAddress();
+  const directionsUrl = BARINGA_DIRECTIONS;
 
   const businessLd = {
     "@context": "https://schema.org",
@@ -61,7 +61,7 @@ export default async function SunshineCoastPage() {
     name: "OnWood Tiles",
     url: `${SITE}/sunshine-coast`,
     email: SHOP.email,
-    address: { "@type": "PostalAddress", streetAddress: SHOP.street, addressLocality: SHOP.suburb, addressRegion: SHOP.state, postalCode: SHOP.postcode, addressCountry: "AU" },
+    address: { "@type": "PostalAddress", addressLocality: SHOP.suburb, addressRegion: SHOP.state, postalCode: SHOP.postcode, addressCountry: "AU" },
     areaServed: { "@type": "AdministrativeArea", name: "Sunshine Coast, Queensland" },
   };
   const faqLd = {

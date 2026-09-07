@@ -12,8 +12,10 @@ export const LEGAL_BUSINESS = {
   name: "OnWood Tiles",
   abn: "41 522 687 021",
   email: "sales@onwoodtiles.com.au",
-  addressLine1: "2/11 Packer Road",
-  addressLine2: "Baringa QLD 4551",
+  // No street address while we relocate within Baringa - suburb + state only.
+  // Add the street back to addressLine1 once the new showroom address is set.
+  addressLine1: "Baringa",
+  addressLine2: "QLD 4551",
   state: "Queensland",
 };
 
@@ -46,7 +48,7 @@ export const TERMS_OF_SERVICE: LegalDoc = {
       id: "about",
       heading: "About us",
       blocks: [
-        { type: "p", text: `${B.name} (ABN ${B.abn}) is a family owned and operated tile and flooring supplier based at ${B.addressLine1}, ${B.addressLine2}. ${B.name} is a registered business name of Reagan Genrich (sole trader). In these terms, "we", "us" and "our" mean ${B.name}, and "you" means the person or business buying from us.` },
+        { type: "p", text: `${B.name} (ABN ${B.abn}) is a family owned and operated tile and flooring supplier based in ${B.addressLine1}, ${B.addressLine2}. ${B.name} is a registered business name of Reagan Genrich (sole trader). In these terms, "we", "us" and "our" mean ${B.name}, and "you" means the person or business buying from us.` },
         { type: "p", text: "We are a supplier of products. We do not carry out tiling, flooring or installation work. You can reach us any time at " + B.email + " or at the Baringa showroom." },
       ],
     },
@@ -192,7 +194,7 @@ export const TERMS_OF_SERVICE: LegalDoc = {
       id: "contact",
       heading: "Contact us",
       blocks: [
-        { type: "p", text: `Questions about these terms or an order? Email ${B.email} or drop in to the showroom at ${B.addressLine1}, ${B.addressLine2}.` },
+        { type: "p", text: `Questions about these terms or an order? Email ${B.email}. We are based in ${B.addressLine1}, ${B.addressLine2}, with a new showroom opening soon.` },
       ],
     },
   ],
@@ -303,7 +305,7 @@ export const WEBSITE_TERMS: LegalDoc = {
       id: "contact-site",
       heading: "Contact us",
       blocks: [
-        { type: "p", text: `Questions about these terms? Email ${B.email} or drop in to the showroom at ${B.addressLine1}, ${B.addressLine2}.` },
+        { type: "p", text: `Questions about these terms? Email ${B.email}. We are based in ${B.addressLine1}, ${B.addressLine2}, with a new showroom opening soon.` },
       ],
     },
   ],
