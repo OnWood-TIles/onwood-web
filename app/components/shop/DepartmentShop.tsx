@@ -197,7 +197,11 @@ export function DepartmentShop({
       const key = "ows:" + window.location.pathname + window.location.search;
       const raw = sessionStorage.getItem(key);
       if (raw) {
-        const s = JSON.parse(raw) as { count?: number; y?: number; search?: string; sort?: string; priceBands?: string[] };
+        const s = JSON.parse(raw) as { count?: number; y?: number; search?: string; sort?: string; priceBands?: string[]; active?: Record<string, string[]> };
+        // Filters are applied client-side (they never re-render the server prop),
+        // so restore them from the saved state - otherwise Back re-inits from the
+        // stale, empty initialActive and the selection is lost.
+        if (s.active && typeof s.active === "object" && !Array.isArray(s.active)) setActive(s.active);
         if (typeof s.search === "string" && s.search) setSearch(s.search);
         if (s.count && s.count > PER_PAGE) setVisibleCount(s.count);
         if (typeof s.sort === "string") setSort(s.sort);
@@ -211,7 +215,7 @@ export function DepartmentShop({
   useEffect(() => {
     if (!isPublic) return;
     const key = "ows:" + window.location.pathname + window.location.search;
-    const save = () => { try { sessionStorage.setItem(key, JSON.stringify({ count: visibleCount, y: window.scrollY, search, sort, priceBands })); } catch {} };
+    const save = () => { try { sessionStorage.setItem(key, JSON.stringify({ count: visibleCount, y: window.scrollY, search, sort, priceBands, active })); } catch {} };
     let raf = 0;
     const onScroll = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(save); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -239,17 +243,27 @@ export function DepartmentShop({
 
   const gridItems: ReactNode[] = [];
   if (!exploded) {
+    // A product must appear at most ONCE on the page. Seed "used" with the visible
+    // cards so a feature panel never repeats a card, and mark each featured pick
+    // used so the panels never repeat each other either.
+    const used = new Set(pagedRanges.map((r) => r.id));
+    const nextUnused = (pool: WebsiteRange[]) => pool.find((r) => !used.has(r.id)) ?? null;
     let feat = 0;
     pagedRanges.forEach((r, i) => {
       gridItems.push(
         <Fragment key={r.id}>{renderCard ? renderCard(r) : <RangeCard range={r} categoryLabels={labelMap} />}</Fragment>,
       );
       if (showFeatures && (i + 1) % FEATURE_EVERY === 0) {
-        const wantSpecial = specialPool.length > 0 && (feat % 2 === 1 || focusPool.length === 0);
-        if (wantSpecial) {
-          gridItems.push(<SpecialsPanel key={`sp-${i}`} range={specialPool[Math.floor(feat / 2) % specialPool.length]} />);
-        } else if (focusPool.length) {
-          gridItems.push(<InFocusPanel key={`fo-${i}`} range={focusPool[Math.floor(feat / 2) % focusPool.length]} />);
+        // Prefer the alternating pool, but fall back to the other so a panel still
+        // shows rather than leaving a gap; skip entirely if nothing fresh remains.
+        let special = specialPool.length > 0 && (feat % 2 === 1 || focusPool.length === 0);
+        let pick = nextUnused(special ? specialPool : focusPool);
+        if (!pick) { special = !special; pick = nextUnused(special ? specialPool : focusPool); }
+        if (pick) {
+          used.add(pick.id);
+          gridItems.push(
+            special ? <SpecialsPanel key={`sp-${i}`} range={pick} /> : <InFocusPanel key={`fo-${i}`} range={pick} />,
+          );
         }
         feat++;
       }
