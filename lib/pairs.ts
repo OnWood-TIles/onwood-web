@@ -102,7 +102,11 @@ const GENERIC_FAMILY = new Set([
 // Strip size/finish/format words -> the distinctive family token(s).
 export function familyKey(name: string): string {
   let s = ` ${name.toLowerCase()} `;
-  s = s.replace(/\b\d{2,4}\s*[x×]\s*\d{2,4}\b/g, " "); // 600 x 600
+  // Size tokens: WxH with an OPTIONAL trailing "mm" and no trailing word-boundary,
+  // so "60x240mm"/"250x400mm" strip fully instead of leaving a stray "mm" (which
+  // split them into their own family); then a standalone "Nmm"; then compact codes.
+  s = s.replace(/\d{2,4}\s*[x×]\s*\d{2,4}(\s*mm)?/gi, " "); // 600 x 600, 60x240mm
+  s = s.replace(/\b\d{2,4}\s*mm\b/gi, " "); // 600mm
   s = s.replace(/\b\d{2,4}\b/g, " "); // stray size tokens (60, 612)
   s = s.replace(/\b(matt|matte|grip|gloss|polished|lappato|honed|structured|satin|feature|décor|decor|3d|mosaic|subway|subways|in\/out|in-out|rectified|pressed)\b/g, " ");
   s = s.replace(/[^a-z]+/g, " ").trim();

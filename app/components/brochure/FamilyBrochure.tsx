@@ -15,11 +15,11 @@ const PH = "repeating-linear-gradient(135deg,#f0eae0 0 9px,#e7e0d2 9px 18px)";
 
 // Image with an on-image colour caption. White text on a translucent dark chip
 // (blurred) so the label stays legible over any photo, per Reagan's request.
-function Img({ src, alt, caption, captionPos = "bl", radius }: { src: string | null; alt: string; caption?: string | null; captionPos?: "bl" | "tr"; radius?: number }) {
+function Img({ src, alt, caption, captionPos = "bl", radius, fit = "cover" }: { src: string | null; alt: string; caption?: string | null; captionPos?: "bl" | "tr"; radius?: number; fit?: "cover" | "contain" }) {
   const cpos = captionPos === "tr" ? { top: 12, right: 12 } : { left: 9, bottom: 9 };
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: radius }}>
-      {src ? <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: PH }} />}
+      {src ? <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: PH }} />}
       {caption ? (
         <span style={{ position: "absolute", ...cpos, maxWidth: "calc(100% - 24px)", background: "rgba(14,26,32,.62)", color: "#F6F1E8", font: "400 9px/1 'Space Mono',monospace", letterSpacing: ".07em", textTransform: "uppercase", padding: "4px 7px", borderRadius: 4, backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{caption}</span>
       ) : null}
@@ -79,7 +79,8 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
 
   const optionCard = (o: (typeof options)[number], compact: boolean) => (
     <div style={{ background: "#fff", border: "1px solid rgba(32,48,58,.12)", borderRadius: 14, padding: compact ? 11 : 14, outline: o.current ? `1.5px solid ${TEAL}` : undefined }}>
-      <div style={{ height: compact ? 84 : 96, borderRadius: 8, overflow: "hidden" }}><Img src={o.image} alt={o.name} caption={o.colour ? `${o.name} · ${o.colour}` : o.name} /></div>
+      {/* contain (not cover) so a square tile shows whole — a 600x600 was being cropped to look like 300x600 */}
+      <div style={{ height: compact ? 84 : 96, borderRadius: 8, overflow: "hidden", background: "#faf8f4" }}><Img src={o.image} alt={o.name} caption={o.colour ? `${o.name} · ${o.colour}` : o.name} fit="contain" /></div>
       <div style={{ marginTop: 10, font: `700 ${compact ? 12 : 13}px/1.3 Manrope,sans-serif` }}>{o.name}</div>
       {o.size && <div style={{ marginTop: 4, font: "400 9px/1.4 'Space Mono',monospace", letterSpacing: ".08em", textTransform: "uppercase", color: MUTED }}>{o.size}</div>}
     </div>
