@@ -232,21 +232,49 @@ export default async function DepartmentPage({
           )}
         </div>
 
-        {dept.categories.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
-            {chip("Shop All", `/shop/${dept.slug}`, !activeCategory)}
-            {dept.categories.map((cat) => chip(cat.label, `/shop/${dept.slug}?c=${cat.slug}`, activeCategory === cat.slug))}
-          </div>
-        )}
+        {(() => {
+          // Tools & Accessories requires picking a subcategory first (Step Treads,
+          // Trims, ...) — you can't browse the whole mixed department at once. Only
+          // subcategories that actually have products are offered.
+          const gated = dept.slug === "accessories" && dept.categories.length > 0;
+          const catCounts: Record<string, number> = {};
+          for (const r of gridRanges) for (const c of r.categories ?? []) catCounts[c] = (catCounts[c] ?? 0) + 1;
+          const subcats = dept.categories.filter((c) => (catCounts[c.slug] ?? 0) > 0);
 
-        <DepartmentShop
-          allRanges={gridRanges}
-          groups={shownGroups}
-          labelMap={labelMap}
-          initialActive={initialActive}
-          deptSlug={dept.slug}
-          activeCategory={activeCategory}
-        />
+          if (gated && !activeCategory) {
+            if (!subcats.length) return <p style={{ color: "#8a8577", fontSize: 15, margin: "10px 0 30px" }}>New products are coming to this department soon.</p>;
+            return (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 16, marginBottom: 30 }}>
+                {subcats.map((c) => (
+                  <Link key={c.slug} href={`/shop/${dept.slug}?c=${c.slug}`}
+                    style={{ display: "flex", flexDirection: "column", gap: 6, padding: "22px 22px 20px", borderRadius: 16, border: "1px solid var(--line)", background: "#fff", textDecoration: "none", color: "var(--ink)", boxShadow: "0 10px 30px -22px rgba(32,48,58,.35)" }}>
+                    <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 20, letterSpacing: "-.01em" }}>{c.label}</span>
+                    <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent2)" }}>{catCounts[c.slug]} product{catCounts[c.slug] === 1 ? "" : "s"} <span aria-hidden>→</span></span>
+                  </Link>
+                ))}
+              </div>
+            );
+          }
+
+          return (
+            <>
+              {dept.categories.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
+                  {!gated && chip("Shop All", `/shop/${dept.slug}`, !activeCategory)}
+                  {dept.categories.map((cat) => chip(cat.label, `/shop/${dept.slug}?c=${cat.slug}`, activeCategory === cat.slug))}
+                </div>
+              )}
+              <DepartmentShop
+                allRanges={gridRanges}
+                groups={shownGroups}
+                labelMap={labelMap}
+                initialActive={initialActive}
+                deptSlug={dept.slug}
+                activeCategory={activeCategory}
+              />
+            </>
+          );
+        })()}
 
         {seo?.faqs?.length ? (
           <section style={{ marginTop: 64, borderTop: "1px solid var(--line)", paddingTop: 44 }}>
