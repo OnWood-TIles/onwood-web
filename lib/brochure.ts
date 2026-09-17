@@ -156,16 +156,27 @@ export async function getFamilyBrochure(slug: string): Promise<BrochureData | nu
   }
   const stats4 = stats.slice(0, 4);
 
-  // Accessories (stone cladding collections only): matching corners + capping + pier caps.
+  // Accessories: stone cladding gets matching corners + capping + pier caps; tile
+  // families pull in any matching step tread (accessories dept) so the brochure
+  // shows the range is also available as a step tread / stair nosing.
   const accessories: BrochureAccessory[] = [];
+  const photosOf = (r: WebsiteRange, product: string) =>
+    r.swatches.filter((s) => s.image).map((s) => ({ src: s.image as string, colour: s.colour, product }));
   if (STONE && !/corners|capping|pier/i.test(familyName)) {
-    const photosOf = (r: WebsiteRange, product: string) =>
-      r.swatches.filter((s) => s.image).map((s) => ({ src: s.image as string, colour: s.colour, product }));
     const cornerRange = ranges.find((r) => r.department === "stone-cladding" && r.name.toLowerCase() === `${familyName} corners`.toLowerCase());
     if (cornerRange) accessories.push({ name: "Matching corners", spec: "Sold per lineal metre", blurb: `Prefabricated L-shaped corner pieces that wrap external corners seamlessly, handcrafted in the same stone as the ${familyName} wall.`, photos: photosOf(cornerRange, `${familyName} Corner`) });
     const cappingRange = ranges.find((r) => r.department === "stone-cladding" && /\bcapping$/i.test(r.name)); // matches "Capping" or "Stone Capping"
     if (cappingRange) accessories.push({ name: "Capping", spec: "≈ 510 × 290mm · sold each", blurb: "Solid stone capping to finish and weather-protect wall tops, piers and fence lines.", photos: photosOf(cappingRange, "Capping") });
     accessories.push({ name: "Pier caps", spec: "390 × 390mm · sold each", blurb: "Square pier caps to crown pillars, posts and columns with a solid stone finish.", photos: PIER_CAP_COLOURS.map((c) => ({ src: `${IMG_BASE}piercap-${c.toLowerCase()}.webp?v=3`, colour: c, product: "Pier Cap" })) });
+  } else if (!STONE) {
+    // A matching step tread is a separate product in the accessories dept named
+    // "<Family> <size> Step Tread" (it can't family-group with the tiles because it
+    // differs in unit + department), so match it by name.
+    const treadRe = new RegExp("^" + familyName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b.*step\\s*tread", "i");
+    for (const t of ranges.filter((r) => r.department === "accessories" && treadRe.test(r.name))) {
+      const sz = sizeStr(t);
+      accessories.push({ name: "Matching step tread", spec: sz ? `${sz} · sold each` : "Sold each", blurb: `A matching step tread (stair nosing) to finish stair edges and step fronts in the same ${familyName} colour.`, photos: photosOf(t, t.name) });
+    }
   }
 
   // Spec table: the primary's specs, with size generalised + size-specific row dropped when the family spans sizes.

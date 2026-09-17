@@ -216,8 +216,8 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
             </div>
             <div style={{ padding: "26px 52px 0" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}><span style={{ width: 7, height: 7, borderRadius: 99, background: TEAL }} /><span className="eyebrow">Complete the range</span></div>
-              <h2 style={{ margin: "0 0 6px", font: "800 30px/1.06 Archivo,sans-serif", letterSpacing: "-.025em" }}>Finish it in <em style={{ font: "italic 400 30px/1.06 Newsreader,serif", color: TEAL }}>solid stone</em></h2>
-              <p style={{ margin: "0 0 22px", maxWidth: "62ch", font: "400 14px/1.6 Manrope,sans-serif", color: MUTED }}>Matching finishing pieces so your {familyName} project reads as solid stone from corner to cap. All handcrafted in the same range of colours.</p>
+              <h2 style={{ margin: "0 0 6px", font: "800 30px/1.06 Archivo,sans-serif", letterSpacing: "-.025em" }}>{STONE ? "Finish it in " : "Complete the "}<em style={{ font: "italic 400 30px/1.06 Newsreader,serif", color: TEAL }}>{STONE ? "solid stone" : "look"}</em></h2>
+              <p style={{ margin: "0 0 22px", maxWidth: "62ch", font: "400 14px/1.6 Manrope,sans-serif", color: MUTED }}>{STONE ? `Matching finishing pieces so your ${familyName} project reads as solid stone from corner to cap. All handcrafted in the same range of colours.` : `Matching finishing pieces so your ${familyName} installation is complete, right down to the step edges.`}</p>
               <div style={{ display: "grid", gap: 22 }}>
                 {accessories.map((a, i) => (
                   <div key={i}>
@@ -235,7 +235,7 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
                 ))}
               </div>
             </div>
-            <Foot web={contact.website} mid="Corners, capping & pier caps to suit" n={pn()} />
+            <Foot web={contact.website} mid={STONE ? "Corners, capping & pier caps to suit" : "Matching finishing pieces to suit"} n={pn()} />
           </div>
         )}
 
