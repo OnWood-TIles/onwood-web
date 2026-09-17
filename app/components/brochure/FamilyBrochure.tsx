@@ -79,8 +79,9 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
 
   const optionCard = (o: (typeof options)[number], compact: boolean) => (
     <div style={{ background: "#fff", border: "1px solid rgba(32,48,58,.12)", borderRadius: 14, padding: compact ? 11 : 14, outline: o.current ? `1.5px solid ${TEAL}` : undefined }}>
-      {/* contain (not cover) so a square tile shows whole — a 600x600 was being cropped to look like 300x600 */}
-      <div style={{ height: compact ? 84 : 96, borderRadius: 8, overflow: "hidden", background: "#faf8f4" }}><Img src={o.image} alt={o.name} caption={o.colour ? `${o.name} · ${o.colour}` : o.name} fit="contain" /></div>
+      {/* contain (not cover) so a square tile shows whole — a 600x600 was being cropped to look like 300x600.
+          No caption overlay: the label under the image is enough (the pill also tacked on a stray colour name). */}
+      <div style={{ height: compact ? 84 : 96, borderRadius: 8, overflow: "hidden", background: "#faf8f4" }}><Img src={o.image} alt={o.name} fit="contain" /></div>
       <div style={{ marginTop: 10, font: `700 ${compact ? 12 : 13}px/1.3 Manrope,sans-serif` }}>{o.name}</div>
       {o.size && <div style={{ marginTop: 4, font: "400 9px/1.4 'Space Mono',monospace", letterSpacing: ".08em", textTransform: "uppercase", color: MUTED }}>{o.size}</div>}
     </div>
