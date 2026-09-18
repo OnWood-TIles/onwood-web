@@ -63,7 +63,14 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
     ? "Little upkeep is needed, just brush or hose off dust. Seal with a penetrating stone sealer to keep the fresh-quarried colour, or leave it unsealed to weather to an aged, European patina. Keep stone at least 25cm from a naked flame."
     : "Sweep, then mop with a pH-neutral cleaner. No wax, no acid, no abrasive pads. Porcelain needs no sealing and will not pit.";
   const showOptions = options.length > 1;
-  const bigOptions = showOptions && options.length > 6; // large families get their own page
+  // 4+ options get their OWN page(s) so they never share (and overflow) the spec /
+  // contact page. Only 2-3 stay inline (one row, always fits).
+  const bigOptions = showOptions && options.length > 3;
+  // Paginate the dedicated options page so a very large range flows onto more pages
+  // instead of clipping (4 cols × 4 rows fits comfortably with the header + footer).
+  const OPTS_PER_PAGE = 16;
+  const optionPages: (typeof options)[] = [];
+  if (bigOptions) for (let i = 0; i < options.length; i += OPTS_PER_PAGE) optionPages.push(options.slice(i, i + OPTS_PER_PAGE));
   const instHero = installed[1] ?? installed[0] ?? hero; // distinct from the cover hero
   const instThumbs = installed.slice(2, 4);
   // Bigger colourway swatches when there are few colours; shrink for large sets so they still fit the page.
@@ -241,23 +248,24 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
           </div>
         )}
 
-        {/* ── DEDICATED AVAILABLE OPTIONS PAGE (large families) ── */}
-        {bigOptions && (
-          <div className="page">
+        {/* ── DEDICATED AVAILABLE OPTIONS PAGE(S) — paginated so many sizes never
+              clip or push the contact page off ── */}
+        {optionPages.map((pageOpts, pi) => (
+          <div className="page" key={`opts-${pi}`}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "28px 52px 20px", borderBottom: `1px solid ${LINE}` }}>
               <Logo h={17} />
-              <span style={{ font: "400 10px/1 'Space Mono',monospace", letterSpacing: ".16em", textTransform: "uppercase", color: MUTED }} className="clip">Available options · {familyName}</span>
+              <span style={{ font: "400 10px/1 'Space Mono',monospace", letterSpacing: ".16em", textTransform: "uppercase", color: MUTED }} className="clip">Available options · {familyName}{optionPages.length > 1 ? ` (${pi + 1}/${optionPages.length})` : ""}</span>
             </div>
             <div style={{ padding: "26px 52px 0" }}>
-              <h2 style={{ margin: "0 0 4px", font: "800 26px/1.1 Archivo,sans-serif", letterSpacing: "-.02em" }}>Available options</h2>
-              <p style={{ margin: "0 0 18px", font: "400 13px/1.5 Manrope,sans-serif", color: MUTED }}>{options.length} sizes and finishes in the {familyName} family.</p>
+              <h2 style={{ margin: "0 0 4px", font: "800 26px/1.1 Archivo,sans-serif", letterSpacing: "-.02em" }}>Available options{optionPages.length > 1 && pi > 0 ? " (continued)" : ""}</h2>
+              {pi === 0 && <p style={{ margin: "0 0 18px", font: "400 13px/1.5 Manrope,sans-serif", color: MUTED }}>{options.length} sizes and finishes in the {familyName} family.</p>}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 11 }}>
-                {options.map((o, i) => <div key={i}>{optionCard(o, true)}</div>)}
+                {pageOpts.map((o, i) => <div key={i}>{optionCard(o, true)}</div>)}
               </div>
             </div>
             <Foot web={contact.website} mid={`${options.length} options in the range`} n={pn()} />
           </div>
-        )}
+        ))}
 
         {/* ── SPECIFICATION (+ inline options for small families) ── */}
         <div className="page">
