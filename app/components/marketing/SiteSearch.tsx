@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 // Global storefront search: a nav trigger that opens an overlay searching
 // products, guides and pages via /api/search (debounced, grouped results).
@@ -85,7 +86,9 @@ export default function SiteSearch({ variant = "icon" }: { variant?: "icon" | "m
         </button>
       )}
 
-      {open && (
+      {/* Portal to <body>: the nav header's backdrop-filter is a containing block
+          for position:fixed, which otherwise squashes this overlay into a bar. */}
+      {open && createPortal(
         <div className="ss-overlay" onMouseDown={close}>
           <div className="ss-panel" onMouseDown={(e) => e.stopPropagation()}>
             <div className="ss-inputwrap">
@@ -113,9 +116,10 @@ export default function SiteSearch({ variant = "icon" }: { variant?: "icon" | "m
               )}
             </div>
           </div>
-          <style>{css}</style>
-        </div>
+        </div>,
+        document.body,
       )}
+      <style>{css}</style>
     </>
   );
 }
