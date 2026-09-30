@@ -15,15 +15,16 @@ import { SPECIALS_ENABLED } from "../flags";
 const BASE = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const KEY = process.env.ONBASE_API_KEY;
 
-// Cache windows (seconds).
-const TTL_CATALOGUE = 300;
-// Stock-bearing reads (ranges list + single range). 30s was aggressive enough
-// that a product page missed the Data Cache every half-minute and re-fetched the
-// whole catalogue from OnBase on the click - the main source of "slow to open".
-// 3 min keeps a public showroom's availability effectively live while letting the
-// vast majority of clicks render straight from cache. (Trade ordering, where stock
-// must be exact, uses lib/onbase/trade.ts - unaffected by this.)
-const TTL_STOCK = 180;
+// Cache windows (seconds). Tuned up 2026-09 to cut Supabase egress: the public
+// catalogue rarely changes and is tag-busted instantly on edits (app/api/revalidate),
+// so long TTLs are safe and keep the DB read count low.
+const TTL_CATALOGUE = 1800; // 30 min: taxonomy, nav, blog, business, shop mega-menu
+// Stock-bearing reads (ranges list + single range). Long enough that browsing +
+// crawlers don't re-pull the whole catalogue from OnBase every few minutes (a major
+// egress source), still short enough that a public showroom's availability stays
+// effectively live. (Trade ordering, where stock must be exact, uses
+// lib/onbase/trade.ts - unaffected by this.)
+const TTL_STOCK = 600; // 10 min
 
 // ── Shapes (mirror OnBase lib/websiteFeed.ts + /api/v1/website/taxonomy) ─────
 export type Availability = "in_stock" | "low" | "out";
