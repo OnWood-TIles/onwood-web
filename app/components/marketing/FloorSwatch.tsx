@@ -20,6 +20,7 @@ export function FloorSwatchFace({
   showLabel = true,
   radius = 12,
   zoom = 1.14,
+  cutout = false,
 }: {
   name: string;
   range: string;
@@ -28,22 +29,27 @@ export function FloorSwatchFace({
   showLabel?: boolean;
   radius?: number; // corner radius - tiles pass a small value to square them off
   zoom?: number; // 1.14 = slight sample zoom (flooring); tiles pass 1 to show the WHOLE tile uncropped
+  cutout?: boolean; // shaped tile on a transparent backdrop: no card - the shadow follows the tile's outline
 }) {
   return (
     <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        borderRadius: radius,
-        overflow: "hidden",
-        border: "1px solid rgba(0,0,0,.16)",
-        // Layered "contact + ambient" shadow (warm-tinted) so the sample sits on the
-        // board like a real object, matching the AI flat-lays — not a flat sticker.
-        boxShadow:
-          "0 3px 6px rgba(30,22,15,.20), 0 12px 24px rgba(30,22,15,.22), 0 28px 48px rgba(30,22,15,.15), inset 0 1px 0 rgba(255,255,255,.2)",
-        background: "#e7ddcd",
-      }}
+      style={
+        cutout
+          ? { position: "relative", width: "100%", height: "100%" }
+          : {
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              borderRadius: radius,
+              overflow: "hidden",
+              border: "1px solid rgba(0,0,0,.16)",
+              // Layered "contact + ambient" shadow (warm-tinted) so the sample sits on the
+              // board like a real object, matching the AI flat-lays — not a flat sticker.
+              boxShadow:
+                "0 3px 6px rgba(30,22,15,.20), 0 12px 24px rgba(30,22,15,.22), 0 28px 48px rgba(30,22,15,.15), inset 0 1px 0 rgba(255,255,255,.2)",
+              background: "#e7ddcd",
+            }
+      }
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -56,9 +62,11 @@ export function FloorSwatchFace({
           inset: 0,
           width: "100%",
           height: "100%",
-          objectFit: "cover",
+          objectFit: cutout ? "contain" : "cover",
           transform: `scale(${zoom})`,
           display: "block",
+          // Same warm contact + ambient shadow as the card, traced around the shape.
+          filter: cutout ? "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 13px 20px rgba(30,22,15,.28))" : undefined,
         }}
       />
       {brandLogo && showLabel ? <BrandBadge logo={brandLogo} h={12} /> : null}

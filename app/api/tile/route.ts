@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import sharp from "sharp";
+import { cutout } from "../../../lib/tileCutout";
 
 // On-demand tile-image trimmer. The catalogue tile photos are shot on a big white
 // canvas (ABI / Tile One house style), so in the Vision Board + hero mood-boards a
@@ -38,7 +39,11 @@ export async function GET(req: Request) {
     } catch {
       /* trim can throw on a single-colour image - keep the original */
     }
-    const out = await sharp(src).resize(700, 700, { fit: "inside", withoutEnlargement: true }).webp({ quality: 84 }).toBuffer();
+    const sized = sharp(src).resize(700, 700, { fit: "inside", withoutEnlargement: true });
+    // ?cut=1 (Vision Board): shaped tiles (hex, fan, crazy pave, tumbled edges) still
+    // sit on white after the rectangular trim - knock that white out to transparency.
+    const cut = new URL(req.url).searchParams.get("cut") === "1" ? await cutout(await sized.clone().removeAlpha().raw().toBuffer({ resolveWithObject: true })) : null;
+    const out = cut ?? (await sized.webp({ quality: 84 }).toBuffer());
     return new NextResponse(new Uint8Array(out), {
       headers: { "Content-Type": "image/webp", "Cache-Control": "public, max-age=604800, immutable" },
     });

@@ -209,6 +209,7 @@ type Piece = {
   brandLogo?: string; // carpet brand badge
   size?: string; // tile dimensions (e.g. "600 x 600") for the AI room prompt
   white?: boolean; // plain white tile - skip "face variation" in the AI prompt
+  cutout?: boolean; // shaped tile served with a transparent backdrop - draw it free-standing, no card
 };
 
 const clamp = (lo: number, v: number, hi: number) =>
@@ -637,10 +638,27 @@ export default function VisionBoard({
         const [tw, th] = tileBox(a);
         const nw = Math.round(tw * scale);
         const nh = Math.round(th * scale);
+        // Shaped tiles (hex, crazy pave...) come back from /api/tile?cut=1 with a
+        // transparent backdrop; spot that by a see-through corner. Same-origin, so
+        // the canvas isn't tainted.
+        let cutout = false;
+        try {
+          const cv = document.createElement("canvas");
+          cv.width = 32;
+          cv.height = 32;
+          const ctx = cv.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(im, 0, 0, 32, 32);
+            const d = ctx.getImageData(0, 0, 32, 32).data;
+            cutout = [0, 31, 32 * 31, 32 * 32 - 1].some((i) => d[i * 4 + 3] < 128);
+          }
+        } catch {
+          /* cross-origin / no canvas - keep the card */
+        }
         setPieces((prev) =>
           prev.map((p) =>
             p.id === pieceId
-              ? { ...p, w: nw, h: nh, x: clamp(0, p.x, Math.max(0, bw - nw)), y: clamp(0, p.y, Math.max(0, bh - nh)) }
+              ? { ...p, w: nw, h: nh, cutout, x: clamp(0, p.x, Math.max(0, bw - nw)), y: clamp(0, p.y, Math.max(0, bh - nh)) }
               : p,
           ),
         );
@@ -1410,6 +1428,7 @@ export default function VisionBoard({
                         showLabel={showLabels}
                         radius={2}
                         zoom={1}
+                        cutout={p.cutout}
                       />
                     </div>
                   ) : p.kind === "bench" ? (

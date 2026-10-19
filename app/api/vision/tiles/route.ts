@@ -32,7 +32,7 @@ export async function GET() {
         const colour = (s.colour || "").trim();
         const name = colour && colour.toLowerCase() !== r.name.toLowerCase() ? `${r.name} ${colour}` : r.name;
         const f: Record<string, string[]> = { ...rf, "surface-type": [dept] };
-        out.push({ id: `${r.slug}-${colourSlug(colour) || i}`, name, type, url: `/api/tile?u=${encodeURIComponent(s.image)}`, raw: s.image, installed: s.installedImage || null, f });
+        out.push({ id: `${r.slug}-${colourSlug(colour) || i}`, name, type, url: `/api/tile?u=${encodeURIComponent(s.image)}&cut=1`, raw: s.image, installed: s.installedImage || null, f });
       });
     }
   };
