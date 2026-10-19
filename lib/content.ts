@@ -129,6 +129,16 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   },
 ];
 
+// "Why OnWood Tiles" hero: the three arched photos, chosen by Reagan. Each is that
+// colour's "see it installed" photo, read live from the feed by product slug +
+// colour (so a re-shot photo in OnBase flows through). Falls back to the automatic
+// picks if a product is unpublished or loses its photo.
+export const WHY_HERO_PICKS: { slug: string; colour: string }[] = [
+  { slug: "bellagio-gloss", colour: "Forest Green" },
+  { slug: "tuscania-french-matt", colour: "Beige French Pattern" },
+  { slug: "positano-60x240mm", colour: "Red Terracotta" },
+];
+
 export const HERO = {
   eyebrow: "Curated tiles · Sunshine Coast",
   // headline split so "better tiles." renders in Newsreader italic sea

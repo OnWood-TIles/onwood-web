@@ -5,7 +5,7 @@ import MarketingFooter from "../components/marketing/MarketingFooter";
 import Reveal from "../components/ui/Reveal";
 import CountUp from "../components/ui/CountUp";
 import { getBusiness, listRanges, type WebsiteRange } from "../../lib/onbase/client";
-import { showroomAddress } from "../../lib/content";
+import { showroomAddress, WHY_HERO_PICKS } from "../../lib/content";
 
 export const metadata: Metadata = {
   title: "Why OnWood Tiles",
@@ -75,6 +75,17 @@ function gatherImages(ranges: WebsiteRange[]): string[] {
   return [...rooms, ...products].filter(Boolean) as string[];
 }
 
+// The chosen hero photos (WHY_HERO_PICKS) first, then the automatic picks for any
+// slot whose product/photo isn't available - so the hero never has a hole.
+function heroImages(ranges: WebsiteRange[]): string[] {
+  const chosen = WHY_HERO_PICKS.map(({ slug, colour }) => {
+    const sw = ranges.find((r) => r.slug === slug)?.swatches.find((s) => s.colour.toLowerCase() === colour.toLowerCase());
+    return sw?.installedImage || null;
+  });
+  const auto = gatherImages(ranges).filter((u) => !chosen.includes(u));
+  return [...chosen.map((u) => u ?? auto.shift() ?? ""), ...auto].filter(Boolean);
+}
+
 // An arched image niche - real photo if we have one, warm gradient otherwise.
 function Niche({ src, alt, radius, minH }: { src?: string | null; alt: string; radius: string; minH: string }) {
   return (
@@ -106,7 +117,7 @@ function CTA({ href, label, primary }: { href: string; label: string; primary?: 
 
 export default async function WhyPage() {
   const [business, ranges] = await Promise.all([getBusiness(), listRanges()]);
-  const pics = gatherImages(ranges);
+  const pics = heroImages(ranges);
   // Relocating within Baringa - show the "coming soon" placeholder rather than
   // any (now old) OnBase address. Open hours below still come from OnBase.
   const addr = showroomAddress();
