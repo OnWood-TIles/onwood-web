@@ -12,14 +12,12 @@ export const LEGAL_BUSINESS = {
   name: "OnWood Tiles",
   abn: "41 522 687 021",
   email: "sales@onwoodtiles.com.au",
-  // No street address while we relocate within Baringa - suburb + state only.
-  // Add the street back to addressLine1 once the new showroom address is set.
-  addressLine1: "Baringa",
-  addressLine2: "QLD 4551",
+  addressLine1: "Unit 1/24-26 Hancock Way",
+  addressLine2: "Baringa QLD 4551",
   state: "Queensland",
 };
 
-export const LEGAL_UPDATED = "22 July 2026";
+export const LEGAL_UPDATED = "19 October 2026";
 
 export type LegalBlock =
   | { type: "p"; text: string }
@@ -194,7 +192,7 @@ export const TERMS_OF_SERVICE: LegalDoc = {
       id: "contact",
       heading: "Contact us",
       blocks: [
-        { type: "p", text: `Questions about these terms or an order? Email ${B.email}. We are based in ${B.addressLine1}, ${B.addressLine2}, with a new showroom opening soon.` },
+        { type: "p", text: `Questions about these terms or an order? Email ${B.email}. We are based in ${B.addressLine1}, ${B.addressLine2}.` },
       ],
     },
   ],
@@ -305,7 +303,7 @@ export const WEBSITE_TERMS: LegalDoc = {
       id: "contact-site",
       heading: "Contact us",
       blocks: [
-        { type: "p", text: `Questions about these terms? Email ${B.email}. We are based in ${B.addressLine1}, ${B.addressLine2}, with a new showroom opening soon.` },
+        { type: "p", text: `Questions about these terms? Email ${B.email}. We are based in ${B.addressLine1}, ${B.addressLine2}.` },
       ],
     },
   ],

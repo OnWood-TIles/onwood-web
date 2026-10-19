@@ -20,7 +20,6 @@ export default async function BrochurePage({ params }: { params: Promise<Params>
   const [data, business] = await Promise.all([getFamilyBrochure(family), getBusiness()]);
   if (!data) notFound();
 
-  // No street address while we relocate within Baringa - show the placeholder.
   const address = showroomAddress();
   const contact: BrochureContact = {
     website: "onwoodtiles.com.au",

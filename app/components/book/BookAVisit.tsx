@@ -3,7 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import type { Business, DayHours } from "../../../lib/onbase/client";
-import { showroomAddress } from "../../../lib/content";
+import { showroomAddress, BARINGA_DIRECTIONS, SHOWROOM_MAP_EMBED } from "../../../lib/content";
 import MarketingConsent, { MARKETING_CONSENT_TEXT } from "../marketing/MarketingConsent";
 
 // Book-a-Visit flow (adapted from the Claude Design, on the OnWood theme):
@@ -47,7 +47,6 @@ const monIndex = (d: Date) => (d.getDay() + 6) % 7;
 
 export default function BookAVisit({ business }: { business: Business | null }) {
   const hours = business?.openHours?.length ? business.openHours : DEFAULT_HOURS;
-  // No street address while we relocate within Baringa - show the placeholder.
   const address = showroomAddress();
   const phone = business?.phone || "";
 
@@ -107,7 +106,8 @@ export default function BookAVisit({ business }: { business: Business | null }) 
   const canPrev = !(month.y === today.getFullYear() && month.m === today.getMonth());
   const shiftMonth = (n: number) => setMonth((s) => { const d = new Date(s.y, s.m + n, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
 
-  const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`OnWood Tiles ${address}`)}`;
+  // By street address, not business name (Google can snap a name to a competitor).
+  const directionsHref = BARINGA_DIRECTIONS;
 
   function icsFor(): string {
     if (!date || !slot) return "";
@@ -305,7 +305,7 @@ export default function BookAVisit({ business }: { business: Business | null }) 
         {/* Right rail: map + visit pass + confirm */}
         <div className="ow-book-rail" style={{ position: "sticky", top: 100, display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: "1px solid rgba(23,40,43,.14)", height: 200, background: "#DDE3DE" }}>
-            <iframe title="map" src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=15&output=embed`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} loading="lazy" />
+            <iframe title="map" src={SHOWROOM_MAP_EMBED} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} loading="lazy" />
             <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, pointerEvents: "none", background: "linear-gradient(to top,rgba(20,38,42,.82),transparent)", padding: "26px 16px 14px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 10 }}>
               <span style={{ ...mono(10, 0.1, CREAM), lineHeight: 1.4 }}>OnWood Showroom<br />{address}</span>
               <a href={directionsHref} target="_blank" rel="noopener noreferrer" style={{ pointerEvents: "auto", background: CREAM, color: "#14262A", borderRadius: 999, padding: "8px 13px", ...mono(9.5, 0.1, "#14262A"), fontWeight: 700, textDecoration: "none" }}>DIRECTIONS →</a>

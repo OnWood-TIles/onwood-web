@@ -28,7 +28,7 @@ const eyebrow: React.CSSProperties = {
 };
 
 const FAQS = [
-  { q: "Are you a Sunshine Coast tile shop?", a: `Yes. We are a local, family-run tile supplier based in ${SHOP.suburb}, in the southern Sunshine Coast, and we deliver tiles across the Coast and the hinterland. Our new Baringa showroom is coming soon.` },
+  { q: "Are you a Sunshine Coast tile shop?", a: `Yes. We are a local, family-run tile supplier based in ${SHOP.suburb}, in the southern Sunshine Coast, and we deliver tiles across the Coast and the hinterland. Our new showroom at ${SHOP.street}, ${SHOP.suburb} is opening soon.` },
   { q: "What tiles suit a coastal home?", a: "For homes near the water we lean towards hard-wearing porcelain that copes with salt air and humidity, matt or textured floors for grip, and outdoor-rated ranges for alfresco areas and pool surrounds. Light, warm tones tend to suit the relaxed coastal look." },
   { q: "Do you deliver across the whole Sunshine Coast?", a: "Yes, from Caloundra and Kawana up to Maroochydore, Buderim and the hinterland. Tell us your suburb for a delivery quote, or collect from Baringa." },
   { q: "Do prices include GST?", a: "Yes. Every tile on the website shows a price including GST, so you can plan your budget before you order or visit. Prices are for supply only and do not include delivery, which we quote separately." },

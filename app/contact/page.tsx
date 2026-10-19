@@ -5,12 +5,12 @@ import MarketingFooter from "../components/marketing/MarketingFooter";
 import ContactForm from "../components/marketing/ContactForm";
 import Reveal from "../components/ui/Reveal";
 import { getBusiness } from "../../lib/onbase/client";
-import { SHOP, showroomAddress, BARINGA_DIRECTIONS } from "../../lib/content";
+import { SHOP, showroomAddress, BARINGA_DIRECTIONS, SHOWROOM_MAP_EMBED } from "../../lib/content";
 
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with OnWood Tiles. Send us a message, call, or email us. Our new Baringa showroom on the Sunshine Coast is coming soon.",
+    "Get in touch with OnWood Tiles. Send us a message, call, or email us. Our new showroom at Unit 1/24-26 Hancock Way, Baringa on the Sunshine Coast is opening soon.",
   alternates: { canonical: "https://onwoodtiles.com.au/contact" },
 };
 
@@ -56,16 +56,13 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   const business = await getBusiness();
   const phone = (business?.phone || "").trim();
   const email = (business?.email || SHOP.email).trim();
-  // We're relocating within Baringa, so there's no public street address yet.
-  // Show the "coming soon" placeholder rather than any (now old) OnBase address.
-  // Restore `business?.addressLine1 || SHOP.street` once the new address is set.
+  // Address comes from content.ts (single source for the whole site), not OnBase.
   const showroom = showroomAddress();
   const hoursSummary = (business?.openHoursSummary || SHOP.hours).trim();
   const openHours = (business?.openHours || []).filter((d) => d && d.day);
-  // No exact pin while we're between showrooms - centre the map on the Baringa
-  // suburb so visitors know the area. Swap back to precise coordinates / the
-  // OnWood place ID once the new address is confirmed and listed on Google.
-  const mapEmbed = `https://maps.google.com/maps?q=Baringa+QLD+4551&z=13&output=embed`;
+  // Pinned by street address (see SHOWROOM_MAP_EMBED). Swap to the OnWood place
+  // ID once the Google Business Profile is set up.
+  const mapEmbed = SHOWROOM_MAP_EMBED;
   const directions = BARINGA_DIRECTIONS;
   const telHref = `tel:${phone.replace(/[^0-9+]/g, "")}`;
 
@@ -83,7 +80,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </Reveal>
           <Reveal delay={0.12}>
             <p style={{ color: "#5a6067", fontSize: 17, lineHeight: 1.7, margin: "20px auto 0", maxWidth: 560 }}>
-              Questions about a tile, a colour, stock, or a room you&rsquo;re planning? Send us a message, call, or email and we&rsquo;ll help you pick tiles and organise samples. Our new Baringa showroom is coming soon. We&rsquo;d love to help.
+              Questions about a tile, a colour, stock, or a room you&rsquo;re planning? Send us a message, call, or email and we&rsquo;ll help you pick tiles and organise samples. Our new showroom at Hancock Way, Baringa is opening soon. We&rsquo;d love to help.
             </p>
           </Reveal>
         </section>
@@ -135,7 +132,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
             <Reveal><div style={{ ...eyebrow, color: "var(--sea)" }}>Find us</div></Reveal>
             <Reveal delay={0.05}>
               <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: "clamp(28px,3.6vw,46px)", letterSpacing: "-.02em", margin: "12px 0 0" }}>
-                Coming soon to {serif("Baringa.")}
+                Opening soon at {serif("Hancock Way.")}
               </h2>
             </Reveal>
           </div>
@@ -144,7 +141,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
               <div style={{ position: "relative", borderRadius: 22, overflow: "hidden", border: "1px solid var(--line)", boxShadow: "0 24px 56px -26px rgba(32,48,58,.34)", minHeight: 340, height: "100%" }}>
                 <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg,var(--accent),var(--accent2))", zIndex: 2 }} aria-hidden />
                 <iframe
-                  title="Map of Baringa, where the new OnWood Tiles showroom is coming soon"
+                  title="Map of Unit 1/24-26 Hancock Way, Baringa, where the new OnWood Tiles showroom is opening soon"
                   src={mapEmbed}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"

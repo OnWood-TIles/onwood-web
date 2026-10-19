@@ -25,10 +25,8 @@ export type ShopDetails = {
 
 export const SHOP: ShopDetails = {
   name: "OnWood Tiles",
-  // No fixed public showroom address right now - we're relocating within Baringa.
-  // Left blank on purpose so nothing renders a stale street address; the site
-  // shows SHOWROOM_PLACEHOLDER (below) everywhere the address used to appear.
-  street: "",
+  // New showroom (confirmed 2026-10-19), in Aura Business Park.
+  street: "Unit 1/24-26 Hancock Way",
   suburb: "Baringa",
   state: "QLD",
   postcode: "4551",
@@ -41,12 +39,10 @@ export const SHOP: ShopDetails = {
   },
 };
 
-// We're moving to a new showroom in Baringa; the street address isn't confirmed
-// yet. Until it is, the site shows this line anywhere a street address used to
-// appear. When the new address is locked in: set SHOP.street/postcode and flip
-// HAS_SHOWROOM_ADDRESS to true - showroomAddress() then reverts to the full
-// address automatically and every page picks it up.
-export const HAS_SHOWROOM_ADDRESS = false;
+// Master switch for the street address. While false (e.g. between showrooms) the
+// site shows SHOWROOM_PLACEHOLDER anywhere a street address would appear; true =
+// showroomAddress() returns the full SHOP address and every page picks it up.
+export const HAS_SHOWROOM_ADDRESS = true;
 export const SHOWROOM_PLACEHOLDER = "New showroom coming soon to Baringa";
 
 // Human-facing showroom line: the full street address once we have one, else the
@@ -57,10 +53,14 @@ export function showroomAddress(): string {
     : SHOWROOM_PLACEHOLDER;
 }
 
-// Google Maps directions target for the general Baringa area (no exact pin until
-// the new showroom address is confirmed). Used by footers and landing pages.
-export const BARINGA_DIRECTIONS =
-  "https://www.google.com/maps/dir/?api=1&destination=Baringa+QLD+4551";
+// Google Maps targets for the showroom, by street ADDRESS - never by business name,
+// which Google can snap to a nearby competitor. Falls back to the Baringa suburb
+// while HAS_SHOWROOM_ADDRESS is off. Used by footers, contact, book + landing pages.
+export const SHOWROOM_MAP_QUERY = HAS_SHOWROOM_ADDRESS && SHOP.street
+  ? `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`
+  : `${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
+export const BARINGA_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(SHOWROOM_MAP_QUERY)}`;
+export const SHOWROOM_MAP_EMBED = `https://maps.google.com/maps?q=${encodeURIComponent(SHOWROOM_MAP_QUERY)}&z=16&output=embed`;
 
 // Root-relative so the nav works from BOTH the homepage and /specials
 // (bare "#id" only scrolls on the homepage). On the homepage "/#id" still

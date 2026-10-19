@@ -118,8 +118,7 @@ function CTA({ href, label, primary }: { href: string; label: string; primary?: 
 export default async function WhyPage() {
   const [business, ranges] = await Promise.all([getBusiness(), listRanges()]);
   const pics = heroImages(ranges);
-  // Relocating within Baringa - show the "coming soon" placeholder rather than
-  // any (now old) OnBase address. Open hours below still come from OnBase.
+  // Address from lib/content.ts; open hours below still come from OnBase.
   const addr = showroomAddress();
 
   return (

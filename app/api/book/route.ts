@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
+import { showroomAddress } from "../../../lib/content";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,9 @@ const ZOHO_HOST = process.env.ZOHO_SMTP_HOST || "smtp.zoho.com.au";
 const ZOHO_PORT = Number(process.env.ZOHO_SMTP_PORT) || 465;
 const MAIL_FROM = process.env.MAIL_FROM || `OnWood Tiles <${ZOHO_USER}>`;
 const SALES_TO = process.env.ENQUIRY_TO || "sales@onwoodtiles.com.au";
-const ADDRESS = process.env.SHOWROOM_ADDRESS || "New showroom coming soon to Baringa";
+// Single source of truth (lib/content.ts) - deliberately NOT an env override, so a
+// stale SHOWROOM_ADDRESS var can never put an old address in booking emails.
+const ADDRESS = showroomAddress();
 const SHOP_PHONE = process.env.SHOWROOM_PHONE || "";
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -70,8 +73,7 @@ async function getContact(): Promise<{ phone: string; email: string; address: st
     const res = await fetch(`${ONBASE_API_URL}/api/v1/business`, { headers: { Authorization: `Bearer ${ONBASE_API_KEY}` }, cache: "no-store" });
     if (!res.ok) return fallback;
     const { data } = await res.json();
-    // Don't surface the OnBase street address on the public booking flow while we
-    // relocate - phone/email still come from OnBase, the address stays the placeholder.
+    // Phone/email come from OnBase; the address always comes from lib/content.ts.
     return { phone: data?.phone || SHOP_PHONE, email: data?.email || SALES_TO, address: ADDRESS };
   } catch { return fallback; }
 }

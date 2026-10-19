@@ -7,6 +7,7 @@ import {
   type SharePayload,
   type SharePiece,
 } from "../../../lib/moodboard";
+import { showroomAddress } from "../../../lib/content";
 
 // PDF compose + SMTP send + OnBase/OnConnect calls all need the Node runtime, and
 // image fetching can take a few seconds, so give it headroom.
@@ -265,7 +266,8 @@ async function addOnConnectContact(
 
 // Styled to match the other OnWood emails (book-a-visit, welcome): a warm cream
 // ground, a teal-ink header band with a Courier-mono eyebrow + terracotta accent.
-const CONTACT_ADDR = process.env.SHOWROOM_ADDRESS || "Baringa, Sunshine Coast QLD";
+// From lib/content.ts (not an env override) so it always matches the website.
+const CONTACT_ADDR = showroomAddress();
 const MONO_LBL = "font-family:'Courier New',monospace;font-size:10px;letter-spacing:.14em;color:#86A6AC";
 
 function emailShell(eyebrow: string, heading: string, body: string): string {

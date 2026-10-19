@@ -6,14 +6,12 @@
 // Link columns live in lib/content.ts (FOOTER_COLUMNS) so they're easy to
 // extend. Async server component. No em-dashes in customer copy.
 import Link from "next/link";
-import { SHOP, showroomAddress } from "../../../lib/content";
+import { SHOP, showroomAddress, BARINGA_DIRECTIONS } from "../../../lib/content";
 import FooterColumns from "./FooterColumns";
 import { getBusiness } from "../../../lib/onbase/client";
 
-// No exact showroom address while we relocate within Baringa - the directions
-// link points at the Baringa suburb, matching /contact.
-const MAP_DIRECTIONS =
-  "https://www.google.com/maps/dir/?api=1&destination=Baringa+QLD+4551";
+// Directions to the showroom by street address, matching /contact.
+const MAP_DIRECTIONS = BARINGA_DIRECTIONS;
 
 const footerStyle: React.CSSProperties = {
   background: "var(--bg)",
@@ -128,8 +126,7 @@ export default async function MarketingFooter() {
   const business = await getBusiness();
   const phone = (business?.phone || "").trim();
   const email = (business?.email || SHOP.email).trim();
-  // Relocating within Baringa - show the "coming soon" placeholder rather than
-  // any (now old) OnBase address. Restore the OnBase fallback once it's set.
+  // Address from lib/content.ts (single source for the whole site), not OnBase.
   const fullAddr = showroomAddress();
   const hoursSummary = (business?.openHoursSummary || SHOP.hours).trim();
   const openHours = (business?.openHours || []).filter((d) => d && d.day);

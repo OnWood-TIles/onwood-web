@@ -5,14 +5,12 @@
 // static SHOP constants as a fail-open fallback. Async server component; the log
 // out link is a nested client component. No em-dashes in customer copy.
 import Link from "next/link";
-import { SHOP, showroomAddress } from "../../../lib/content";
+import { SHOP, showroomAddress, BARINGA_DIRECTIONS } from "../../../lib/content";
 import { getBusiness } from "../../../lib/onbase/client";
 import TradeFooterLogout from "./TradeFooterLogout";
 
-// No exact showroom address while we relocate within Baringa - the directions
-// link points at the Baringa suburb, matching /contact.
-const MAP_DIRECTIONS =
-  "https://www.google.com/maps/dir/?api=1&destination=Baringa+QLD+4551";
+// Directions to the showroom by street address, matching /contact.
+const MAP_DIRECTIONS = BARINGA_DIRECTIONS;
 
 // Help column - the same help options as the public footer, minus "Trade Partner
 // Login" (they're already logged in here).
@@ -115,8 +113,7 @@ export default async function TradeFooter() {
   const business = await getBusiness();
   const phone = (business?.phone || "").trim();
   const email = (business?.email || SHOP.email).trim();
-  // Relocating within Baringa - show the "coming soon" placeholder rather than
-  // any (now old) OnBase address. Restore the OnBase fallback once it's set.
+  // Address from lib/content.ts (single source for the whole site), not OnBase.
   const fullAddr = showroomAddress();
   const hoursSummary = (business?.openHoursSummary || SHOP.hours).trim();
   const openHours = (business?.openHours || []).filter((d) => d && d.day);
