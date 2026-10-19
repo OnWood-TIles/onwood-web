@@ -140,10 +140,12 @@ export const WHY_HERO_PICKS: { slug: string; colour: string }[] = [
 ];
 
 export const HERO = {
-  eyebrow: "Curated tiles · Sunshine Coast",
+  // Empty = no pill above the headline (the location now lives in the H1, which
+  // is the stronger local-search signal).
+  eyebrow: "",
   // headline split so "better tiles." renders in Newsreader italic sea
-  headA: "Coastal homes",
-  headB: "deserve",
+  headA: "Sunshine Coast",
+  headB: "homes deserve",
   headC: "",
   headAccent: "better tiles.",
   sub: "Floor, wall and outdoor tiles, chosen and matched with care by a local family team.",

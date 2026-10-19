@@ -144,6 +144,7 @@ export default function Hero() {
         }}
       >
         <div>
+          {HERO.eyebrow ? (
           <Reveal>
             <div
               style={{
@@ -175,9 +176,11 @@ export default function Hero() {
               {HERO.eyebrow}
             </div>
           </Reveal>
+          ) : null}
 
           <Reveal delay={0.08}>
             <h1
+              className="ow-hero-h1"
               style={{
                 fontFamily: "var(--font-archivo)",
                 fontWeight: 900,
@@ -281,6 +284,10 @@ export default function Hero() {
             padding: 110px 24px 72px !important;
           }
           .ow-hero-art { order: 2; }
+        }
+        /* Phones: scale the headline with the screen so "Sunshine Coast" stays on one line. */
+        @media (max-width: 560px) {
+          .ow-hero-h1 { font-size: clamp(30px, 9.8vw, 56px) !important; }
         }
       `}</style>
     </section>
