@@ -93,6 +93,8 @@ export type WebsiteRange = {
   /** Overlay the brand logo on the range hero (primary) / installed (secondary). */
   watermarkPrimary?: boolean;
   watermarkSecondary?: boolean;
+  /** "Pin to homepage" (OnBase Website tab): always shown in "Currently on trend". */
+  featured?: boolean;
   availability: Availability;
   swatches: Swatch[];
   /** Downloadable documents (fire ratings, warranties, install guides…). */

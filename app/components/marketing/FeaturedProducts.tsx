@@ -1,12 +1,24 @@
 import Reveal from "../ui/Reveal";
 import { RangeCard } from "../shop/shared";
 import { FEATURED_HEAD } from "../../../lib/content";
+import { unstable_cache } from "next/cache";
 import { listRanges, getTaxonomy, type WebsiteRange } from "../../../lib/onbase/client";
+import { getProductViews } from "../../../lib/analytics";
 
-// "Currently On Trend" - a curated strip of live products from OnBase, shown with
-// the SAME card as the shop catalogue (product photo + white footer with the
-// option count and colour icons) so the whole site reads consistently. Server-
-// rendered from the feed; renders nothing if there are no published products yet.
+// Popularity is cached as a result (not per-fetch) so a dynamic homepage render
+// still calls the analytics API at most once every 6 hours.
+const getPopularity = unstable_cache(() => getProductViews(30), ["featured-popularity"], { revalidate: 6 * 3600 });
+
+// A range card answers to its own page AND each member product's page.
+const views = (r: WebsiteRange, pop: Record<string, number>): number =>
+  [r.slug, ...r.swatches.map((s) => s.slug)].reduce((sum, s) => sum + (s ? pop[s] ?? 0 : 0), 0);
+
+// "Currently On Trend" - a strip of live products from OnBase, shown with the SAME
+// card as the shop catalogue (product photo + white footer with the option count
+// and colour icons) so the whole site reads consistently. Order: products PINNED
+// in OnBase ("Pin to homepage") first, then the most-viewed product pages over
+// the last 30 days (unique visitors, Vercel Analytics), then the feed order to
+// fill any gap. Renders nothing if there are no published products yet.
 
 const productImg = (r: WebsiteRange): string | null =>
   r.heroImage || r.swatches.find((s) => s.image)?.image || null;
@@ -20,7 +32,11 @@ const gridCss = `
 `;
 
 export default async function FeaturedProducts() {
-  const [ranges, taxonomy] = await Promise.all([listRanges(), getTaxonomy()]);
+  const [ranges, taxonomy, pop] = await Promise.all([
+    listRanges(),
+    getTaxonomy(),
+    getPopularity().catch(() => ({}) as Record<string, number>),
+  ]);
   const labelMap: Record<string, string> = {};
   for (const t of taxonomy) for (const cat of t.categories) labelMap[cat.slug] = cat.label;
 
@@ -29,10 +45,17 @@ export default async function FeaturedProducts() {
   // Prefer products with BOTH a photo and a room shot; only fall back to
   // photo-only if there aren't enough of the full-treatment ones yet.
   const base = withRoom.length >= 3 ? withRoom : withImg;
-  // Specials first (actively promoted), otherwise keep the feed's order.
-  const picked = [...base]
-    .sort((a, b) => (b.special ? 1 : 0) - (a.special ? 1 : 0))
-    .slice(0, 6);
+  // Pinned first, then specials (actively promoted), then most-viewed; ties keep
+  // the feed's order (Array.sort is stable), which also fills a quiet week.
+  // A pinned product shows even without a room shot - pinning is a deliberate choice.
+  const pinned = withImg.filter((r) => r.featured);
+  const rest = base.filter((r) => !r.featured);
+  const picked = [
+    ...pinned,
+    ...rest.sort(
+      (a, b) => (b.special ? 1 : 0) - (a.special ? 1 : 0) || views(b, pop) - views(a, pop),
+    ),
+  ].slice(0, 6);
 
   if (picked.length === 0) return null;
 

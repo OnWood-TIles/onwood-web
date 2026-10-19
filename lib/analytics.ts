@@ -86,3 +86,22 @@ export async function getAnalytics(days: number): Promise<Analytics> {
     devices: asRows(devices, "deviceType", "Unknown"),
   };
 }
+
+// ── Product popularity (homepage "Currently on trend") ────────────────────────
+/** Unique visitors per product page over the last `days`, keyed by product slug
+ *  (from /product/<slug>). Empty map when analytics isn't configured or errors,
+ *  so callers can fall back gracefully. The API caps a breakdown at 100 rows;
+ *  that's the 100 busiest paths site-wide, plenty to pick a top six from. */
+export async function getProductViews(days = 30): Promise<Record<string, number>> {
+  const until = new Date();
+  const since = new Date(until.getTime() - days * 86_400_000);
+  const rows = await q("visits/aggregate", { since: ymd(since), until: ymd(until), by: "requestPath", limit: "100" });
+  const out: Record<string, number> = {};
+  for (const r of rows ?? []) {
+    const m = /^\/product\/([^/?#]+)/.exec(String(r.requestPath ?? ""));
+    if (!m) continue;
+    const slug = decodeURIComponent(m[1]);
+    out[slug] = (out[slug] ?? 0) + (Number(r.visitors) || 0);
+  }
+  return out;
+}
