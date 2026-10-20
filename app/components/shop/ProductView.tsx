@@ -359,15 +359,16 @@ export default function ProductView({
             </p>
           )}
 
+          {/* Colours straight after name + price, so they're visible without scrolling. */}
+          {renderOptions(22, "ow-options-desktop")}
+
           {range.description && (
-            <p style={{ marginTop: 18, fontSize: 15.5, lineHeight: 1.7, color: "#3a4750" }}>{range.description}</p>
+            <p style={{ marginTop: 22, fontSize: 15.5, lineHeight: 1.7, color: "#3a4750" }}>{range.description}</p>
           )}
 
           {/* Imagery disclosure — placed after the name + price so the product,
               not a warning, is the first thing a shopper reads. */}
           <ProductDisclosure />
-
-          {renderOptions(26, "ow-options-desktop")}
 
           {/* CTAs - the trade portal swaps in its price + add-to-order block. */}
           {renderActions ? (
