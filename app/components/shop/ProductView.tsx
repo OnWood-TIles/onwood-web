@@ -95,6 +95,82 @@ export default function ProductView({
     return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [zoom]);
 
+  // Options / colours - also shown for a SINGLE colour so its name + thumbnail still
+  // appear. Rendered twice: under the image on mobile (so colours switch without
+  // scrolling past the description) and in the details column on desktop.
+  const renderOptions = (marginTop: number, className: string) =>
+    range.swatches.length >= 1 && (
+      <div style={{ marginTop }} className={className}>
+        <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 700 }}>
+          {swatch ? (
+            <>
+              {range.swatches.length > 1 ? "Option" : "Colour"}: <span style={{ color: "var(--accent)" }}>{swatch.colour}</span>
+            </>
+          ) : (
+            range.swatches.length > 1 ? "Options" : "Colour"
+          )}
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          {range.swatches.map((s, i) => (
+            <button
+              key={`${s.colour}-${i}`}
+              type="button"
+              // Keep the Tile / See-it-installed view when switching colours -
+              // so browsing "installed" across the range stays in that view.
+              onClick={() => setSelected(i)}
+              // Stock status is trade-only - never reveal "order in" on the public storefront.
+              title={`${s.colour}${showAvailability && s.availability === "out" ? " (order in)" : ""}`}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 6,
+                padding: 6,
+                borderRadius: 12,
+                cursor: "pointer",
+                background: "#fff",
+                border: i === selected ? "2px solid var(--accent)" : "1px solid var(--line)",
+                width: 84,
+              }}
+            >
+              <span
+                style={{
+                  width: 68,
+                  height: 52,
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  background: s.swatchHex || "#e7e2d6",
+                  display: "block",
+                  opacity: showAvailability && s.availability === "out" ? 0.55 : 1,
+                }}
+              >
+                {s.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s.image} alt={imageAlt(range, { swatch: s, kind: "swatch" })} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                )}
+              </span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "#3a4750",
+                  maxWidth: 72,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {s.colour}
+              </span>
+            </button>
+          ))}
+        </div>
+        {swatch?.description && (
+          <p style={{ marginTop: 10, fontSize: 13.5, color: "#5a6067", lineHeight: 1.6 }}>{swatch.description}</p>
+        )}
+      </div>
+    );
+
   return (
     <div>
       {/* breadcrumbs */}
@@ -214,6 +290,7 @@ export default function ProductView({
             )}
             {watermarked && <Watermark />}
           </div>
+          {renderOptions(16, "ow-options-mobile")}
         </div>
 
         {/* identity + options */}
@@ -290,79 +367,7 @@ export default function ProductView({
               not a warning, is the first thing a shopper reads. */}
           <ProductDisclosure />
 
-          {/* options / colours — also shown for a SINGLE colour so its name + thumbnail
-              still appear (same chip as a multi-variant range, just one of them). */}
-          {range.swatches.length >= 1 && (
-            <div style={{ marginTop: 26 }}>
-              <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 700 }}>
-                {swatch ? (
-                  <>
-                    {range.swatches.length > 1 ? "Option" : "Colour"}: <span style={{ color: "var(--accent)" }}>{swatch.colour}</span>
-                  </>
-                ) : (
-                  range.swatches.length > 1 ? "Options" : "Colour"
-                )}
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                {range.swatches.map((s, i) => (
-                  <button
-                    key={`${s.colour}-${i}`}
-                    type="button"
-                    // Keep the Tile / See-it-installed view when switching colours -
-                    // so browsing "installed" across the range stays in that view.
-                    onClick={() => setSelected(i)}
-                    // Stock status is trade-only - never reveal "order in" on the public storefront.
-                    title={`${s.colour}${showAvailability && s.availability === "out" ? " (order in)" : ""}`}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: 6,
-                      borderRadius: 12,
-                      cursor: "pointer",
-                      background: "#fff",
-                      border: i === selected ? "2px solid var(--accent)" : "1px solid var(--line)",
-                      width: 84,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 68,
-                        height: 52,
-                        borderRadius: 8,
-                        overflow: "hidden",
-                        background: s.swatchHex || "#e7e2d6",
-                        display: "block",
-                        opacity: showAvailability && s.availability === "out" ? 0.55 : 1,
-                      }}
-                    >
-                      {s.image && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={s.image} alt={imageAlt(range, { swatch: s, kind: "swatch" })} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      )}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#3a4750",
-                        maxWidth: 72,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {s.colour}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {swatch?.description && (
-                <p style={{ marginTop: 10, fontSize: 13.5, color: "#5a6067", lineHeight: 1.6 }}>{swatch.description}</p>
-              )}
-            </div>
-          )}
+          {renderOptions(26, "ow-options-desktop")}
 
           {/* CTAs - the trade portal swaps in its price + add-to-order block. */}
           {renderActions ? (
@@ -487,6 +492,10 @@ export default function ProductView({
         @media (max-width: 900px) {
           .ow-product-grid { grid-template-columns: 1fr !important; }
           .ow-product-gallery { position: static !important; }
+          .ow-options-desktop { display: none !important; }
+        }
+        @media (min-width: 901px) {
+          .ow-options-mobile { display: none !important; }
         }
       `}</style>
     </div>
