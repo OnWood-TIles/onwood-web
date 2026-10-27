@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import { BOARD_H, BOARD_W, HERO_BOARDS, type BoardPiece, type HeroBoard } from "../../../lib/heroBoards";
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace } from "./CarpetSwatch";
@@ -384,6 +385,8 @@ export default function AmbientDriftBoard({
             flatIdx++;
             const i = flatIdx;
             const docked = startAssembled && bi === 0;
+            // first-view images: fetch at high priority (the swatch imgs are lazy)
+            if (docked && piece.src) preload(piece.src, { as: "image", fetchPriority: "high" });
             return (
               <div
                 key={`${b.id}-${piece.id}`}
