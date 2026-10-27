@@ -109,12 +109,81 @@ const tileAt = (
 const photoAt = (id: string, src: string, x: number, y: number, w: number, h: number, rot: number, z: number): BoardPiece =>
   ({ id, kind: "photo", name: "Room", src, x, y, w, h, rot, z });
 
+// ---- "Vision" boards (2026-10-27, Reagan): the 4 /vision-board collections with
+// their better AI images (room + close-up, /images/vision) - these play FIRST in
+// the hero, before the older boards. Two photos across the top, the hero tile in
+// front, and EVERY tile visible in the photos on the board (hero + feature slot,
+// feature bottom-left). Chips keep the usual left/right columns.
+const vRoom = (k: string): BoardPiece =>
+  ({ id: "photo", kind: "photo", name: "Room", src: `/images/vision/${k}-room.webp`, x: 6, y: 12, w: 244, h: 236, rot: -3, z: 2 });
+const vDetail = (k: string): BoardPiece =>
+  ({ id: "photo2", kind: "photo", name: "Room", src: `/images/vision/${k}-hero.webp`, x: 270, y: 24, w: 238, h: 230, rot: 2.5, z: 3 });
+const vFeature = (p: Omit<BoardPiece, "id" | "x" | "y" | "rot" | "z" | "src"> & { src: string }): BoardPiece =>
+  ({ id: "feature", rot: -4, z: 5, ...p, src: tp(p.src), x: Math.round(88 - p.w / 2), y: Math.round(512 - p.h / 2) });
+
 // Layout note: the hero tile is big + central (x120-400, y224-504), so the
 // material chips sit in clear LEFT / RIGHT columns + a bottom-centre peek that
 // stay visible around it - paints, metals + timber are no longer hidden under
 // the tile. Florals are kept slim so they frame rather than smother.
 export const HERO_BOARDS: HeroBoard[] = [
-  // First on purpose: terracotta tile + blue splashback is the opening board (Reagan).
+  // ── Vision boards first (Reagan 2026-10-27); terracotta + blue splashback opens. ──
+  {
+    id: "vision-coastal-kitchen",
+    pieces: [
+      vRoom("coastal-kitchen"),
+      vDetail("coastal-kitchen"),
+      hero("Terroir 60 Terra", "Terracotta-look porcelain", `${T}/1736898466.webp?v=3`),
+      vFeature({ kind: "tile", name: "Gelato Azzurro", sub: "Gloss subway", src: `${T}/1718246903.webp?v=3`, w: 204, h: 96, radius: 2 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 150, 110, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 262, -4, 4),
+      timber("Golden Oak", "AU1006823", 402, 262, -5, 4),
+      paint("paintB", "Raw Umber", "#D9D0B8", 404, 420, 3, 5),
+      metal("Brushed Brass", "brushed-brass", 190, 490, 4, 5),
+    ],
+  },
+  {
+    id: "vision-marrakesh-ensuite",
+    pieces: [
+      vRoom("marrakesh-ensuite"),
+      vDetail("marrakesh-ensuite"),
+      hero("Colonnade 60 Classico", "Travertine-look porcelain", `${T}/1718244596.webp?v=3`),
+      vFeature({ kind: "tile", name: "Marrakesh Terracotta", sub: "Terracotta mosaic", src: `${T}/1726104512.webp?v=3`, w: 168, h: 168, radius: 2 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 150, 110, 214, 8),
+      paint("paintA", "Antique White U.S.A.", "#E6DECC", 0, 262, -3, 4),
+      timber("Golden Oak", "AU1006823", 402, 262, -6, 4),
+      paint("paintB", "Hog Bristle", "#E4DDC8", 404, 420, 5, 5),
+      metal("Tumbled Aged Brass", "tumbled-aged-brass", 190, 490, 4, 5),
+    ],
+  },
+  {
+    id: "vision-coastal-powder",
+    pieces: [
+      vRoom("coastal-powder"),
+      vDetail("coastal-powder"),
+      hero("Strata 60 Ivory", "Terrazzo-look porcelain", `${T}/1718319318.webp?v=3`),
+      vFeature({ kind: "tile", name: "Cuadrado Feature Almond", sub: "Textured 600x1200", src: `${T}/1779939428.webp?v=3`, w: 216, h: 108, radius: 2 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 150, 110, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 262, -5, 4),
+      timber("Whitewashed Oak", "AU1007480", 402, 262, 4, 4),
+      paint("paintB", "Tranquil Retreat", "#D8D3C7", 404, 420, 4, 5),
+      metal("Brushed Brass", "brushed-brass", 190, 490, 0, 5),
+    ],
+  },
+  {
+    id: "vision-stackstone-living",
+    pieces: [
+      vRoom("stackstone-living"),
+      vDetail("stackstone-living"),
+      plankHero("Woodstock 212 Driftwood", "Timber-look porcelain", `${T}/1781579195.webp?v=3`),
+      vFeature({ kind: "stone", name: "Ridgeline Dune", sub: "Stacked stone veneer", src: `${VENEER}/ridgeline-dune.webp?v=1`, w: 168, h: 168, radius: 10 }),
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 150, 110, 214, 8),
+      paint("paintA", "Hog Bristle", "#E4DDC8", 0, 262, -4, 4),
+      timber("Golden Oak", "AU1006823", 402, 262, -5, 4),
+      paint("paintB", "Timeless Grey", "#B6B3AA", 404, 420, 3, 5),
+      metal("Brushed Brass", "brushed-brass", 190, 490, 0, 5),
+    ],
+  },
+  // ── Original hero boards (play after the vision boards). ──
   {
     id: "vb-coastal-kitchen",
     pieces: [
