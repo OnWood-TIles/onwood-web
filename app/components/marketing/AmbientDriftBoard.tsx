@@ -229,11 +229,15 @@ export default function AmbientDriftBoard({
   maxW = 430,
   boardW = BOARD_W,
   boardH = BOARD_H,
+  startAssembled = false,
 }: {
   boards?: HeroBoard[];
   maxW?: number;
   boardW?: number;
   boardH?: number;
+  /** open with the first board already assembled (server-rendered in place),
+   *  so the first view is never a half-empty mid-flight scene */
+  startAssembled?: boolean;
 } = {}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -274,7 +278,8 @@ export default function AmbientDriftBoard({
       return;
     }
 
-    let t0 = performance.now();
+    // startAssembled: begin the clock at the hold, so board 0 is already docked
+    let t0 = performance.now() - (startAssembled ? E_TOTAL * 1000 : 0);
     let hiddenAt = 0;
     const cache: (string | undefined)[] = new Array(flat.length);
     const ordCache = new Map<string, number[]>();
@@ -348,7 +353,7 @@ export default function AmbientDriftBoard({
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [boards, boardW, boardH]);
+  }, [boards, boardW, boardH, startAssembled]);
 
   let flatIdx = -1;
   return (
@@ -374,10 +379,11 @@ export default function AmbientDriftBoard({
           transformOrigin: "0 0",
         }}
       >
-        {boards.map((b) =>
+        {boards.map((b, bi) =>
           b.pieces.map((piece) => {
             flatIdx++;
             const i = flatIdx;
+            const docked = startAssembled && bi === 0;
             return (
               <div
                 key={`${b.id}-${piece.id}`}
@@ -389,7 +395,8 @@ export default function AmbientDriftBoard({
                   width: piece.w,
                   height: piece.h,
                   zIndex: piece.z,
-                  opacity: 0,
+                  opacity: docked ? 1 : 0,
+                  transform: docked ? `translate(${piece.x}px,${piece.y}px) rotate(${piece.rot}deg)` : undefined,
                   pointerEvents: "none",
                   willChange: "transform, opacity",
                 }}

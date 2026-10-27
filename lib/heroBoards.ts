@@ -114,6 +114,21 @@ const photoAt = (id: string, src: string, x: number, y: number, w: number, h: nu
 // stay visible around it - paints, metals + timber are no longer hidden under
 // the tile. Florals are kept slim so they frame rather than smother.
 export const HERO_BOARDS: HeroBoard[] = [
+  // First on purpose: terracotta tile + blue splashback is the opening board (Reagan).
+  {
+    id: "vb-coastal-kitchen",
+    pieces: [
+      photo("vb-coastal-kitchen", -1),
+      hero("Terroir 60 Terra", "Terracotta-look porcelain", `${T}/1736898466.webp?v=3`),
+      { id: "feature", kind: "tile", name: "Gelato Azzurro", sub: "Gloss subway", src: tp(`${T}/1718246903.webp?v=3`), x: 314, y: 44, w: 204, h: 96, rot: 3, z: 3, radius: 2 },
+      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
+      paint("paintA", "Natural White", "#EFE9DB", 0, 248, -4, 5),
+      { ...stone("Antikella", -20, 430, -6, 3), src: "/images/stone/536.webp?v3" },
+      timber("Golden Oak", "AU1006823", 402, 214, -5, 4),
+      paint("paintB", "Raw Umber", "#D9D0B8", 404, 392, 3, 5),
+      metal("Brushed Brass", "brushed-brass", 182, 488, 4, 5),
+    ],
+  },
   {
     id: "bath-coastal-white",
     pieces: [
@@ -216,20 +231,7 @@ export const HERO_BOARDS: HeroBoard[] = [
   },
   // ── Vision-board collections (warm Mediterranean / coastal) — the same curated
   //    looks featured on /vision-board, added to the hero rotation. ──────────────
-  {
-    id: "vb-coastal-kitchen",
-    pieces: [
-      photo("vb-coastal-kitchen", -1),
-      hero("Terroir 60 Terra", "Terracotta-look porcelain", `${T}/1736898466.webp?v=3`),
-      { id: "feature", kind: "tile", name: "Gelato Azzurro", sub: "Gloss subway", src: tp(`${T}/1718246903.webp?v=3`), x: 314, y: 44, w: 204, h: 96, rot: 3, z: 3, radius: 2 },
-      styling("plant", "Olive Branch", "ai-floral-olive-branch", -24, 10, 110, 214, 8),
-      paint("paintA", "Natural White", "#EFE9DB", 0, 248, -4, 5),
-      { ...stone("Antikella", -20, 430, -6, 3), src: "/images/stone/536.webp?v3" },
-      timber("Golden Oak", "AU1006823", 402, 214, -5, 4),
-      paint("paintB", "Raw Umber", "#D9D0B8", 404, 392, 3, 5),
-      metal("Brushed Brass", "brushed-brass", 182, 488, 4, 5),
-    ],
-  },
+
   {
     id: "vb-marrakesh-ensuite",
     pieces: [

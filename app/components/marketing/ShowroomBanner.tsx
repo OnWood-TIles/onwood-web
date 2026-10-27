@@ -14,9 +14,14 @@ export default function ShowroomBanner() {
   const [show, setShow] = useState(false);
   const pathname = usePathname();
 
+  // Held back on the home page so the first few seconds show only the hero.
   useEffect(() => {
-    try { if (localStorage.getItem(KEY) !== "1") setShow(true); } catch { setShow(true); }
-  }, []);
+    let dismissed = false;
+    try { dismissed = localStorage.getItem(KEY) === "1"; } catch {}
+    if (dismissed) return;
+    const t = setTimeout(() => setShow(true), pathname === "/" ? 8000 : 1200);
+    return () => clearTimeout(t);
+  }, [pathname]);
 
   // Don't show on the showroom page itself, or in the admin/trade app areas.
   const hidden = pathname === "/showroom" || pathname.startsWith("/admin") || pathname.startsWith("/trade");
@@ -24,7 +29,8 @@ export default function ShowroomBanner() {
 
   return (
     <div role="region" aria-label="Showroom announcement"
-      style={{ position: "fixed", left: 16, bottom: "calc(16px + env(safe-area-inset-bottom))", zIndex: 150, maxWidth: "min(420px, calc(100vw - 92px))", display: "flex", alignItems: "center", gap: 12, padding: "11px 12px 11px 15px", borderRadius: 14, background: "var(--surface, #fbfaf6)", border: "1px solid var(--line, #e6e2d8)", boxShadow: "0 16px 40px -18px rgba(32,48,58,.5)", fontFamily: "var(--font-manrope, system-ui, sans-serif)" }}>
+      style={{ position: "fixed", left: 16, bottom: "calc(16px + env(safe-area-inset-bottom))", zIndex: 150, animation: "owBannerIn .5s ease-out both", maxWidth: "min(420px, calc(100vw - 92px))", display: "flex", alignItems: "center", gap: 12, padding: "11px 12px 11px 15px", borderRadius: 14, background: "var(--surface, #fbfaf6)", border: "1px solid var(--line, #e6e2d8)", boxShadow: "0 16px 40px -18px rgba(32,48,58,.5)", fontFamily: "var(--font-manrope, system-ui, sans-serif)" }}>
+      <style>{`@keyframes owBannerIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}`}</style>
       <span aria-hidden style={{ fontSize: 18, lineHeight: 1 }}>🏗️</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink, #20303a)", lineHeight: 1.3 }}>Our new showroom is underway</div>

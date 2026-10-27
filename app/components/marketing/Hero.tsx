@@ -185,7 +185,9 @@ export default function Hero() {
                 fontFamily: "var(--font-archivo)",
                 fontWeight: 900,
                 color: "var(--ink)",
-                fontSize: "clamp(44px,6.4vw,92px)",
+                // sized so "Sunshine Coast" stays on one line in the left column and the
+                // buttons stay above the fold on a 13-15" laptop (capped by height too)
+                fontSize: "clamp(44px, min(5vw, 9.4vh), 76px)",
                 lineHeight: 0.96,
                 letterSpacing: "-0.02em",
                 margin: "22px 0 0",
@@ -236,7 +238,7 @@ export default function Hero() {
         </div>
 
         <div className="ow-hero-art" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <AmbientDriftBoard />
+          <AmbientDriftBoard startAssembled />
         </div>
       </div>
 
