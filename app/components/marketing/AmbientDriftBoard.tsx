@@ -137,7 +137,7 @@ function Scaled({
 }
 
 // One piece, rendered exactly like the Vision Board tool renders it.
-function PieceFace({ piece }: { piece: BoardPiece }) {
+function PieceFace({ piece, eager = false }: { piece: BoardPiece; eager?: boolean }) {
   switch (piece.kind) {
     case "photo":
       // the tool's "render" piece: white photo frame
@@ -181,6 +181,7 @@ function PieceFace({ piece }: { piece: BoardPiece }) {
           showLabel={false}
           radius={piece.radius ?? (piece.kind === "tile" ? 2 : 10)}
           zoom={piece.kind === "tile" ? 1 : 1.14}
+          eager={eager}
         />
       );
     case "carpet":
@@ -404,7 +405,7 @@ export default function AmbientDriftBoard({
                   willChange: "transform, opacity",
                 }}
               >
-                <PieceFace piece={piece} />
+                <PieceFace piece={piece} eager={docked} />
               </div>
             );
           }),

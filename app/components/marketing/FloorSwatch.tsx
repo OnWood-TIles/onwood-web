@@ -21,6 +21,7 @@ export function FloorSwatchFace({
   radius = 12,
   zoom = 1.14,
   cutout = false,
+  eager = false,
 }: {
   name: string;
   range: string;
@@ -29,6 +30,7 @@ export function FloorSwatchFace({
   showLabel?: boolean;
   radius?: number; // corner radius - tiles pass a small value to square them off
   zoom?: number; // 1.14 = slight sample zoom (flooring); tiles pass 1 to show the WHOLE tile uncropped
+  eager?: boolean; // first-view swatch: load now at high priority instead of lazily
   cutout?: boolean; // shaped tile on a transparent backdrop: no card - the shadow follows the tile's outline
 }) {
   return (
@@ -55,7 +57,8 @@ export function FloorSwatchFace({
       <img
         src={url}
         alt=""
-        loading="lazy"
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : undefined}
         decoding="async"
         style={{
           position: "absolute",
