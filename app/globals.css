@@ -258,6 +258,39 @@ body {
 .ow-range-card:hover .ow-room-shot {
   opacity: 1;
 }
+/* Room-first cards (homepage "on trend"): the room shot is the card, the real
+   tile sits inset in the corner, and hover swaps to the full product photo. */
+.ow-tile-reveal {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.ow-range-card:hover .ow-tile-reveal {
+  opacity: 1;
+}
+.ow-tile-inset {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  width: 76px;
+  height: 76px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 3px solid #fff;
+  box-shadow: 0 8px 20px -6px rgba(20, 28, 34, 0.45);
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+.ow-range-card:hover .ow-tile-inset {
+  opacity: 0;
+}
+@media (max-width: 600px) {
+  .ow-tile-inset {
+    width: 58px;
+    height: 58px;
+    left: 10px;
+    bottom: 10px;
+  }
+}
 
 /* Ghostly brand watermark. Base is faint; "yield" hides on card hover (primary
    photo stepping aside for the installed one), "room" fades in on hover. */

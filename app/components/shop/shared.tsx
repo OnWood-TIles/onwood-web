@@ -191,11 +191,18 @@ export function Watermark({ mode = "static" }: { mode?: "static" | "yield" | "ro
 // A range card for the shop grids: hero image (or swatch fallback), name,
 // colour count + availability. Whole card links to the product page.
 // categoryLabels maps category slugs -> display labels (from the taxonomy).
-export function RangeCard({ range, productBase = "/product" }: { range: WebsiteRange; categoryLabels?: Record<string, string>; productBase?: string }) {
+export function RangeCard({ range, productBase = "/product", roomFirst = false }: { range: WebsiteRange; categoryLabels?: Record<string, string>; productBase?: string; roomFirst?: boolean }) {
   const image = range.heroImage || range.swatches.find((s) => s.image)?.image || null;
   // Hover reveals the LEAD colour's "see it installed" room shot (swatches are
   // lead-first) so it always matches the hero, never another colour's room.
   const roomShot = range.swatches[0]?.installedImage || null;
+  // roomFirst (homepage "on trend" strip): the room shot IS the card, with the
+  // lead colour's tile inset in the corner; hover swaps to the product photo.
+  const room = roomFirst && !!roomShot && !!image;
+  // run through /api/tile so the white studio border is trimmed off and the
+  // tile fills the little square (narrow tiles otherwise float in white)
+  const insetSrc = range.swatches[0]?.image || image;
+  const insetImg = insetSrc?.startsWith("https://") ? `/api/tile?u=${encodeURIComponent(insetSrc)}` : insetSrc;
   const colourCount = range.swatches.length;
   return (
     <Link
@@ -214,7 +221,32 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
       className="ow-range-card"
     >
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "#fff", overflow: "hidden" }}>
-        {image ? (
+        {room ? (
+          <>
+            <Image
+              src={roomShot!}
+              alt={imageAlt(range, { kind: "installed", swatch: range.swatches[0] })}
+              fill
+              loading="lazy"
+              sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 400px"
+              style={{ objectFit: "cover" }}
+            />
+            {insetImg && (
+              <div className="ow-tile-inset" aria-hidden="true">
+                <Image src={insetImg} alt="" fill loading="lazy" sizes="76px" unoptimized style={{ objectFit: "cover" }} />
+              </div>
+            )}
+            <Image
+              src={image!}
+              alt={imageAlt(range, { kind: "primary" })}
+              fill
+              loading="lazy"
+              sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 400px"
+              className="ow-tile-reveal"
+              style={{ objectFit: "cover", background: "#fff" }}
+            />
+          </>
+        ) : image ? (
           <Image
             src={image}
             alt={imageAlt(range, { kind: "primary" })}
@@ -237,7 +269,7 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
             ))}
           </div>
         )}
-        {roomShot && (
+        {roomShot && !room && (
           <Image
             src={roomShot}
             alt={imageAlt(range, { kind: "installed", swatch: range.swatches[0] })}
@@ -248,8 +280,17 @@ export function RangeCard({ range, productBase = "/product" }: { range: WebsiteR
             style={{ objectFit: "cover" }}
           />
         )}
-        {range.watermarkPrimary && <Watermark mode={roomShot ? "yield" : "static"} />}
-        {range.watermarkSecondary && roomShot && <Watermark mode="room" />}
+        {room ? (
+          <>
+            {range.watermarkSecondary && <Watermark mode="yield" />}
+            {range.watermarkPrimary && <Watermark mode="room" />}
+          </>
+        ) : (
+          <>
+            {range.watermarkPrimary && <Watermark mode={roomShot ? "yield" : "static"} />}
+            {range.watermarkSecondary && roomShot && <Watermark mode="room" />}
+          </>
+        )}
         {range.special && (
           <div style={{ position: "absolute", top: 10, left: 10 }}>
             <SpecialBadge special={range.special} unit={range.unit} />

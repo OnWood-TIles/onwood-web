@@ -122,7 +122,7 @@ export default async function FeaturedProducts() {
       <div className="ow-featured-grid">
         {picked.map((r, i) => (
           <Reveal key={r.id} delay={i * 0.06}>
-            <RangeCard range={r} categoryLabels={labelMap} />
+            <RangeCard range={r} categoryLabels={labelMap} roomFirst />
           </Reveal>
         ))}
       </div>
