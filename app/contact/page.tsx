@@ -48,11 +48,16 @@ function ReachCard({ icon, label, value, href, external }: { icon: React.ReactNo
   );
 }
 
-export default async function ContactPage({ searchParams }: { searchParams: Promise<{ product?: string }> }) {
-  const { product } = await searchParams;
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ product?: string; build?: string }> }) {
+  const { product, build } = await searchParams;
   // An "Enquire about X" link from a product page arrives as ?product=Name and
-  // pre-fills the message so the shopper only has to add their details.
-  const prefill = product?.trim() ? `I am interested in the ${product.trim()} product.` : undefined;
+  // pre-fills the message so the shopper only has to add their details. The
+  // vanity builder adds ?build= (its spec lines + price + link back to the build).
+  const prefill = product?.trim() && build?.trim()
+    ? `I would like a quote for this build:
+${product.trim()}
+${build.trim().slice(0, 1500)}`
+    : product?.trim() ? `I am interested in the ${product.trim()} product.` : undefined;
   const business = await getBusiness();
   const phone = (business?.phone || "").trim();
   const email = (business?.email || SHOP.email).trim();

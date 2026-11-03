@@ -512,3 +512,30 @@ export const getBusiness = unstable_cache(
   ["business"],
   { revalidate: TTL_CATALOGUE, tags: ["business"] },
 );
+
+// ── Vanity builder (configurable products, e.g. Marquis vanities) ─────────────
+// Every price here is GST-inclusive retail, already converted by OnBase.
+export type BuilderColumn = { key: string; label: string; basin?: "above" | "under" | "moulded"; top?: string };
+export type BuilderRow = { key: string; mount: "wallmount" | "kick" | "legs" | null; config: string; prices: Record<string, number | null> };
+export type BuilderAddon = { key: string; label: string; price: number; mounts?: BuilderRow["mount"][] };
+export type BuilderOption = { value: string; label: string; surcharge?: number; addon?: string; swatchUrl?: string; note?: string };
+export type BuilderOptionGroup = { key: string; label: string; required?: boolean; options: BuilderOption[] };
+export type BuilderModel = {
+  slug: string; name: string; kind: "vanity" | "tallboy" | "shaver" | "mirror"; model: string;
+  width: number | null; basinLayout: string | null; dimensions: string | null; image: string | null; from: number;
+  columns: BuilderColumn[]; rows: BuilderRow[]; addons: BuilderAddon[];
+  topUpgrades: { key: string; label: string; price: number }[]; specs: { label: string; value: string }[];
+};
+export type BuilderSummary = { slug: string; name: string; department: string | null; categories: string[]; image: string | null; from: number; models: number; kinds: string[] };
+export type Builder = BuilderSummary & { description: string | null; supplier: string; edition: string | null; optionGroups: BuilderOptionGroup[]; list: BuilderModel[] };
+
+/** Ranges with an online builder. `preview` includes not-yet-published models (staff only). */
+export function listBuilders(preview: boolean): Promise<BuilderSummary[]> {
+  return onbaseGet<BuilderSummary[]>(`/api/v1/website/builders${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders"] }, [])
+    .then((l) => (Array.isArray(l) ? l.map((b) => ({ ...b, image: img(b.image) ?? null })) : []));
+}
+
+export function getBuilder(slug: string, preview: boolean): Promise<Builder | null> {
+  return onbaseGet<Builder | null>(`/api/v1/website/builders/${encodeURIComponent(slug)}${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders", `builder:${slug}`] }, null)
+    .then((b) => (b && Array.isArray(b.list) ? { ...b, image: img(b.image) ?? null, list: b.list.map((m) => ({ ...m, image: img(m.image) ?? null })) } : null));
+}
