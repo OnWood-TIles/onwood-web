@@ -15,6 +15,15 @@ import ProductDisclosure from "./ProductDisclosure";
 // selector + specs on the right. "Options" are the range's swatches - colours
 // for a standalone product, member products (sizes/formats) for a grouped
 // range - selecting one drives the gallery and availability.
+// Label for the product-photo side of the "See it installed" toggle (it used to say
+// "Tile" for everything, which reads wrong on a vanity or mirror).
+function productViewLabel(dept?: string | null): string {
+  if (!dept || dept === "tiles" || dept === "stone-cladding" || dept === "pavers") return "Tile";
+  if (dept === "vanities") return "Vanity";
+  if (dept === "mirrors") return "Mirror";
+  return "Product";
+}
+
 export default function ProductView({
   range,
   deptLabel,
@@ -283,7 +292,7 @@ export default function ProductView({
                       transition: "all .2s ease",
                     }}
                   >
-                    {mode === "tile" ? "Tile" : "See it installed"}
+                    {mode === "tile" ? productViewLabel(range.department) : "See it installed"}
                   </button>
                 ))}
               </div>
@@ -368,7 +377,7 @@ export default function ProductView({
 
           {/* Imagery disclosure — placed after the name + price so the product,
               not a warning, is the first thing a shopper reads. */}
-          <ProductDisclosure />
+          <ProductDisclosure department={range.department} />
 
           {/* CTAs - the trade portal swaps in its price + add-to-order block. */}
           {renderActions ? (

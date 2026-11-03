@@ -7,7 +7,12 @@ import { useState } from "react";
 // collapses to the first sentence + a "Continue reading" toggle so it doesn't eat
 // screen real-estate. Pure CSS decides mobile-vs-desktop; the toggle only matters
 // on mobile (desktop always shows the full text and hides the button).
-export default function ProductDisclosure() {
+// Vanities + mirrors are made to order with chosen finishes, so the tile/stone
+// wording (veining, grout, batches) is swapped for finish/configuration wording.
+const MADE_TO_ORDER = new Set(["vanities", "mirrors"]);
+
+export default function ProductDisclosure({ department }: { department?: string | null }) {
+  const madeToOrder = !!department && MADE_TO_ORDER.has(department);
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -19,7 +24,9 @@ export default function ProductDisclosure() {
       }}
     >
       <strong style={{ color: "var(--ink, #22303a)" }}>About our images.</strong> Some images on this page are AI-generated or digitally rendered to show how a product may look installed.
-      <span className="pd-more"> They are illustrations, not photographs of the actual product. Colour, tone, veining, tile size, scale, layout, grout colour and joint width can differ noticeably from the real thing. Tiles, natural stone and stone veneer also vary naturally between batches. Please confirm your selection from a current physical sample -{" "}
+      <span className="pd-more"> They are illustrations, not photographs of the actual product. {madeToOrder
+          ? "Cabinet colour, timber grain, benchtop colour, handles, size and proportions can differ noticeably from the real thing, and screens show colours differently. Please confirm your finishes from a physical sample or in our showroom before ordering - "
+          : "Colour, tone, veining, tile size, scale, layout, grout colour and joint width can differ noticeably from the real thing. Tiles, natural stone and stone veneer also vary naturally between batches. Please confirm your selection from a current physical sample - "}
         <Link href="/terms-of-use#ai-imagery" style={{ color: "inherit", textDecoration: "underline", fontWeight: 600 }}>read our full imagery disclosure</Link>.
       </span>
       <button type="button" className="pd-toggle" onClick={() => setOpen(true)}> Continue reading…</button>
