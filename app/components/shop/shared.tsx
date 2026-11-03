@@ -351,7 +351,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
         </div>
         {(range.special?.price != null || range.price != null) && (
           <div style={{ marginTop: 10 }}>
-            <PriceTag price={range.price} special={range.special} unit={range.unit} from={distinctSwatchPrices(range) > 1} />
+            <PriceTag price={range.price} special={range.special} unit={range.unit} from={!!range.priceFrom || distinctSwatchPrices(range) > 1} />
           </div>
         )}
       </div>
@@ -441,7 +441,7 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
         </p>
         {(swatch.special?.price != null || range.special?.price != null || swatch.price != null || range.price != null) && (
           <div style={{ marginTop: 8 }}>
-            <PriceTag price={swatch.price ?? range.price} special={swatch.special ?? range.special} unit={range.unit} />
+            <PriceTag price={swatch.price ?? range.price} special={swatch.special ?? range.special} unit={range.unit} from={!!range.priceFrom} />
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@
 //     cached by default in 16). Stock uses a short TTL; catalogue a longer one.
 import "server-only";
 import { unstable_cache } from "next/cache";
+import type { ProductOptions } from "../options";
 import { SPECIALS_ENABLED } from "../flags";
 
 const BASE = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
@@ -99,6 +100,10 @@ export type WebsiteRange = {
   swatches: Swatch[];
   /** Downloadable documents (fire ratings, warranties, install guides…). */
   documents?: { name: string; type: string | null; url: string; isExternal: boolean }[];
+  /** The product has options: its price is the cheapest build ("from $X"). */
+  priceFrom?: boolean;
+  /** Product options (GST-inclusive) - present on single-product reads of products that have them. */
+  options?: ProductOptions | null;
 };
 
 export type WebsiteCategory = { slug: string; label: string };
@@ -167,6 +172,7 @@ function normalizeRange(r: WebsiteRange): WebsiteRange {
       images: s.images?.map((i) => img(i) as string),
     })),
     documents: (r.documents ?? []).map((d) => ({ ...d, url: abs(d.url) as string })),
+    options: r.options ? { ...r.options, groups: r.options.groups.map((g) => ({ ...g, choices: g.choices.map((c) => (c.image ? { ...c, image: img(c.image) ?? null } : c)) })) } : r.options,
   };
 }
 
@@ -513,29 +519,18 @@ export const getBusiness = unstable_cache(
   { revalidate: TTL_CATALOGUE, tags: ["business"] },
 );
 
-// ── Vanity builder (configurable products, e.g. Marquis vanities) ─────────────
-// Every price here is GST-inclusive retail, already converted by OnBase.
-export type BuilderColumn = { key: string; label: string; basin?: "above" | "under" | "moulded"; top?: string };
-export type BuilderRow = { key: string; mount: "wallmount" | "kick" | "legs" | null; config: string; prices: Record<string, number | null> };
-export type BuilderAddon = { key: string; label: string; price: number; mounts?: BuilderRow["mount"][] };
-export type BuilderOption = { value: string; label: string; surcharge?: number; addon?: string; swatchUrl?: string; note?: string };
-export type BuilderOptionGroup = { key: string; label: string; required?: boolean; options: BuilderOption[] };
-export type BuilderModel = {
-  slug: string; name: string; kind: "vanity" | "tallboy" | "shaver" | "mirror"; model: string;
-  width: number | null; basinLayout: string | null; dimensions: string | null; image: string | null; from: number;
-  columns: BuilderColumn[]; rows: BuilderRow[]; addons: BuilderAddon[];
-  topUpgrades: { key: string; label: string; price: number }[]; specs: { label: string; value: string }[];
-};
-export type BuilderSummary = { slug: string; name: string; department: string | null; categories: string[]; image: string | null; from: number; models: number; kinds: string[] };
-export type Builder = BuilderSummary & { description: string | null; supplier: string; edition: string | null; optionGroups: BuilderOptionGroup[]; list: BuilderModel[] };
+// ── Products with options (build pages, e.g. Marquis vanities) ───────────────
+// Prices in the options are GST-inclusive retail, converted by OnBase.
+export type BuilderSummary = { slug: string; name: string; department: string | null; categories: string[]; image: string | null; from: number; drawing: string; draw?: import("../options").DrawMeta };
 
-/** Ranges with an online builder. `preview` includes not-yet-published models (staff only). */
+/** Every product with options. `preview` includes not-yet-published ones (staff only). */
 export function listBuilders(preview: boolean): Promise<BuilderSummary[]> {
   return onbaseGet<BuilderSummary[]>(`/api/v1/website/builders${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders"] }, [])
     .then((l) => (Array.isArray(l) ? l.map((b) => ({ ...b, image: img(b.image) ?? null })) : []));
 }
 
-export function getBuilder(slug: string, preview: boolean): Promise<Builder | null> {
-  return onbaseGet<Builder | null>(`/api/v1/website/builders/${encodeURIComponent(slug)}${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders", `builder:${slug}`] }, null)
-    .then((b) => (b && Array.isArray(b.list) ? { ...b, image: img(b.image) ?? null, list: b.list.map((m) => ({ ...m, image: img(m.image) ?? null })) } : null));
+/** One product with its options attached (same shape as getRange). */
+export function getBuilder(slug: string, preview: boolean): Promise<WebsiteRange | null> {
+  return onbaseGet<WebsiteRange | null>(`/api/v1/website/builders/${encodeURIComponent(slug)}${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders", `builder:${slug}`] }, null)
+    .then((r) => (r && r.slug ? normalizeRange(r) : null));
 }

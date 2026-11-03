@@ -6,6 +6,7 @@ import { getRange, getReviews, getTaxonomy, listPairCandidates } from "../../../
 import { pickPairs } from "../../../lib/pairs";
 import ProductView from "../../components/shop/ProductView";
 import ProductReviews from "../../components/shop/ProductReviews";
+import OptionsProductView from "../../components/shop/OptionsProductView";
 import { TechnicalSpecs } from "../../components/shop/shared";
 
 export const dynamic = "force-dynamic";
@@ -61,10 +62,11 @@ export default async function ProductPage({
   searchParams,
 }: {
   params: Promise<Params>;
-  searchParams: Promise<{ c?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
-  const { c } = await searchParams;
+  const sp = await searchParams;
+  const c = typeof sp.c === "string" ? sp.c : undefined;
   // Fetch the range first, then the taxonomy + its department's ranges in
   // parallel. "Pairs well with" only ever suggests within/near the same
   // department, so we no longer pull the WHOLE catalogue (~100 ranges) on every
@@ -189,6 +191,17 @@ export default async function ProductPage({
       />
       <MarketingNav />
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "clamp(92px,15vw,140px) 28px 90px" }}>
+        {range.options ? (
+          // Product with options (e.g. a Marquis vanity range): the page IS the price builder.
+          <OptionsProductView
+            range={range}
+            deptLabel={dept?.label ?? null}
+            deptSlug={dept?.slug ?? null}
+            query={Object.fromEntries(Object.entries(sp).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])))}
+            specsSlot={<TechnicalSpecs specs={range.specs} material={null} documents={range.documents} />}
+            reviewsSlot={<ProductReviews productId={range.id} productName={range.name} reviews={reviews} average={average} count={count} />}
+          />
+        ) : (
         <ProductView
           range={range}
           deptLabel={dept?.label ?? null}
@@ -214,6 +227,7 @@ export default async function ProductPage({
             />
           }
         />
+        )}
       </main>
       <MarketingFooter />
     </div>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { VANITY_BUILDER_PUBLIC } from "./lib/flags";
+import { BUILD_PAGES_PUBLIC } from "./lib/flags";
 
 // Next.js 16 renamed Middleware -> Proxy. Runs before a request completes.
 //
@@ -26,8 +26,8 @@ const TRADE_PUBLIC = [
 
 // Internal-only paths: require the staff cookie in ALL cases.
 const ALWAYS_GATED = ["/debug", "/kitchen-sink", "/admin", "/api/admin", "/floor-scores-editor",
-  // Vanity builder stays staff-only until launch (lib/flags.ts).
-  ...(VANITY_BUILDER_PUBLIC ? [] : ["/vanities"])];
+  // Build pages (products with options) stay staff-only until launch (lib/flags.ts).
+  ...(BUILD_PAGES_PUBLIC ? [] : ["/build"])];
 
 function matches(pathname: string, list: string[]): boolean {
   return list.some((p) => pathname === p || pathname.startsWith(p + "/"));

@@ -1,4 +1,4 @@
-// Styles for the vanity builder pages (plain CSS string, injected with <style>,
+// Styles for the product-options builder (product pages of products with options + the /build preview) (plain CSS string, injected with <style>,
 // matching the shop's DEPT_TABLET_CSS pattern). Uses the site theme tokens.
 export const BUILDER_CSS = `
 .vb-wrap{max-width:1240px;margin:0 auto;padding:clamp(96px,14vw,140px) 24px 110px}
@@ -53,6 +53,22 @@ export const BUILDER_CSS = `
 .vb-primary{text-decoration:none;background:var(--accent);color:#fff6ee;font-weight:700;font-size:15px;padding:14px 22px;border-radius:99px}
 .vb-link{display:inline-block;margin-top:14px;font-size:14px;font-weight:700;color:var(--ink)}
 .vb-bar{display:none}
+.vb-text{font:inherit;font-size:15px;width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.vb-picked{margin:-4px 0 12px;font-size:14px;color:#4f565c}
+.vb-picked span{color:var(--accent);font-weight:700;margin-left:4px}
+.vb-sec{margin-top:10px}
+.vb-sec-h{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7a8085}
+.vb-swatches{display:flex;flex-wrap:wrap;gap:8px}
+.vb-sw{font:inherit;font-size:13px;font-weight:600;padding:8px 12px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.vb-sw.img{border-radius:14px;padding:6px 10px 6px 6px}
+.vb-sw img{width:34px;height:34px;border-radius:9px;object-fit:cover}
+.vb-sw.on{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 18%,transparent)}
+.vb-sw:hover{border-color:color-mix(in oklab,var(--accent) 55%,var(--line))}
+.vb-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}
+.vb-opt-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:6px}
+.vb-below{margin-top:48px}
+.vb-crumbs{font-size:13px;color:#6a7075;margin:0 0 14px}
+.vb-crumbs a{color:inherit}
 .vb-index{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:42px}
 .vb-tile{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;text-decoration:none;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 16px}
 .vb-tile svg{max-width:100%;height:auto}

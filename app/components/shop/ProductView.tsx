@@ -21,6 +21,8 @@ function productViewLabel(dept?: string | null): string {
   if (!dept || dept === "tiles" || dept === "stone-cladding" || dept === "pavers") return "Tile";
   if (dept === "vanities") return "Vanity";
   if (dept === "mirrors") return "Mirror";
+  if (dept === "basins") return "Basin";
+  if (dept === "bathroom-storage") return "Cabinet";
   return "Product";
 }
 

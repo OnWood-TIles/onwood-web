@@ -9,7 +9,7 @@ import { useState } from "react";
 // on mobile (desktop always shows the full text and hides the button).
 // Vanities + mirrors are made to order with chosen finishes, so the tile/stone
 // wording (veining, grout, batches) is swapped for finish/configuration wording.
-const MADE_TO_ORDER = new Set(["vanities", "mirrors"]);
+const MADE_TO_ORDER = new Set(["vanities", "mirrors", "bathroom-storage"]);
 
 export default function ProductDisclosure({ department }: { department?: string | null }) {
   const madeToOrder = !!department && MADE_TO_ORDER.has(department);
