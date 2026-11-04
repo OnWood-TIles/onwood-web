@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 
 type Params = { department: string };
 type Search = { c?: string; f?: string | string[] };
+const TYPE_GROUP = "type"; // synthetic filter group made from the department's categories
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { department } = await params;
@@ -43,14 +44,20 @@ export default async function DepartmentPage({
   const dept = taxonomy.find((d) => d.slug === department);
   if (!dept) notFound();
 
-  const activeCategory = dept.categories.some((x) => x.slug === c) ? c : undefined;
+  // The whole department always loads; its subcategories (e.g. Trims, Step Treads)
+  // are a "Type" filter rather than separate pages. Old ?c= links pre-tick that filter.
+  const allRanges = (await listRanges({ department })).map((r) => ({ ...r, filters: { ...(r.filters ?? {}), [TYPE_GROUP]: r.categories ?? [] } }));
+  const typeCounts: Record<string, number> = {};
+  for (const r of allRanges) for (const cat of r.categories ?? []) typeCounts[cat] = (typeCounts[cat] ?? 0) + 1;
+  const typeValues = dept.categories.filter((x) => typeCounts[x.slug]).map((x) => ({ slug: x.slug, label: x.label, hex: null, size: null }));
 
-  const filterGroupsVM = buildFilterGroupVMs(allFilterGroups, department);
+  const filterGroupsVM = [
+    ...(typeValues.length > 1 ? [{ slug: TYPE_GROUP, label: "Type", values: typeValues }] : []),
+    ...buildFilterGroupVMs(allFilterGroups, department),
+  ];
   // Initial filters from the URL (?f=group:value), validated against the groups.
   const initialActive = parseActiveFilters(f, filterGroupsVM);
-
-  // All ranges for this department/category - filtered client-side.
-  const allRanges = await listRanges({ department, category: activeCategory });
+  if (c && typeValues.length > 1 && typeValues.some((x) => x.slug === c)) initialActive[TYPE_GROUP] = [c];
 
   // Hero for the department intro band: prefer a real "installed" room shot, then a
   // range hero, then any product image. Purely presentational (fails to null).
@@ -98,12 +105,6 @@ export default async function DepartmentPage({
   const shownGroups = filterGroupsVM
     .map((g) => ({ ...g, values: g.values.filter((v) => usedByGroup[g.slug]?.has(v.slug)) }))
     .filter((g) => g.values.length > 0);
-
-  const chip = (label: string, href: string, on: boolean) => (
-    <Link key={href} href={href} style={{ textDecoration: "none", padding: "8px 18px", borderRadius: 99, fontSize: 14, fontWeight: 700, border: `1px solid ${on ? "var(--accent)" : "var(--line)"}`, background: on ? "var(--accent)" : "#fff", color: on ? "#fff6ee" : "var(--ink)", transition: "all .2s ease" }}>
-      {label}
-    </Link>
-  );
 
   // BreadcrumbList structured data: Home -> Shop -> Department, using absolute
   // URLs. Same in-page <script> technique as app/layout.tsx.
@@ -235,49 +236,13 @@ export default async function DepartmentPage({
           )}
         </div>
 
-        {(() => {
-          // Tools & Accessories requires picking a subcategory first (Step Treads,
-          // Trims, ...) — you can't browse the whole mixed department at once. Only
-          // subcategories that actually have products are offered.
-          const gated = dept.slug === "accessories" && dept.categories.length > 0;
-          const catCounts: Record<string, number> = {};
-          for (const r of gridRanges) for (const c of r.categories ?? []) catCounts[c] = (catCounts[c] ?? 0) + 1;
-          const subcats = dept.categories.filter((c) => (catCounts[c.slug] ?? 0) > 0);
-
-          if (gated && !activeCategory) {
-            if (!subcats.length) return <p style={{ color: "#8a8577", fontSize: 15, margin: "10px 0 30px" }}>New products are coming to this department soon.</p>;
-            return (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 16, marginBottom: 30 }}>
-                {subcats.map((c) => (
-                  <Link key={c.slug} href={`/shop/${dept.slug}?c=${c.slug}`}
-                    style={{ display: "flex", flexDirection: "column", gap: 6, padding: "22px 22px 20px", borderRadius: 16, border: "1px solid var(--line)", background: "#fff", textDecoration: "none", color: "var(--ink)", boxShadow: "0 10px 30px -22px rgba(32,48,58,.35)" }}>
-                    <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 20, letterSpacing: "-.01em" }}>{c.label}</span>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--accent2)" }}>{catCounts[c.slug]} product{catCounts[c.slug] === 1 ? "" : "s"} <span aria-hidden>→</span></span>
-                  </Link>
-                ))}
-              </div>
-            );
-          }
-
-          return (
-            <>
-              {dept.categories.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: shownGroups.length ? 18 : 30 }}>
-                  {!gated && chip("Shop All", `/shop/${dept.slug}`, !activeCategory)}
-                  {dept.categories.map((cat) => chip(cat.label, `/shop/${dept.slug}?c=${cat.slug}`, activeCategory === cat.slug))}
-                </div>
-              )}
-              <DepartmentShop
-                allRanges={gridRanges}
-                groups={shownGroups}
-                labelMap={labelMap}
-                initialActive={initialActive}
-                deptSlug={dept.slug}
-                activeCategory={activeCategory}
-              />
-            </>
-          );
-        })()}
+        <DepartmentShop
+          allRanges={gridRanges}
+          groups={shownGroups}
+          labelMap={labelMap}
+          initialActive={initialActive}
+          deptSlug={dept.slug}
+        />
 
         {seo?.faqs?.length ? (
           <section style={{ marginTop: 64, borderTop: "1px solid var(--line)", paddingTop: 44 }}>

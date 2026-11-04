@@ -7,7 +7,7 @@ import type { ShopMenuDept } from "../../../lib/onbase/client";
 // Full-width Shop mega-menu (adapted from the Claude Design shop concept, kept
 // entirely on the OnWood theme vars - no new palette). A department list that
 // staggers in when the panel opens, with an "IN FOCUS" preview pane that swaps
-// its image + category shortcuts as you move between departments.
+// its image as you move between departments.
 //
 // Desktop only: it lives inside the header's desktop nav (hidden on mobile via
 // the nav's own media query), so the fixed panel is hidden on small screens.
@@ -176,7 +176,7 @@ export default function ShopMegaMenu({
           {/* Right: IN FOCUS preview - a real product shown via its SECONDARY
               ("see it installed") photo; the image links straight to it. */}
           <div className="ow-mega-preview">
-            <div style={eyebrow}>In focus — {active.focusName ?? active.label}</div>
+            <div style={eyebrow}>In focus: {active.focusName ?? active.label}</div>
             {active.focusImage && active.focusSlug ? (
               <Link
                 href={`${productBase}/${active.focusSlug}`}
@@ -196,29 +196,6 @@ export default function ShopMegaMenu({
                 <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: "#8a8577", fontSize: 13 }}>
                   Photos coming soon
                 </div>
-              </div>
-            )}
-            {active.categories.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-                {active.categories.map((c) => (
-                  <Link
-                    key={c.slug}
-                    href={`${shopBase}/${active.slug}?c=${c.slug}`}
-                    onClick={() => setOpen(false)}
-                    style={{
-                      textDecoration: "none",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "var(--ink)",
-                      border: "1px solid var(--line)",
-                      borderRadius: 99,
-                      padding: "6px 14px",
-                      background: "#fff",
-                    }}
-                  >
-                    {c.label} <span style={{ opacity: 0.5 }}>{c.count}</span>
-                  </Link>
-                ))}
               </div>
             )}
             <Link
