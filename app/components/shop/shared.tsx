@@ -80,6 +80,22 @@ export function priceUnitSuffix(u?: string | null): string {
   return `/${u}`;
 }
 
+// Products with options (made-to-order builds, e.g. vanities) look like one fixed
+// item in a photo, so the card says they can be built your way. Only departments
+// where the build really is open (a basin with a colour choice isn't "fully" anything).
+const CUSTOMISABLE_DEPTS = new Set(["vanities", "bathroom-storage"]);
+export const isCustomisable = (r: { priceFrom?: boolean; department?: string | null }) => !!r.priceFrom && CUSTOMISABLE_DEPTS.has(r.department ?? "");
+export function CustomisableBadge() {
+  return (
+    <div style={{ position: "absolute", left: 10, bottom: 10, pointerEvents: "none" }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 99, background: "rgba(255,250,243,.94)", color: "var(--ink)", fontSize: 12, fontWeight: 800, letterSpacing: ".01em", boxShadow: "0 2px 8px rgba(20,20,20,.22)" }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" /></svg>
+        Fully customisable
+      </span>
+    </div>
+  );
+}
+
 export function SpecialBadge({ special, unit }: { special: { price: number | null; was: number | null }; unit?: string | null }) {
   // Sits over the thumbnail, so it uses a SOLID accent ground + cream text (not a
   // translucent tint) to stay legible on any image behind it.
@@ -296,6 +312,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
             <SpecialBadge special={range.special} unit={range.unit} />
           </div>
         )}
+        {isCustomisable(range) && <CustomisableBadge />}
         <div style={saveOverlay}>
           <SaveButton item={{ href: `${productBase}/${range.slug}`, name: range.name, image: image ?? undefined }} />
         </div>
@@ -317,7 +334,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
         </h3>
         <div style={{ margin: "8px 0 0", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ fontSize: 13, color: "#8a8577" }}>
-            {colourCount > 1 ? `${colourCount} options` : "1 option"}
+            {isCustomisable(range) ? "Build it your way" : colourCount > 1 ? `${colourCount} options` : "1 option"}
           </span>
           {/* Colour thumbnails - a quick visual that a product comes in variations.
               Capped + lazy so the grid stays fast; falls back to a hex dot. */}
@@ -415,6 +432,7 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
             <SpecialBadge special={special} unit={range.unit} />
           </div>
         )}
+        {isCustomisable(range) && <CustomisableBadge />}
         <div style={saveOverlay}>
           <SaveButton item={{ href, name: range.name, colour: swatch.colour, image: image ?? undefined }} />
         </div>

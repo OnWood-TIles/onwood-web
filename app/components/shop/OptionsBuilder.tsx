@@ -179,8 +179,9 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
 
       <aside className="vb-side">
         <div className="vb-summary" id="vb-summary">
+          {range.heroImage && o.drawing !== "none" && <img src={range.heroImage} alt={range.name} className="vb-sum-photo" />}
           {o.drawing !== "none" ? (
-            <div className="vb-draw"><OptionsDrawing style={o.drawing} meta={meta} size={300} /><small>Illustration only</small></div>
+            <div className="vb-draw"><OptionsDrawing style={o.drawing} meta={meta} size={300} /><small>Your build (illustration only)</small></div>
           ) : range.heroImage ? (
             <div className="vb-draw"><img src={range.heroImage} alt={range.name} style={{ maxWidth: "100%", borderRadius: 12 }} /></div>
           ) : null}

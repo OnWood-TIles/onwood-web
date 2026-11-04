@@ -1,4 +1,4 @@
-// Styles for the product-options builder (product pages of products with options + the /build preview) (plain CSS string, injected with <style>,
+// Styles for the product-options builder (product pages of products with options) (plain CSS string, injected with <style>,
 // matching the shop's DEPT_TABLET_CSS pattern). Uses the site theme tokens.
 export const BUILDER_CSS = `
 .vb-wrap{max-width:1240px;margin:0 auto;padding:clamp(96px,14vw,140px) 24px 110px}
@@ -40,6 +40,15 @@ export const BUILDER_CSS = `
 .vb-note{margin:0;color:#4f565c;font-size:15px;line-height:1.65}
 .vb-side{position:sticky;top:96px}
 .vb-summary{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 18px 50px -30px rgba(16,28,30,.35)}
+.vb-intro.has-photo{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:start;margin-bottom:28px}
+.vb-intro.has-photo .vb-head{margin-bottom:0}
+.vb-gal-main{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;background:#f3efe7;display:block}
+.vb-gal-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
+.vb-gal-thumbs button{flex:0 0 auto;padding:0;border:2px solid transparent;border-radius:10px;background:none;cursor:pointer;overflow:hidden}
+.vb-gal-thumbs button.on{border-color:var(--accent)}
+.vb-gal-thumbs img{width:64px;height:48px;object-fit:cover;display:block}
+.vb-custom-note{font-size:14px;font-weight:600;color:var(--ink);background:#fff6ee;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.vb-sum-photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:14px;display:block;margin-bottom:10px}
 .vb-draw{background:var(--bg);border-radius:16px;padding:14px 10px 8px;text-align:center}
 .vb-draw svg{max-width:100%;height:auto}
 .vb-draw small{display:block;font-size:11px;color:#8a9094;margin-top:2px}
@@ -83,8 +92,9 @@ export const BUILDER_CSS = `
 .vb-tile em{font-style:normal;font-weight:700;color:var(--accent)}
 .vb-tile:hover{border-color:color-mix(in oklab,var(--accent) 55%,var(--line))}
 .vb-cat{font-family:var(--font-archivo);font-size:24px;font-weight:800;letter-spacing:-.015em;margin:0 0 14px}
-.vb-preview{display:inline-block;margin-bottom:18px;font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#fff3d6;color:#8a5a00;border:1px solid #f0d58f;border-radius:99px;padding:6px 12px}
 @media (max-width:900px){
+  .vb-intro.has-photo{grid-template-columns:1fr;gap:18px}
+  .vb-sum-photo{display:none}
   .vb{grid-template-columns:1fr}
   .vb-side{position:static}
   .vb-wrap{padding-left:16px;padding-right:16px}

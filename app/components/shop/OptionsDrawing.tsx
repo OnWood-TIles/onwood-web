@@ -45,13 +45,17 @@ export default function OptionsDrawing({ style, meta, size = 320 }: { style: Dra
   const tall = style === "tallboy";
   const tw = tall ? 70 : w; // a tallboy is a narrow tall cabinet
   const tx = (W - tw) / 2;
-  const topY = tall ? 10 : 70;
-  const bodyH = tall ? 200 : 82;
+  // Real proportions (1 unit ~ 6mm): benchtop ~850mm off the floor; a wall-hung
+  // cabinet is ~490mm high; one on legs / a kick is taller, with ~180mm legs.
+  const mount = meta.mount ?? "wallmount";
+  const floorY = 250;
+  const onFloor = mount === "legs" || mount === "kick";
+  const topY = tall ? 10 : 108;
   const topH = tall ? 0 : 8;
   const bodyY = topY + topH;
-  const floorY = 250;
-  const mount = meta.mount ?? "wallmount";
-  const legH = mount === "legs" || mount === "kick" ? floorY - (bodyY + bodyH) : 0;
+  const legH = onFloor ? (tall ? 40 : 30) : 0;
+  const bodyH = tall ? 200 : onFloor ? floorY - legH - bodyY : 82;
+  const viewY = tall ? 0 : 60; // crop the empty space above a vanity's taps
   const config = meta.config ?? "";
 
   // Fronts: doors full height, drawers stacked (2 columns when there are 4+).
@@ -91,7 +95,7 @@ export default function OptionsDrawing({ style, meta, size = 320 }: { style: Dra
   const taps = tall || bare ? null : centres.map((cx, i) => <path key={`t${i}`} d={`M${cx} ${topY} v${basin === "above" ? -36 : -22} h${basin === "above" ? 12 : 10}`} fill="none" stroke="#8a9294" strokeWidth={3} strokeLinecap="round" />);
 
   return (
-    <svg viewBox={`0 0 ${W} 262`} width={size} style={{ maxWidth: "100%", height: "auto" }} role="img" aria-label={tall ? "Tallboy illustration" : "Vanity illustration"}>
+    <svg viewBox={`0 ${viewY} ${W} ${262 - viewY}`} width={size} style={{ maxWidth: "100%", height: "auto" }} role="img" aria-label={tall ? "Tallboy illustration" : "Vanity illustration"}>
       <line x1={0} y1={floorY} x2={W} y2={floorY} stroke="#d4d7d2" strokeWidth={2} />
       {taps}
       {!tall && !bare && <rect x={tx - 4} y={topY} width={tw + 8} height={topH} rx={1.5} fill="#f4f1ea" stroke={STROKE} strokeWidth={1.6} />}

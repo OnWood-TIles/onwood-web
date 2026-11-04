@@ -9,9 +9,3 @@
 export const SPECIALS_ENABLED = false;
 
 
-// BUILD_PAGES_PUBLIC — the /build pages (every product with options, e.g. Marquis
-// vanities, as a price builder). While false they are staff-only (sign in at /staff)
-// and show unpublished products in preview, so builds can be checked before launch.
-// Published products with options ALSO get the builder on their normal product page
-// (/product/[slug]) regardless of this flag. Flip to `true` at launch.
-export const BUILD_PAGES_PUBLIC = false;

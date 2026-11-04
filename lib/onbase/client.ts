@@ -523,18 +523,3 @@ export const getBusiness = unstable_cache(
   { revalidate: TTL_CATALOGUE, tags: ["business"] },
 );
 
-// ── Products with options (build pages, e.g. Marquis vanities) ───────────────
-// Prices in the options are GST-inclusive retail, converted by OnBase.
-export type BuilderSummary = { slug: string; name: string; department: string | null; categories: string[]; image: string | null; from: number; drawing: string; draw?: import("../options").DrawMeta };
-
-/** Every product with options. `preview` includes not-yet-published ones (staff only). */
-export function listBuilders(preview: boolean): Promise<BuilderSummary[]> {
-  return onbaseGet<BuilderSummary[]>(`/api/v1/website/builders${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders"] }, [])
-    .then((l) => (Array.isArray(l) ? l.map((b) => ({ ...b, image: img(b.image) ?? null })) : []));
-}
-
-/** One product with its options attached (same shape as getRange). */
-export function getBuilder(slug: string, preview: boolean): Promise<WebsiteRange | null> {
-  return onbaseGet<WebsiteRange | null>(`/api/v1/website/builders/${encodeURIComponent(slug)}${preview ? "?preview=1" : ""}`, { revalidate: TTL_STOCK, tags: ["ranges", "builders", `builder:${slug}`] }, null)
-    .then((r) => (r && r.slug ? normalizeRange(r) : null));
-}
