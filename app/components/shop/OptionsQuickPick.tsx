@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { WebsiteRange } from "../../../lib/onbase/client";
 import {
   choicePrice, describeOptions, groupShown, isAvailable, many, normalizeSelection, priceOptions,
-  type OptionGroup, type OptionSelection, type ProductOptions,
+  type OptionGroup, type OptionSelection,
 } from "../../../lib/options";
 import SaveButton from "../wishlist/SaveButton";
 import AddToQuoteButton from "../quote/AddToQuoteButton";
@@ -14,12 +14,6 @@ import AddToQuoteButton from "../quote/AddToQuoteButton";
 // chips on a tile, instead of the full step-by-step builder (kept for vanities).
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
-
-/** Few enough choices to pick inline: no typed answers, no price table, short lists. */
-export function isQuickPick(o: ProductOptions | null | undefined, department?: string | null): boolean {
-  if (!o || department === "vanities" || department === "bathroom-storage" || o.table) return false;
-  return o.groups.length <= 3 && o.groups.every((g) => g.type !== "text" && g.choices.length <= 8);
-}
 
 export default function OptionsQuickPick({ range, query }: { range: WebsiteRange; query: Record<string, string> }) {
   const o = range.options!;

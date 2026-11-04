@@ -4,7 +4,8 @@ import type { WebsiteRange } from "../../../lib/onbase/client";
 import { BUILDER_CSS } from "./builderCss";
 import OptionsBuilder from "./OptionsBuilder";
 import PhotoGallery from "./OptionsPhotoGallery";
-import OptionsQuickPick, { isQuickPick } from "./OptionsQuickPick";
+import OptionsQuickPick from "./OptionsQuickPick";
+import { isQuickPick } from "./quickPick";
 import { FAQ_CATEGORIES } from "../../../lib/faq";
 import { Markdown } from "../../../lib/markdown";
 
