@@ -432,6 +432,7 @@ export type DepartmentSeo = {
   metaDescription: string;
   links?: { label: string; href: string }[]; // internal "related" links under the intro (SEO internal-linking + UX)
   faqs?: { q: string; a: string }[]; // visible FAQ block + FAQPage structured data (long-tail relevance)
+  noHero?: boolean; // no "In focus" room shot (product photos on plain backgrounds don't suit it)
 };
 
 export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
@@ -518,6 +519,111 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { q: "Do you have tapware for both the kitchen and bathroom?", a: "Yes. Our range covers kitchen mixers and statement bridge mixers as well as bathroom tapware, all in coordinating finishes." },
       { q: "Can you help me match tapware to my tiles?", a: "Absolutely. Bring your tile selections into the Baringa showroom and we'll help you coordinate finishes across your taps, wastes and tiles." },
       { q: "Are you supply only?", a: "Yes, we're supply only across the Sunshine Coast, with delivery to your suburb or collection from Baringa. We don't install, but we're always happy to help you choose." },
+    ],
+  },
+  vanities: {
+    eyebrow: "Shop vanities",
+    h1: "Bathroom Vanities, Built Your Way",
+    intro: [
+      "Australian-made Marquis bathroom vanities that you build to suit your space: choose the size, wall-hung or floor-standing, single or double basin, the benchtop and basin, cabinet colour and handles, and see your price update as you go. From compact ensuite vanities to 1800mm double vanities, including the Coastal Collection and Express ranges. Supplied from our Baringa showroom on the Sunshine Coast.",
+    ],
+    metaTitle: "Bathroom Vanities Sunshine Coast | Custom Marquis Vanities",
+    metaDescription:
+      "Build your own Australian-made Marquis vanity: choose the size, mounting, benchtop, basin, cabinet colour and handles with live pricing. Supply only, Sunshine Coast.",
+    links: [
+      { label: "Shop basins", href: "/shop/basins" },
+      { label: "Shop mirrors", href: "/shop/mirrors" },
+      { label: "Shop tapware", href: "/shop/tapware" },
+      { label: "Shop tiles", href: "/shop/tiles" },
+    ],
+    faqs: [
+      { q: "Can I customise a vanity?", a: "Yes. Every vanity here is made to order by Marquis, so you choose the size, wall-hung, kick or leg mounting, the benchtop and basin, the cabinet colour and the handles. The builder on each vanity page shows your price as you choose." },
+      { q: "How long does a made-to-order vanity take?", a: "Most Marquis vanities are made to order in about 3 to 4 weeks. Express vanities (Shore, Cove, Pier, Marq and Marq Compact) with a Symphony or moulded top leave the factory within 5 business days." },
+      { q: "What is the difference between a wall-hung and a floor-standing vanity?", a: "A wall-hung vanity is fixed to the wall with the floor running underneath, which makes a small bathroom feel bigger and is easy to clean under. A vanity on a kick base or legs stands on the floor and gives you a taller, furniture-style look." },
+      { q: "Is the basin included?", a: "Most above-counter basins are included in the vanity price. A few premium basins add a surcharge, and the builder shows it as you choose. You can also choose a cabinet only and supply your own benchtop." },
+      { q: "Are Marquis vanities Australian made?", a: "Yes. Marquis vanities are made in Australia and come with Marquis's lifetime warranty on the cabinetry." },
+    ],
+  },
+  basins: {
+    eyebrow: "Shop basins",
+    h1: "Bathroom Basins",
+    intro: [
+      "Above-counter, semi-inset and under-counter bathroom basins from Marquis, in round, oval, square and fluted shapes. Choose from classic white gloss and matte ceramic, coloured matte finishes, solid acrylic, brushed metal and translucent basins. Buy a basin on its own, or choose it as part of a Marquis vanity, where most basins are included in the price.",
+    ],
+    metaTitle: "Bathroom Basins | Above-Counter & Under-Counter | OnWood",
+    metaDescription:
+      "Above-counter, semi-inset and under-counter bathroom basins in ceramic, fluted, acrylic and brushed metal, in white and coloured finishes. Supply only, Sunshine Coast.",
+    links: [
+      { label: "Shop vanities", href: "/shop/vanities" },
+      { label: "Shop tapware", href: "/shop/tapware" },
+      { label: "Shop mirrors", href: "/shop/mirrors" },
+    ],
+    faqs: [
+      { q: "What is the difference between an above-counter and an under-counter basin?", a: "An above-counter basin sits on top of the benchtop as a feature. An under-counter basin is fixed below a stone or Symphony benchtop so the top runs right to the edge of the bowl, which is clean-lined and easy to wipe down." },
+      { q: "What is a semi-inset basin?", a: "A semi-inset basin sits partly into the benchtop, so it is lower than an above-counter basin. It gives a lower bowl height than an above-counter basin." },
+      { q: "Do your basins suit any vanity?", a: "Most do, as long as the benchtop is cut for the basin and the tap position works with the bowl. If you are building a Marquis vanity, choose the basin in the vanity builder and it is cut to suit." },
+      { q: "Which tap goes with an above-counter basin?", a: "Use a tall basin mixer or a wall-mounted tap and spout that reaches over the rim of the bowl. Our team can help you match the tap height to your basin." },
+    ],
+    noHero: true,
+  },
+  mirrors: {
+    eyebrow: "Shop mirrors",
+    h1: "Bathroom Mirrors & Shaving Cabinets",
+    intro: [
+      "Frameless bathroom mirrors in round, oval, arch, capsule, hexagon and organic shapes, timber-framed mirrors in your choice of finish, and mirrored shaving cabinets with storage behind the glass. Many mirrors can add a warm LED backlight. Made by Marquis to pair with their vanities, and supplied from our Sunshine Coast showroom.",
+    ],
+    metaTitle: "Bathroom Mirrors & Shaving Cabinets | OnWood Tiles",
+    metaDescription:
+      "Frameless, framed and LED backlit bathroom mirrors in round, oval, arch and capsule shapes, plus mirrored shaving cabinets. Supply only, Sunshine Coast.",
+    links: [
+      { label: "Shop vanities", href: "/shop/vanities" },
+      { label: "Shop basins", href: "/shop/basins" },
+      { label: "Shop tapware", href: "/shop/tapware" },
+    ],
+    faqs: [
+      { q: "What size mirror should go above my vanity?", a: "As a guide, choose a mirror a little narrower than the vanity, or one mirror per basin over a double vanity. Leave a gap above the tap and hang it so the centre is around eye level." },
+      { q: "Can I get a mirror with lighting?", a: "Yes. Many of our frameless mirrors can add an LED backlight in a warm 2700K white, which gives a soft glow around the mirror." },
+      { q: "What is a shaving cabinet?", a: "A shaving cabinet is a wall cabinet with mirrored doors and shelves behind them, so you get a mirror and hidden storage for toiletries in one." },
+      { q: "Do the mirrors match the vanities?", a: "They are made by Marquis to sit with Marquis vanities, and the timber-framed mirrors can be made in a vanity cabinet finish." },
+    ],
+    noHero: true,
+  },
+  pavers: {
+    eyebrow: "Shop pavers",
+    h1: "Outdoor Porcelain Pavers",
+    intro: [
+      "Hard-wearing 20mm porcelain pavers for patios, pool surrounds, alfresco areas, paths and driveways. Porcelain pavers resist stains, fading and moisture, need no sealing and suit the Sunshine Coast's sun and salt air. Lay them on sand, gravel or pedestals, or match them to an indoor tile for a seamless inside-out look.",
+    ],
+    metaTitle: "Outdoor Porcelain Pavers Sunshine Coast | OnWood Tiles",
+    metaDescription:
+      "20mm outdoor porcelain pavers for patios, pool surrounds, paths and alfresco areas. Low maintenance, no sealing, suited to coastal conditions. Supply only, Sunshine Coast.",
+    links: [
+      { label: "Outdoor tiles buying guide", href: "/blog/outdoor-tiles-sunshine-coast-guide" },
+      { label: "Shop tiles", href: "/shop/tiles" },
+      { label: "Shop stone cladding", href: "/shop/stone-cladding" },
+      { label: "Tile calculator", href: "/calculator" },
+    ],
+    faqs: [
+      { q: "What is the difference between a porcelain paver and an outdoor tile?", a: "A porcelain paver is 20mm thick, about twice the thickness of a standard tile, so it can be laid loose on sand, gravel or pedestals as well as glued to a slab. An outdoor tile is thinner and must be fixed to a concrete base." },
+      { q: "Do porcelain pavers need sealing?", a: "No. Porcelain is dense and non-porous, so it does not need sealing and resists stains, mould and fading." },
+      { q: "Are porcelain pavers slippery around a pool?", a: "Outdoor porcelain pavers have a textured, slip-rated surface made for wet areas like pool surrounds. Ask us about the slip rating for your space." },
+      { q: "How many pavers do I need?", a: "Measure your area in square metres and add around 5 to 10% for cuts. Our tile calculator gives a quick estimate, or bring your plans into the showroom." },
+    ],
+    noHero: true,
+  },
+  accessories: {
+    eyebrow: "Shop accessories",
+    h1: "Tile Accessories & Finishing Pieces",
+    intro: [
+      "The finishing pieces that complete a tiled room, like matching cove skirting for a clean wall-to-floor junction. Chosen to go with the tiles in our range, so the details match the floor. Supplied from our Baringa showroom on the Sunshine Coast.",
+    ],
+    metaTitle: "Tile Accessories & Skirting | OnWood Tiles",
+    metaDescription:
+      "Tile finishing pieces and accessories, including matching cove skirting for a clean wall-to-floor finish. Supply only from our Sunshine Coast showroom.",
+    links: [
+      { label: "Shop tiles", href: "/shop/tiles" },
+      { label: "Shop wastes & grates", href: "/shop/wastes" },
+      { label: "Tile calculator", href: "/calculator" },
     ],
   },
 };

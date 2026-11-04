@@ -69,6 +69,9 @@ export default async function DepartmentPage({
     : (allRanges[0] ?? null);
   const featuredRoom = featured?.swatches.find((s) => s.installedImage)?.installedImage ?? null;
   const featuredFace = featured?.swatches.find((s) => s.image)?.image ?? null;
+  // Some departments (mirrors, basins, pavers) skip the room-shot hero: their photos
+  // are product shots on plain backgrounds, which don't suit it.
+  const showHero = !seo?.noHero && !!(featuredRoom || featuredFace || deptHero);
 
   // Real, honest stats for under the hero (no invented numbers).
   const rangeCount = allRanges.length;
@@ -171,7 +174,7 @@ export default async function DepartmentPage({
           <span style={{ margin: "0 8px" }}>/</span>
           <span style={{ color: "var(--ink)", fontWeight: 600 }}>{dept.label}</span>
         </nav>
-        <div className="ow-hero">
+        <div className={`ow-hero${showHero ? "" : " no-media"}`}>
           <div className="ow-hero-text">
             {seo ? (
               <>
@@ -186,7 +189,7 @@ export default async function DepartmentPage({
             )}
           </div>
 
-          {(featuredRoom || featuredFace || deptHero) && (
+          {showHero && (
             <div className="ow-hero-media">
               {/* Sample stack: main installed room shot + an overlapping tile plate
                   + an "In focus" chip linking to the (daily-rotating) featured range. */}
@@ -330,6 +333,8 @@ export default async function DepartmentPage({
             .ow-hero-frame { aspect-ratio: auto; height: 100%; min-height: 200px; }
             .ow-hero-stats { justify-content: flex-start; margin-top: 6px; }
             .ow-hero-cta { justify-content: flex-start; }
+            /* No hero image: one readable column of copy with the stats under it. */
+            .ow-hero.no-media { grid-template-columns: minmax(0, 860px); grid-template-areas: "text" "stats" "cta"; }
           }
         `}</style>
       </main>
