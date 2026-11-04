@@ -19,7 +19,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!range) return { title: "Product not found" };
   const description =
     range.description?.slice(0, 155) ||
-    `${range.name} at OnWood Tiles - see it in our Sunshine Coast showroom.`;
+    (range.priceFrom
+      ? `Build and price the ${range.name} online, made to order and supplied from our Baringa showroom on the Sunshine Coast.`
+      : `${range.name} at OnWood Tiles - see it in our Sunshine Coast showroom.`);
   const url = `https://onwoodtiles.com.au/product/${slug}`;
   // Primary product image (same precedence as the Product JSON-LD): range hero ->
   // a swatch photo -> a gallery image. Absolutised so social + Pinterest previews
@@ -134,8 +136,20 @@ export default async function ProductPage({
   // Offer: the price actually shown (a range-level special wins, else the standard
   // "from" price), GST-inclusive AUD. Omitted when the price is hidden / unset.
   const offerPrice = range.special?.price ?? range.price ?? null;
+  // Products with options (made-to-order builds, e.g. Marquis vanities) carry a "from"
+  // price: an AggregateOffer with lowPrice, marked made to order.
   const offerLd =
-    offerPrice != null
+    offerPrice != null && range.priceFrom
+      ? {
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "AUD",
+            lowPrice: offerPrice.toFixed(2),
+            availability: "https://schema.org/MadeToOrder",
+            url: `${SITE}/product/${slug}`,
+          },
+        }
+      : offerPrice != null
       ? {
           offers: {
             "@type": "Offer",
@@ -152,7 +166,8 @@ export default async function ProductPage({
     name: range.name,
     ...(image ? { image } : {}),
     ...(description ? { description } : {}),
-    brand: { "@type": "Brand", name: "OnWood Tiles" },
+    // The maker for supplier-built products with options (e.g. Marquis); our own brand otherwise.
+    brand: { "@type": "Brand", name: range.options?.source?.supplier || "OnWood Tiles" },
     ...(category ? { category } : {}),
     ...offerLd,
     ...reviewLd,
