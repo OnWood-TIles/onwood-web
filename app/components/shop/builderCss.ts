@@ -137,6 +137,8 @@ export const BUILDER_CSS = `
   .vb-pop-tabs .vb-chip{flex:none}
   .vb-pop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .vb-drawn{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .vb-swatches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .vb-sw{font-size:12.5px;line-height:1.3;text-align:left}
   .vb{grid-template-columns:1fr}
   .vb-side{position:static}
   .vb-wrap{padding-left:16px;padding-right:16px}

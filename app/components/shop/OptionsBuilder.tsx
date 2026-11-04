@@ -116,7 +116,9 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
   const summary = (g: OptionGroup) => {
     if (g.type === "text") return String(one(sel[g.key]) ?? "").trim() || "Optional";
     const cs = many(sel[g.key]).map((k) => g.choices.find((c) => c.key === k)).filter((c): c is OptionChoice => !!c);
-    if (!cs.length) return g.type === "multi" ? "None added" : g.required ? "Choose one" : "Standard";
+    // "Standard" only where every choice is a paid upgrade (e.g. benchtop thickness).
+    const upgrades = g.choices.every((c) => c.price || c.priceBy);
+    if (!cs.length) return g.type === "multi" ? "None added" : g.required ? "Choose one" : upgrades ? "Standard" : "Not chosen yet";
     return cs.map((c) => (c.section && g.type === "single" && !c.label.includes(c.section) ? `${c.label} (${c.section})` : c.label)).join(", ");
   };
   const summaryImg = (g: OptionGroup) => g.choices.find((c) => c.key === one(sel[g.key]))?.image ?? null;
