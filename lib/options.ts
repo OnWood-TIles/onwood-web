@@ -21,6 +21,9 @@ export interface DrawMeta {
   shape?: "rect" | "round" | "oval" | "arch" | "capsule" | "hexagon";
   doors?: number;
   topMm?: number; // benchtop thickness (drawn thicker for 40mm / 60mm tops)
+  arrange?: "side" | "split-drawers" | "split-doors"; // drawers to one side, drawers either side of the doors, or doors either side of the drawers
+  drawerSide?: "left" | "right"; // the customer's left / right hand drawers pick
+  basinSide?: "left" | "right"; // the customer's left / right hand basin pick (off-centre basins)
 }
 
 export interface OptionChoice {

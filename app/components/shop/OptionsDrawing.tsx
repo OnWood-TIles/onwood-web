@@ -66,15 +66,24 @@ export default function OptionsDrawing({ style, meta, size = 320 }: { style: Dra
   const cols = Math.max(1, doors + drawerCols);
   const colW = tw / cols;
   const fronts: ReactElement[] = [];
-  let c = 0;
-  const order = meta.basinLayout === "off centre" ? ["door", "drawer"] : ["drawer", "door"];
-  for (const t of order) {
-    if (t === "door") for (let i = 0; i < doors; i++, c++) {
-      const hx = tx + c * colW + (i % 2 ? 10 : colW - 10);
+  // Column order, left to right, as on the supplier's order form: drawers either side
+  // of the doors, doors either side of the drawers, or drawers to one side (the
+  // customer's left / right hand pick flips it).
+  type Col = "door" | "drawer";
+  const doorCols: Col[] = Array(doors).fill("door"), drwCols: Col[] = Array(drawerCols).fill("drawer");
+  const offCentre = meta.basinLayout === "off centre";
+  const drawersLeft = meta.drawerSide ? meta.drawerSide === "left" : meta.arrange === "side" ? !offCentre || meta.basinSide === "right" : !offCentre;
+  const seq: Col[] =
+    meta.arrange === "split-drawers" && drawerCols === 2 && doors ? ["drawer", ...doorCols, "drawer"]
+    : meta.arrange === "split-doors" && doors >= 2 && drawerCols ? [...doorCols.slice(0, Math.floor(doors / 2)), ...drwCols, ...doorCols.slice(Math.floor(doors / 2))]
+    : drawersLeft ? [...drwCols, ...doorCols] : [...doorCols, ...drwCols];
+  seq.forEach((t, c) => {
+    if (t === "door") {
+      // Handle on the edge facing the middle of the cabinet (door pairs meet in the middle).
+      const hx = tx + c * colW + ((c + 0.5) * colW <= tw / 2 ? colW - 10 : 10);
       fronts.push(<rect key={`d${c}`} x={tx + c * colW + 3} y={bodyY + 3} width={colW - 6} height={bodyH - 6} rx={2} fill="none" stroke={STROKE} strokeWidth={1.2} />);
       fronts.push(<line key={`dh${c}`} x1={hx} y1={bodyY + 14} x2={hx} y2={bodyY + 30} stroke={STROKE} strokeWidth={2.2} strokeLinecap="round" />);
-    }
-    if (t === "drawer") for (let k = 0; k < drawerCols; k++, c++) {
+    } else {
       const dh = (bodyH - 6) / perCol;
       for (let j = 0; j < perCol; j++) {
         const y = bodyY + 3 + j * dh;
@@ -82,11 +91,13 @@ export default function OptionsDrawing({ style, meta, size = 320 }: { style: Dra
         fronts.push(<line key={`rh${c}${j}`} x1={tx + c * colW + colW / 2 - 12} y1={y + 7} x2={tx + c * colW + colW / 2 + 12} y2={y + 7} stroke={STROKE} strokeWidth={2.2} strokeLinecap="round" />);
       }
     }
-  }
+  });
 
-  // Basins: centre / off centre / double.
+  // Basins: centre / off centre (the customer's side, else away from the drawers) / double.
   const basin = meta.basin ?? "above";
-  const centres = meta.basinLayout === "double" ? [tx + tw * 0.27, tx + tw * 0.73] : meta.basinLayout === "off centre" ? [tx + tw * 0.7] : [tx + tw / 2];
+  const split = seq[0] === seq[seq.length - 1] && seq.length > 2 && new Set(seq).size > 1;
+  const basinLeft = meta.basinSide ? meta.basinSide === "left" : !split && !!drawerCols && !drawersLeft;
+  const centres = meta.basinLayout === "double" ? [tx + tw * 0.27, tx + tw * 0.73] : offCentre ? [tx + tw * (basinLeft ? 0.25 : 0.75)] : [tx + tw / 2];
   const bw = Math.min(110, tw * (meta.basinLayout === "double" ? 0.34 : 0.45));
   const bare = basin === "none"; // cabinet only: no top, basin or tap
   const basins = tall || bare ? null : centres.map((cx, i) => basin === "above"
