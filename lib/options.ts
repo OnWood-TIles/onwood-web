@@ -78,6 +78,7 @@ export interface LineConfig {
   spec: string[];
   drawing?: { style: DrawingStyle; meta: DrawMeta } | null;
   code?: string | null; // supplier order code of the chosen combination (price table)
+  rrpDiscount?: number | null; // % taken off the build's RRP for this line (trade partners)
 }
 
 /** Supplier order code for the chosen combination, when the price table has codes. */

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { CSSProperties } from "react";
 import type { Swatch, WebsiteRange } from "../../../../lib/onbase/client";
 import { familySlug } from "../../../../lib/family";
-import { AddToOrderModal, PriceBlock, type Summary } from "./TradeCards";
+import { AddToOrderModal, BuildButton, PriceBlock, type Summary } from "./TradeCards";
 
 // The trade product page's action block: the selected colourway's trade price
 // (RRP struck / Your Price) plus "Add to order". Rendered by ProductView via its
@@ -37,7 +37,9 @@ export default function TradeProductActions({
       <PriceBlock s={s} singleSwatch />
 
       <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
-        {priced ? (
+        {range.priceFrom ? (
+          <BuildButton slug={range.slug} />
+        ) : priced ? (
           <button type="button" onClick={() => setOpen(true)} style={addBtn}>
             Add to order
           </button>
@@ -57,7 +59,9 @@ export default function TradeProductActions({
       </div>
 
       <p style={{ marginTop: 14, fontSize: 12.5, color: "#8a8577" }}>
-        Your trade pricing. Stock is live from our system - add it to your order request and our team will confirm.
+        {range.priceFrom
+          ? "Made to order: choose your build, then send it as a quote request. Your trade discount is applied to the quote we send you."
+          : "Your trade pricing. Stock is live from our system - add it to your order request and our team will confirm."}
       </p>
 
       {open && <AddToOrderModal range={range} preselectColour={swatch.colour} onClose={() => setOpen(false)} />}

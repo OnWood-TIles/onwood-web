@@ -110,6 +110,16 @@ const cardStyle: CSSProperties = {
   boxShadow: "0 10px 30px -18px rgba(32,48,58,.25)",
 };
 
+// Products with options (made-to-order builds, e.g. vanities) can't go straight into an
+// order request: the partner builds it on the product page and sends it as a quote request.
+export function BuildButton({ slug }: { slug: string }) {
+  return (
+    <a href={`/product/${slug}`} style={{ textAlign: "center", textDecoration: "none", background: "var(--ink)", color: "#fff6ee", fontWeight: 700, fontSize: 14, padding: "11px 16px", borderRadius: 99 }}>
+      Build &amp; get a quote
+    </a>
+  );
+}
+
 function AddButton({ onClick, label = "Add to order" }: { onClick: () => void; label?: string }) {
   return (
     <button
@@ -200,7 +210,7 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
         </Link>
         <PriceBlock s={s} />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
-          {s.anyPriced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
+          {range.priceFrom ? <BuildButton slug={range.slug} /> : s.anyPriced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
         </div>
       </div>
       {open && <AddToOrderModal range={range} onClose={() => setOpen(false)} />}
@@ -254,7 +264,7 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
         </Link>
         <PriceBlock s={s} singleSwatch />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
-          {priced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
+          {range.priceFrom ? <BuildButton slug={range.slug} /> : priced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
         </div>
       </div>
       {open && <AddToOrderModal range={range} preselectColour={swatch.colour} onClose={() => setOpen(false)} />}
