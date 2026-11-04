@@ -8,6 +8,7 @@ import {
   type OptionChoice, type OptionGroup, type OptionSelection, type ProductOptions,
 } from "../../../lib/options";
 import SaveButton from "../wishlist/SaveButton";
+import AddToQuoteButton from "../quote/AddToQuoteButton";
 import OptionsDrawing from "./OptionsDrawing";
 
 // Customer price builder for any product with options (set up on the OnBase Pricing
@@ -189,9 +190,15 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
           {!priced.ok && <p className="vb-fine" style={{ color: "#b42318" }}>{priced.errors[0]}</p>}
           <p className="vb-fine">Price includes GST.{supplier ? ` Made to order by ${supplier}.` : ""}</p>
           <div className="vb-ctas">
-            <Link href={enquire} className="vb-primary">Enquire about this build →</Link>
+            {priced.ok && (
+              <AddToQuoteButton label="Add build to quote" item={{
+                kind: "options", href: url || `/product/${range.slug}`, name: range.name, image: range.heroImage ?? null, rangeId: range.id,
+                unit: "Per Unit", boxQuantity: 1, coverageM2: null, unitPrice: priced.total, quantity: 1, options: sel, spec,
+              }} />
+            )}
             <SaveButton variant="inline" item={{ href: url || `/product/${range.slug}`, name: `${range.name} (your build)` }} />
           </div>
+          <Link href={enquire} className="vb-link" style={{ display: "block" }}>Or ask us a question about this build</Link>
           <Link href="/book" className="vb-link">See it in the showroom</Link>
         </div>
       </aside>

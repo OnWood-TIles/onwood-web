@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { WebsiteRange, Swatch } from "../../../lib/onbase/client";
 import { AvailabilityPill, Watermark, ColourwayCard, priceUnitSuffix } from "./shared";
 import SaveButton from "../wishlist/SaveButton";
+import AddToQuoteButton from "../quote/AddToQuoteButton";
 import { pairSwatch } from "../../../lib/pairs";
 import { familySlug } from "../../../lib/family";
 import { imageAlt } from "../../../lib/alt";
@@ -403,6 +404,14 @@ export default function ProductView({
                   Enquire about {range.swatches.length > 1 ? "this range" : "this product"} →
                 </Link>
                 <SaveButton variant="inline" item={{ href: `/product/${range.slug}`, name: range.name, colour: swatch?.colour, image: main ?? undefined }} />
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <AddToQuoteButton item={{
+                  kind: "standard", href: `/product/${range.slug}`, name: range.name, colour: swatch?.colour ?? null, image: main ?? null, rangeId: range.id,
+                  unit: swatch?.unit ?? range.unit ?? "m2", boxQuantity: swatch?.boxQuantity ?? 1, coverageM2: swatch?.coverageM2 ?? range.coverageM2 ?? null,
+                  unitPrice: swatch?.special?.price ?? range.special?.price ?? swatch?.price ?? range.price ?? null,
+                  quantity: swatch?.boxQuantity ?? 1,
+                }} />
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
                 <Link

@@ -70,6 +70,10 @@ export type Swatch = {
   productId?: string;
   /** This swatch's trade pricing (trade feed only; absent on the public shop). */
   trade?: TradeSwatchInfo | null;
+  /** Sold in multiples of this, its sold unit and m² per unit (quote list rounding). */
+  boxQuantity?: number;
+  unit?: string;
+  coverageM2?: number | null;
 };
 
 export type WebsiteRange = {
