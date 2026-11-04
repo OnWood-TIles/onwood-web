@@ -4,6 +4,7 @@ import type { WebsiteRange } from "../../../lib/onbase/client";
 import { BUILDER_CSS } from "./builderCss";
 import OptionsBuilder from "./OptionsBuilder";
 import PhotoGallery from "./OptionsPhotoGallery";
+import OptionsQuickPick, { isQuickPick } from "./OptionsQuickPick";
 import { FAQ_CATEGORIES } from "../../../lib/faq";
 import { Markdown } from "../../../lib/markdown";
 
@@ -18,6 +19,8 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
 }) {
   const steps = (range.options?.groups ?? []).filter((g) => g.type !== "text").slice(0, 5).map((g) => g.label.toLowerCase());
   const photos = [...new Set([range.heroImage, ...(range.images ?? [])].filter((x): x is string => !!x))].slice(0, 5);
+  // A few options only (e.g. a mirror's sizes + LED): pick them beside the photo, no builder.
+  const quick = isQuickPick(range.options, range.department);
   return (
     <>
       <style>{BUILDER_CSS}</style>
@@ -28,13 +31,14 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
       <div className={`vb-intro ${photos.length ? "has-photo" : ""}`}>
         {photos.length > 0 && <PhotoGallery photos={photos} name={range.name} />}
         <header className="vb-head">
-          <div className="vb-eyebrow">{range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : "Build your own"}</div>
+          <div className="vb-eyebrow">{range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : quick ? "Made to order" : "Build your own"}</div>
           <h1>{range.name}</h1>
           <p>{range.description || "Choose your options and watch the price update as you go. Send the build to us for a quote, or save it for later."}</p>
-          {steps.length >= 3 && <p className="vb-custom-note">Fully customisable: choose your {steps.join(", ").replace(/, ([^,]*)$/, " and $1")} below. Photos show one example build.</p>}
+          {quick && <OptionsQuickPick range={range} query={query} />}
+          {!quick && steps.length >= 3 && <p className="vb-custom-note">Fully customisable: choose your {steps.join(", ").replace(/, ([^,]*)$/, " and $1")} below. Photos show one example build.</p>}
         </header>
       </div>
-      <OptionsBuilder range={range} query={query} />
+      {!quick && <OptionsBuilder range={range} query={query} />}
       {MADE_TO_ORDER.has(range.department ?? "") && (() => {
         const faq = FAQ_CATEGORIES.find((c) => c.slug === "vanities");
         return faq ? (

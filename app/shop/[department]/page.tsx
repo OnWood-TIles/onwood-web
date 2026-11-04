@@ -215,9 +215,12 @@ export default async function DepartmentPage({
 
           {rangeCount > 0 && (
             <div className="ow-hero-stats">
-              {[{ n: rangeCount, l: rangeCount === 1 ? "range" : "ranges" }, { n: colourCount, l: colourCount === 1 ? "colour" : "colours" }].map((s) => (
+              {[
+                { n: rangeCount as number | null, l: (seo?.stats?.noun ?? ["range", "ranges"])[rangeCount === 1 ? 0 : 1] },
+                ...(seo?.stats?.second === null ? [] : seo?.stats?.second ? [{ n: null, l: seo.stats.second }] : [{ n: colourCount, l: colourCount === 1 ? "colour" : "colours" }]),
+              ].map((s) => (
                 <span key={s.l} style={{ display: "inline-flex", alignItems: "baseline", gap: 8 }}>
-                  <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 25, letterSpacing: "-.02em", color: "var(--ink)" }}>{s.n}</span>
+                  {s.n != null && <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 25, letterSpacing: "-.02em", color: "var(--ink)" }}>{s.n}</span>}
                   <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "#8a8577" }}>{s.l}</span>
                 </span>
               ))}

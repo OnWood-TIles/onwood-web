@@ -433,6 +433,10 @@ export type DepartmentSeo = {
   links?: { label: string; href: string }[]; // internal "related" links under the intro (SEO internal-linking + UX)
   faqs?: { q: string; a: string }[]; // visible FAQ block + FAQPage structured data (long-tail relevance)
   noHero?: boolean; // no "In focus" room shot (product photos on plain backgrounds don't suit it)
+  /** The stats under the intro ("10 ranges · 35 colours"). `noun` renames "ranges" (e.g.
+   *  "mirrors"); `second` replaces the colour count with a phrase ("Fully customisable"),
+   *  or null hides it. Leave both out for the tile-style default. */
+  stats?: { noun?: [string, string]; second?: string | null };
 };
 
 export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
@@ -536,6 +540,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { label: "Shop tapware", href: "/shop/tapware" },
       { label: "Shop tiles", href: "/shop/tiles" },
     ],
+    stats: { second: "Fully customisable" },
     faqs: [
       { q: "Can I customise a vanity?", a: "Yes. Every vanity here is made to order by Marquis, so you choose the size, wall-hung, kick or leg mounting, the benchtop and basin, the cabinet colour and the handles. The builder on each vanity page shows your price as you choose." },
       { q: "How long does a made-to-order vanity take?", a: "Most Marquis vanities are made to order in about 3 to 4 weeks. Express vanities (Shore, Cove, Pier, Marq and Marq Compact) with a Symphony or moulded top leave the factory within 5 business days." },
@@ -565,6 +570,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { q: "Which tap goes with an above-counter basin?", a: "Use a tall basin mixer or a wall-mounted tap and spout that reaches over the rim of the bowl. Our team can help you match the tap height to your basin." },
     ],
     noHero: true,
+    stats: { noun: ["basin", "basins"] },
   },
   mirrors: {
     eyebrow: "Shop mirrors",
@@ -587,6 +593,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { q: "Do the mirrors match the vanities?", a: "They are made by Marquis to sit with Marquis vanities, and the timber-framed mirrors can be made in a vanity cabinet finish." },
     ],
     noHero: true,
+    stats: { noun: ["mirror", "mirrors"], second: "Made to order" },
   },
   pavers: {
     eyebrow: "Shop pavers",
@@ -625,6 +632,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { label: "Shop wastes & grates", href: "/shop/wastes" },
       { label: "Tile calculator", href: "/calculator" },
     ],
+    stats: { noun: ["product", "products"], second: null },
   },
 };
 
