@@ -25,8 +25,6 @@ export const BUILDER_CSS = `
 .vb-drawn .vb-opt{align-items:center;text-align:center}
 .vb-drawn .vb-opt svg{max-width:100%;height:auto;margin-bottom:4px}
 .vb-larger{font:inherit;display:inline-flex;align-items:center;gap:7px;margin:0 0 6px;padding:8px 14px;border-radius:99px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font-weight:700;font-size:13.5px;cursor:pointer}
-.vb-sw i,.vb-pop-tile i{display:grid;place-items:center;font-style:normal;font-weight:800;color:#6a7075;background:#efebe3}
-.vb-sw i{width:34px;height:34px;border-radius:9px;font-size:11px}
 .vb-pop{position:fixed;inset:0;z-index:300;background:rgba(20,24,26,.55);display:flex;align-items:center;justify-content:center;padding:24px}
 .vb-pop-panel{background:var(--bg);border-radius:22px;width:min(1000px,100%);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.5)}
 .vb-pop-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px 10px}
@@ -36,7 +34,7 @@ export const BUILDER_CSS = `
 .vb-pop-body{overflow-y:auto;padding:4px 22px 24px}
 .vb-pop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .vb-pop-tile{font:inherit;text-align:left;cursor:pointer;background:#fff;border:2px solid var(--line);border-radius:16px;padding:8px 8px 10px;color:var(--ink);display:flex;flex-direction:column;gap:3px}
-.vb-pop-tile img,.vb-pop-tile i{width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;margin-bottom:5px;font-size:22px}
+.vb-pop-tile img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;margin-bottom:5px;font-size:22px}
 .vb-pop-tile strong{font-size:14px;line-height:1.3}
 .vb-pop-tile small{font-size:12px;color:#6a7075;line-height:1.35}
 .vb-pop-tile span{font-size:13px;font-weight:700;color:var(--accent)}

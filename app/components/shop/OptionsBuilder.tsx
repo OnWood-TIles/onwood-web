@@ -273,16 +273,16 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
 
 type SwatchProps = { g: OptionGroup; avail: OptionChoice[]; picked: string[]; priceOf: (c: OptionChoice) => string; onPick: (c: OptionChoice) => void };
 const sectionsOf = (avail: OptionChoice[]) => [...new Set(avail.map((c) => c.section ?? ""))];
-const initials = (s: string) => s.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
 /** Small swatches inside the step, with a button to see them larger. */
 function Swatches({ avail, picked, priceOf, onPick, onLarger }: SwatchProps & { onLarger: () => void }) {
+  const photos = avail.some((c) => c.image); // no photos: plain text chips, no pop-up
   return (
     <>
-      <button type="button" className="vb-larger" onClick={onLarger}>
+      {photos && <button type="button" className="vb-larger" onClick={onLarger}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
         View all {avail.length} larger
-      </button>
+      </button>}
       {sectionsOf(avail).map((sec) => (
         <div key={sec || "all"} className="vb-sec">
           {sec && <p className="vb-sec-h">{sec}</p>}
@@ -291,8 +291,8 @@ function Swatches({ avail, picked, priceOf, onPick, onLarger }: SwatchProps & { 
               const on = picked.includes(c.key);
               const p = priceOf(c);
               return (
-                <button type="button" key={c.key} aria-pressed={on} title={c.detail ?? c.label} onClick={() => onPick(c)} className={`vb-sw img ${on ? "on" : ""}`}>
-                  {c.image ? <img src={c.image} alt="" loading="lazy" /> : <i>{initials(c.label)}</i>}
+                <button type="button" key={c.key} aria-pressed={on} title={c.detail ?? c.label} onClick={() => onPick(c)} className={`vb-sw ${c.image ? "img" : ""} ${on ? "on" : ""}`}>
+                  {c.image && <img src={c.image} alt="" loading="lazy" />}
                   <span>{c.label}{p ? ` ${p}` : ""}</span>
                 </button>
               );
@@ -341,7 +341,7 @@ function SwatchPopup({ g, avail, picked, priceOf, onPick, onClose }: SwatchProps
                   const p = priceOf(c);
                   return (
                     <button type="button" key={c.key} aria-pressed={on} onClick={() => onPick(c)} className={`vb-pop-tile ${on ? "on" : ""}`}>
-                      {c.image ? <img src={c.image} alt="" loading="lazy" /> : <i>{initials(c.label)}</i>}
+                      {c.image && <img src={c.image} alt="" loading="lazy" />}
                       <strong>{c.label}</strong>
                       {c.detail && <small>{c.detail}</small>}
                       {p && <span>{p}</span>}

@@ -85,9 +85,10 @@ export function priceUnitSuffix(u?: string | null): string {
 // where the build really is open (a basin with a colour choice isn't "fully" anything).
 const CUSTOMISABLE_DEPTS = new Set(["vanities", "bathroom-storage"]);
 export const isCustomisable = (r: { priceFrom?: boolean; department?: string | null }) => !!r.priceFrom && CUSTOMISABLE_DEPTS.has(r.department ?? "");
-export function CustomisableBadge() {
+// Top-left so it doesn't cover the product (the save heart is top-right); drops below a special badge.
+export function CustomisableBadge({ below = false }: { below?: boolean }) {
   return (
-    <div style={{ position: "absolute", left: 10, bottom: 10, pointerEvents: "none" }}>
+    <div style={{ position: "absolute", left: 10, top: below ? 48 : 10, pointerEvents: "none" }}>
       <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 99, background: "rgba(255,250,243,.94)", color: "var(--ink)", fontSize: 12, fontWeight: 800, letterSpacing: ".01em", boxShadow: "0 2px 8px rgba(20,20,20,.22)" }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" /></svg>
         Fully customisable
@@ -312,7 +313,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
             <SpecialBadge special={range.special} unit={range.unit} />
           </div>
         )}
-        {isCustomisable(range) && <CustomisableBadge />}
+        {isCustomisable(range) && <CustomisableBadge below={!!range.special} />}
         <div style={saveOverlay}>
           <SaveButton item={{ href: `${productBase}/${range.slug}`, name: range.name, image: image ?? undefined }} />
         </div>
@@ -432,7 +433,7 @@ export function ColourwayCard({ range, swatch, productBase = "/product" }: { ran
             <SpecialBadge special={special} unit={range.unit} />
           </div>
         )}
-        {isCustomisable(range) && <CustomisableBadge />}
+        {isCustomisable(range) && <CustomisableBadge below={!!special} />}
         <div style={saveOverlay}>
           <SaveButton item={{ href, name: range.name, colour: swatch.colour, image: image ?? undefined }} />
         </div>
