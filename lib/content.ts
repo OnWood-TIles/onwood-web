@@ -622,11 +622,11 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop accessories",
     h1: "Tile Accessories & Finishing Pieces",
     intro: [
-      "The finishing pieces that complete a tiled room, like matching cove skirting for a clean wall-to-floor junction. Chosen to go with the tiles in our range, so the details match the floor. Supplied from our Baringa showroom on the Sunshine Coast.",
+      "The finishing pieces that complete a tiled space: step treads with a grooved nosing for stairs and landings, tactile ground indicators for safer paths and entries, and matching cove skirting for a clean wall-to-floor junction. Chosen to go with the tiles in our range, so the details match the floor. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
-    metaTitle: "Tile Accessories & Skirting",
+    metaTitle: "Step Treads, Tactiles & Skirting Tiles",
     metaDescription:
-      "Tile finishing pieces and accessories, including matching cove skirting for a clean wall-to-floor finish. Supply only from our Sunshine Coast showroom.",
+      "Tile step treads, tactile ground indicators and matching cove skirting to finish stairs, paths and floors. Supply only from our Sunshine Coast showroom.",
     links: [
       { label: "Shop tiles", href: "/shop/tiles" },
       { label: "Shop wastes & grates", href: "/shop/wastes" },
