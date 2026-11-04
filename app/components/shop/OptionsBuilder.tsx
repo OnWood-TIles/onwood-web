@@ -140,7 +140,8 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
           const isOpen = open === g.key;
           const avail = g.type === "text" ? [] : g.choices.filter((c) => isAvailable(o, g, c, sel));
           const picked = many(sel[g.key]);
-          const hasImages = avail.some((c) => c.image);
+          // Photos (colours, basins, handles) or a long list: compact swatches + a larger pop-up.
+          const swatches = avail.some((c) => c.image) || g.choices.length > 10 || g.choices.some((c) => c.section);
           const img = !isOpen ? summaryImg(g) : null;
           return (
             <section className={`vb-step ${isOpen ? "open" : ""}`} key={g.key} id={`vb-step-${g.key}`}>
@@ -180,7 +181,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
                         })}
                       </div>
                     </>
-                  ) : hasImages ? (
+                  ) : swatches ? (
                     <Swatches g={g} avail={avail} picked={picked} priceOf={(c) => { const p = choicePrice(c, sel); return p ? `${p > 0 ? "+" : "-"}${fmt(Math.abs(p))}` : ""; }}
                       onPick={(c) => toggle(g, c, picked)} onLarger={() => setPopup(g.key)} />
                   ) : draws && g.type === "single" && avail.some((c) => c.draw) ? (
