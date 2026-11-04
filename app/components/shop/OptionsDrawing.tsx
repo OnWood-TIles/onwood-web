@@ -102,7 +102,8 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   const forced = !!meta.splitFrom && !doors && (meta.width ?? 0) >= meta.splitFrom;
   let drawerCols = drawers === 0 ? 0 : meta.rows ? Math.ceil(drawers / meta.rows) : drawers >= 4 ? 2 : 1;
   if (forced && drawerCols < 2) drawerCols = 2;
-  const perCol = !drawerCols ? 0 : meta.rows ? (forced ? meta.rows : Math.min(meta.rows, drawers)) : Math.ceil(drawers / drawerCols);
+  // A forced split keeps the full drawer stack in each column (Pier 5: 2 + 2, Nelson 1500: 2 + 2).
+  const perCol = !drawerCols ? 0 : meta.rows ? (forced ? meta.rows : Math.min(meta.rows, drawers)) : forced ? drawers : Math.ceil(drawers / drawerCols);
   const cols = Math.max(1, doors + drawerCols);
   const colW = (fx1 - fx0) / cols;
   // Column order, left to right, as on the supplier's order form: drawers either side
