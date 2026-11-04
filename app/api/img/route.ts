@@ -11,7 +11,7 @@ import crypto from "node:crypto";
 export const runtime = "nodejs";
 
 // Only cache images from the known catalogue hosts (SSRF guard).
-const ALLOW = /^https:\/\/([a-z0-9-]+\.)?(abiinteriors\.com\.au|onbasehq\.com\.au|onwoodtiles\.com\.au)\//i;
+const ALLOW = /^https:\/\/([a-z0-9-]+\.)?(abiinteriors\.com\.au|marquis\.com\.au|onbasehq\.com\.au|onwoodtiles\.com\.au)\//i;
 const WEEK = 604800;
 
 export async function GET(req: Request) {

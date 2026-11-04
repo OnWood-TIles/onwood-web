@@ -156,6 +156,48 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
     ],
   },
   {
+    slug: "vanities",
+    title: "Vanities & Bathroom Furniture",
+    items: [
+      {
+        q: "Are your vanities made to order?",
+        a: "Yes. Our vanities, tallboys and shaving cabinets are Australian made to order, to the size, layout, benchtop, basin, finish and handles you choose. Use the builder on each vanity's page to see the price as you go, then add it to your [quote list](/quote).",
+      },
+      {
+        q: "How long does a vanity take?",
+        a: "Most made-to-order vanities take around 3 to 4 weeks to be made and delivered to our Baringa warehouse, and stone or timber tops can take a little longer. Express ranges (Shore, Cove, Pier and Marq with Symphony or moulded tops) usually leave the factory within 5 business days. We confirm a realistic timeframe on your quote.",
+      },
+      {
+        q: "How does freight work for vanities?",
+        a: "Freight from the manufacturer to our Baringa warehouse is included in the price. You can then collect from us, or we can deliver to your home or site for a delivery fee, which we quote with your order. Vanities are bulky, so please have help on hand when they arrive.",
+      },
+      {
+        q: "Can I change or cancel my vanity order?",
+        a: "Changes are fine until we place your order with the manufacturer. Manufacture can start as soon as the next day, so later changes may not be possible and any fees the manufacturer charges are passed on. Because each vanity is made for you, it cannot be returned for change of mind. See our [Terms of Sale](/terms-of-sale).",
+      },
+      {
+        q: "Can I use my own basin or benchtop?",
+        a: "Yes. An above-counter basin is included in most vanity prices, and if you supply your own we take a credit off the price. You can also order most vanities as a cabinet only, without a top or basin, and we will show the price in the builder.",
+      },
+      {
+        q: "Which finishes and handles can I choose?",
+        a: "Each range lists its cabinet finishes, benchtop colours, basins and handles in the builder. Colours on screen are a guide only, so we recommend seeing finishes in person at the [showroom](/book) before you order.",
+      },
+      {
+        q: "What should I check when my vanity arrives?",
+        a: "Unpack and check it before it is installed, and let us know within 48 hours if anything is damaged or not as ordered. Please do not install an item that is damaged.",
+      },
+      {
+        q: "Do you install vanities?",
+        a: "We supply only. Your vanity must be installed by a licensed tradesperson to keep the warranty, following the manufacturer's instructions. Wall-hung vanities are fixed through the back panel into the wall studs, so plan wall framing before the walls are sheeted. Tapware and wastes are sold separately.",
+      },
+      {
+        q: "Is there a warranty on vanities?",
+        a: "Yes. Marquis vanity cabinets carry a lifetime warranty. Benchtops are covered for 10 to 25 years depending on the material, basins for 1 to 2 years, mirrors and shaving cabinet doors for 1 year, and LED lighting for 3 years (1 year on everything for commercial use). The warranty requires installation by a licensed tradesperson, and the manufacturer's care instructions apply.",
+      },
+    ],
+  },
+  {
     slug: "returns",
     title: "Returns & Warranty",
     items: [

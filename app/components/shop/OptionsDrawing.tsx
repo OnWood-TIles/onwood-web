@@ -84,16 +84,17 @@ export default function OptionsDrawing({ style, meta, size = 320 }: { style: Dra
   const basin = meta.basin ?? "above";
   const centres = meta.basinLayout === "double" ? [tx + tw * 0.27, tx + tw * 0.73] : meta.basinLayout === "off centre" ? [tx + tw * 0.7] : [tx + tw / 2];
   const bw = Math.min(110, tw * (meta.basinLayout === "double" ? 0.34 : 0.45));
-  const basins = tall ? null : centres.map((cx, i) => basin === "above"
+  const bare = basin === "none"; // cabinet only: no top, basin or tap
+  const basins = tall || bare ? null : centres.map((cx, i) => basin === "above"
     ? <ellipse key={i} cx={cx} cy={topY - 13} rx={bw / 2} ry={13} fill="#fff" stroke={STROKE} strokeWidth={1.8} />
     : <path key={i} d={`M${cx - bw / 2} ${bodyY} q0 26 ${bw / 2} 26 q${bw / 2} 0 ${bw / 2} -26`} fill="none" stroke={STROKE} strokeWidth={1.4} strokeDasharray="4 3" />);
-  const taps = tall ? null : centres.map((cx, i) => <path key={`t${i}`} d={`M${cx} ${topY} v${basin === "above" ? -36 : -22} h${basin === "above" ? 12 : 10}`} fill="none" stroke="#8a9294" strokeWidth={3} strokeLinecap="round" />);
+  const taps = tall || bare ? null : centres.map((cx, i) => <path key={`t${i}`} d={`M${cx} ${topY} v${basin === "above" ? -36 : -22} h${basin === "above" ? 12 : 10}`} fill="none" stroke="#8a9294" strokeWidth={3} strokeLinecap="round" />);
 
   return (
     <svg viewBox={`0 0 ${W} 262`} width={size} style={{ maxWidth: "100%", height: "auto" }} role="img" aria-label={tall ? "Tallboy illustration" : "Vanity illustration"}>
       <line x1={0} y1={floorY} x2={W} y2={floorY} stroke="#d4d7d2" strokeWidth={2} />
       {taps}
-      {!tall && <rect x={tx - 4} y={topY} width={tw + 8} height={topH} rx={1.5} fill="#f4f1ea" stroke={STROKE} strokeWidth={1.6} />}
+      {!tall && !bare && <rect x={tx - 4} y={topY} width={tw + 8} height={topH} rx={1.5} fill="#f4f1ea" stroke={STROKE} strokeWidth={1.6} />}
       <rect x={tx} y={bodyY} width={tw} height={bodyH} rx={2} fill="#e9e1d4" stroke={STROKE} strokeWidth={1.8} />
       {fronts}
       {basins}

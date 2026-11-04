@@ -67,6 +67,12 @@ export const BUILDER_CSS = `
 .vb-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}
 .vb-opt-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:6px}
 .vb-below{margin-top:48px}
+.vb-faq{margin-top:40px;max-width:820px}
+.vb-faq h2{font-family:var(--font-archivo);font-size:26px;font-weight:800;letter-spacing:-.015em;margin:0 0 12px}
+.vb-faq details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}
+.vb-faq summary{cursor:pointer;font-weight:700;font-size:15.5px}
+.vb-faq-a{margin-top:8px;font-size:15px;line-height:1.65;color:#4f565c}
+.vb-faq-a p{margin:0}
 .vb-crumbs{font-size:13px;color:#6a7075;margin:0 0 14px}
 .vb-crumbs a{color:inherit}
 .vb-index{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:42px}

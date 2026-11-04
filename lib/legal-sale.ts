@@ -59,6 +59,7 @@ export const TERMS_OF_SALE: LegalDoc = {
       blocks: [
         { type: "sub", text: "An order is a request to buy until we confirm it." },
         { type: "p", text: "If you submit an order request through our trade portal, that request notifies our team. It is not an order, it does not reserve stock, and it does not create a contract. We do not take payment through our website." },
+        { type: "p", text: "The same applies to a quote request sent from the quote list on our website. Prices shown in the quote list are estimates only. Your request lets our team prepare a quote; it is not an order, it does not reserve stock or start manufacture, and freight, stock and batch are confirmed on the quote we send you." },
         { type: "p", text: "An order is confirmed only when we issue you a quote acceptance, order confirmation or deposit invoice from our system and:" },
         { type: "list", items: [
           "for in-stock orders, we receive payment; or",
@@ -164,6 +165,21 @@ export const TERMS_OF_SALE: LegalDoc = {
       ],
     },
     {
+      id: "vanities-and-made-to-order-bathroom-furniture",
+      heading: "Vanities, mirrors and made-to-order bathroom furniture",
+      blocks: [
+        { type: "sub", text: "Vanities, tallboys, shaving cabinets and similar furniture are made to order for you." },
+        { type: "p", text: "Most of these products are manufactured by our supplier to the size, layout, mounting, benchtop, basin, cabinet finish and handles you choose. They are special orders, and clause 7 applies to them. Please check every detail of your build on your quote before you confirm it, including sizes, basin position, any left or right handed option, colours and handles. We make your order exactly as confirmed." },
+        { type: "p", text: "Lead times. Made-to-order vanities and furniture generally take around 3 to 4 weeks to be manufactured and delivered to our Baringa warehouse. Express ranges are usually dispatched by the manufacturer within 5 business days, plus transit time to us. After that, allow time for collection or for delivery to you (see clause 11). All lead times are estimates and can change with the manufacturer's workload, freight and the time of year." },
+        { type: "p", text: "Changes and cancellation. Manufacture can begin as soon as the day after we place your order with the manufacturer. After that point your order may not be able to be changed or cancelled, and any change or cancellation fee the manufacturer charges will be passed on to you. Because these products are made to your specification, they cannot be returned for change of mind." },
+        { type: "p", text: "Freight. The price of a made-to-order item includes freight from the manufacturer to our Baringa warehouse. Delivery from us to your home or site is quoted separately, as set out in clause 11. These items are bulky and heavy, so delivery is to the nearest accessible ground-level point unless we agree otherwise, and you will need help on hand to move them." },
+        { type: "p", text: "Checking your goods. Please unpack and inspect your item on delivery or collection, before it is installed, and tell us about any damage, fault or incorrect item within 48 hours (see clause 12). Do not install an item that is damaged or not as ordered." },
+        { type: "p", text: "Finishes and illustrations. Timber-grain, painted, stone and porcelain finishes can vary from samples, brochures and screens, and natural or engineered stone tops have their own variation in pattern and tone. A colour matched to a paint brand is matched as closely as the manufacturer can. Drawings and builders on our website are illustrations only, and photos may show options that are not included in the price." },
+        { type: "p", text: "Installation. We supply only. Vanities and cabinetry must be installed by a licensed, qualified tradesperson, following the manufacturer's instructions; the manufacturer's warranty may not apply otherwise. Plumbing, tapware, wastes, wall brackets and installation are not included unless your quote says so." },
+        { type: "p", text: "Warranty. The manufacturer's warranty is passed on to you (see clause 18). Its length depends on the component, for example the cabinet, benchtop, basin, mirror and lighting can each have a different warranty period, and the manufacturer's terms and care instructions apply. These products are moisture resistant but not waterproof, so water should be wiped up promptly." },
+      ],
+    },
+    {
       id: "returns-and-change-of-mind",
       heading: "Returns and change of mind",
       blocks: [
@@ -237,7 +253,7 @@ export const TERMS_OF_SALE: LegalDoc = {
           "If we do not enforce a right, that is not a waiver of it.",
           "These terms, together with your quote or order confirmation, are the entire agreement between us about your order and replace any earlier discussion or representation.",
           "You may not assign your rights under these terms without our written consent. We may assign ours in connection with a sale or restructure of our business.",
-          "Clauses 9, 17, 18, 19 and this clause 22 survive completion of your order.",
+          "Clauses 9, 18, 19, 20 and this clause 23 survive completion of your order.",
           "These terms are governed by the laws of Queensland, Australia. You and we submit to the non-exclusive jurisdiction of the courts of Queensland and the courts entitled to hear appeals from them.",
         ] },
       ],

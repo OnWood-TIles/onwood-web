@@ -17,7 +17,7 @@ export interface DrawMeta {
   basinLayout?: string | null; // centre | off centre | double
   config?: string; // "1 door 4 drawer"
   mount?: "wallmount" | "kick" | "legs" | null;
-  basin?: "above" | "under" | "moulded";
+  basin?: "above" | "under" | "moulded" | "none"; // none = cabinet only (no top or basin)
   shape?: "rect" | "round" | "oval" | "arch" | "capsule" | "hexagon";
   doors?: number;
 }
@@ -28,11 +28,12 @@ export interface OptionChoice {
   detail?: string; // short line under the label, e.g. "1500mm · double basin"
   section?: string; // sub-heading inside a long list, e.g. "Duragrain"
   code?: string; // supplier model code (e.g. Marquis "Camden 14")
-  price?: number; // flat price for this choice
+  price?: number; // flat price for this choice (negative = a credit, e.g. customer supplies own basin)
   priceBy?: { group: string; prices: Record<string, number | null> }; // price depends on another group's choice; missing/null = not offered
   onlyWith?: Record<string, string[]>; // only offered when each listed group has one of these choices
   image?: string | null;
   draw?: DrawMeta;
+  notInFrom?: boolean; // leave out of the "from" price (e.g. a cabinet-only option)
 }
 
 export interface OptionGroup {
@@ -48,7 +49,11 @@ export interface OptionGroup {
 }
 
 /** Price that depends on several choices together. Keys = choice keys joined by "|" in `groups` order. */
-export interface PriceTable { groups: string[]; cells: Record<string, number | null> }
+export interface PriceTable {
+  groups: string[];
+  cells: Record<string, number | null>;
+  codes?: Record<string, string>; // supplier order code per combination (same keys) - shown on POs, never to customers
+}
 
 export interface ProductOptions {
   version: 2;
@@ -72,6 +77,13 @@ export interface LineConfig {
   priced: PricedOptions;
   spec: string[];
   drawing?: { style: DrawingStyle; meta: DrawMeta } | null;
+  code?: string | null; // supplier order code of the chosen combination (price table)
+}
+
+/** Supplier order code for the chosen combination, when the price table has codes. */
+export function comboCode(o: ProductOptions, sel: OptionSelection): string | null {
+  if (!o.table?.codes) return null;
+  return o.table.codes[o.table.groups.map((g) => one(sel[g]) ?? "").join("|")] ?? null;
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -189,8 +201,10 @@ export function priceOptions(o: ProductOptions, sel: OptionSelection): PricedOpt
 /** Cheapest complete build - the "from" price. */
 export function fromPrice(o: ProductOptions): number {
   let best = Infinity;
+  const skip = (g: string, k: string) => !!o.groups.find((x) => x.key === g)?.choices.find((c) => c.key === k)?.notInFrom;
   const combos = o.table
     ? Object.entries(o.table.cells).filter(([, v]) => v != null).map(([k]) => Object.fromEntries(o.table!.groups.map((g, i) => [g, k.split("|")[i]])))
+      .filter((cmb) => !Object.entries(cmb).some(([g, k]) => skip(g, k as string)))
     : [{}];
   const first = o.groups.find((g) => g.type === "single" && g.required && !o.table?.groups.includes(g.key));
   const starts = first ? first.choices.map((c) => ({ [first.key]: c.key })) : [{}];
