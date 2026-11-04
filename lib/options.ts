@@ -26,7 +26,11 @@ export interface DrawMeta {
   basinSide?: "left" | "right"; // the customer's left / right hand basin pick (off-centre basins)
   // Range look (ProductOptions.drawBase): the front style, open shelves, real heights.
   face?: DrawFace;
-  curved?: boolean; // gently curved cabinet front (Reef, Shore)
+  curved?: boolean; // curved end panels either side of the fronts (Reef, Shore)
+  rail?: boolean; // a fixed rail panel under the benchtop, above the doors / drawers (Bowral, Kiama)
+  rows?: number; // drawers stack this many high, extra drawers go side by side (Chifley 1, Anna 2)
+  splitFrom?: number; // all-drawer fronts split into 2 columns from this width (mm), e.g. Nelson 1500
+  doorHandle?: "top"; // door handles run across the top of the door (Marq, Hamilton) instead of up the side
   shelf?: "below" | "ends"; // open shelf under the drawer (Oxford) / open shelf ends (Avion)
   shelfSide?: "left" | "right"; // which end the single open shelf sits
   wallMm?: number; // wall-hung height incl. top, mm

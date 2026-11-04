@@ -5,13 +5,14 @@
 // arches, flutes or Shaker panels, open shelves, real heights), the picked handle, and
 // the chosen cabinet / benchtop colour photos laid over the cabinet.
 // Copy of OnBase components/products/OptionsDrawing.tsx - keep the two in sync.
-import type { ReactElement } from "react";
+import { useId, type ReactElement } from "react";
 import type { DrawMeta, DrawingStyle } from "../../../lib/options";
 
 const STROKE = "#2f3a3d";
 const MM = 6; // 1 drawing unit = 6mm (300 units = an 1800mm vanity)
 
-// Stable id for the colour patterns: same images -> same id, so repeated drawings agree.
+// Colour pattern ids: unique per drawing (useId), because the page can hold several drawings
+// and a hidden one (the mobile mini drawing) would otherwise own the shared id.
 function hashId(s: string): string {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
@@ -19,6 +20,7 @@ function hashId(s: string): string {
 }
 
 export default function OptionsDrawing({ style, meta, size = 320, dims }: { style: DrawingStyle; meta: DrawMeta; size?: number; dims?: boolean }) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   if (style === "none") return null;
   const W = 300; // drawing units across the widest (1800mm) product
   const w = Math.max(90, Math.min(W, ((meta.width ?? 900) / 1800) * W));
@@ -71,29 +73,36 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   const config = meta.config ?? "";
 
   // ── Ids + fills: the chosen cabinet / benchtop photos tile over the drawing ──────────
-  const id = hashId(`${meta.cabinetImage ?? ""}|${meta.topImage ?? ""}|${tw}|${bodyH}`);
+  const id = `${uid}${hashId(`${meta.cabinetImage ?? ""}|${meta.topImage ?? ""}`)}`;
   const cabFill = meta.cabinetImage ? `url(#cab-${id})` : "#e9e1d4";
   const topFill = meta.topImage ? `url(#top-${id})` : "#f4f1ea";
   const tinted = !!meta.cabinetImage; // lines get a light halo so they read on dark colours
 
   // ── Front layout ────────────────────────────────────────────────────────────────────
-  // Open shelf ends (Avion) take a column at one or both ends; an open shelf below
-  // (Oxford, Merewether) takes the lower half; a frieze (Phoenix, Riviera) a band on top.
+  // Open shelf ends (Avion) take a column at one or both ends; curved end panels (Reef,
+  // Shore) a narrow column each side; an open shelf below (Oxford, Merewether) the lower
+  // half; a frieze (Phoenix, Riviera) or a fixed rail panel (Bowral, Kiama) a band on top.
   const ends = meta.shelf === "ends" ? (/2 shelf ends/.test(config) ? ["left", "right"] : [meta.shelfSide ?? "right"]) : [];
   const endW = ends.length ? Math.max(16, tw * 0.15) : 0;
+  const sideW = meta.curved ? Math.max(9, tw * 0.065) : 0;
   const inset = face === "framed" ? 6 : 3;
   const frieze = face === "frieze" ? 7 : 0;
-  const fx0 = tx + inset + (ends.includes("left") ? endW : 0);
-  const fx1 = tx + tw - inset - (ends.includes("right") ? endW : 0);
-  const fy0 = bodyY + inset + frieze;
+  const railH = meta.rail && !tall ? Math.max(9, Math.min(13, bodyH * 0.13)) : 0;
+  const fx0 = tx + inset + sideW + (ends.includes("left") ? endW : 0);
+  const fx1 = tx + tw - inset - sideW - (ends.includes("right") ? endW : 0);
+  const fy0 = bodyY + inset + frieze + railH;
   const fyFull = bodyY + bodyH - inset;
   const fy1 = meta.shelf === "below" ? fy0 + (fyFull - fy0) * 0.52 : fyFull;
 
-  // Fronts: doors full height, drawers stacked (2 columns when there are 4+).
+  // Fronts: doors full height, drawers stacked (2 columns when there are 4+), unless the
+  // range stacks a set number high (rows: Chifley 1, Anna 2) or splits wide all-drawer
+  // cabinets into two columns (splitFrom, e.g. Nelson from 1500mm).
   const doors = Number(config.match(/(\d)\s*door/i)?.[1] ?? (tall ? 1 : 0));
   const drawers = Number(config.match(/(\d)\s*drawer/i)?.[1] ?? (doors ? 0 : meta.shelf === "below" ? 1 : 2));
-  const drawerCols = drawers === 0 ? 0 : drawers >= 4 ? 2 : 1;
-  const perCol = drawerCols ? Math.ceil(drawers / drawerCols) : 0;
+  const forced = !!meta.splitFrom && !doors && (meta.width ?? 0) >= meta.splitFrom;
+  let drawerCols = drawers === 0 ? 0 : meta.rows ? Math.ceil(drawers / meta.rows) : drawers >= 4 ? 2 : 1;
+  if (forced && drawerCols < 2) drawerCols = 2;
+  const perCol = !drawerCols ? 0 : meta.rows ? (forced ? meta.rows : Math.min(meta.rows, drawers)) : Math.ceil(drawers / drawerCols);
   const cols = Math.max(1, doors + drawerCols);
   const colW = (fx1 - fx0) / cols;
   // Column order, left to right, as on the supplier's order form: drawers either side
@@ -102,7 +111,8 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   type Col = "door" | "drawer";
   const doorCols: Col[] = Array(doors).fill("door"), drwCols: Col[] = Array(drawerCols).fill("drawer");
   const offCentre = meta.basinLayout === "off centre";
-  const drawersLeft = meta.drawerSide ? meta.drawerSide === "left" : meta.arrange === "side" ? !offCentre || meta.basinSide === "right" : !offCentre;
+  // Single-side drawers default to the right, as drawn on the order forms.
+  const drawersLeft = meta.drawerSide ? meta.drawerSide === "left" : meta.basinSide ? meta.basinSide === "right" : false;
   const seq: Col[] =
     meta.arrange === "split-drawers" && drawerCols === 2 && doors ? ["drawer", ...doorCols, "drawer"]
     : meta.arrange === "split-doors" && doors >= 2 && drawerCols ? [...doorCols.slice(0, Math.floor(doors / 2)), ...drwCols, ...doorCols.slice(Math.floor(doors / 2))]
@@ -119,9 +129,10 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
     for (let lx = x + gap; lx < x + ww - gap / 2; lx += gap) L(`M${lx} ${y + 1} V${y + hh - 1}`, 0.8, op);
   };
 
+  // Port: one rounded (capsule) shape per column, drawers split inside it, not one per drawer.
+  const colShape = face === "rounded";
   function front(x: number, y: number, ww: number, hh: number, kind: Col, towardsCentre: number) {
-    const rx = face === "rounded" ? Math.min(ww, hh) * 0.3 : 2;
-    R(x, y, ww, hh, rx);
+    if (!colShape) R(x, y, ww, hh, 2);
     const i = Math.max(3, Math.min(6, ww * 0.12, hh * 0.2));
     if (face === "shaker" || face === "shaker-v" || face === "shaker-round") {
       R(x + i, y + i, ww - 2 * i, hh - 2 * i, face === "shaker-round" ? Math.min(6, i) : 1, 1);
@@ -139,17 +150,22 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
       solids.push(<circle key={`k${n++}`} cx={cx} cy={cy} r={2.6} fill={STROKE} />);
     } else if (handle === "top") {
       if (kind === "door") L(`M${doorX - 5} ${y + 2.5} H${doorX + 5}`, 2.4); else L(`M${x + ww / 2 - 9} ${y + 2.5} H${x + ww / 2 + 9}`, 2.4);
-    } else if (kind === "door") L(`M${doorX} ${y + 11} V${y + 27}`, 2.2);
+    } else if (kind === "door" && meta.doorHandle === "top") L(`M${x + ww / 2 - 9} ${y + 6} H${x + ww / 2 + 9}`, 2.2);
+    else if (kind === "door") L(`M${doorX} ${y + 11} V${y + 27}`, 2.2);
     else L(`M${x + ww / 2 - 12} ${y + Math.min(7, hh / 3)} H${x + ww / 2 + 12}`, 2.2);
   }
 
   seq.forEach((t, c) => {
     const x = fx0 + c * colW;
     const towardsCentre = x + colW / 2 <= tx + tw / 2 ? 1 : -1;
+    if (colShape) R(x + 1.5, fy0, colW - 3, fy1 - fy0, Math.min(colW - 3, fy1 - fy0) * 0.3);
     if (t === "door") front(x + 1.5, fy0, colW - 3, fy1 - fy0, "door", towardsCentre);
     else {
       const dh = (fy1 - fy0) / perCol;
-      for (let j = 0; j < perCol; j++) front(x + 1.5, fy0 + j * dh, colW - 3, dh - 2, "drawer", towardsCentre);
+      for (let j = 0; j < perCol; j++) {
+        if (colShape && j) L(`M${x + 1.5} ${fy0 + j * dh - 1} H${x + colW - 1.5}`, 1.2);
+        front(x + 1.5, fy0 + j * dh, colW - 3, dh - (colShape ? 0 : 2), "drawer", towardsCentre);
+      }
     }
     // Arco: the arch runs the full height of each column, drawers sit inside it.
     if (face === "arch") {
@@ -163,13 +179,33 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   });
   if (frieze) { solids.push(<rect key="frz" x={tx + 3} y={bodyY + 3} width={tw - 6} height={frieze - 1.5} fill="rgba(20,30,34,.24)" />); L(`M${tx + 3} ${bodyY + 3} H${tx + tw - 3} M${tx + 3} ${bodyY + 1.5 + frieze} H${tx + tw - 3}`, 0.9); }
   if (face === "framed") R(tx + 3, bodyY + 3, tw - 6, bodyH - 6, 1, 1);
+  // Fixed rail panel under the benchtop, finished like the fronts.
+  if (railH) {
+    const ry = bodyY + inset + frieze, rx0 = fx0 + 1.5, rw = fx1 - fx0 - 3, rh = railH - 2;
+    R(rx0, ry, rw, rh, 1.5);
+    if (face === "shaker-v") { R(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 1, 0.9); vLines(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 5, 0.5); }
+    else if (face.startsWith("shaker")) R(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 1, 0.9);
+    else if (face === "shiplap" || face === "fluted") vLines(rx0, ry, rw, rh, face === "fluted" ? 3 : 7, 0.5);
+  }
+  // Curved end panels (Reef, Shore): a rounded side each end, shaded to read as a curve.
+  if (sideW) for (const left of [true, false]) {
+    const sx = left ? tx + inset : tx + tw - inset - sideW;
+    R(sx, bodyY + inset, sideW, bodyH - 2 * inset, 1.5, 1);
+    L(`M${sx + (left ? sideW * 0.4 : sideW * 0.6)} ${bodyY + inset + 1} V${bodyY + bodyH - inset - 1}`, 0.7, 0.6);
+    if (face === "fluted") vLines(sx, bodyY + inset, sideW, bodyH - 2 * inset, 3, 0.45);
+  }
   // Open shelves: a shadowed recess with a shelf line.
   const recess = (x: number, y: number, ww: number, hh: number, round?: "left" | "right") => {
     solids.push(<rect key={`s${n++}`} x={x} y={y} width={ww} height={hh} rx={round ? 6 : 1.5} fill="rgba(20,30,34,.16)" />);
     R(x, y, ww, hh, round ? 6 : 1.5, 1);
-    if (hh > 26) L(`M${x + 1} ${y + hh / 2} H${x + ww - 1}`, 1.4);
+    if (round && hh > 26) L(`M${x + 1} ${y + hh / 2} H${x + ww - 1}`, 1.4); // shelf ends carry a middle shelf
   };
-  if (meta.shelf === "below") recess(fx0 + 1.5, fy1 + 2, fx1 - fx0 - 3, fyFull - fy1 - 2);
+  if (meta.shelf === "below") {
+    // Wider cabinets divide the open shelf: 3 bays on a centre basin from 1500mm, else 2 (order forms).
+    const bays = (meta.width ?? 0) >= 1500 ? (meta.basinLayout === "centre" || !meta.basinLayout ? 3 : 2) : 1;
+    const bw0 = (fx1 - fx0 - 3) / bays;
+    for (let b = 0; b < bays; b++) recess(fx0 + 1.5 + b * bw0, fy1 + 2, bw0 - (b < bays - 1 ? 2 : 0), fyFull - fy1 - 2);
+  }
   for (const e of ends) recess(e === "left" ? tx + inset : tx + tw - inset - endW + 2, fy0, endW - 2, fyFull - fy0, e as "left" | "right");
 
   // Basins: centre / off centre (the customer's side, else away from the drawers) / double.
@@ -207,7 +243,7 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
       {taps}
       {!tall && !bare && <rect x={tx - 4} y={topY} width={tw + 8} height={topH} rx={1.5} fill={topFill} stroke={STROKE} strokeWidth={1.6} />}
       <rect x={tx} y={bodyY} width={tw} height={bodyH} rx={face === "rounded" || meta.curved ? 4 : 2} fill={cabFill} stroke={STROKE} strokeWidth={1.8} />
-      {meta.curved && <rect x={tx} y={bodyY} width={tw} height={bodyH} rx={4} fill={`url(#cv-${id})`} />}
+      {meta.curved && [tx + inset, tx + tw - inset - sideW].map((sx, i) => <rect key={i} x={sx} y={bodyY + inset} width={sideW} height={bodyH - 2 * inset} fill={`url(#cv-${id})`} />)}
       {solids}
       {tinted && <g fill="none" stroke="#fff" strokeLinecap="round">{lines.map((l, i) => <path key={i} d={l.d} strokeWidth={l.w + 1.4} opacity={0.5 * l.op} />)}</g>}
       <g fill="none" stroke={STROKE} strokeLinecap="round">{lines.map((l, i) => <path key={i} d={l.d} strokeWidth={l.w} opacity={l.op} />)}</g>
