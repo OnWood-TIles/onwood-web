@@ -24,7 +24,20 @@ export interface DrawMeta {
   arrange?: "side" | "split-drawers" | "split-doors"; // drawers to one side, drawers either side of the doors, or doors either side of the drawers
   drawerSide?: "left" | "right"; // the customer's left / right hand drawers pick
   basinSide?: "left" | "right"; // the customer's left / right hand basin pick (off-centre basins)
+  // Range look (ProductOptions.drawBase): the front style, open shelves, real heights.
+  face?: DrawFace;
+  curved?: boolean; // gently curved cabinet front (Reef, Shore)
+  shelf?: "below" | "ends"; // open shelf under the drawer (Oxford) / open shelf ends (Avion)
+  shelfSide?: "left" | "right"; // which end the single open shelf sits
+  wallMm?: number; // wall-hung height incl. top, mm
+  floorMm?: number; // height on a kick or legs incl. top, mm
+  handle?: "bar" | "knob" | "top" | "none"; // the handle picked (or the range default)
+  cabinetImage?: string; // chosen cabinet finish photo, laid over the drawing
+  topImage?: string; // chosen benchtop colour photo
 }
+
+/** Front styles for the line drawing, one per range look. */
+export type DrawFace = "plain" | "shaker" | "shaker-v" | "shaker-round" | "shiplap" | "fluted" | "arch" | "rounded" | "sawtooth" | "frieze" | "fingerpull" | "framed";
 
 export interface OptionChoice {
   key: string;
@@ -51,6 +64,7 @@ export interface OptionGroup {
   websiteHidden?: boolean; // staff-only detail (not asked on the website)
   specDetail?: boolean; // add each choice's detail to the document spec line (e.g. sizes)
   onlyWith?: Record<string, string[]>; // only ask this group when each listed group has one of these choices (e.g. Dulux colour name when "Dulux colour match" is picked)
+  drawFill?: "cabinet" | "top"; // the picked choice's photo colours the drawing's cabinet / benchtop
   choices: OptionChoice[];
 }
 
@@ -64,6 +78,7 @@ export interface PriceTable {
 export interface ProductOptions {
   version: 2;
   drawing: DrawingStyle;
+  drawBase?: DrawMeta; // the range's drawing look (face style, shelves, heights), under every choice's hints
   basePrice: number;
   groups: OptionGroup[];
   table?: PriceTable | null;
@@ -247,8 +262,12 @@ export function describeOptions(o: ProductOptions, sel: OptionSelection): string
 
 /** Merge the drawing hints of the chosen options (later groups win, e.g. "On legs"). */
 export function drawMeta(o: ProductOptions, sel: OptionSelection): DrawMeta {
-  const m: DrawMeta = {};
-  for (const g of o.groups) for (const k of many(sel[g.key])) Object.assign(m, g.choices.find((c) => c.key === k)?.draw ?? {});
+  const m: DrawMeta = { ...(o.drawBase ?? {}) };
+  for (const g of o.groups) for (const k of many(sel[g.key])) {
+    const c = g.choices.find((x) => x.key === k);
+    Object.assign(m, c?.draw ?? {});
+    if (g.drawFill && c?.image && groupShown(g, sel)) m[g.drawFill === "cabinet" ? "cabinetImage" : "topImage"] = c.image;
+  }
   return m;
 }
 

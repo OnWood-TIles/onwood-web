@@ -143,8 +143,9 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
           const isOpen = open === g.key;
           const avail = g.type === "text" ? [] : g.choices.filter((c) => isAvailable(o, g, c, sel));
           const picked = many(sel[g.key]);
-          // Photos (colours, basins, handles) or a long list: compact swatches + a larger pop-up.
-          const swatches = avail.some((c) => c.image) || g.choices.length > 10 || g.choices.some((c) => c.section);
+          // Colour photos (finishes, basins, handles, overflow rings) or a long list: compact swatches
+          // + a larger pop-up. A few explainer pictures (tap holes, extras) show as picture cards instead.
+          const swatches = avail.filter((c) => c.image).length > 6 || g.choices.length > 10 || g.choices.some((c) => c.section);
           const img = !isOpen ? summaryImg(g) : null;
           return (
             <section className={`vb-step ${isOpen ? "open" : ""}`} key={g.key} id={`vb-step-${g.key}`}>
@@ -214,7 +215,8 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
                       {avail.map((c) => {
                         const on = picked.includes(c.key);
                         return (
-                          <button type="button" key={c.key} aria-pressed={on} onClick={() => toggle(g, c, picked)} className={`vb-opt ${on ? "on" : ""}`}>
+                          <button type="button" key={c.key} aria-pressed={on} onClick={() => toggle(g, c, picked)} className={`vb-opt ${on ? "on" : ""} ${c.image ? "pic" : ""}`}>
+                            {c.image && <img src={c.image} alt="" loading="lazy" className="vb-opt-img" />}
                             <strong>{c.label}</strong>
                             {c.detail && <small>{c.detail}</small>}
                             <span>{priceLabel(g, c)}</span>

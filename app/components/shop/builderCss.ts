@@ -71,6 +71,7 @@ export const BUILDER_CSS = `
 .vb-opt small{font-size:12.5px;color:#6a7075;line-height:1.4}
 .vb-opt span{font-size:13.5px;font-weight:700;color:var(--accent);margin-top:2px}
 .vb-opt:disabled{opacity:.45;cursor:not-allowed}
+.vb-opt-img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#f6f4ef;margin-bottom:6px}
 .vb-opt:disabled span{color:#6a7075;font-weight:600}
 .vb-select{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;font-size:14px;font-weight:700}
 .vb-select select{font:inherit;font-weight:600;font-size:14px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);max-width:100%}
