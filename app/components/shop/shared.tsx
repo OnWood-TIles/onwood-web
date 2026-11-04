@@ -212,7 +212,8 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
   const image = range.heroImage || range.swatches.find((s) => s.image)?.image || null;
   // Hover reveals the LEAD colour's "see it installed" room shot (swatches are
   // lead-first) so it always matches the hero, never another colour's room.
-  const roomShot = range.swatches[0]?.installedImage || null;
+  // Products without colours (vanities, mirrors) hover to their second gallery photo.
+  const roomShot = range.swatches[0]?.installedImage || (!range.swatches.length ? range.images?.[1] : null) || null;
   // roomFirst (homepage "on trend" strip): the room shot IS the card, with the
   // lead colour's tile inset in the corner; hover swaps to the product photo.
   const room = roomFirst && !!roomShot && !!image;
