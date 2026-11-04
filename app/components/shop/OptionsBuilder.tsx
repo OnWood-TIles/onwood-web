@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { WebsiteRange } from "../../../lib/onbase/client";
 import {
-  choicePrice, describeOptions, drawMeta, isAvailable, many, normalizeSelection, one, priceOptions,
+  choicePrice, describeOptions, drawMeta, groupShown, isAvailable, many, normalizeSelection, one, priceOptions,
   type OptionChoice, type OptionGroup, type OptionSelection, type ProductOptions,
 } from "../../../lib/options";
 import SaveButton from "../wishlist/SaveButton";
@@ -44,9 +44,10 @@ function choiceFrom(o: ProductOptions, g: OptionGroup, c: OptionChoice): number 
   return p == null ? null : o.basePrice + p;
 }
 
-/** Groups shown for this selection (a group with nothing on offer is skipped). */
+/** Groups asked for this selection: skips a group with nothing on offer, or one only
+ *  asked after another pick (e.g. the Dulux colour name once "Dulux colour match" is chosen). */
 const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
-  o.groups.filter((g) => g.type === "text" || g.choices.some((c) => isAvailable(o, g, c, sel)));
+  o.groups.filter((g) => groupShown(g, sel) && (g.type === "text" || g.choices.some((c) => isAvailable(o, g, c, sel))));
 
 export default function OptionsBuilder({ range, query }: { range: WebsiteRange; query: Record<string, string> }) {
   const o = range.options!;
@@ -114,7 +115,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
 
   /** What the closed step shows: the current choice(s). */
   const summary = (g: OptionGroup) => {
-    if (g.type === "text") return String(one(sel[g.key]) ?? "").trim() || "Optional";
+    if (g.type === "text") return String(one(sel[g.key]) ?? "").trim() || (g.required ? "Please fill in" : "Optional");
     const cs = many(sel[g.key]).map((k) => g.choices.find((c) => c.key === k)).filter((c): c is OptionChoice => !!c);
     // "Standard" only where every choice is a paid upgrade (e.g. benchtop thickness).
     const upgrades = g.choices.every((c) => c.price || c.priceBy);
@@ -222,7 +223,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
                       })}
                     </div>
                   )}
-                  {(g.type !== "single" || !g.required) && g.type !== "text" && (
+                  {(g.type !== "single" || !g.required) && (
                     <button type="button" className="vb-next" onClick={() => { const k = steps[gi + 1]?.key ?? null; scrollTo.current = k; setOpen(k); }}>
                       {steps[gi + 1] ? `Next: ${steps[gi + 1].label}` : "Done"}
                     </button>

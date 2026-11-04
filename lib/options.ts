@@ -42,10 +42,12 @@ export interface OptionGroup {
   label: string;
   type: "single" | "multi" | "text"; // pick one | tick any | typed in
   required?: boolean;
+  noDefault?: boolean; // required, but never pre-picked: the customer must choose (order-form answers like basin side or tap holes)
   help?: string;
   placeholder?: string; // text groups
   websiteHidden?: boolean; // staff-only detail (not asked on the website)
   specDetail?: boolean; // add each choice's detail to the document spec line (e.g. sizes)
+  onlyWith?: Record<string, string[]>; // only ask this group when each listed group has one of these choices (e.g. Dulux colour name when "Dulux colour match" is picked)
   choices: OptionChoice[];
 }
 
@@ -100,6 +102,11 @@ export function asOptions(v: unknown): ProductOptions | null {
 
 export const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined;
 export const many = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
+
+/** Is this group asked with the current selection? (see OptionGroup.onlyWith) */
+export function groupShown(g: OptionGroup, sel: OptionSelection): boolean {
+  return Object.entries(g.onlyWith ?? {}).every(([gk, keys]) => many(sel[gk]).some((k) => keys.includes(k)));
+}
 const tableKey = (t: PriceTable, sel: OptionSelection) => t.groups.map((g) => one(sel[g]) ?? "").join("|");
 
 /** Price of one choice given the rest of the selection (null = not offered with it). */
@@ -143,10 +150,11 @@ export function isAvailable(o: ProductOptions, g: OptionGroup, c: OptionChoice, 
  * Make a selection valid: walk groups in order, drop choices no longer offered and
  * fill required single groups with their first offered choice. Used after every pick.
  */
-export function normalizeSelection(o: ProductOptions, input: OptionSelection): OptionSelection {
+export function normalizeSelection(o: ProductOptions, input: OptionSelection, fillAll = false): OptionSelection {
   const sel: OptionSelection = { ...input };
   for (let pass = 0; pass < 2; pass++) {
     for (const g of o.groups) {
+      if (!groupShown(g, sel)) { sel[g.key] = undefined; continue; } // not asked: no answer kept
       if (g.type === "text") continue;
       if (g.type === "multi") {
         sel[g.key] = many(sel[g.key]).filter((k) => { const c = g.choices.find((x) => x.key === k); return !!c && isAvailable(o, g, c, sel); });
@@ -155,9 +163,11 @@ export function normalizeSelection(o: ProductOptions, input: OptionSelection): O
       const cur = g.choices.find((x) => x.key === one(sel[g.key]));
       if (cur && isAvailable(o, g, cur, sel)) continue;
       if (!g.required) { sel[g.key] = undefined; continue; }
-      // Re-pick ignoring this group's own (now invalid) value.
+      // Re-pick ignoring this group's own (now invalid) value. A "customer must choose"
+      // group is only filled when there is nothing to choose between.
       const probe = { ...sel, [g.key]: undefined };
-      sel[g.key] = g.choices.find((c) => isAvailable(o, g, c, probe))?.key;
+      const offered = g.choices.filter((c) => isAvailable(o, g, c, probe));
+      sel[g.key] = g.noDefault && !fillAll && offered.length !== 1 ? undefined : offered[0]?.key;
     }
   }
   return sel;
@@ -173,9 +183,10 @@ export function priceOptions(o: ProductOptions, sel: OptionSelection): PricedOpt
   const lines: PricedLine[] = [];
   if (o.basePrice) lines.push({ label: "Base price", amount: o.basePrice });
   for (const g of o.groups) {
-    if (g.type === "text") continue;
+    if (!groupShown(g, sel)) continue;
+    if (g.type === "text") { if (g.required && !String(one(sel[g.key]) ?? "").trim()) errors.push(`Enter the ${g.label.toLowerCase()}`); continue; }
     const picked = many(sel[g.key]);
-    if (g.required && !picked.length) errors.push(`Choose a ${g.label.toLowerCase()}`);
+    if (g.required && !picked.length && g.choices.some((c) => isAvailable(o, g, c, sel))) errors.push(`Choose a ${g.label.toLowerCase()}`);
     if (g.type === "single" && picked.length > 1) errors.push(`Choose one ${g.label.toLowerCase()}`);
     for (const k of picked) {
       const c = g.choices.find((x) => x.key === k);
@@ -189,7 +200,7 @@ export function priceOptions(o: ProductOptions, sel: OptionSelection): PricedOpt
     else lines.push({ label: o.table.groups.map((gk) => o.groups.find((g) => g.key === gk)?.choices.find((c) => c.key === one(sel[gk]))?.label).filter(Boolean).join(", "), amount: cell });
   }
   for (const g of o.groups) {
-    if (g.type === "text") continue;
+    if (g.type === "text" || !groupShown(g, sel)) continue;
     for (const k of many(sel[g.key])) {
       const c = g.choices.find((x) => x.key === k);
       const p = c ? choicePrice(c, sel) : null;
@@ -208,10 +219,11 @@ export function fromPrice(o: ProductOptions): number {
     ? Object.entries(o.table.cells).filter(([, v]) => v != null).map(([k]) => Object.fromEntries(o.table!.groups.map((g, i) => [g, k.split("|")[i]])))
       .filter((cmb) => !Object.entries(cmb).some(([g, k]) => skip(g, k as string)))
     : [{}];
-  const first = o.groups.find((g) => g.type === "single" && g.required && !o.table?.groups.includes(g.key));
+  const first = o.groups.find((g) => g.type === "single" && g.required && !g.noDefault && g.choices.length && !o.table?.groups.includes(g.key));
   const starts = first ? first.choices.map((c) => ({ [first.key]: c.key })) : [{}];
+  const typed = Object.fromEntries(o.groups.filter((g) => g.type === "text").map((g) => [g.key, "-"]));
   for (const s of starts) for (const cmb of combos) {
-    const p = priceOptions(o, normalizeSelection(o, { ...s, ...cmb }));
+    const p = priceOptions(o, normalizeSelection(o, { ...typed, ...s, ...cmb }, true));
     if (p.ok && p.total < best) best = p.total;
   }
   return best === Infinity ? o.basePrice : best;
@@ -221,6 +233,7 @@ export function fromPrice(o: ProductOptions): number {
 export function describeOptions(o: ProductOptions, sel: OptionSelection): string[] {
   const out: string[] = [];
   for (const g of o.groups) {
+    if (!groupShown(g, sel)) continue;
     if (g.type === "text") { const v = String(one(sel[g.key]) ?? "").trim(); if (v) out.push(`${g.label}: ${v}`); continue; }
     const cs = many(sel[g.key]).map((k) => g.choices.find((c) => c.key === k)).filter((c): c is OptionChoice => !!c);
     if (!cs.length) continue;
