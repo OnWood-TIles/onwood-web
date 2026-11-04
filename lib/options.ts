@@ -20,6 +20,7 @@ export interface DrawMeta {
   basin?: "above" | "under" | "moulded" | "none"; // none = cabinet only (no top or basin)
   shape?: "rect" | "round" | "oval" | "arch" | "capsule" | "hexagon";
   doors?: number;
+  topMm?: number; // benchtop thickness (drawn thicker for 40mm / 60mm tops)
 }
 
 export interface OptionChoice {

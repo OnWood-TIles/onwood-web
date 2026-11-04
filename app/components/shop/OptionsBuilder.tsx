@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { WebsiteRange } from "../../../lib/onbase/client";
 import {
@@ -12,9 +12,12 @@ import AddToQuoteButton from "../quote/AddToQuoteButton";
 import OptionsDrawing from "./OptionsDrawing";
 
 // Customer price builder for any product with options (set up on the OnBase Pricing
-// tab), e.g. a Marquis vanity range: one step per option group, a live GST-inclusive
-// total and the generated drawing. A calculator only (no checkout): the build lives in
-// the URL so it can be saved, shared or sent to us via "Enquire".
+// tab), e.g. a Marquis vanity range: one collapsible step per option group (picking
+// a choice closes the step and opens the next), a live GST-inclusive total and the
+// generated drawing. Choices that change the drawing (mounting, benchtop) show it;
+// choices with photos (colours, basins, handles) open larger in a pop-up. A
+// calculator only (no checkout): the build lives in the URL so it can be saved,
+// shared or sent to us via "Enquire".
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -41,11 +44,18 @@ function choiceFrom(o: ProductOptions, g: OptionGroup, c: OptionChoice): number 
   return p == null ? null : o.basePrice + p;
 }
 
+/** Groups shown for this selection (a group with nothing on offer is skipped). */
+const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
+  o.groups.filter((g) => g.type === "text" || g.choices.some((c) => isAvailable(o, g, c, sel)));
+
 export default function OptionsBuilder({ range, query }: { range: WebsiteRange; query: Record<string, string> }) {
   const o = range.options!;
   const [sel, setSel] = useState<OptionSelection>(() => readQuery(o, query));
   const [width, setWidth] = useState<number | null>(null);
   const [url, setUrl] = useState("");
+  const [open, setOpen] = useState<string | null>(o.groups[0]?.key ?? null);
+  const [popup, setPopup] = useState<string | null>(null);
+  const scrollTo = useRef<string | null>(null);
 
   useEffect(() => {
     const q = new URLSearchParams();
@@ -59,16 +69,39 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
     setUrl(next);
   }, [sel, o.groups]);
 
+  // After a pick moves on to the next step, bring that step into view.
+  useEffect(() => {
+    if (!open || scrollTo.current !== open) return;
+    scrollTo.current = null;
+    document.getElementById(`vb-step-${open}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [open]);
+
   const priced = useMemo(() => priceOptions(o, sel), [o, sel]);
   const spec = describeOptions(o, sel);
   const meta = drawMeta(o, sel);
-  const pick = (g: OptionGroup, v: string | string[] | undefined) => setSel((s) => normalizeSelection(o, { ...s, [g.key]: v }));
+  const steps = visibleGroups(o, sel);
+  const draws = o.drawing !== "none";
   const lead = o.groups[0];
-  const sizeCards = !!lead && lead.type === "single" && o.drawing !== "none" && lead.choices.some((c) => c.draw?.width);
+  const sizeCards = !!lead && lead.type === "single" && draws && lead.choices.some((c) => c.draw?.width);
   const widths = sizeCards ? [...new Set(lead.choices.map((c) => c.draw?.width).filter((w): w is number => !!w))].sort((a, b) => a - b) : [];
   const supplier = o.source?.supplier;
   const enquire = `/contact?product=${encodeURIComponent(range.name)}&build=${encodeURIComponent([...spec, `Price shown: ${fmt(priced.total)} incl. GST`, url ? `https://onwoodtiles.com.au${url}` : ""].filter(Boolean).join("\n"))}`;
-  let n = 0;
+
+  /** Set a group's value; a single pick closes this step and opens the next one. */
+  const pick = (g: OptionGroup, v: string | string[] | undefined, advance = g.type === "single") => {
+    const next = normalizeSelection(o, { ...sel, [g.key]: v });
+    setSel(next);
+    if (!advance) return;
+    const after = visibleGroups(o, next);
+    const k = after[after.findIndex((x) => x.key === g.key) + 1]?.key ?? null;
+    scrollTo.current = k;
+    setOpen(k);
+  };
+  const toggle = (g: OptionGroup, c: OptionChoice, picked: string[]) => {
+    const on = picked.includes(c.key);
+    if (g.type === "multi") pick(g, on ? picked.filter((k) => k !== c.key) : [...picked, c.key]);
+    else pick(g, on && !g.required ? undefined : c.key);
+  };
 
   const priceLabel = (g: OptionGroup, c: OptionChoice) => {
     if (o.table?.groups.includes(g.key)) {
@@ -76,102 +109,123 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
       return p.ok ? fmt(p.total) : "";
     }
     const p = choicePrice(c, sel);
-    return p ? `+${fmt(p)}` : g.type === "single" && !g.required ? "Included" : "";
+    return p ? `${p > 0 ? "+" : "-"}${fmt(Math.abs(p))}` : g.type === "single" && !g.required ? "Included" : "";
   };
+
+  /** What the closed step shows: the current choice(s). */
+  const summary = (g: OptionGroup) => {
+    if (g.type === "text") return String(one(sel[g.key]) ?? "").trim() || "Optional";
+    const cs = many(sel[g.key]).map((k) => g.choices.find((c) => c.key === k)).filter((c): c is OptionChoice => !!c);
+    if (!cs.length) return g.type === "multi" ? "None added" : g.required ? "Choose one" : "Standard";
+    return cs.map((c) => (c.section && g.type === "single" && !c.label.includes(c.section) ? `${c.label} (${c.section})` : c.label)).join(", ");
+  };
+  const summaryImg = (g: OptionGroup) => g.choices.find((c) => c.key === one(sel[g.key]))?.image ?? null;
+
+  const popGroup = popup ? o.groups.find((g) => g.key === popup) ?? null : null;
 
   return (
     <div className="vb">
       <div className="vb-main">
-        {o.groups.map((g, gi) => {
-          if (g.type === "text") {
-            return (
-              <section className="vb-step" key={g.key}>
-                <Head n={++n} title={g.label} hint={g.help} />
-                <input className="vb-text" value={String(one(sel[g.key]) ?? "")} placeholder={g.placeholder} onChange={(e) => setSel((s) => ({ ...s, [g.key]: e.target.value }))} />
-              </section>
-            );
-          }
-          const avail = g.choices.filter((c) => isAvailable(o, g, c, sel));
-          if (!avail.length) return null;
+        {draws && (
+          <div className="vb-mini" aria-hidden="true">
+            <OptionsDrawing style={o.drawing} meta={meta} size={130} />
+            <div>
+              <span>{range.name}</span>
+              <strong>{fmt(priced.total)}</strong>
+              <em>Updates as you choose</em>
+            </div>
+          </div>
+        )}
+        {steps.map((g, gi) => {
+          const isOpen = open === g.key;
+          const avail = g.type === "text" ? [] : g.choices.filter((c) => isAvailable(o, g, c, sel));
           const picked = many(sel[g.key]);
+          const hasImages = avail.some((c) => c.image);
+          const img = !isOpen ? summaryImg(g) : null;
+          return (
+            <section className={`vb-step ${isOpen ? "open" : ""}`} key={g.key} id={`vb-step-${g.key}`}>
+              <button type="button" className="vb-step-h" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : g.key)}>
+                <span className={`vb-num ${picked.length || (g.type === "text" && one(sel[g.key])) ? "done" : ""}`}>{gi + 1}</span>
+                <span className="vb-step-t">
+                  <strong>{gi === 0 && sizeCards ? `Choose your ${g.label.toLowerCase()}` : g.label}</strong>
+                  {!isOpen && <small>{img && <img src={img} alt="" />}{summary(g)}</small>}
+                  {isOpen && g.help && <small>{g.help}</small>}
+                </span>
+                <span className="vb-step-c">{isOpen ? "Close" : picked.length ? "Change" : "Choose"}</span>
+              </button>
 
-          if (gi === 0 && sizeCards) {
-            const shown = width ? avail.filter((c) => c.draw?.width === width) : avail;
-            return (
-              <section className="vb-step" key={g.key}>
-                <Head n={++n} title={`Choose your ${g.label.toLowerCase()}`} hint={g.help} />
-                {widths.length > 1 && (
-                  <div className="vb-chips" role="group" aria-label="Filter by width">
-                    <button type="button" className={`vb-chip ${width === null ? "on" : ""}`} onClick={() => setWidth(null)}>All</button>
-                    {widths.map((w) => <button type="button" key={w} className={`vb-chip ${width === w ? "on" : ""}`} onClick={() => setWidth(w)}>{w}mm</button>)}
-                  </div>
-                )}
-                <div className="vb-models">
-                  {shown.map((c) => {
-                    const from = choiceFrom(o, g, c);
-                    return (
-                      <button type="button" key={c.key} onClick={() => pick(g, c.key)} className={`vb-card ${picked.includes(c.key) ? "on" : ""}`}>
-                        {c.image ? <img src={c.image} alt="" className="vb-card-img" /> : <OptionsDrawing style={o.drawing} meta={drawMeta(o, normalizeSelection(o, { [g.key]: c.key }))} size={150} />}
-                        <strong>{c.label}</strong>
-                        {c.detail && <span>{c.detail}</span>}
-                        {from != null && <em>from {fmt(from)}</em>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          }
-
-          const long = g.choices.length > 10 || g.choices.some((c) => c.section);
-          if (long) {
-            const sections = [...new Set(avail.map((c) => c.section ?? ""))];
-            const cur = avail.find((c) => picked.includes(c.key));
-            return (
-              <section className="vb-step" key={g.key}>
-                <Head n={++n} title={g.label} hint={g.help} />
-                {cur && <p className="vb-picked">Selected: <strong>{cur.label}</strong>{cur.section ? ` (${cur.section})` : ""} {priceLabel(g, cur) && <span>{priceLabel(g, cur)}</span>}</p>}
-                {sections.map((sec) => (
-                  <div key={sec || "all"} className="vb-sec">
-                    {sec && <p className="vb-sec-h">{sec}</p>}
-                    <div className="vb-swatches">
-                      {avail.filter((c) => (c.section ?? "") === sec).map((c) => {
+              {isOpen && (
+                <div className="vb-step-b">
+                  {g.type === "text" ? (
+                    <input className="vb-text" value={String(one(sel[g.key]) ?? "")} placeholder={g.placeholder} onChange={(e) => setSel((s) => ({ ...s, [g.key]: e.target.value }))} />
+                  ) : gi === 0 && sizeCards ? (
+                    <>
+                      {widths.length > 1 && (
+                        <div className="vb-chips" role="group" aria-label="Filter by width">
+                          <button type="button" className={`vb-chip ${width === null ? "on" : ""}`} onClick={() => setWidth(null)}>All</button>
+                          {widths.map((w) => <button type="button" key={w} className={`vb-chip ${width === w ? "on" : ""}`} onClick={() => setWidth(w)}>{w}mm</button>)}
+                        </div>
+                      )}
+                      <div className="vb-models">
+                        {(width ? avail.filter((c) => c.draw?.width === width) : avail).map((c) => {
+                          const from = choiceFrom(o, g, c);
+                          return (
+                            <button type="button" key={c.key} onClick={() => pick(g, c.key)} className={`vb-card ${picked.includes(c.key) ? "on" : ""}`}>
+                              {c.image ? <img src={c.image} alt="" className="vb-card-img" /> : <OptionsDrawing style={o.drawing} meta={drawMeta(o, normalizeSelection(o, { [g.key]: c.key }))} size={150} />}
+                              <strong>{c.label}</strong>
+                              {c.detail && <span>{c.detail}</span>}
+                              {from != null && <em>from {fmt(from)}</em>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : hasImages ? (
+                    <Swatches g={g} avail={avail} picked={picked} priceOf={(c) => { const p = choicePrice(c, sel); return p ? `${p > 0 ? "+" : "-"}${fmt(Math.abs(p))}` : ""; }}
+                      onPick={(c) => toggle(g, c, picked)} onLarger={() => setPopup(g.key)} />
+                  ) : draws && g.type === "single" && avail.some((c) => c.draw) ? (
+                    // Choices that change the drawing: show each one drawn on the current build.
+                    <div className="vb-opts vb-drawn">
+                      {!g.required && (
+                        <button type="button" aria-pressed={!picked.length} onClick={() => pick(g, undefined)} className={`vb-opt ${!picked.length ? "on" : ""}`}>
+                          <OptionsDrawing style={o.drawing} meta={drawMeta(o, normalizeSelection(o, { ...sel, [g.key]: undefined }))} size={170} />
+                          <strong>Standard</strong>
+                          <span>Included</span>
+                        </button>
+                      )}
+                      {avail.map((c) => {
                         const on = picked.includes(c.key);
-                        const p = choicePrice(c, sel);
                         return (
-                          <button type="button" key={c.key} aria-pressed={on} title={c.detail ?? c.label}
-                            onClick={() => pick(g, g.type === "multi" ? (on ? picked.filter((k) => k !== c.key) : [...picked, c.key]) : on && !g.required ? undefined : c.key)}
-                            className={`vb-sw ${on ? "on" : ""} ${c.image ? "img" : ""}`}>
-                            {c.image && <img src={c.image} alt="" />}
-                            <span>{c.label}{p ? ` +${fmt(p)}` : ""}</span>
+                          <button type="button" key={c.key} aria-pressed={on} onClick={() => pick(g, c.key)} className={`vb-opt ${on ? "on" : ""}`}>
+                            <OptionsDrawing style={o.drawing} meta={drawMeta(o, normalizeSelection(o, { ...sel, [g.key]: c.key }))} size={170} />
+                            <strong>{c.label}</strong>
+                            {c.detail && <small>{c.detail}</small>}
+                            <span>{priceLabel(g, c)}</span>
                           </button>
                         );
                       })}
                     </div>
-                  </div>
-                ))}
-              </section>
-            );
-          }
-
-          return (
-            <section className="vb-step" key={g.key}>
-              <Head n={++n} title={g.label} hint={g.help} />
-              <div className="vb-opts">
-                {avail.map((c) => {
-                  const on = picked.includes(c.key);
-                  return (
-                    <button type="button" key={c.key} aria-pressed={on}
-                      onClick={() => pick(g, g.type === "multi" ? (on ? picked.filter((k) => k !== c.key) : [...picked, c.key]) : on && !g.required ? undefined : c.key)}
-                      className={`vb-opt ${on ? "on" : ""}`}>
-                      {c.image && <img src={c.image} alt="" className="vb-opt-img" />}
-                      <strong>{c.label}</strong>
-                      {c.detail && <small>{c.detail}</small>}
-                      <span>{priceLabel(g, c)}</span>
+                  ) : (
+                    <div className="vb-opts">
+                      {avail.map((c) => {
+                        const on = picked.includes(c.key);
+                        return (
+                          <button type="button" key={c.key} aria-pressed={on} onClick={() => toggle(g, c, picked)} className={`vb-opt ${on ? "on" : ""}`}>
+                            <strong>{c.label}</strong>
+                            {c.detail && <small>{c.detail}</small>}
+                            <span>{priceLabel(g, c)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {(g.type !== "single" || !g.required) && g.type !== "text" && (
+                    <button type="button" className="vb-next" onClick={() => { const k = steps[gi + 1]?.key ?? null; scrollTo.current = k; setOpen(k); }}>
+                      {steps[gi + 1] ? `Next: ${steps[gi + 1].label}` : "Done"}
                     </button>
-                  );
-                })}
-              </div>
+                  )}
+                </div>
+              )}
             </section>
           );
         })}
@@ -179,8 +233,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
 
       <aside className="vb-side">
         <div className="vb-summary" id="vb-summary">
-          {range.heroImage && o.drawing !== "none" && <img src={range.heroImage} alt={range.name} className="vb-sum-photo" />}
-          {o.drawing !== "none" ? (
+          {draws ? (
             <div className="vb-draw"><OptionsDrawing style={o.drawing} meta={meta} size={300} /><small>Your build (illustration only)</small></div>
           ) : range.heroImage ? (
             <div className="vb-draw"><img src={range.heroImage} alt={range.name} style={{ maxWidth: "100%", borderRadius: 12 }} /></div>
@@ -205,10 +258,98 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
       </aside>
 
       <a href="#vb-summary" className="vb-bar"><span>{range.name}</span><strong>{fmt(priced.total)}</strong><em>View build</em></a>
+
+      {popGroup && (
+        <SwatchPopup g={popGroup} avail={popGroup.choices.filter((c) => isAvailable(o, popGroup, c, sel))} picked={many(sel[popGroup.key])}
+          priceOf={(c) => { const p = choicePrice(c, sel); return p ? `${p > 0 ? "+" : "-"}${fmt(Math.abs(p))}` : ""; }}
+          onPick={(c) => { setPopup(null); toggle(popGroup, c, many(sel[popGroup.key])); }} onClose={() => setPopup(null)} />
+      )}
     </div>
   );
 }
 
-function Head({ n, title, hint }: { n: number; title: string; hint?: string }) {
-  return <div className="vb-step-h"><span className="vb-num">{n}</span><div><h2>{title}</h2>{hint && <p>{hint}</p>}</div></div>;
+type SwatchProps = { g: OptionGroup; avail: OptionChoice[]; picked: string[]; priceOf: (c: OptionChoice) => string; onPick: (c: OptionChoice) => void };
+const sectionsOf = (avail: OptionChoice[]) => [...new Set(avail.map((c) => c.section ?? ""))];
+const initials = (s: string) => s.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+/** Small swatches inside the step, with a button to see them larger. */
+function Swatches({ avail, picked, priceOf, onPick, onLarger }: SwatchProps & { onLarger: () => void }) {
+  return (
+    <>
+      <button type="button" className="vb-larger" onClick={onLarger}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+        View all {avail.length} larger
+      </button>
+      {sectionsOf(avail).map((sec) => (
+        <div key={sec || "all"} className="vb-sec">
+          {sec && <p className="vb-sec-h">{sec}</p>}
+          <div className="vb-swatches">
+            {avail.filter((c) => (c.section ?? "") === sec).map((c) => {
+              const on = picked.includes(c.key);
+              const p = priceOf(c);
+              return (
+                <button type="button" key={c.key} aria-pressed={on} title={c.detail ?? c.label} onClick={() => onPick(c)} className={`vb-sw img ${on ? "on" : ""}`}>
+                  {c.image ? <img src={c.image} alt="" loading="lazy" /> : <i>{initials(c.label)}</i>}
+                  <span>{c.label}{p ? ` ${p}` : ""}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+/** Larger swatches in a pop-up, so colours, basins and handles are easy to compare. */
+function SwatchPopup({ g, avail, picked, priceOf, onPick, onClose }: SwatchProps & { onClose: () => void }) {
+  const secs = sectionsOf(avail);
+  const [tab, setTab] = useState<string | null>(null);
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", key);
+    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", key); };
+  }, [onClose]);
+  const shown = secs.filter((s) => tab === null || s === tab);
+  return (
+    <div className="vb-pop" role="dialog" aria-modal="true" aria-label={g.label} onClick={onClose}>
+      <div className="vb-pop-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="vb-pop-h">
+          <h2>{g.label}</h2>
+          <button type="button" onClick={onClose} aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+        </div>
+        {secs.length > 1 && (
+          <div className="vb-chips vb-pop-tabs" role="group" aria-label="Filter">
+            <button type="button" className={`vb-chip ${tab === null ? "on" : ""}`} onClick={() => setTab(null)}>All</button>
+            {secs.map((s) => <button type="button" key={s} className={`vb-chip ${tab === s ? "on" : ""}`} onClick={() => setTab(s)}>{s || "Other"}</button>)}
+          </div>
+        )}
+        <div className="vb-pop-body">
+          {shown.map((sec) => (
+            <div key={sec || "all"} className="vb-sec">
+              {sec && secs.length > 1 && <p className="vb-sec-h">{sec}</p>}
+              <div className="vb-pop-grid">
+                {avail.filter((c) => (c.section ?? "") === sec).map((c) => {
+                  const on = picked.includes(c.key);
+                  const p = priceOf(c);
+                  return (
+                    <button type="button" key={c.key} aria-pressed={on} onClick={() => onPick(c)} className={`vb-pop-tile ${on ? "on" : ""}`}>
+                      {c.image ? <img src={c.image} alt="" loading="lazy" /> : <i>{initials(c.label)}</i>}
+                      <strong>{c.label}</strong>
+                      {c.detail && <small>{c.detail}</small>}
+                      {p && <span>{p}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }

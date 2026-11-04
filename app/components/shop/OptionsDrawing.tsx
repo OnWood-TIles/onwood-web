@@ -51,7 +51,7 @@ export default function OptionsDrawing({ style, meta, size = 320 }: { style: Dra
   const floorY = 250;
   const onFloor = mount === "legs" || mount === "kick";
   const topY = tall ? 10 : 108;
-  const topH = tall ? 0 : 8;
+  const topH = tall ? 0 : meta.topMm ? Math.round(4 + meta.topMm / 5) : 8; // 40mm / 60mm tops draw thicker
   const bodyY = topY + topH;
   const legH = onFloor ? (tall ? 40 : 30) : 0;
   const bodyH = tall ? 200 : onFloor ? floorY - legH - bodyY : 82;
