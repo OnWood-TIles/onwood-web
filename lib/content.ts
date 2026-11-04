@@ -465,7 +465,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "Finish your bathroom or laundry with a waste as considered as the tiles around it: linear shower channel wastes, tile-insert and square floor wastes and grates, in brushed brass, copper, gunmetal and stainless steel. Choose a tile-insert waste to disappear into your floor, or a designer channel to make a feature of it.",
     ],
-    metaTitle: "Shower & Floor Wastes & Grates | OnWood Tiles",
+    metaTitle: "Shower & Floor Wastes & Grates",
     metaDescription:
       "Shower channel wastes, tile-insert and square floor wastes and grates in brass, copper, gunmetal and stainless steel. Supply only from our Sunshine Coast showroom.",
     links: [
@@ -486,7 +486,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "Add texture and warmth with our stone cladding and stone veneer, sourced and made right here in Australia. A lighter, faster way to bring the look of natural stone to a feature wall, facade, fireplace or outdoor area, in ledgestone, dry-stack and stacked-stone styles with matching corner pieces for a seamless finish.",
     ],
-    metaTitle: "Stone Cladding & Veneer | Feature Walls | OnWood Tiles",
+    metaTitle: "Stone Cladding & Veneer | Feature Walls",
     metaDescription:
       "Australian-made stone cladding and veneer for feature walls, facades and fireplaces, in ledgestone, dry-stack and coastal looks. Supply only, Sunshine Coast.",
     links: [
@@ -506,7 +506,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "Pull the room together with tapware that matches your tiles and finishes: designer kitchen and bathroom mixer taps, including statement bridge mixers, in classic chrome, warm brushed brass and copper. Chosen to coordinate with our wastes, tiles and accessories so your fittings feel considered.",
     ],
-    metaTitle: "Tapware | Kitchen & Bathroom Mixer Taps | OnWood",
+    metaTitle: "Tapware | Kitchen & Bathroom Mixer Taps",
     metaDescription:
       "Designer kitchen and bathroom tapware, including mixer taps and bridge mixers in chrome, brushed brass and copper. Supply only from our Sunshine Coast showroom.",
     links: [
@@ -550,7 +550,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "Above-counter, semi-inset and under-counter bathroom basins from Marquis, in round, oval, square and fluted shapes. Choose from classic white gloss and matte ceramic, coloured matte finishes, solid acrylic, brushed metal and translucent basins. Buy a basin on its own, or choose it as part of a Marquis vanity, where most basins are included in the price.",
     ],
-    metaTitle: "Bathroom Basins | Above-Counter & Under-Counter | OnWood",
+    metaTitle: "Bathroom Basins | Above-Counter & Under-Counter",
     metaDescription:
       "Above-counter, semi-inset and under-counter bathroom basins in ceramic, fluted, acrylic and brushed metal, in white and coloured finishes. Supply only, Sunshine Coast.",
     links: [
@@ -572,7 +572,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "Frameless bathroom mirrors in round, oval, arch, capsule, hexagon and organic shapes, timber-framed mirrors in your choice of finish, and mirrored shaving cabinets with storage behind the glass. Many mirrors can add a warm LED backlight. Made by Marquis to pair with their vanities, and supplied from our Sunshine Coast showroom.",
     ],
-    metaTitle: "Bathroom Mirrors & Shaving Cabinets | OnWood Tiles",
+    metaTitle: "Bathroom Mirrors & Shaving Cabinets",
     metaDescription:
       "Frameless, framed and LED backlit bathroom mirrors in round, oval, arch and capsule shapes, plus mirrored shaving cabinets. Supply only, Sunshine Coast.",
     links: [
@@ -594,7 +594,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "Hard-wearing 20mm porcelain pavers for patios, pool surrounds, alfresco areas, paths and driveways. Porcelain pavers resist stains, fading and moisture, need no sealing and suit the Sunshine Coast's sun and salt air. Lay them on sand, gravel or pedestals, or match them to an indoor tile for a seamless inside-out look.",
     ],
-    metaTitle: "Outdoor Porcelain Pavers Sunshine Coast | OnWood Tiles",
+    metaTitle: "Outdoor Porcelain Pavers Sunshine Coast",
     metaDescription:
       "20mm outdoor porcelain pavers for patios, pool surrounds, paths and alfresco areas. Low maintenance, no sealing, suited to coastal conditions. Supply only, Sunshine Coast.",
     links: [
@@ -617,7 +617,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "The finishing pieces that complete a tiled room, like matching cove skirting for a clean wall-to-floor junction. Chosen to go with the tiles in our range, so the details match the floor. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
-    metaTitle: "Tile Accessories & Skirting | OnWood Tiles",
+    metaTitle: "Tile Accessories & Skirting",
     metaDescription:
       "Tile finishing pieces and accessories, including matching cove skirting for a clean wall-to-floor finish. Supply only from our Sunshine Coast showroom.",
     links: [
@@ -683,7 +683,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We run tiles up to Maroochydore, the beaches and the canal homes most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about twenty minutes south.",
     driveMins: 20,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Maroochydore | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Maroochydore | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Maroochydore: porcelain, wood-look, outdoor and pool tiles built for coastal homes, with delivery to Maroochydore or pickup from Baringa, about 20 minutes away.",
     intro: [
@@ -743,7 +743,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     },
     deliveryLine: "We deliver right across Aura, Baringa, Nirimba, Banya and Bells Reach, or simply walk the full range in person, the showroom is only a few minutes from your build.",
     showroomLine: "Full-size boards, big-format samples and a coffee, right here in the Aura community at Baringa.",
-    metaTitle: "Tile Shop Aura Baringa | Tiles for New Homes | OnWood Tiles",
+    metaTitle: "Tile Shop Aura Baringa | Tiles for New Homes",
     metaDescription:
       "OnWood Tiles is your local tile shop inside the Aura community at Baringa. Porcelain, wood-look and outdoor tiles for new builds and renovations across Nirimba, Banya and Bells Reach.",
     intro: [
@@ -796,7 +796,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     estate: true,
     driveMins: 10,
     driveVia: "the Bruce Highway",
-    metaTitle: "Tile Shop Harmony Palmview | Tiles for New Homes | OnWood Tiles",
+    metaTitle: "Tile Shop Harmony Palmview | Tiles for New Homes",
     metaDescription:
       "Local tile shop for the Harmony community at Palmview. Porcelain, wood-look and outdoor tiles for new builds and renovations, with delivery to Harmony or pickup from Baringa, about 10 minutes away.",
     intro: [
@@ -848,7 +848,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Caloundra and the surrounding beaches are an easy run for us. Tell us your street for a delivery quote, or drop into the Baringa showroom, about twelve minutes up Caloundra Road.",
     driveMins: 12,
     driveVia: "Caloundra Road",
-    metaTitle: "Tile Shop Caloundra | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Caloundra | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Caloundra: porcelain, wood-look, outdoor and pool tiles for coastal homes and renovations, with delivery to Caloundra or pickup from Baringa, about 12 minutes away.",
     intro: [
@@ -900,7 +900,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Pelican Waters is practically next door, so getting tiles to your build is simple. We will quote delivery to your street, or you can collect from the showroom just up the road at Baringa.",
     driveMins: 8,
     driveVia: "Pelican Waters Boulevard",
-    metaTitle: "Tile Shop Pelican Waters | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Pelican Waters | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Pelican Waters: large-format, wood-look and outdoor tiles for premium coastal homes and renovations, with delivery or pickup from nearby Baringa, about 8 minutes away.",
     intro: [
@@ -952,7 +952,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We drop tiles to homes right along Golden Beach and the passage. Give us your address for a delivery quote, or collect from Baringa, roughly twelve minutes away.",
     driveMins: 12,
     driveVia: "Caloundra Road",
-    metaTitle: "Tile Shop Golden Beach | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Golden Beach | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Golden Beach: porcelain, wood-look and outdoor tiles for coastal homes and renovations, with delivery to Golden Beach or pickup from Baringa, about 12 minutes away.",
     intro: [
@@ -1004,7 +1004,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver up the hill to Buderim and the surrounding acreage. Send us your address for a delivery quote, or make the trip to Baringa to see everything full size, about twenty-two minutes via the Sunshine Motorway.",
     driveMins: 22,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Buderim | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Buderim | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Buderim: porcelain, wood-look, outdoor and feature tiles for renovations and new homes, with delivery to Buderim or pickup from Baringa, about 22 minutes away.",
     intro: [
@@ -1056,7 +1056,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We run tiles down to Mooloolaba, the Esplanade and the canal streets most weeks. Send your address for a delivery quote, or collect from Baringa, around twenty minutes south.",
     driveMins: 20,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Mooloolaba | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Mooloolaba | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Mooloolaba: porcelain, wood-look, outdoor and pool tiles for beachfront homes, canal builds and apartment renovations, with delivery to Mooloolaba or pickup from Baringa.",
     intro: [
@@ -1108,7 +1108,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Currimundi is a quick run for us. Tell us your street for a delivery quote, or pick up from the Baringa showroom, about ten minutes away.",
     driveMins: 10,
     driveVia: "Nicklin Way",
-    metaTitle: "Tile Shop Currimundi | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Currimundi | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Currimundi: porcelain, wood-look, outdoor and bathroom tiles for family homes and renovations, with delivery to Currimundi or pickup from Baringa, about 10 minutes away.",
     intro: [
@@ -1160,7 +1160,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver right across Little Mountain, and the showroom is only a few minutes down the road at Baringa if you would rather collect.",
     driveMins: 8,
     driveVia: "Caloundra Road",
-    metaTitle: "Tile Shop Little Mountain | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Little Mountain | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Little Mountain: porcelain, wood-look and bathroom tiles for family homes and renovations, with delivery to Little Mountain or pickup from Baringa, only about 8 minutes away.",
     intro: [
@@ -1212,7 +1212,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Meridan Plains is just up the road, so delivery is easy and pickup from Baringa is barely ten minutes. Give us your street for a quote.",
     driveMins: 8,
     driveVia: "Caloundra Road",
-    metaTitle: "Tile Shop Meridan Plains | Tiles for New Homes | OnWood Tiles",
+    metaTitle: "Tile Shop Meridan Plains | Tiles for New Homes",
     metaDescription:
       "Local tile shop for Meridan Plains: porcelain, wood-look and outdoor tiles for new builds and renovations, with delivery to Meridan Plains or pickup from Baringa, only about 8 minutes away.",
     intro: [
@@ -1264,7 +1264,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver across Birtinya and the Kawana suburbs, or collect from Baringa, around a twelve-minute drive. Send your address for a delivery quote.",
     driveMins: 12,
     driveVia: "Kawana Way",
-    metaTitle: "Tile Shop Birtinya Kawana | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Birtinya Kawana | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Birtinya and Kawana: large-format, wood-look and outdoor tiles for new waterfront homes, apartments and townhouses, with delivery or pickup from nearby Baringa.",
     intro: [
@@ -1316,7 +1316,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver to Sippy Downs, Chancellor Park and the university end most weeks. Tell us your street for a quote, or collect from Baringa about fifteen minutes south.",
     driveMins: 15,
     driveVia: "the Bruce Highway",
-    metaTitle: "Tile Shop Sippy Downs | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Sippy Downs | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Sippy Downs: porcelain, wood-look and bathroom tiles for family homes, rentals and renovations, with delivery to Sippy Downs or pickup from Baringa, about 15 minutes away.",
     intro: [
@@ -1368,7 +1368,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We bring tiles down to Alex and the headland streets regularly. Send your address for a delivery quote, or collect from the Baringa showroom, around twenty minutes away.",
     driveMins: 20,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Alexandra Headland | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Alexandra Headland | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Alexandra Headland: porcelain, polished, wood-look and outdoor tiles for beachside units and premium renovations, with delivery to Alex or pickup from Baringa.",
     intro: [
@@ -1420,7 +1420,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Coolum is a comfortable delivery run for us up the Sunshine Motorway. Tell us your address for a quote, and if you would like to see boards full size the Baringa showroom is worth the trip.",
     driveMins: 35,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Coolum Beach | Tiles + Sunshine Coast Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Coolum Beach | Tiles + Sunshine Coast Delivery",
     metaDescription:
       "Tiles for Coolum Beach homes and renovations, delivered: porcelain, wood-look, outdoor and pool tiles built for coastal living, from OnWood Tiles at Baringa on the Sunshine Coast.",
     intro: [
@@ -1472,7 +1472,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver right up to Noosa and Noosaville. Given the distance most Noosa customers have their tiles delivered, though you are always welcome to visit the Baringa showroom to choose in person first.",
     driveMins: 50,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Noosa & Noosaville | Tiles Delivered | OnWood Tiles",
+    metaTitle: "Tile Shop Noosa & Noosaville | Tiles Delivered",
     metaDescription:
       "Tiles for Noosa and Noosaville homes and renovations, delivered: large-format, natural stone-look, polished and outdoor tiles for premium coastal living, from OnWood Tiles on the Sunshine Coast.",
     intro: [
@@ -1524,7 +1524,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver out to Nambour and the surrounding hinterland towns. Send your address for a delivery quote, or make the trip down to Baringa to see everything full size.",
     driveMins: 30,
     driveVia: "the Bruce Highway",
-    metaTitle: "Tile Shop Nambour | Tiles + Hinterland Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Nambour | Tiles + Hinterland Delivery",
     metaDescription:
       "Tiles for Nambour homes and renovations, delivered: porcelain, wood-look and value bathroom tiles for character Queenslanders and hinterland homes, from OnWood Tiles at Baringa.",
     intro: [
@@ -1576,7 +1576,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver up to Palmwoods and the nearby hinterland villages. Tell us your address for a quote, or come down to the Baringa showroom to see boards and samples in person.",
     driveMins: 25,
     driveVia: "the Bruce Highway",
-    metaTitle: "Tile Shop Palmwoods | Tiles + Hinterland Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Palmwoods | Tiles + Hinterland Delivery",
     metaDescription:
       "Tiles for Palmwoods homes, acreage and renovations, delivered: warm wood-look, natural stone-look and outdoor tiles for hinterland living, from OnWood Tiles at Baringa on the Sunshine Coast.",
     intro: [
@@ -1628,7 +1628,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver up the range to Maleny and Montville. Most hinterland customers have their tiles delivered, and you are welcome to visit Baringa first to choose from full-size boards.",
     driveMins: 40,
     driveVia: "Landsborough",
-    metaTitle: "Tile Shop Maleny & Montville | Tiles Delivered | OnWood Tiles",
+    metaTitle: "Tile Shop Maleny & Montville | Tiles Delivered",
     metaDescription:
       "Tiles for Maleny and Montville homes and renovations, delivered: warm wood-look, natural stone-look and feature tiles for hinterland cottages and retreats, from OnWood Tiles on the Sunshine Coast.",
     intro: [
@@ -1680,7 +1680,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We run tiles down Steve Irwin Way to Beerwah and the hinterland most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about 15 minutes away.",
     driveMins: 15,
     driveVia: "Steve Irwin Way",
-    metaTitle: "Tile Shop Beerwah | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Beerwah | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Beerwah: hard-wearing porcelain, wood-look, outdoor and pool tiles for hinterland homes and acreage, with delivery to Beerwah or pickup from Baringa, about 15 minutes away.",
     intro: [
@@ -1733,7 +1733,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver into Landsborough and the hinterland most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about 15 minutes down Steve Irwin Way.",
     driveMins: 15,
     driveVia: "Steve Irwin Way",
-    metaTitle: "Tile Shop Landsborough | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Landsborough | Tiles + Local Delivery",
     metaDescription:
       "Your local tile shop for Landsborough: classic white, wood-look and outdoor tiles for character homes and new estates, with delivery to Landsborough or pickup from Baringa, about 15 minutes away.",
     intro: [
@@ -1785,7 +1785,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Most Glass House Mountains customers have their tiles delivered to the block. Tell us your street for a delivery quote, or visit the Baringa showroom about twenty minutes down Steve Irwin Way to choose in person.",
     driveMins: 20,
     driveVia: "Steve Irwin Way",
-    metaTitle: "Tile Shop Glass House Mountains | Tiles Delivered | OnWood Tiles",
+    metaTitle: "Tile Shop Glass House Mountains | Tiles Delivered",
     metaDescription:
       "Tiles for Glass House Mountains homes and acreage: tough outdoor porcelain, earthy stone-looks and wood-looks for big alfresco areas, sheds and pools, delivered from OnWood Tiles at Baringa.",
     intro: [
@@ -1838,7 +1838,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "We deliver across Bli Bli, Parklakes and the riverside estates most weeks. Tell us your suburb for a delivery quote, or collect from the Baringa showroom about 25 minutes away.",
     driveMins: 25,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Bli Bli | Tiles + Local Delivery | OnWood Tiles",
+    metaTitle: "Tile Shop Bli Bli | Tiles + Local Delivery",
     metaDescription:
       "Your tile shop for Bli Bli: value large-format, wood-look and easy-care porcelain for new family homes and estates like Parklakes, with delivery to Bli Bli or pickup from Baringa.",
     intro: [
@@ -1890,7 +1890,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Most Peregian Springs customers have their tiles delivered up the coast. Tell us your street for a delivery quote, or visit the Baringa showroom to choose from full-size boards first.",
     driveMins: 35,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Peregian Springs | Tiles Delivered | OnWood Tiles",
+    metaTitle: "Tile Shop Peregian Springs | Tiles Delivered",
     metaDescription:
       "Tiles for Peregian Springs homes: premium large-format porcelain, polished and stone-looks for considered new builds and renovations, delivered from OnWood Tiles on the Sunshine Coast.",
     intro: [
@@ -1942,7 +1942,7 @@ export const SUBURBS: Record<string, SuburbSeo> = {
     deliveryLine: "Most Peregian Beach customers have their tiles delivered up the coast. Tell us your street for a delivery quote, or visit the Baringa showroom to see full-size boards and samples first.",
     driveMins: 38,
     driveVia: "the Sunshine Motorway",
-    metaTitle: "Tile Shop Peregian Beach | Tiles Delivered | OnWood Tiles",
+    metaTitle: "Tile Shop Peregian Beach | Tiles Delivered",
     metaDescription:
       "Tiles for Peregian Beach homes and renovations: coastal whites, natural stone-looks and salt-tough porcelain for beach-house living, delivered from OnWood Tiles on the Sunshine Coast.",
     intro: [
@@ -2022,7 +2022,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
     slug: "outdoor",
     name: "Outdoor tiles",
     eyebrow: "Shop by use",
-    metaTitle: "Outdoor Tiles Sunshine Coast | Non-Slip & Pool | OnWood Tiles",
+    metaTitle: "Outdoor Tiles Sunshine Coast | Non-Slip & Pool",
     metaDescription:
       "Outdoor tiles for Sunshine Coast patios, alfresco areas and pool surrounds. Slip-rated porcelain built for sun, salt and rain, with local delivery and a Baringa showroom.",
     intro: [
@@ -2054,7 +2054,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
     slug: "timber-look",
     name: "Timber-look tiles",
     eyebrow: "Shop by look",
-    metaTitle: "Timber-Look Tiles Sunshine Coast | Wood-Look Porcelain | OnWood Tiles",
+    metaTitle: "Timber-Look Tiles Sunshine Coast | Wood-Look Porcelain",
     metaDescription:
       "Wood-look and timber-look porcelain tiles on the Sunshine Coast. The warmth of a timber floor with none of the upkeep, ready for indoors, outdoors and wet areas.",
     intro: [
@@ -2085,7 +2085,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
     slug: "white",
     name: "White tiles",
     eyebrow: "Shop by colour",
-    metaTitle: "White Tiles Sunshine Coast | Wall & Floor | OnWood Tiles",
+    metaTitle: "White Tiles Sunshine Coast | Wall & Floor",
     metaDescription:
       "White tiles for walls, floors and splashbacks on the Sunshine Coast. Gloss and matt whites, subways and large format, with prices and local delivery.",
     intro: [
@@ -2117,7 +2117,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
     slug: "bathroom",
     name: "Bathroom tiles",
     eyebrow: "Shop by use",
-    metaTitle: "Bathroom Tiles Sunshine Coast | Floor, Wall & Shower | OnWood Tiles",
+    metaTitle: "Bathroom Tiles Sunshine Coast | Floor, Wall & Shower",
     metaDescription:
       "Bathroom tiles on the Sunshine Coast: floor, wall and shower tiles in porcelain and ceramic. Slip-rated floors, easy-clean walls, prices and local delivery.",
     intro: [
@@ -2149,7 +2149,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
     slug: "splashback",
     name: "Splashback tiles",
     eyebrow: "Shop by use",
-    metaTitle: "Splashback Tiles Sunshine Coast | Kitchen & Subway | OnWood Tiles",
+    metaTitle: "Splashback Tiles Sunshine Coast | Kitchen & Subway",
     metaDescription:
       "Kitchen splashback tiles on the Sunshine Coast: subways, gloss, matt and feature tiles that wipe clean and lift a kitchen. Prices and local delivery.",
     intro: [
@@ -2181,7 +2181,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
     slug: "floor",
     name: "Floor tiles",
     eyebrow: "Shop by use",
-    metaTitle: "Floor Tiles Sunshine Coast | Porcelain & Timber-Look | OnWood Tiles",
+    metaTitle: "Floor Tiles Sunshine Coast | Porcelain & Timber-Look",
     metaDescription:
       "Floor tiles on the Sunshine Coast: hard-wearing porcelain in stone, concrete and timber looks for living areas, wet areas and outdoors. Prices and local delivery.",
     intro: [
