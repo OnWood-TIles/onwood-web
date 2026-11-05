@@ -32,8 +32,8 @@ const HFIN: Record<string, number[]> = {
 };
 const finOf = (f: string) => metal(HFIN[f] || HFIN["Black Matte"]);
 
-function swatchCanvas(img: HTMLImageElement | undefined, wMm: number, hMm: number, fallback: string): HTMLCanvasElement {
-  const pxPerMm = Math.min(1.2, 1024 / Math.max(wMm, hMm));
+function swatchCanvas(img: HTMLImageElement | undefined, wMm: number, hMm: number, fallback: string, maxPx = 1024): HTMLCanvasElement {
+  const pxPerMm = Math.min(1.2, maxPx / Math.max(wMm, hMm));
   const W = Math.max(8, Math.round(wMm * pxPerMm)), H = Math.max(8, Math.round(hMm * pxPerMm));
   const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d")!;
   g.fillStyle = fallback; g.fillRect(0, 0, W, H);
@@ -115,7 +115,8 @@ function faceHeight(face: string, w: number, h: number, colX: number, colY: numb
   }
 }
 function bakeFront(face: string, img: HTMLImageElement | undefined, fallback: string, wMm: number, hMm: number, col: [number, number, number, number]) {
-  const albedo = swatchCanvas(img, wMm, hMm, fallback);
+  const ribbed = face === "fluted" || face === "sawtooth";
+  const albedo = swatchCanvas(img, wMm, hMm, fallback, ribbed ? 2048 : 1024); // ribs need the extra pixels to stay crisp
   const fn = faceHeight(face, wMm, hMm, ...col);
   if (!fn) return { map: canvasTex(albedo), normal: null as THREE.Texture | null };
   const W = albedo.width, H = albedo.height, sx = wMm / W, sy = hMm / H;
@@ -124,12 +125,15 @@ function bakeFront(face: string, img: HTMLImageElement | undefined, fallback: st
   const nc = document.createElement("canvas"); nc.width = W; nc.height = H;
   const ng = nc.getContext("2d")!, nd = ng.createImageData(W, H);
   const ag = albedo.getContext("2d")!, ad = ag.getImageData(0, 0, W, H);
-  const k = face === "fluted" || face === "sawtooth" ? 2.2 : 3.2;
+  const k = ribbed ? 3 : 3.2;
+  // Ribs: a timber photo's own grain runs the same way as the flutes and swallows soft shading, so
+  // grooves darken harder (and crests lift a little) over a photo than over a plain colour.
+  const groove = ribbed ? (img ? 0.34 : 0.2) : face === "shiplap" ? 0.3 : 0, crest = ribbed ? (img ? 0.08 : 0.04) : 0;
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
     const p = j * W + i, l = hgt[j * W + Math.max(0, i - 1)], r = hgt[j * W + Math.min(W - 1, i + 1)], u = hgt[Math.max(0, j - 1) * W + i], d = hgt[Math.min(H - 1, j + 1) * W + i];
     let nx = (l - r) * k / (sx * 2), ny = (d - u) * k / (sy * 2), nz = 1; const len = Math.hypot(nx, ny, nz); nx /= len; ny /= len; nz /= len;
     nd.data[p * 4] = (nx * 0.5 + 0.5) * 255; nd.data[p * 4 + 1] = (ny * 0.5 + 0.5) * 255; nd.data[p * 4 + 2] = nz * 255; nd.data[p * 4 + 3] = 255;
-    const ao = 1 - 0.55 * (1 - nz) - (face === "fluted" || face === "sawtooth" ? 0.12 * (1 - hgt[p]) : face === "shiplap" ? 0.3 * (1 - hgt[p]) : 0); // slopes + grooves read darker, flat panels keep their colour
+    const ao = 1 - 0.55 * (1 - nz) - groove * (1 - hgt[p]) + crest * hgt[p] ** 4; // slopes + grooves read darker, flat panels keep their colour
     ad.data[p * 4] *= ao; ad.data[p * 4 + 1] *= ao; ad.data[p * 4 + 2] *= ao;
   }
   ng.putImageData(nd, 0, 0); ag.putImageData(ad, 0, 0);
@@ -335,11 +339,13 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   // Carcass: open box, finished outside, melamine inside (cut back where a curved or open end takes over).
   const fSide = face === "shiplap" ? (() => { const bk = bakeFront("shiplap", cabImg, cabCol, carD * 1000, H * 1000, [0, 0, carD * 1000, H * 1000]); return new THREE.MeshStandardMaterial({ map: bk.map, normalMap: bk.normal ?? null, roughness: 0.72, envMapIntensity: 0.15 }); })() : finishPlain(carD, H), fEdge = finishPlain(P, H);
   const openL = ends.includes(-1), openR = ends.includes(1), bx0 = xL + (openL ? 0 : P), bx1 = xR - (openR ? 0 : P);
-  if (!openL) slab(P, H, carD, xL + P / 2, y0 + H / 2, zBack + carD / 2, [carcassInner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
-  if (!openR) slab(P, H, carD, xR - P / 2, y0 + H / 2, zBack + carD / 2, [fSide, carcassInner, fEdge, carcassInner, fEdge, carcassInner]);
-  slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + P / 2, zBack + carD / 2, [carcassInner, carcassInner, carcassInner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
+  // An open shelf under the drawers (Oxford, Merewether) is finished inside like the outside, as Marquis builds it.
+  const inner = meta.shelf === "below" ? finishPlain(Wc, carD) : carcassInner;
+  if (!openL) slab(P, H, carD, xL + P / 2, y0 + H / 2, zBack + carD / 2, [inner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
+  if (!openR) slab(P, H, carD, xR - P / 2, y0 + H / 2, zBack + carD / 2, [fSide, inner, fEdge, carcassInner, fEdge, carcassInner]);
+  slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + P / 2, zBack + carD / 2, [carcassInner, carcassInner, inner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
   slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + H - P / 2, zBack + carD / 2);
-  slab(bx1 - bx0, H - 2 * P, 0.006, (bx0 + bx1) / 2, y0 + H / 2, zBack + 0.003);
+  slab(bx1 - bx0, H - 2 * P, 0.006, (bx0 + bx1) / 2, y0 + H / 2, zBack + 0.003, inner);
   // A flat plan shape (x outward from 0, outer front corner rounded by r) extruded up by h, at an end of the cabinet.
   const endPiece = (wd: number, r: number, h: number, side: number, x: number, y: number, mat: THREE.MeshStandardMaterial) => {
     const sh = new THREE.Shape(); r = Math.min(r, wd, carD);
@@ -423,7 +429,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   // Dividers between drawer stacks / door compartments.
   for (let c = 0; c < seq.length - 1; c++) {
     if (seq[c] === "door" && seq[c + 1] === "door") continue;
-    slab(P, H - 2 * P, carD - 0.02, fx0 + gap + (c + 1) * (colW + gap) - gap / 2, y0 + H / 2, zBack + 0.006 + (carD - 0.02) / 2);
+    slab(P, H - 2 * P, carD - 0.02, fx0 + gap + (c + 1) * (colW + gap) - gap / 2, y0 + H / 2, zBack + 0.006 + (carD - 0.02) / 2, inner); // seen through an open shelf
   }
   // A drawer box (the top one under a basin notched round the plumbing: 90 x 200mm).
   function drawerBox(parent: THREE.Object3D, w: number, h: number, notchX: number | null) {
@@ -488,8 +494,8 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   }
   if (shelfBelow) {
     const bays = widthMm >= 1500 ? (meta.basinLayout === "centre" || !meta.basinLayout ? 3 : 2) : 1;
-    slab(Wc - 2 * P, P, carD - 0.01, 0, fyBot, zBack + carD / 2, boxWhite);
-    for (let b = 1; b < bays; b++) slab(P, fyBot - y0 - P, carD - 0.02, -Wc / 2 + b * Wc / bays, y0 + (fyBot - y0) / 2, zBack + carD / 2);
+    slab(Wc - 2 * P, P, carD - 0.01, 0, fyBot, zBack + carD / 2, inner);
+    for (let b = 1; b < bays; b++) slab(P, fyBot - y0 - P, carD - 0.02, -Wc / 2 + b * Wc / bays, y0 + (fyBot - y0) / 2, zBack + carD / 2, inner);
   }
   // Kick / legs.
   if (mount === "kick") slab(Wc - 0.06, plinth, carD - 0.06, 0, plinth / 2, zBack + (carD - 0.06) / 2, finishPlain(Wc, plinth));
