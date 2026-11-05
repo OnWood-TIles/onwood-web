@@ -181,7 +181,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     saveBuild(slug, q, true);
   }, [o, sel, slug]);
   const complete = () => { window.location.href = `${backHref}?${toQuery(o, sel)}#vb-builder`; };
-  const keepShopping = () => { window.location.href = range.department ? `/shop/${range.department}` : "/shop"; };
+  const saveAndBack = () => { window.location.href = `${backHref}?${toQuery(o, sel)}`; }; // the product page, with the build picked
   const summary = (g: OptionGroup) => {
     if (g.type === "text") return one(sel[g.key]) || "Not answered yet";
     const ks = many(sel[g.key]); if (!ks.length) return g.type === "multi" ? "None added" : g.required ? "Choose one" : "Standard";
@@ -258,7 +258,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
           <div className="v3-total"><span>Your build</span><strong>{fmt(priced.total)}</strong><small>incl. GST</small></div>
           {missing > 0 && <p className="v3-miss">{missing} answer{missing === 1 ? "" : "s"} still needed (marked *). You can finish them on the product page.</p>}
           <button type="button" className="v3-complete" onClick={complete}>Complete and request a quote</button>
-          <button type="button" className="v3-save" onClick={keepShopping}>Save my build and keep shopping</button>
+          <button type="button" className="v3-save" onClick={saveAndBack}>Save my build</button>
           <p className="v3-fine">Takes your build back to the product page, ready to add to your quote.</p>
           <p className="v3-disc">The 3D view is an illustration only. Colours, timber grain, stone veining, sizes and details on screen are a guide and may differ from the real product, so please do not rely on it for an exact match. We are happy to show you real samples in the showroom.</p>
         </div>
