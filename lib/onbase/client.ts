@@ -441,6 +441,14 @@ export type ShopMenuDept = {
 /** Departments (with live product counts, a preview image and their populated
  *  sub-categories) that drive the Shop mega-menu. Built from the taxonomy plus
  *  the range feed so counts and imagery always reflect what is published. */
+// Departments whose products have no "see it installed" photos (Marquis) get a chosen product's
+// main photo as the mega-menu "in focus" tile instead (Reagan picked Merewether for vanities).
+const MENU_FOCUS_PICK: Record<string, string> = {
+  vanities: "marquis-merewether-vanity",
+  basins: "marquis-wow-translucency-round-basin",
+  mirrors: "marquis-mounted-mirror",
+};
+
 async function buildShopMenu(): Promise<ShopMenuDept[]> {
   const [taxonomy, ranges] = await Promise.all([getTaxonomy(), listRanges()]);
   // Menu counts reflect total colourways/variations across products (more
@@ -470,8 +478,11 @@ async function buildShopMenu(): Promise<ShopMenuDept[]> {
         .filter((x): x is { image: string; slug: string; name: string } => !!x);
       // Rotate the highlighted product daily (by day number) so the mega-menu
       // "in focus" tile varies over time instead of being stuck on one product.
+      const pick = list.find((r) => r.slug === MENU_FOCUS_PICK[d.slug] && r.heroImage);
       const focus = focusCandidates.length
         ? focusCandidates[Math.floor(Date.now() / 86_400_000) % focusCandidates.length]
+        : pick
+        ? { image: pick.heroImage as string, slug: pick.slug, name: pick.name }
         : null;
       const categories = d.categories
         .map((c) => ({ slug: c.slug, label: c.label, count: varCount(list.filter((r) => r.categories.includes(c.slug))) }))
