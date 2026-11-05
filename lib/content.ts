@@ -264,7 +264,9 @@ export const STORY = {
   p1: "Every OnWood project starts with your space, your light and your budget. We help you choose, match and pull the whole look together, from the tiles to the finishing details, so you end up with a room you'll love for years.",
   p2: "Not just tiles: we help finish the job with the adhesives, trims, wastes and a select range of tapware to match. Honest advice from a local, family-run Sunshine Coast team with no franchise script, no pushy upsell.",
   stats: [
-    { to: 450, suffix: "+", label: "Products to choose from", isPostcode: true },
+    // liveCount: Story replaces `to` with the live catalogue count (every colourway, as the shop
+    // counts them), rounded down to the nearest 50; 450 is only the fallback if the feed is down.
+    { to: 450, suffix: "+", label: "Products to choose from", liveCount: true },
     { to: 4551, suffix: "", label: "Baringa, on your doorstep", isPostcode: true },
     { to: 100, suffix: "%", label: "Local & independent" },
   ],

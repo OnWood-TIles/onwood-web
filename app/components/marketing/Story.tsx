@@ -83,7 +83,12 @@ export default async function Story() {
   // Prefer the curated secondary images set in content; only hit the feed if they
   // aren't all set. Each niche is { src, alt }.
   const curated = STORY.images ?? [];
-  const auto = curated.length >= 3 ? [] : pickImages(await listRanges());
+  const ranges = await listRanges().catch(() => [] as WebsiteRange[]);
+  const auto = curated.length >= 3 ? [] : pickImages(ranges);
+  // Live product count for the "Products to choose from" stat, counted like the shop menu
+  // (each colourway, a single-colour product as one) and rounded down so "+" stays true.
+  const colourways = ranges.reduce((n, r) => n + Math.max(1, r.swatches.length), 0);
+  const liveProducts = colourways >= 50 ? Math.floor(colourways / 50) * 50 : null;
   const fallbackAlt = ["A tiled Sunshine Coast room", "Tile detail", "Finished floor"];
   const pics = [0, 1, 2].map((i) => curated[i] ?? { src: auto[i] ?? null, alt: fallbackAlt[i] });
   return (
@@ -109,7 +114,8 @@ export default async function Story() {
           </Reveal>
 
           <div className={styles.stats}>
-            {STORY.stats.map((stat, i) => {
+            {STORY.stats.map((s0, i) => {
+              const stat = (s0 as { liveCount?: boolean }).liveCount && liveProducts ? { ...s0, to: liveProducts } : s0;
               const isPostcode = (stat as { isPostcode?: boolean }).isPostcode;
               return (
                 <Reveal key={stat.label} delay={0.2 + i * 0.06}>
