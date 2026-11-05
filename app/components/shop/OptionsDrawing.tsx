@@ -90,9 +90,10 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   // half; a frieze (Phoenix, Riviera) or a fixed rail panel (Bowral, Kiama) a band on top.
   const ends = meta.shelf === "ends" ? (/2 shelf ends/.test(config) ? ["left", "right"] : [meta.shelfSide ?? "right"]) : [];
   const endW = ends.length ? Math.max(16, tw * 0.15) : 0;
-  const sideW = meta.curved ? Math.max(9, tw * 0.065) : 0;
+  // Curved ends (Reef, Shore): a big radius, as in the photos (same rule as the 3D builder).
+  const sideW = meta.curved ? Math.min(((meta.depthMm ?? 460) - 34) / 2, Math.max(120, (meta.width ?? 900) * 0.16)) / MM : 0;
   const inset = face === "framed" ? 6 : 3;
-  // Recessed finger-pull band across the top (Rossi, Phoenix: 30mm), or a fixed rail panel (Bowral 150mm).
+  // Recessed frieze under the top (Phoenix, Riviera: 12mm), or a fixed rail panel (Bowral 150mm).
   const frieze = (meta.topRecessMm ?? (face === "frieze" ? 30 : 0)) / MM;
   const railH = tall ? 0 : meta.railMm ? meta.railMm / MM : meta.rail ? Math.max(9, Math.min(13, bodyH * 0.13)) : 0;
   const pullH = (meta.pullRecessMm ?? 0) / MM; // recess above every drawer (Nelson)
@@ -151,6 +152,8 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
     if (face === "fluted") vLines(x, y, ww, hh, 3, 0.45);
     if (face === "sawtooth") { vLines(x, y, ww, hh, 4, 0.75); vLines(x + 2, y, ww - 2, hh, 4, 0.3); }
     if (face === "fingerpull") { solids.push(<rect key={`f${n++}`} x={x + 1} y={y + 1} width={ww - 2} height={3.5} fill="rgba(20,30,34,.32)" />); L(`M${x + 1} ${y + 4.5} H${x + ww - 1}`, 0.8); }
+    // Routed finger-pull groove in each drawer front (Rossi), when there is no handle.
+    if (meta.grooveMm && kind === "drawer" && handle === "none") { solids.push(<rect key={`g${n++}`} x={x + 5} y={y + meta.grooveMm / MM} width={ww - 10} height={2.6} rx={1} fill="rgba(20,30,34,.32)" />); }
     // Handle
     if (handle === "none") return;
     const doorX = towardsCentre > 0 ? x + ww - 8 : x + 8; // near the edge facing the middle

@@ -41,8 +41,9 @@ export interface DrawMeta {
   cabInsetMm?: number; // how much narrower the cabinet is than the top (600 top over a 574 cabinet = 26)
   depthMm?: number; // overall depth incl. top
   railMm?: number; // fixed rail panel height (Bowral 150)
-  topRecessMm?: number; // recessed finger-pull band across the top of the cabinet (Rossi, Phoenix 30)
+  topRecessMm?: number; // recessed frieze (shadow line) across the top of the cabinet (Phoenix, Riviera 12)
   pullRecessMm?: number; // recessed finger-pull band above every drawer (Nelson 30)
+  grooveMm?: number; // routed finger-pull groove this far below the top of each drawer front, when no handle (Rossi 50)
   topBaseMm?: number; // standard benchtop thickness for the chosen top / colour (Dekton 12, Caesarstone 20)
   topLabel?: string; // thickness shown before the top colour is known, e.g. "12-20"
   handle?: "bar" | "knob" | "top" | "none"; // the handle picked (or the range default)

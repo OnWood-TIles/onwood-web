@@ -262,6 +262,16 @@ function handleFromSel(o: ProductOptions, sel: OptionSelection, meta: DrawMeta):
   return d === "none" ? { type: "No handle", fin: "", len } : d === "knob" ? { type: "Bell Knob", fin: "Black Matte", len } : d === "top" ? { type: "Curved Top Pull", fin: "Brushed Aluminium", len } : { type: "Lounge Handle", fin: "Stainless Steel", len: 160 };
 }
 
+// A routed groove: shadow under the top lip, light catching the lower edge.
+let grooveM: THREE.MeshBasicMaterial | null = null;
+function grooveMat() {
+  if (grooveM) return grooveM;
+  const c = document.createElement("canvas"); c.width = 4; c.height = 32; const g = c.getContext("2d")!;
+  const gr = g.createLinearGradient(0, 0, 0, 32); gr.addColorStop(0, "rgba(0,0,0,.6)"); gr.addColorStop(0.55, "rgba(0,0,0,.34)"); gr.addColorStop(0.85, "rgba(0,0,0,.08)"); gr.addColorStop(1, "rgba(255,255,255,.2)");
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 32);
+  return (grooveM = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
+}
+
 // ── The vanity ─────────────────────────────────────────────────────────────────────
 export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs): Built {
   const meta = drawMeta(o, sel);
@@ -279,21 +289,39 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
   const P = 0.016;
   const slab = (w: number, h: number, d: number, x: number, y: number, z: number, mats: THREE.Material | THREE.Material[] = carcassInner) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mats); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; group.add(m); return m; };
 
-  // Carcass: open box, finished outside, melamine inside.
-  const fSide = finishPlain(carD, H), fEdge = finishPlain(P, H);
-  slab(P, H, carD, -Wc / 2 + P / 2, y0 + H / 2, zBack + carD / 2, [carcassInner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
-  slab(P, H, carD, Wc / 2 - P / 2, y0 + H / 2, zBack + carD / 2, [fSide, carcassInner, fEdge, carcassInner, fEdge, carcassInner]);
-  slab(Wc - 2 * P, P, carD, 0, y0 + P / 2, zBack + carD / 2, [carcassInner, carcassInner, carcassInner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
-  slab(Wc - 2 * P, P, carD, 0, y0 + H - P / 2, zBack + carD / 2);
-  slab(Wc - 2 * P, H - 2 * P, 0.006, 0, y0 + H / 2, zBack + 0.003);
-
-  // Bands across the top: recessed finger-pull band or fixed rail panel; curved / shelf ends.
-  const recess = mm(meta.topRecessMm ?? (face === "frieze" ? 30 : 0));
+  // Bands across the top: recessed frieze or fixed rail panel; curved / open shelf ends.
+  const recess = mm(meta.topRecessMm ?? (face === "frieze" ? 12 : 0));
   const rail = meta.railMm ? mm(meta.railMm) : meta.rail ? 0.06 : 0;
-  const sideW = meta.curved ? Math.max(0.05, Wc * 0.065) : 0;
+  // Curved ends (Reef, Shore): a big front radius, as in the product photos.
+  const sideW = meta.curved ? Math.min(carD / 2, Math.max(0.12, Wc * 0.16)) : 0;
   const cfg = meta.config ?? "";
   const ends = meta.shelf === "ends" ? (/2 shelf ends/.test(cfg) ? [-1, 1] : [meta.shelfSide === "left" ? -1 : 1]) : [];
   const endW = ends.length ? Math.max(0.1, Wc * 0.15) : 0;
+  const endR = Math.min(endW, carD) * 0.92; // open shelf ends round off at the front (Avion)
+  const xL = -Wc / 2 + (sideW || (ends.includes(-1) ? endW : 0)), xR = Wc / 2 - (sideW || (ends.includes(1) ? endW : 0));
+
+  // Carcass: open box, finished outside, melamine inside (cut back where a curved or open end takes over).
+  const fSide = finishPlain(carD, H), fEdge = finishPlain(P, H);
+  const openL = ends.includes(-1), openR = ends.includes(1), bx0 = xL + (openL ? 0 : P), bx1 = xR - (openR ? 0 : P);
+  if (!openL) slab(P, H, carD, xL + P / 2, y0 + H / 2, zBack + carD / 2, [carcassInner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
+  if (!openR) slab(P, H, carD, xR - P / 2, y0 + H / 2, zBack + carD / 2, [fSide, carcassInner, fEdge, carcassInner, fEdge, carcassInner]);
+  slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + P / 2, zBack + carD / 2, [carcassInner, carcassInner, carcassInner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
+  slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + H - P / 2, zBack + carD / 2);
+  slab(bx1 - bx0, H - 2 * P, 0.006, (bx0 + bx1) / 2, y0 + H / 2, zBack + 0.003);
+  // A flat plan shape (x outward from 0, outer front corner rounded by r) extruded up by h, at an end of the cabinet.
+  const endPiece = (wd: number, r: number, h: number, side: number, x: number, y: number, mat: THREE.MeshStandardMaterial) => {
+    const sh = new THREE.Shape(); r = Math.min(r, wd, carD);
+    sh.moveTo(0, 0); sh.lineTo(wd, 0); sh.lineTo(wd, -carD + r); sh.absarc(wd - r, -carD + r, r, 0, -Math.PI / 2, true); sh.lineTo(0, -carD); sh.lineTo(0, 0);
+    const geo = new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false, curveSegments: 24 }); geo.rotateX(-Math.PI / 2);
+    const pos = geo.getAttribute("position") as THREE.BufferAttribute, nor = geo.getAttribute("normal") as THREE.BufferAttribute, uv = geo.getAttribute("uv") as THREE.BufferAttribute;
+    for (let i = 0; i < uv.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      if (Math.abs(nor.getY(i)) > 0.5) uv.setXY(i, x / wd, z / carD); // top / underside
+      else uv.setXY(i, (x + z) / (wd + carD), y / h); // round the edge
+    }
+    const m = new THREE.Mesh(geo, mat); if (side < 0) m.scale.x = -1; // mirrored for the left end (three flips the face winding)
+    m.position.set(x, y, zBack); m.castShadow = m.receiveShadow = true; group.add(m); return m;
+  };
   const fx0 = -Wc / 2 + sideW + (ends.includes(-1) ? endW : 0), fx1 = Wc / 2 - sideW - (ends.includes(1) ? endW : 0);
   const fyTop = y0 + H - recess - rail, fyFull = y0;
   const shelfBelow = meta.shelf === "below";
@@ -319,6 +347,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
   const centres = meta.basinLayout === "double" ? [-W * 0.25, W * 0.25] : off ? [(basinLeft ? -1 : 1) * W * 0.25] : [0];
 
   const hnd = handleFromSel(o, sel, meta);
+  const gapMat = finishPlain(0.2, 0.2); gapMat.color.set(0x55514b); gapMat.side = THREE.DoubleSide;
   const topPull = /Top Pull/.test(hnd.type), curvedPull = /Curved/.test(hnd.type), hMat = finOf(hnd.fin);
   function frontPanel(parent: THREE.Object3D, w: number, h: number, colRect: [number, number, number, number]) {
     const fp = hnd.type === "Recessed Fingerpull" && face !== "fingerpull" ? 0.022 : hnd.type === "Reverse Fingerpull" ? 0.016 : 0;
@@ -328,6 +357,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
     const side = finishPlain(0.02, h);
     const p = new THREE.Mesh(new THREE.BoxGeometry(w, ph, frontT), [side, side, side, side, fm, carcassInner]);
     p.position.y = -fp / 2; p.castShadow = p.receiveShadow = true; parent.add(p);
+    const bk = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.003, h + 0.003), gapMat); bk.position.z = -frontT / 2 - 0.0015; parent.add(bk);
     if (hnd.type === "Recessed Fingerpull" && face !== "fingerpull") {
       const back = new THREE.Mesh(new THREE.BoxGeometry(w, fp, 0.006), shadowMat); back.position.set(0, h / 2 - fp / 2, -frontT / 2 + 0.003); parent.add(back);
       const lip = new THREE.Mesh(new THREE.BoxGeometry(w, 0.004, frontT * 0.6), side); lip.position.set(0, h / 2 - 0.002, -frontT * 0.2); parent.add(lip);
@@ -387,12 +417,15 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
         const bx = j === 0 ? centres.find((b) => Math.abs(b - cx) < colW / 2) : undefined;
         drawerBox(drawer, colW, dh, bx == null ? null : bx - cx);
         addHandle(fGroup, colW, dh - pull, "drawer", towardsCentre);
+        if (meta.grooveMm && hnd.type === "No handle") { // routed finger-pull groove in the front (Rossi)
+          const gq = new THREE.Mesh(new THREE.PlaneGeometry(colW - 0.05, 0.018), grooveMat()); gq.position.set(0, (dh - pull) / 2 - mm(meta.grooveMm), frontT / 2 + 0.0006); fGroup.add(gq);
+        }
         group.add(drawer); movers.push({ obj: drawer, kind: "drawer", z0: drawer.position.z, t: 0 });
       }
     }
   });
   // Top band: recessed finger-pull channel, or a fixed rail panel in the range's face.
-  if (recess) slab(Wc - 2 * P, recess - 0.004, 0.006, 0, y0 + H - recess / 2, zFront - 0.01, shadowMat);
+  if (recess) { const fm = finishPlain(Wc, recess); fm.color.set(0x77726b); slab(xR - xL - 2 * P, recess, 0.012, (xL + xR) / 2, y0 + H - recess / 2, zFront - 0.002, fm); }
   if (rail) {
     const ry = y0 + H - recess - rail / 2, rp = new THREE.Group(); rp.position.set(0, ry, zFront + frontT / 2);
     frontPanel(rp, fx1 - fx0 - 2 * gap, rail - gap, [0, 0, (fx1 - fx0) * 1000, rail * 1000]); group.add(rp);
@@ -404,21 +437,13 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
     slab(Wc, 0.02, 0.012, 0, y0 + H - 0.01, z, fr); slab(Wc, 0.02, 0.012, 0, y0 + 0.01, z, fr);
   }
   // Curved end panels (Reef, Shore): rounded front corners each side.
-  if (sideW) for (const s of [-1, 1]) {
-    // Plan shape (x across, -z back): the outer front corner is rounded.
-    const sh = new THREE.Shape(), r = sideW * 0.95;
-    sh.moveTo(0, 0); sh.lineTo(sideW, 0); sh.lineTo(sideW, -carD + r); sh.quadraticCurveTo(sideW, -carD, sideW - r, -carD); sh.lineTo(0, -carD); sh.lineTo(0, 0);
-    const geo = new THREE.ExtrudeGeometry(sh, { depth: H, bevelEnabled: false, curveSegments: 16 }); geo.rotateX(-Math.PI / 2);
-    const mat = finishPlain(carD, H); mat.side = THREE.DoubleSide;
-    const m = new THREE.Mesh(geo, mat);
-    if (s < 0) m.scale.x = -1; // mirrored for the left end
-    m.position.set(s * (Wc / 2 - sideW), y0, zBack);
-    m.castShadow = m.receiveShadow = true; group.add(m);
-  }
-  // Open shelves: ends (Avion) or under the drawers (Oxford, Merewether).
+  if (sideW) for (const s of [-1, 1]) endPiece(sideW, sideW, H, s, s * (Wc / 2 - sideW), y0, finishPlain(carD, H));
+  // Open shelves: ends (Avion: no outer side; top, shelf and base round off at the front) or under the drawers (Oxford, Merewether).
   for (const e of ends) {
-    slab(P, H - 2 * P, carD - 0.01, e * (Wc / 2 - endW), y0 + H / 2, zBack + carD / 2); // divider
-    slab(endW - P, P, carD - 0.02, e * (Wc / 2 - endW / 2), y0 + H / 2, zBack + carD / 2, boxWhite); // middle shelf
+    const b = e * (Wc / 2 - endW);
+    slab(P, H, carD, b - e * P / 2, y0 + H / 2, zBack + carD / 2, finishPlain(carD, H)); // the drawer section's side
+    slab(endW, H, 0.006, b + e * endW / 2, y0 + H / 2, zBack + 0.003, finishPlain(endW, H)); // back
+    for (const y of [y0, y0 + H / 2 - P / 2, y0 + H - P]) endPiece(endW, endR, P, e, b, y, finishPlain(endW, carD));
   }
   if (shelfBelow) {
     const bays = widthMm >= 1500 ? (meta.basinLayout === "centre" || !meta.basinLayout ? 3 : 2) : 1;
@@ -458,10 +483,14 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
     if (sp && sp.above) { const k = bowlScale(sp, (sp.H - sp.above) / sp.H) * 0.995; centres.forEach((x) => holes.push({ x, z: cz - zTop, w: sp.W * k, d: sp.D * k, plan: sp })); }
     if (moulded) centres.forEach((x) => holes.push({ x, z: 0.03, w: 0.42, d: 0.3, plan: { plan: "super", n: 3.2 } }));
     let topGeo: THREE.BufferGeometry;
-    if (holes.length) {
-      const shp = new THREE.Shape(); shp.moveTo(-W / 2, -Dp / 2); shp.lineTo(W / 2, -Dp / 2); shp.lineTo(W / 2, Dp / 2); shp.lineTo(-W / 2, Dp / 2); shp.lineTo(-W / 2, -Dp / 2);
+    // The top follows curved ends (Reef, Shore) and rounded open shelf ends (Avion).
+    const over = (W - Wc) / 2, cr = (e: number) => Math.min(Dp * 0.98, W / 2 - 0.01, sideW ? sideW + over : ends.includes(e) ? endR + over : 0);
+    const rL = cr(-1), rR = cr(1);
+    if (holes.length || rL || rR) {
+      const shp = new THREE.Shape(); shp.moveTo(-W / 2, Dp / 2); shp.lineTo(-W / 2, -Dp / 2 + rL); if (rL) shp.absarc(-W / 2 + rL, -Dp / 2 + rL, rL, Math.PI, 1.5 * Math.PI, false);
+      shp.lineTo(W / 2 - rR, -Dp / 2); if (rR) shp.absarc(W / 2 - rR, -Dp / 2 + rR, rR, 1.5 * Math.PI, 2 * Math.PI, false); shp.lineTo(W / 2, Dp / 2); shp.lineTo(-W / 2, Dp / 2);
       for (const h of holes) { const p = new THREE.Path(); for (let j = 0; j <= 72; j++) { const [px, pz] = planPt({ ...h.plan, W: h.w, D: h.d }, j / 72); const X = h.x + px, Y = -(h.z + pz); if (j) p.lineTo(X, Y); else p.moveTo(X, Y); } shp.holes.push(p); }
-      topGeo = new THREE.ExtrudeGeometry(shp, { depth: T, bevelEnabled: false, curveSegments: 4 }); topGeo.rotateX(-Math.PI / 2);
+      topGeo = new THREE.ExtrudeGeometry(shp, { depth: T, bevelEnabled: false, curveSegments: 16 }); topGeo.rotateX(-Math.PI / 2);
       // shape UVs are in metres: map one top-width of photo across
       const uv = topGeo.getAttribute("uv") as THREE.BufferAttribute; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W / 2) / W, (uv.getY(i) + Dp / 2) / Dp);
     } else { topGeo = new THREE.BoxGeometry(W, T, Dp); topGeo.translate(0, T / 2, 0); }
