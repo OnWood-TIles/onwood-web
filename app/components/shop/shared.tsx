@@ -183,7 +183,7 @@ export function Watermark({ mode = "static" }: { mode?: "static" | "yield" | "ro
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/onwood-logo-white.png"
+      src="/onwood-logo-white-sm.png"
       alt=""
       aria-hidden
       loading="lazy"

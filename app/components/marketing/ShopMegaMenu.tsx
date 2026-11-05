@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { ShopMenuDept } from "../../../lib/onbase/client";
+import { rs } from "../../../lib/rs";
 
 // Full-width Shop mega-menu (adapted from the Claude Design shop concept, kept
 // entirely on the OnWood theme vars - no new palette). A department list that
@@ -186,7 +187,7 @@ export default function ShopMegaMenu({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   key={active.focusSlug}
-                  src={active.focusImage}
+                  src={rs(active.focusImage, 828)}
                   alt={active.focusName ?? active.label}
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", animation: "owMegaFade .5s ease" }}
                 />
