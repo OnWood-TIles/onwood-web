@@ -276,8 +276,8 @@ const CSS = `
 .v3-back{display:inline-block;font-size:13px;font-weight:600;color:#2f6f6a;text-decoration:none;margin-bottom:4px}
 .v3-top h1{margin:0;font-size:22px;font-weight:600}
 .v3-top p{margin:2px 0 0;font-size:12.5px;color:#5d6766;font-variant-numeric:tabular-nums}
-.v3-stage.night .v3-top h1,.v3-stage.night .v3-disc{margin:10px 0 0;font-size:11.5px;line-height:1.45;color:#6b7473}
-.v3-hint{color:#e9ecea}.v3-stage.night .v3-top p{color:#b9c0bf}
+.v3-stage.night .v3-top h1,.v3-stage.night .v3-hint,.v3-stage.night .v3-back{color:#efe6d8}.v3-stage.night .v3-top p{color:#cdbfae}
+.v3-panel .v3-disc{margin:10px 0 0;font-size:11.5px;line-height:1.45;color:#6b7473}
 .v3-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#5d6766;font-size:14px}
 .v3-tools{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px)}
 .v3-tool{font:inherit;font-weight:600;font-size:13px;border:1px solid #dedad2;background:#fff;color:#1f2a2e;border-radius:999px;padding:8px 14px;cursor:pointer}
