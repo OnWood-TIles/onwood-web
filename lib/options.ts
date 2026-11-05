@@ -33,8 +33,18 @@ export interface DrawMeta {
   doorHandle?: "top"; // door handles run across the top of the door (Marq, Hamilton) instead of up the side
   shelf?: "below" | "ends"; // open shelf under the drawer (Oxford) / open shelf ends (Avion)
   shelfSide?: "left" | "right"; // which end the single open shelf sits
-  wallMm?: number; // wall-hung height incl. top, mm
-  floorMm?: number; // height on a kick or legs incl. top, mm
+  // Measurements from the supplier's spec sheets (mm). Heights are the CABINET only: the
+  // benchtop sits on top and is added from its own thickness.
+  wallMm?: number; // wall-hung cabinet height
+  floorMm?: number; // floor to the top of the cabinet on a kick or legs
+  plinthMm?: number; // kick / leg height (default 150)
+  cabInsetMm?: number; // how much narrower the cabinet is than the top (600 top over a 574 cabinet = 26)
+  depthMm?: number; // overall depth incl. top
+  railMm?: number; // fixed rail panel height (Bowral 150)
+  topRecessMm?: number; // recessed finger-pull band across the top of the cabinet (Rossi, Phoenix 30)
+  pullRecessMm?: number; // recessed finger-pull band above every drawer (Nelson 30)
+  topBaseMm?: number; // standard benchtop thickness for the chosen top / colour (Dekton 12, Caesarstone 20)
+  topLabel?: string; // thickness shown before the top colour is known, e.g. "12-20"
   handle?: "bar" | "knob" | "top" | "none"; // the handle picked (or the range default)
   cabinetImage?: string; // chosen cabinet finish photo, laid over the drawing
   topImage?: string; // chosen benchtop colour photo

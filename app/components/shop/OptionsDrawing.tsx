@@ -57,19 +57,25 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
 
   const tall = style === "tallboy";
   const showDims = (dims ?? size >= 260) && !tall && !!meta.width;
-  const tw = tall ? 70 : w; // a tallboy is a narrow tall cabinet
-  const tx = (W - tw) / 2;
+  // To scale (1 unit = 6mm), from the spec sheets: the top is the nominal width and the
+  // cabinet sits cabInsetMm narrower; heights are the cabinet only, with the benchtop's own
+  // thickness on top (the upgrade, else the chosen top / colour's standard thickness).
+  const topW = tall ? 70 : w;
+  const tw = tall ? 70 : Math.max(60, w - (meta.cabInsetMm ?? 0) / MM); // a tallboy is a narrow tall cabinet
+  const tx = (W - tw) / 2, topX = (W - topW) / 2;
   const face = meta.face ?? "plain";
-  // Real proportions: benchtop ~850mm off the floor; a wall-hung cabinet uses the range's
-  // own height; a kick base is a recessed ~100mm plinth, legs ~180mm.
   const mount = meta.mount ?? "wallmount";
   const floorY = 250;
   const onFloor = mount === "legs" || mount === "kick";
-  const topH = tall ? 0 : meta.topMm ? Math.round(4 + meta.topMm / 5) : 8; // 40mm / 60mm tops draw thicker
-  const topY = tall ? 10 : onFloor && meta.floorMm ? floorY - meta.floorMm / MM : 108;
-  const bodyY = topY + topH;
-  const legH = !onFloor ? 0 : tall ? 40 : mount === "kick" ? 17 : 30;
-  const bodyH = tall ? 200 : onFloor ? floorY - legH - bodyY : meta.wallMm ? Math.max(40, meta.wallMm / MM - topH) : 82;
+  const topMm = meta.topMm ?? meta.topBaseMm ?? 20;
+  const topH = tall ? 0 : Math.max(3, topMm / MM);
+  const plinthMm = meta.plinthMm ?? 150;
+  const legH = !onFloor ? 0 : tall ? 40 : plinthMm / MM;
+  const floorMm = meta.floorMm ?? 840; // floor to the top of the cabinet on a kick / legs
+  // Wall-hung cabinets are drawn with their top at 850mm, the usual fixing height.
+  const bodyY = tall ? 10 : onFloor ? floorY - floorMm / MM : floorY - 850 / MM;
+  const topY = bodyY - topH;
+  const bodyH = tall ? 200 : onFloor ? floorMm / MM - legH : (meta.wallMm ?? 490) / MM;
   const config = meta.config ?? "";
 
   // ── Ids + fills: the chosen cabinet / benchtop photos tile over the drawing ──────────
@@ -86,8 +92,10 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   const endW = ends.length ? Math.max(16, tw * 0.15) : 0;
   const sideW = meta.curved ? Math.max(9, tw * 0.065) : 0;
   const inset = face === "framed" ? 6 : 3;
-  const frieze = face === "frieze" ? 7 : 0;
-  const railH = meta.rail && !tall ? Math.max(9, Math.min(13, bodyH * 0.13)) : 0;
+  // Recessed finger-pull band across the top (Rossi, Phoenix: 30mm), or a fixed rail panel (Bowral 150mm).
+  const frieze = (meta.topRecessMm ?? (face === "frieze" ? 30 : 0)) / MM;
+  const railH = tall ? 0 : meta.railMm ? meta.railMm / MM : meta.rail ? Math.max(9, Math.min(13, bodyH * 0.13)) : 0;
+  const pullH = (meta.pullRecessMm ?? 0) / MM; // recess above every drawer (Nelson)
   const fx0 = tx + inset + sideW + (ends.includes("left") ? endW : 0);
   const fx1 = tx + tw - inset - sideW - (ends.includes("right") ? endW : 0);
   const fy0 = bodyY + inset + frieze + railH;
@@ -165,7 +173,8 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
       const dh = (fy1 - fy0) / perCol;
       for (let j = 0; j < perCol; j++) {
         if (colShape && j) L(`M${x + 1.5} ${fy0 + j * dh - 1} H${x + colW - 1.5}`, 1.2);
-        front(x + 1.5, fy0 + j * dh, colW - 3, dh - (colShape ? 0 : 2), "drawer", towardsCentre);
+        if (pullH) solids.push(<rect key={`p${n++}`} x={x + 1.5} y={fy0 + j * dh} width={colW - 3} height={pullH - 0.5} fill="rgba(20,30,34,.26)" />);
+        front(x + 1.5, fy0 + j * dh + pullH, colW - 3, dh - (colShape ? 0 : 2) - pullH, "drawer", towardsCentre);
       }
     }
     // Arco: the arch runs the full height of each column, drawers sit inside it.
@@ -221,13 +230,24 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
     : <path key={i} d={`M${cx - bw / 2} ${bodyY} q0 26 ${bw / 2} 26 q${bw / 2} 0 ${bw / 2} -26`} fill="none" stroke={STROKE} strokeWidth={1.4} strokeDasharray="4 3" />);
   const taps = tall || bare ? null : centres.map((cx, i) => <path key={`t${i}`} d={`M${cx} ${topY} v${basin === "above" ? -36 : -22} h${basin === "above" ? 12 : 10}`} fill="none" stroke="#8a9294" strokeWidth={3} strokeLinecap="round" />);
 
-  // Dimension lines (larger drawings): overall width above, height at the side.
-  const bottom = onFloor ? floorY : bodyY + bodyH;
-  const heightMm = onFloor ? meta.floorMm ?? Math.round((floorY - topY) * MM / 10) * 10 : meta.wallMm ?? Math.round((bodyH + topH) * MM / 10) * 10;
-  const dimY = topY - 50, dimX = tx - 13;
+  // Dimension lines (larger drawings), as on the spec sheets: top width above, cabinet width
+  // below, benchtop thickness, cabinet height and kick / legs at the left, floor-to-cabinet-top
+  // at the right, then overall height (incl. the benchtop) and depth underneath. Every figure
+  // follows the picked size, mounting, top colour and thickness upgrade.
+  const cabBottom = bodyY + bodyH;
+  const cabWmm = (meta.width ?? 0) - (meta.cabInsetMm ?? 0);
+  const topTxt = meta.topMm ? `${meta.topMm}` : meta.topBaseMm ? `${meta.topBaseMm}` : meta.topLabel ?? "20";
+  const topNum = meta.topMm ?? meta.topBaseMm ?? (Number(topTxt.split(/[^0-9]/).pop()) || 20);
+  const cabMm = onFloor ? floorMm - plinthMm : meta.wallMm ?? Math.round(bodyH * MM);
+  const baseMm = onFloor ? floorMm : cabMm;
+  const range = !meta.topMm && !meta.topBaseMm ? topTxt.match(/^(\d+)\D+(\d+)$/) : null; // top colour not picked yet
+  const overallMm = basin === "none" ? `${baseMm}` : range ? `${baseMm + Number(range[1])}-${baseMm + Number(range[2])}` : `${baseMm + topNum}`;
+  const dimY = topY - 50, dimX = Math.min(tx, topX) - 13, rX = Math.max(tx + tw, topX + topW) + 13;
   const dimText = { fontSize: 10, fontFamily: "Arial, Helvetica, sans-serif", fill: "#5b6366" } as const;
+  const tick = (x: number, y: number) => `M${x - 4} ${y} h8`;
+  const capY = floorY + (meta.cabInsetMm ? 42 : 20);
 
-  const vb = showDims ? `-46 ${topY - 66} ${W + 52} ${floorY - topY + 74}` : tall ? `0 0 ${W} 262` : `0 60 ${W} 202`;
+  const vb = showDims ? `-50 ${topY - 66} ${W + 100} ${capY - topY + 72}` : tall ? `0 0 ${W} 262` : `0 60 ${W} 202`;
   return (
     <svg viewBox={vb} width={size} style={{ maxWidth: "100%", height: "auto" }} role="img" aria-label={tall ? "Tallboy illustration" : "Vanity illustration"}>
       <defs>
@@ -242,7 +262,7 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
       </defs>
       <line x1={-46} y1={floorY} x2={W + 6} y2={floorY} stroke="#d4d7d2" strokeWidth={2} />
       {taps}
-      {!tall && !bare && <rect x={tx - 4} y={topY} width={tw + 8} height={topH} rx={1.5} fill={topFill} stroke={STROKE} strokeWidth={1.6} />}
+      {!tall && !bare && <rect x={topX} y={topY} width={topW} height={topH} rx={1} fill={topFill} stroke={STROKE} strokeWidth={1.4} />}
       <rect x={tx} y={bodyY} width={tw} height={bodyH} rx={face === "rounded" || meta.curved ? 4 : 2} fill={cabFill} stroke={STROKE} strokeWidth={1.8} />
       {meta.curved && [tx + inset, tx + tw - inset - sideW].map((sx, i) => <rect key={i} x={sx} y={bodyY + inset} width={sideW} height={bodyH - 2 * inset} fill={`url(#cv-${id})`} />)}
       {solids}
@@ -253,10 +273,32 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
       {mount === "legs" && legH > 0 && [tx + 8, tx + tw - 14].map((lx, i) => <rect key={i} x={lx} y={bodyY + bodyH} width={6} height={legH} fill="#b8a98f" stroke={STROKE} strokeWidth={1} />)}
       {showDims && (
         <g stroke="#8a9294" strokeWidth={0.9}>
-          <path d={`M${tx - 4} ${dimY} H${tx + tw + 4} M${tx - 4} ${dimY - 4} v8 M${tx + tw + 4} ${dimY - 4} v8`} />
-          <text x={tx + tw / 2} y={dimY - 5} textAnchor="middle" stroke="none" {...dimText}>{meta.width}mm</text>
-          <path d={`M${dimX} ${topY} V${bottom} M${dimX - 4} ${topY} h8 M${dimX - 4} ${bottom} h8`} />
-          <text x={dimX - 4} y={(topY + bottom) / 2 + 3} textAnchor="end" stroke="none" {...dimText}>{heightMm}</text>
+          {/* top width */}
+          <path d={`M${topX} ${dimY} H${topX + topW} M${topX} ${dimY - 4} v8 M${topX + topW} ${dimY - 4} v8`} />
+          <text x={W / 2} y={dimY - 5} textAnchor="middle" stroke="none" {...dimText}>{meta.width}</text>
+          {/* cabinet width (when narrower than the top) */}
+          {!!meta.cabInsetMm && <>
+            <path d={`M${tx} ${floorY + 14} H${tx + tw} M${tx} ${floorY + 10} v8 M${tx + tw} ${floorY + 10} v8`} />
+            <text x={W / 2} y={floorY + 27} textAnchor="middle" stroke="none" {...dimText}>{cabWmm}</text>
+          </>}
+          {/* benchtop thickness */}
+          {!bare && <>
+            <path d={`M${dimX} ${topY} V${bodyY} ${tick(dimX, topY)} ${tick(dimX, bodyY)}`} />
+            <text x={dimX - 6} y={bodyY - 0.5} textAnchor="end" stroke="none" {...dimText}>{topTxt}</text>
+          </>}
+          {/* cabinet height, then the kick / legs */}
+          <path d={`M${dimX} ${bodyY} V${cabBottom} ${tick(dimX, cabBottom)}`} />
+          <text x={dimX - 6} y={(bodyY + cabBottom) / 2 + 3} textAnchor="end" stroke="none" {...dimText}>{cabMm}</text>
+          {onFloor && <>
+            <path d={`M${dimX} ${cabBottom} V${floorY} ${tick(dimX, floorY)}`} />
+            <text x={dimX - 6} y={(cabBottom + floorY) / 2 + 3} textAnchor="end" stroke="none" {...dimText}>{plinthMm}</text>
+            {/* floor to the top of the cabinet */}
+            <path d={`M${rX} ${bodyY} V${floorY} ${tick(rX, bodyY)} ${tick(rX, floorY)}`} />
+            <text x={rX + 6} y={(bodyY + floorY) / 2 + 3} stroke="none" {...dimText}>{floorMm}</text>
+          </>}
+          <text x={W / 2} y={capY} textAnchor="middle" stroke="none" {...dimText}>
+            {`${onFloor ? "Overall height" : "Height"} ${overallMm}mm${bare ? " (cabinet only)" : ` incl. ${topTxt}mm top`}${meta.depthMm ? ` · depth ${meta.depthMm}mm` : ""}`}
+          </text>
         </g>
       )}
     </svg>
