@@ -184,9 +184,10 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
       renderer.setPixelRatio(1); renderer.setSize(1200, 800, false); camera.aspect = 1.5; camera.updateProjectionMatrix();
       for (const [label, view, dim] of [["Angle", "angle", false], ["Front", "front", false], ["Side", "side", false], ["Lights dimmed", "angle", true]] as const) {
         applyLights(st, b, dim);
-        camera.position.copy(views.current[view]); camera.lookAt(controls.target);
+        // a little closer than the on-screen views, so the vanity fills the still (not the floor)
+        camera.position.copy(views.current[view]).sub(controls.target).multiplyScalar(0.74).add(controls.target); camera.lookAt(controls.target);
         renderer.render(scene, camera);
-        shots.push({ label, data: canvas.toDataURL("image/jpeg", 0.82) });
+        shots.push({ label, data: canvas.toDataURL("image/jpeg", 0.86) });
       }
     } finally {
       shut(false); applyLights(st, b, dark);

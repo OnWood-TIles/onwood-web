@@ -79,12 +79,12 @@ export default function EmailBuild({ range, options, buildUrl, complete, missing
               ))}
             </div>
             <div className="eb-grid">
-              <label>Name<input value={f.name} onChange={set("name")} autoComplete="name" required /></label>
-              <label>Email<input type="email" value={f.email} onChange={set("email")} autoComplete="email" required /></label>
-              <label>Phone <em>(optional)</em><input type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" /></label>
-              <label>Suburb <em>(optional)</em><input value={f.suburb} onChange={set("suburb")} autoComplete="address-level2" /></label>
+              <label><span>Name</span><input value={f.name} onChange={set("name")} autoComplete="name" required /></label>
+              <label><span>Email</span><input type="email" value={f.email} onChange={set("email")} autoComplete="email" required /></label>
+              <label><span>Phone <em>(optional)</em></span><input type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" /></label>
+              <label><span>Suburb <em>(optional)</em></span><input value={f.suburb} onChange={set("suburb")} autoComplete="address-level2" /></label>
             </div>
-            <label className="eb-notes">Anything we should know? <em>(optional)</em><textarea rows={2} value={f.notes} onChange={set("notes")} /></label>
+            <label className="eb-notes"><span>Anything we should know? <em>(optional)</em></span><textarea rows={2} value={f.notes} onChange={set("notes")} /></label>
             <input tabIndex={-1} autoComplete="off" value={f.company} onChange={set("company")} aria-hidden="true" className="eb-hp" />
             <MarketingConsent checked={consent} onChange={setConsent} />
             {error && <p className="eb-err" role="alert">{error}</p>}
