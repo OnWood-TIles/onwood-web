@@ -352,7 +352,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   const slotMat = finishPlain(0.3, 0.03); slotMat.color.set(0x6d6861);
   const topPull = /Top Pull/.test(hnd.type), curvedPull = /Curved/.test(hnd.type), hMat = finOf(hnd.fin);
   // slotDrop: a routed groove this far below the top (Rossi). Recessed fingerpull = a round-ended slot
-  // routed into the front just under its top edge; reverse fingerpull = the top edge bevelled back
+  // routed into the front just under its top edge; reverse fingerpull = the back of the top edge bevelled away
   // (as pictured in the Marquis Bathroom Book, p122).
   function frontPanel(parent: THREE.Object3D, w: number, h: number, colRect: [number, number, number, number], slotDrop = 0) {
     const rev = hnd.type === "Reverse Fingerpull" ? Math.min(0.035, h * 0.3) : 0;
@@ -375,8 +375,8 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
     } else p = new THREE.Mesh(new THREE.BoxGeometry(w, ph, frontT), [side, side, side, side, fm, carcassInner]);
     p.position.y = -rev / 2; p.castShadow = p.receiveShadow = true; parent.add(p);
     const bk = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.003, h + 0.003), gapMat); bk.position.z = -frontT / 2 - 0.0015; parent.add(bk);
-    if (rev) { // the bevel: full thickness at the bottom of the pull, a thin edge at the top
-      const sh = new THREE.Shape(); sh.moveTo(-frontT / 2, 0); sh.lineTo(frontT / 2, 0); sh.lineTo(-frontT / 2 + 0.005, rev); sh.lineTo(-frontT / 2, rev); sh.lineTo(-frontT / 2, 0);
+    if (rev) { // the face runs straight up to a thin top edge; the back is bevelled away into the vanity for your fingers
+      const sh = new THREE.Shape(); sh.moveTo(-frontT / 2, 0); sh.lineTo(frontT / 2, 0); sh.lineTo(frontT / 2, rev); sh.lineTo(frontT / 2 - 0.005, rev); sh.lineTo(-frontT / 2, 0);
       const geo = new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false }); geo.rotateY(-Math.PI / 2); geo.translate(w / 2, 0, 0);
       const wedge = new THREE.Mesh(geo, finishPlain(w, rev)); wedge.position.y = h / 2 - rev; wedge.castShadow = wedge.receiveShadow = true; parent.add(wedge);
     }

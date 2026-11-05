@@ -11,6 +11,7 @@ import SaveButton from "../wishlist/SaveButton";
 import AddToQuoteButton from "../quote/AddToQuoteButton";
 import OptionsDrawing from "./OptionsDrawing";
 import { DuluxNameInput, duluxPicked, findDulux, solidSwatch, useDulux } from "./dulux";
+import { queryRecord, readBuild, saveBuild } from "./savedBuild";
 
 // Customer price builder for any product with options (set up on the OnBase Pricing
 // tab), e.g. a Marquis vanity range: one collapsible step per option group (picking
@@ -59,6 +60,21 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
   const [popup, setPopup] = useState<string | null>(null);
   const scrollTo = useRef<string | null>(null);
 
+  // A build saved in this browser comes back: always after the 3D builder (its buttons, or the
+  // browser Back button, also when the page is restored from the back/forward cache), and on a
+  // later visit that has no build in the URL. Runs before the URL sync below.
+  useEffect(() => {
+    const restore = (fresh: boolean) => {
+      const s = readBuild(range.slug); if (!s) return;
+      const hasBuild = [...new URLSearchParams(window.location.search).keys()].some((k) => k.startsWith("o_"));
+      if (s.from3d || (fresh && !hasBuild)) { setSel(readQuery(o, queryRecord(s.q))); saveBuild(range.slug, s.q); }
+    };
+    restore(true);
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) restore(false); };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Coming back from the 3D builder (#vb-builder): land on the builder, ready to quote.
   // Runs before the URL sync below, which drops the hash.
   useEffect(() => {
@@ -77,6 +93,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
     const next = `${window.location.pathname}?${q.toString()}`;
     window.history.replaceState(null, "", next);
     setUrl(next);
+    saveBuild(range.slug, q.toString());
   }, [sel, o.groups]);
 
   // After a pick moves on to the next step, bring that step into view.

@@ -14,6 +14,7 @@ import {
 } from "../../../../lib/options";
 import { buildVanity, ledGlowTex, textureSources, type Built } from "./build";
 import { DuluxNameInput, duluxPicked, findDulux, useDulux } from "../dulux";
+import { saveBuild } from "../savedBuild";
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
@@ -143,14 +144,15 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     if (!b.led && dark) setDark(false);
   }, [o, sel, ready, duluxHex]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Lights: room on / off (off shows the LED strip's warm glow).
+  // Lights: room lights on, or dimmed to a warm evening glow (shows off the LED strip).
   useEffect(() => {
     const st = stage.current; if (!st) return;
     const b = built.current, on = !!b?.led;
-    st.hemi.intensity = dark ? 0.05 : 0.62; st.sun.intensity = dark ? 0.03 : 0.72; st.fill.intensity = dark ? 0 : 0.22;
-    st.scene.environment = dark ? null : st.env; st.scene.background = new THREE.Color(dark ? 0x0e1012 : 0xe9e5de);
-    st.leds.forEach((l, i) => { l.intensity = on ? (dark ? 2.4 : 0.55) : 0; if (b) l.position.set((i - 1) * (b.group.userData.ledW ?? 1) * 0.33, Math.max(0.05, (b.group.userData.ledY ?? 0.3) - 0.04), b.group.userData.ledZ ?? -0.2); });
-    b?.group.traverse((q: any) => { if (q.name === "glow") q.material.opacity = dark ? 1 : 0.4; });
+    st.hemi.color.set(dark ? 0xffcf96 : 0xffffff); st.hemi.groundColor.set(dark ? 0x6b5640 : 0xd8d2c8); st.sun.color.set(dark ? 0xffc27a : 0xffffff);
+    st.hemi.intensity = dark ? 0.24 : 0.62; st.sun.intensity = dark ? 0.16 : 0.72; st.fill.intensity = dark ? 0.04 : 0.22;
+    st.scene.environment = dark ? null : st.env; st.scene.background = new THREE.Color(dark ? 0x3a3027 : 0xe9e5de);
+    st.leds.forEach((l, i) => { l.intensity = on ? (dark ? 1.8 : 0.55) : 0; if (b) l.position.set((i - 1) * (b.group.userData.ledW ?? 1) * 0.33, Math.max(0.05, (b.group.userData.ledY ?? 0.3) - 0.04), b.group.userData.ledZ ?? -0.2); });
+    b?.group.traverse((q: any) => { if (q.name === "glow") q.material.opacity = dark ? 0.9 : 0.4; });
   }, [dark, ledOn, sel, ready]);
 
   useEffect(() => { anim.current.open = doorsOpen; }, [doorsOpen]);
@@ -158,7 +160,16 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
 
   // ── Options panel: every step of the 2D builder ──────────────────────────────────
   const missing = priced.ok ? 0 : steps.filter((g) => g.required && !one(sel[g.key])).length;
+  // Every change is kept: in this page's address (refresh) and in the browser, so the product
+  // page picks it up however they leave (buttons or the browser Back button).
+  const slug = backHref.split("/").pop() ?? "";
+  useEffect(() => {
+    const q = toQuery(o, sel);
+    window.history.replaceState(null, "", `${window.location.pathname}?${q}`);
+    saveBuild(slug, q, true);
+  }, [o, sel, slug]);
   const complete = () => { window.location.href = `${backHref}?${toQuery(o, sel)}#vb-builder`; };
+  const keepShopping = () => { window.location.href = range.department ? `/shop/${range.department}` : "/shop"; };
   const summary = (g: OptionGroup) => {
     if (g.type === "text") return one(sel[g.key]) || "Not answered yet";
     const ks = many(sel[g.key]); if (!ks.length) return g.type === "multi" ? "None added" : g.required ? "Choose one" : "Standard";
@@ -177,7 +188,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
         {failed && <div className="v3-msg">The 3D view needs WebGL, which this browser has turned off. Use the builder on the product page instead.</div>}
         <div className="v3-tools">
           <button type="button" className="v3-tool" aria-pressed={doorsOpen} onClick={() => setDoorsOpen((v) => !v)}>{doorsOpen ? "Close drawers" : "Open drawers"}</button>
-          {ledOn && <button type="button" className="v3-tool" aria-pressed={dark} onClick={() => setDark((v) => !v)}>{dark ? "Room lights on" : "Room lights off"}</button>}
+          {ledOn && <button type="button" className="v3-tool" aria-pressed={dark} onClick={() => setDark((v) => !v)}>{dark ? "Room lights on" : "Dim the room lights"}</button>}
           <button type="button" className="v3-tool" onClick={() => flyTo("front")}>Front</button>
           <button type="button" className="v3-tool" onClick={() => flyTo("angle")}>Angle</button>
           <button type="button" className="v3-tool" onClick={() => flyTo("side")}>Side</button>
@@ -235,6 +246,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
           <div className="v3-total"><span>Your build</span><strong>{fmt(priced.total)}</strong><small>incl. GST</small></div>
           {missing > 0 && <p className="v3-miss">{missing} answer{missing === 1 ? "" : "s"} still needed (marked *). You can finish them on the product page.</p>}
           <button type="button" className="v3-complete" onClick={complete}>Complete and request a quote</button>
+          <button type="button" className="v3-save" onClick={keepShopping}>Save my build and keep shopping</button>
           <p className="v3-fine">Takes your build back to the product page, ready to add to your quote.</p>
         </div>
       </aside>
@@ -283,6 +295,7 @@ const CSS = `
 .v3-done{border-top:1px solid #dedad2;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));background:#fbfaf7}
 .v3-total{display:flex;align-items:baseline;gap:8px}.v3-total span{font-size:13px;color:#65706f;flex:1}.v3-total strong{font-size:24px}.v3-total small{font-size:12px;color:#65706f}
 .v3-miss{margin:6px 0 0;font-size:12.5px;color:#9a4a16}
+.v3-save{width:100%;margin-top:8px;font:inherit;font-size:14px;font-weight:600;padding:11px;border-radius:12px;border:1.5px solid #2f6f6a;background:#fff;color:#2f6f6a;cursor:pointer}
 .v3-complete{width:100%;margin-top:10px;font:inherit;font-size:15px;font-weight:700;padding:13px;border-radius:12px;border:0;background:#2f6f6a;color:#fff;cursor:pointer}
 .v3-fine{margin:6px 0 0;font-size:12px;color:#65706f;text-align:center}
 .v3 button:focus-visible,.v3 a:focus-visible,.v3 input:focus-visible{outline:2px solid #2f6f6a;outline-offset:2px}
