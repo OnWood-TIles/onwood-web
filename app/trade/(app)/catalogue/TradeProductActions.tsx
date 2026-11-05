@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import type { Swatch, WebsiteRange } from "../../../../lib/onbase/client";
 import { familySlug } from "../../../../lib/family";
 import { AddToOrderModal, BuildButton, PriceBlock, type Summary } from "./TradeCards";
+import { SampleToggle } from "./SampleButtons";
 
 // The trade product page's action block: the selected colourway's trade price
 // (RRP struck / Your Price) plus "Add to order". Rendered by ProductView via its
@@ -48,6 +49,7 @@ export default function TradeProductActions({
             Ask us for a price
           </a>
         )}
+        <SampleToggle range={range} swatch={swatch} big />
         <a href="/trade/cart" style={cartLink}>
           View order request →
         </a>

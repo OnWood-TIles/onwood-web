@@ -9,6 +9,7 @@ import { AvailabilityPill, Watermark } from "../../../components/shop/shared";
 import { useCart } from "../CartProvider";
 import { boxesFor, coveragePerUnit, hasBoxes, isAreaUnit, roundUpToBox, round3, stepFor, stepQty, unitLabel, unitsForArea } from "../../../../lib/boxQty";
 import ImageDisclosure from "../../../components/legal/ImageDisclosure";
+import { RangeSampleButton, SampleToggle } from "./SampleButtons";
 
 // The trade portal renders the SAME shop range/colourway cards, but each carries
 // its trade pricing (RRP struck / Your Price) and an "Add to order" action. Adding
@@ -214,6 +215,7 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
         <PriceBlock s={s} />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
           {range.priceFrom && s.anyPriced ? <BuildButton slug={range.slug} /> : s.anyPriced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
+          <RangeSampleButton range={range} />
         </div>
       </div>
       {open && <AddToOrderModal range={range} onClose={() => setOpen(false)} />}
@@ -269,6 +271,7 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
         <PriceBlock s={s} singleSwatch />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
           {range.priceFrom && priced ? <BuildButton slug={range.slug} /> : priced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
+          <SampleToggle range={range} swatch={swatch} />
         </div>
       </div>
       {open && <AddToOrderModal range={range} preselectColour={swatch.colour} onClose={() => setOpen(false)} />}

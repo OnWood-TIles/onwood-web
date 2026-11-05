@@ -321,6 +321,20 @@ export async function tradeCreateOrder(
   return json.data;
 }
 
+export type SampleRequestPayload = {
+  items: { productId: string; colour?: string }[];
+  stand: boolean;
+  note?: string;
+};
+
+/** Send a free sample request (emailed to the team; no order or job sheet). */
+export async function tradeSendSamples(
+  payload: SampleRequestPayload,
+): Promise<{ count: number; confirmationSent: boolean }> {
+  const json = await tradeAuthed<{ data: { count: number; confirmationSent: boolean } }>("/samples", { method: "POST", body: payload });
+  return json.data;
+}
+
 /** Kick off a password reset email. Always resolves (OnBase returns {ok:true}). */
 export async function tradeForgot(email: string, portalUrl: string): Promise<void> {
   await tradePublic<{ ok: boolean }>("/forgot-password", {

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { tradeMe } from "../../../lib/onbase/trade";
 import { getShopMenu } from "../../../lib/onbase/client";
 import { CartProvider } from "./CartProvider";
+import { SamplesProvider } from "./SamplesProvider";
 import TradeNav from "./TradeNav";
 import TradeFooter from "./TradeFooter";
 
@@ -34,6 +35,7 @@ export default async function TradeAppLayout({ children }: { children: React.Rea
 
   return (
     <CartProvider>
+      <SamplesProvider>
       <div
         data-theme="terracotta"
         style={{ minHeight: "100dvh", background: "var(--bg)", color: "var(--ink)", display: "flex", flexDirection: "column" }}
@@ -42,6 +44,7 @@ export default async function TradeAppLayout({ children }: { children: React.Rea
         <main style={{ maxWidth: 1180, width: "100%", margin: "0 auto", padding: "34px 24px 80px", flex: 1 }}>{children}</main>
         <TradeFooter />
       </div>
+      </SamplesProvider>
     </CartProvider>
   );
 }

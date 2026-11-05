@@ -21,6 +21,7 @@ export default async function TradeDashboard() {
     { href: "/trade/catalogue", title: "Browse the catalogue", note: "Your pricing and live stock", accent: true },
     { href: "/trade/orders", title: "Your orders", note: "Track what is on the way" },
     { href: "/trade/cart", title: "Your order request", note: "Review and submit your cart" },
+    { href: "/trade/samples", title: "Free samples", note: "Pick tiles for your showroom" },
   ];
 
   return (

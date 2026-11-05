@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "./CartProvider";
+import { useSamples } from "./SamplesProvider";
 import ShopMegaMenu from "../../components/marketing/ShopMegaMenu";
 import type { ShopMenuDept } from "../../../lib/onbase/client";
 
@@ -20,6 +21,7 @@ export default function TradeNav({ customerName, shopDepts }: { customerName: st
   const pathname = usePathname();
   const router = useRouter();
   const { count } = useCart();
+  const { count: sampleCount } = useSamples();
   const [busy, setBusy] = useState(false);
 
   const isActive = (href: string) =>
@@ -123,6 +125,27 @@ export default function TradeNav({ customerName, shopDepts }: { customerName: st
             ),
           )}
 
+          {/* Free sample request: kept apart from the order cart. */}
+          <Link
+            href="/trade/samples"
+            aria-label={`Sample request (${sampleCount} samples)`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              textDecoration: "none",
+              fontSize: 14,
+              fontWeight: 700,
+              padding: "8px 13px",
+              borderRadius: 10,
+              color: isActive("/trade/samples") ? "var(--accent)" : "#3a4750",
+              background: isActive("/trade/samples") ? "color-mix(in oklab, var(--accent) 12%, transparent)" : "transparent",
+            }}
+          >
+            Samples
+            {sampleCount > 0 && <span style={badge}>{sampleCount}</span>}
+          </Link>
+
           <Link
             href="/trade/cart"
             aria-label={`Order request (${count} items)`}
@@ -192,3 +215,16 @@ export default function TradeNav({ customerName, shopDepts }: { customerName: st
     </header>
   );
 }
+
+const badge: React.CSSProperties = {
+  minWidth: 18,
+  height: 18,
+  padding: "0 5px",
+  borderRadius: 99,
+  background: "var(--accent)",
+  color: "#fff6ee",
+  fontSize: 11,
+  fontWeight: 800,
+  display: "inline-grid",
+  placeItems: "center",
+};
