@@ -71,6 +71,10 @@ export const BUILDER_CSS = `
 .vb-opt small{font-size:12.5px;color:#6a7075;line-height:1.4}
 .vb-opt span{font-size:13.5px;font-weight:700;color:var(--accent);margin-top:2px}
 .vb-opt:disabled{opacity:.45;cursor:not-allowed}
+.vb-3d{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 0}
+.vb-3d span{font-size:13px;color:#6a7075}
+.vb-3d-btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:999px;background:var(--accent);color:#fff;text-decoration:none}
+.vb-3d-btn::before{content:"";width:16px;height:16px;border:2px solid currentColor;border-radius:3px;transform:rotate(45deg) scale(.8)}
 .vb-opt-img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#f6f4ef;margin-bottom:6px}
 .vb-opt:disabled span{color:#6a7075;font-weight:600}
 .vb-select{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;font-size:14px;font-weight:700}

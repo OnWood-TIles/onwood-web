@@ -6,6 +6,7 @@ import OptionsBuilder from "./OptionsBuilder";
 import PhotoGallery from "./OptionsPhotoGallery";
 import OptionsQuickPick from "./OptionsQuickPick";
 import { isQuickPick } from "./quickPick";
+import { Open3DButton } from "./vanity3d/Vanity3DLoader";
 import { FAQ_CATEGORIES } from "../../../lib/faq";
 import { Markdown } from "../../../lib/markdown";
 
@@ -36,6 +37,9 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
           <h1>{range.name}</h1>
           <p>{range.description || "Choose your options and watch the price update as you go. Send the build to us for a quote, or save it for later."}</p>
           {quick && <OptionsQuickPick range={range} query={query} />}
+          {!quick && range.options?.drawing === "vanity" && (
+            <p className="vb-3d"><Open3DButton slug={range.slug} className="vb-3d-btn" /><span>Turn it round, open the drawers and see your colours in 3D. Same options and prices.</span></p>
+          )}
           {!quick && steps.length >= 3 && <p className="vb-custom-note">Fully customisable: choose your {steps.join(", ").replace(/, ([^,]*)$/, " and $1")} below. Photos show one example build.</p>}
         </header>
       </div>

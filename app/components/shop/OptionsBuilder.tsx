@@ -127,7 +127,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
   const popGroup = popup ? o.groups.find((g) => g.key === popup) ?? null : null;
 
   return (
-    <div className="vb">
+    <div className="vb" id="vb-builder">
       <div className="vb-main">
         {draws && (
           <div className="vb-mini" aria-hidden="true">
