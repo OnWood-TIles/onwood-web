@@ -199,6 +199,15 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
   };
   // Opened straight from the 2D builder's "Email me my vanity" link (?email=1).
   const [emailOpen, setEmailOpen] = useState(query.email === "1");
+  // Phones: the finish block scrolls in after the steps (so it never covers them), with a slim
+  // bar holding the price and a jump down to it until it is on screen.
+  const doneRef = useRef<HTMLDivElement>(null);
+  const [doneSeen, setDoneSeen] = useState(false);
+  useEffect(() => {
+    const el = doneRef.current; if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setDoneSeen(e.isIntersecting), { threshold: 0.2 });
+    io.observe(el); return () => io.disconnect();
+  }, []);
 
   useEffect(() => { anim.current.open = doorsOpen; }, [doorsOpen]);
   const flyTo = (k: string) => { const st = stage.current; if (st && views.current[k]) anim.current.fly = { from: st.camera.position.clone(), to: views.current[k].clone(), t: 0 }; };
@@ -213,6 +222,13 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     window.history.replaceState(null, "", `${window.location.pathname}?${q}`);
     saveBuild(slug, q, true);
   }, [o, sel, slug]);
+  // The bar's button: open the first unanswered step, or jump down to the finish block.
+  const goFinish = () => {
+    const g = steps.find((x) => x.required && !one(sel[x.key]));
+    if (!g) return doneRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    setOpen(g.key);
+    requestAnimationFrame(() => document.getElementById(`v3s-${g.key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
   const complete = () => { window.location.href = `${backHref}?${toQuery(o, sel)}#vb-builder`; };
   const saveAndBack = () => { window.location.href = `${backHref}?${toQuery(o, sel)}`; }; // the product page, with the build picked
   const summary = (g: OptionGroup) => {
@@ -248,7 +264,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
             const done = g.type === "text" ? !!one(sel[g.key]) : ks.length > 0;
             const photos = avail.filter((c) => c.image).length > 6;
             return (
-              <section key={g.key} className={`v3-step ${isOpen ? "open" : ""}`}>
+              <section key={g.key} id={`v3s-${g.key}`} className={`v3-step ${isOpen ? "open" : ""}`}>
                 <button type="button" className="v3-step-h" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : g.key)}>
                   <span className={`v3-num ${done ? "done" : ""}`}>{i + 1}</span>
                   <span className="v3-step-t"><strong>{g.label}{g.required && !done ? " *" : ""}</strong><small>{summary(g)}</small></span>
@@ -287,7 +303,11 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
             );
           })}
         </div>
-        <div className="v3-done">
+        <div className="v3-mbar">
+          <div className="v3-total"><span>Your build</span><strong>{fmt(priced.total)}</strong><small>incl. GST</small></div>
+          {!doneSeen && <button type="button" className="v3-mgo" onClick={goFinish}>{missing > 0 ? `${missing} to go` : "Finish"}</button>}
+        </div>
+        <div className="v3-done" ref={doneRef}>
           <div className="v3-total"><span>Your build</span><strong>{fmt(priced.total)}</strong><small>incl. GST</small></div>
           {missing > 0 && <p className="v3-miss">{missing} answer{missing === 1 ? "" : "s"} still needed (marked *). You can finish them on the product page.</p>}
           <button type="button" className="v3-complete" onClick={complete}>Complete and request a quote</button>
@@ -353,5 +373,11 @@ const CSS = `
 .v3-complete{width:100%;margin-top:10px;font:inherit;font-size:15px;font-weight:700;padding:13px;border-radius:12px;border:0;background:#2f6f6a;color:#fff;cursor:pointer}
 .v3-fine{margin:6px 0 0;font-size:12px;color:#65706f;text-align:center}
 .v3 button:focus-visible,.v3 a:focus-visible,.v3 input:focus-visible{outline:2px solid #2f6f6a;outline-offset:2px}
+.v3-panel{overflow-y:auto;overscroll-behavior:contain}
+.v3-steps{flex:none;overflow:visible;padding-bottom:4px}
+.v3-mbar{display:flex;align-items:center;gap:12px;position:sticky;bottom:0;z-index:2;margin-top:auto;padding:9px 16px calc(9px + env(safe-area-inset-bottom,0px));background:#fbfaf7;border-top:1px solid #dedad2;box-shadow:0 -8px 18px -12px rgba(0,0,0,.25)}
+.v3-mbar .v3-total{flex:1}.v3-mbar .v3-total strong{font-size:20px}
+.v3-mgo{flex:none;font:inherit;font-size:14px;font-weight:700;padding:10px 18px;border-radius:12px;border:0;background:#2f6f6a;color:#fff;cursor:pointer}
+.v3-done{border-top:0;padding-top:4px}.v3-done>.v3-total{display:none}
 @media (max-width:860px){.v3{grid-template-columns:1fr;grid-template-rows:52dvh minmax(0,1fr)}.v3-panel{border-left:0;border-top:1px solid #dedad2}.v3-hint{display:none}}
 `;
