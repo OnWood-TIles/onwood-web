@@ -193,7 +193,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       },
       {
         q: "Is there a warranty on vanities?",
-        a: "Yes. Marquis vanity cabinets carry a lifetime warranty. Benchtops are covered for 10 to 25 years depending on the material, basins for 1 to 2 years, mirrors and shaving cabinet doors for 1 year, and LED lighting for 3 years (1 year on everything for commercial use). The warranty requires installation by a licensed tradesperson, and the manufacturer's care instructions apply.",
+        a: "Yes. Marquis vanity cabinets carry a lifetime warranty. Benchtops are covered for 7 to 25 years depending on the material, basins for 1 to 2 years, mirrors and shaving cabinet doors for 1 year, and LED lighting for 3 years (1 year on everything for commercial use). The warranty requires installation by a licensed tradesperson, and the manufacturer's care instructions apply.",
       },
     ],
   },

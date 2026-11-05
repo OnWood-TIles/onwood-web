@@ -23,17 +23,20 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
   const photos = [...new Set([range.heroImage, ...(range.images ?? [])].filter((x): x is string => !!x))].slice(0, 5);
   // A few options only (e.g. a mirror's sizes + LED): pick them beside the photo, no builder.
   const quick = isQuickPick(range.options, range.department);
+  // Brands with their own landing page (app/brands/*): linked from the crumbs and the eyebrow.
+  const brandHref = range.options?.source?.supplier === "Marquis" ? "/brands/marquis" : null;
   return (
     <>
       <style>{BUILDER_CSS}</style>
       <p className="vb-crumbs">
         <Link href="/shop">Shop</Link>
         {deptSlug && deptLabel && <> / <Link href={`/shop/${deptSlug}`}>{deptLabel}</Link></>}
+        {brandHref && <> / <Link href={brandHref}>{range.options?.source?.supplier}</Link></>}
       </p>
       <div className={`vb-intro ${photos.length ? "has-photo" : ""}`}>
         {photos.length > 0 && <PhotoGallery photos={photos} name={range.name} />}
         <header className="vb-head">
-          <div className="vb-eyebrow">{range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : quick ? "Made to order" : "Build your own"}</div>
+          <div className="vb-eyebrow">{brandHref ? <><Link href={brandHref} style={{ color: "inherit" }}>{range.options?.source?.supplier}</Link> · made to order</> : range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : quick ? "Made to order" : "Build your own"}</div>
           <h1>{range.name}</h1>
           <p>{range.description || "Choose your options and watch the price update as you go. Send the build to us for a quote, or save it for later."}</p>
           {quick && <OptionsQuickPick range={range} query={query} />}

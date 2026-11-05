@@ -38,11 +38,11 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL("https://onwoodtiles.com.au"),
   title: {
-    default: "OnWood Tiles - Sunshine Coast Tile Shop",
+    default: "Tile Shop Sunshine Coast | Tiles, Stone & Vanities | OnWood Tiles",
     template: "%s | OnWood Tiles",
   },
   description:
-    "The Sunshine Coast's new home for all things tiles. Quality floor, wall and outdoor tiles in Baringa.",
+    "Sunshine Coast tile shop in Baringa: floor, wall and outdoor tiles, stone cladding, and Marquis vanities, basins and mirrors. Prices online and local delivery.",
   openGraph: {
     title: "OnWood Tiles",
     description: "The Sunshine Coast's new home for all things tiles.",
@@ -76,7 +76,7 @@ const jsonLd = {
   "@type": "HomeGoodsStore",
   name: "OnWood Tiles",
   description:
-    "The Sunshine Coast's new home for all things tiles. Quality floor, wall and outdoor tiles in Baringa.",
+    "Sunshine Coast tile shop in Baringa: floor, wall and outdoor tiles, stone cladding, and Marquis vanities, basins and mirrors. Prices online and local delivery.",
   url: "https://onwoodtiles.com.au",
   email: "sales@onwoodtiles.com.au",
   telephone: "+61 447 766 553",

@@ -166,8 +166,9 @@ export default async function ProductPage({
     name: range.name,
     ...(image ? { image } : {}),
     ...(description ? { description } : {}),
-    // The maker for supplier-built products with options (e.g. Marquis); our own brand otherwise.
-    brand: { "@type": "Brand", name: range.options?.source?.supplier || "OnWood Tiles" },
+    // The maker for supplier-built products (Marquis vanities via their options, Marquis basins /
+    // mirrors by slug); our own brand otherwise.
+    brand: { "@type": "Brand", name: range.options?.source?.supplier || (slug.startsWith("marquis-") ? "Marquis" : "OnWood Tiles") },
     ...(category ? { category } : {}),
     ...offerLd,
     ...reviewLd,

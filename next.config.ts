@@ -35,6 +35,8 @@ const nextConfig: NextConfig = {
         destination: "https://onwoodtiles.com.au/:path*",
         permanent: true,
       },
+      // Only one brand page so far (app/brands/marquis); temporary so a /brands index can replace it.
+      { source: "/brands", destination: "/brands/marquis", permanent: false },
     ];
   },
   // Baseline security headers on every response. (No CSP here yet — a strict

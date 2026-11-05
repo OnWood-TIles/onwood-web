@@ -198,6 +198,15 @@ export default function ProductView({
             </Link>
           </>
         )}
+        {/* Marquis basins / mirrors: link up to the brand page (public site only) */}
+        {range.slug.startsWith("marquis-") && !shopBase.startsWith("/trade") && (
+          <>
+            <span style={{ margin: "0 8px" }}>/</span>
+            <Link href="/brands/marquis" style={{ color: "inherit", textDecoration: "none" }}>
+              Marquis
+            </Link>
+          </>
+        )}
         <span style={{ margin: "0 8px" }}>/</span>
         <span style={{ color: "var(--ink)", fontWeight: 600 }}>{range.name}</span>
       </nav>

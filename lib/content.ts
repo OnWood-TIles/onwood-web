@@ -89,6 +89,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/#featured", label: "Currently On Trend" },
       { href: "/specials", label: "Monthly Specials" },
       { href: "/sunshine-coast", label: "Tiles Sunshine Coast" },
+      { href: "/brands/marquis", label: "Marquis Vanities" },
       { href: "/tile-shop", label: "Areas We Service" },
       { href: "/book", label: "Book a Visit" },
     ],
@@ -446,9 +447,9 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     intro: [
       "From affordable everyday tiles to premium Italian and Spanish porcelain, our range spans wood-look and timber-look porcelain, ceramic, natural stone, handmade-look gloss, mosaics and hard-wearing outdoor tiles, for bathroom floors, kitchen splashbacks, feature walls and alfresco areas. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
-    metaTitle: "Tiles Sunshine Coast | Porcelain, Wood-Look & Stone",
+    metaTitle: "Tiles Sunshine Coast | Floor, Wall & Outdoor Tiles",
     metaDescription:
-      "Explore our full tile range on the Sunshine Coast, from wood-look and porcelain tiles to natural stone, mosaics and outdoor tiles. Supply only from our Baringa showroom.",
+      "Shop floor, wall and outdoor tiles on the Sunshine Coast: porcelain, stone-look, mosaics, feature and pool tiles, with prices online. Supply only from Baringa.",
     links: [
       { label: "Outdoor tiles buying guide", href: "/blog/outdoor-tiles-sunshine-coast-guide" },
       { label: "Browse the gallery", href: "/gallery?dept=tiles" },
@@ -535,6 +536,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaDescription:
       "Build your own Australian-made Marquis vanity: choose the size, mounting, benchtop, basin, cabinet colour and handles with live pricing. Supply only, Sunshine Coast.",
     links: [
+      { label: "Marquis vanities Sunshine Coast", href: "/brands/marquis" },
       { label: "Shop basins", href: "/shop/basins" },
       { label: "Shop mirrors", href: "/shop/mirrors" },
       { label: "Shop tapware", href: "/shop/tapware" },
@@ -559,6 +561,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaDescription:
       "Above-counter, semi-inset and under-counter bathroom basins in ceramic, fluted, acrylic and brushed metal, in white and coloured finishes. Supply only, Sunshine Coast.",
     links: [
+      { label: "Marquis vanities Sunshine Coast", href: "/brands/marquis" },
       { label: "Shop vanities", href: "/shop/vanities" },
       { label: "Shop tapware", href: "/shop/tapware" },
       { label: "Shop mirrors", href: "/shop/mirrors" },
@@ -582,6 +585,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaDescription:
       "Frameless, framed and LED backlit bathroom mirrors in round, oval, arch and capsule shapes, plus mirrored shaving cabinets. Supply only, Sunshine Coast.",
     links: [
+      { label: "Marquis vanities Sunshine Coast", href: "/brands/marquis" },
       { label: "Shop vanities", href: "/shop/vanities" },
       { label: "Shop basins", href: "/shop/basins" },
       { label: "Shop tapware", href: "/shop/tapware" },
