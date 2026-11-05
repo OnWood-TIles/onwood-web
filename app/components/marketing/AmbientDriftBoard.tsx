@@ -216,7 +216,7 @@ function PieceFace({ piece, eager = false }: { piece: BoardPiece; eager?: boolea
       return (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={piece.src} alt=""
+          src={piece.src} alt={piece.name || "Styling accent"}
           style={{
             width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom",
             display: "block", filter: "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 14px 22px rgba(30,22,15,.32))",

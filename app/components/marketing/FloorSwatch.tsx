@@ -56,7 +56,7 @@ export function FloorSwatchFace({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={url}
-        alt=""
+        alt={showLabel ? "" : [range, name].filter(Boolean).join(" ")} // the visible label names it otherwise
         loading={eager ? "eager" : "lazy"}
         fetchPriority={eager ? "high" : undefined}
         decoding="async"

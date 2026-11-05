@@ -347,7 +347,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
                   <Image
                     key={i}
                     src={s.image}
-                    alt=""
+                    alt={`${range.name} in ${s.colour}`}
                     loading="lazy"
                     width={22}
                     height={22}

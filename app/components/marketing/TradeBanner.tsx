@@ -30,10 +30,10 @@ export default function TradeBanner() {
           </div>
 
           {/* Trade partners at work - the real OnWood project photo, framed. */}
-          <div className="tb-art" aria-hidden style={{ position: "relative", justifySelf: "center", width: "100%", maxWidth: 320 }}>
+          <div className="tb-art" style={{ position: "relative", justifySelf: "center", width: "100%", maxWidth: 320 }}>
             <div style={{ borderRadius: 20, overflow: "hidden", border: "5px solid #fff", boxShadow: "0 40px 74px -34px rgba(0,0,0,.7)", aspectRatio: "1 / 1" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/trade-partner.webp" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src="/images/trade-partner.webp" alt="An OnWood trade partner tiling a project" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           </div>
         </div>

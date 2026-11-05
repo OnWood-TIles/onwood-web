@@ -9,6 +9,12 @@ export function carpetNameSize(name: string): number {
 }
 
 // Small white brand badge (logo) for the corner of a swatch.
+// "/images/timber/laminex-logo.svg" -> "Laminex"
+function brandFromLogo(logo: string) {
+  const n = (logo.split("/").pop() || "").replace(/.[a-z]+$/i, "").replace(/[-_]?logo[-_]?/i, "").replace(/[-_]+/g, " ").trim();
+  return n ? n.replace(/w/g, (c) => c.toUpperCase()) : "Brand logo";
+}
+
 export function BrandBadge({
   logo,
   h = 11,
@@ -33,7 +39,7 @@ export function BrandBadge({
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={logo} alt="" style={{ height: h, width: "auto", display: "block" }} />
+      <img src={logo} alt={brandFromLogo(logo)} style={{ height: h, width: "auto", display: "block" }} />
     </span>
   );
 }
