@@ -58,6 +58,14 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
   const [popup, setPopup] = useState<string | null>(null);
   const scrollTo = useRef<string | null>(null);
 
+  // Coming back from the 3D builder (#vb-builder): land on the builder, ready to quote.
+  // Runs before the URL sync below, which drops the hash.
+  useEffect(() => {
+    if (window.location.hash !== "#vb-builder") return;
+    const t = setTimeout(() => document.getElementById("vb-builder")?.scrollIntoView({ block: "start" }), 300);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     const q = new URLSearchParams();
     for (const g of o.groups) {
