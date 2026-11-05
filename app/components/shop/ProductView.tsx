@@ -83,8 +83,11 @@ export default function ProductView({
 
   // Single main image = the selected colour's photo, falling back to the range
   // hero. No thumbnail strip: colours switch via the swatch selector below and
-  // tile/room via the "See it installed" toggle.
-  const main = swatch?.image ?? swatch?.images?.[0] ?? range.heroImage ?? range.images[0] ?? null;
+  // tile/room via the "See it installed" toggle. When the colours are finishes of
+  // one item (their images are finish chips), the product photo stays as the main.
+  const main = range.finishSwatches
+    ? range.heroImage ?? range.images[0] ?? swatch?.image ?? null
+    : swatch?.image ?? swatch?.images?.[0] ?? range.heroImage ?? range.images[0] ?? null;
   const installed = swatch?.installedImage ?? null;
   const displayMain = view === "room" && installed ? installed : main;
   // Brand watermark follows the selected colour (falls back to the range flag),

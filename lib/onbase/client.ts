@@ -106,6 +106,8 @@ export type WebsiteRange = {
   documents?: { name: string; type: string | null; url: string; isExternal: boolean }[];
   /** The product has options: its price is the cheapest build ("from $X"). */
   priceFrom?: boolean;
+  /** Colours are finishes of one item (images are finish chips): keep the product photo as the main image. */
+  finishSwatches?: boolean;
   /** Product options (GST-inclusive) - present on single-product reads of products that have them. */
   options?: ProductOptions | null;
 };
