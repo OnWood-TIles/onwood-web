@@ -12,6 +12,8 @@ import AddToQuoteButton from "../quote/AddToQuoteButton";
 import OptionsDrawing from "./OptionsDrawing";
 import { DuluxNameInput, duluxPicked, findDulux, solidSwatch, useDulux } from "./dulux";
 import { queryRecord, readBuild, saveBuild } from "./savedBuild";
+import { money2, rrpEx, tradeEx, type TradeBuild } from "../../../lib/tradeBuild";
+import TradeBuildActions from "../../trade/(app)/catalogue/TradeBuildActions";
 
 // Customer price builder for any product with options (set up on the OnBase Pricing
 // tab), e.g. a Marquis vanity range: one collapsible step per option group (picking
@@ -21,7 +23,7 @@ import { queryRecord, readBuild, saveBuild } from "./savedBuild";
 // calculator only (no checkout): the build lives in the URL so it can be saved,
 // shared or sent to us via "Enquire".
 
-const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
+const fmtRrp = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function readQuery(o: ProductOptions, q: Record<string, string>): OptionSelection {
@@ -51,8 +53,10 @@ function choiceFrom(o: ProductOptions, g: OptionGroup, c: OptionChoice): number 
 const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
   o.groups.filter((g) => groupShown(g, sel) && (g.type === "text" || g.choices.some((c) => isAvailable(o, g, c, sel))));
 
-export default function OptionsBuilder({ range, query }: { range: WebsiteRange; query: Record<string, string> }) {
+export default function OptionsBuilder({ range, query, trade }: { range: WebsiteRange; query: Record<string, string>; trade?: TradeBuild }) {
   const o = range.options!;
+  // Trade portal: every price is their price ex GST (RRP less their %), not RRP inc GST.
+  const fmt = (n: number) => (trade ? money2(tradeEx(n, trade.pct)) : fmtRrp(n));
   const [sel, setSel] = useState<OptionSelection>(() => readQuery(o, query));
   const [width, setWidth] = useState<number | null>(null);
   const [url, setUrl] = useState("");
@@ -115,7 +119,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
   const sizeCards = !!lead && lead.type === "single" && draws && lead.choices.some((c) => c.draw?.width);
   const widths = sizeCards ? [...new Set(lead.choices.map((c) => c.draw?.width).filter((w): w is number => !!w))].sort((a, b) => a - b) : [];
   const supplier = o.source?.supplier;
-  const enquire = `/contact?product=${encodeURIComponent(range.name)}&build=${encodeURIComponent([...spec, `Price shown: ${fmt(priced.total)} incl. GST`, url ? `https://onwoodtiles.com.au${url}` : ""].filter(Boolean).join("\n"))}`;
+  const enquire = `/contact?product=${encodeURIComponent(range.name)}&build=${encodeURIComponent([...spec, `Price shown: ${fmtRrp(priced.total)} incl. GST`, url ? `https://onwoodtiles.com.au${url}` : ""].filter(Boolean).join("\n"))}`;
 
   /** Set a group's value; a single pick closes this step and opens the next one. */
   const pick = (g: OptionGroup, v: string | string[] | undefined, advance = g.type === "single") => {
@@ -275,9 +279,20 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
           ) : null}
           <h3>{range.name}</h3>
           <ul>{spec.map((s) => <li key={s}>{cap(s)}</li>)}</ul>
-          <div className="vb-total"><span>Your build</span><strong>{fmt(priced.total)}</strong></div>
+          {trade && !!trade.pct && (
+            <div className="vb-total" style={{ marginBottom: -6 }}><span>RRP</span><s style={{ color: "#8a8577", fontWeight: 600 }}>{money2(rrpEx(priced.total))}</s></div>
+          )}
+          <div className="vb-total"><span>{trade ? (trade.pct != null ? "Your Price" : "RRP") : "Your build"}</span><strong>{fmt(priced.total)}</strong></div>
           {!priced.ok && <p className="vb-fine" style={{ color: "#b42318" }}>{priced.errors[0]}</p>}
-          <p className="vb-fine">Price includes GST.{supplier ? ` Made to order by ${supplier}.` : ""}</p>
+          <p className="vb-fine">
+            {trade
+              ? `Price excludes GST${trade.pct ? `, ${trade.pct}% off RRP` : ""}.${supplier ? ` Made to order by ${supplier}.` : ""}`
+              : `Price includes GST.${supplier ? ` Made to order by ${supplier}.` : ""}`}
+          </p>
+          {trade ? (
+            <TradeBuildActions trade={trade} name={range.name} image={range.heroImage ?? null} unitPrice={tradeEx(priced.total, trade.pct)}
+              options={sel} spec={spec} href={url || `${trade.base}/${range.slug}`} ok={priced.ok} />
+          ) : (<>
           <div className="vb-ctas">
             {priced.ok && (
               <AddToQuoteButton label="Add build to quote" item={{
@@ -296,6 +311,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
           )}
           <Link href={enquire} className="vb-link" style={{ display: "block" }}>Or ask us a question about this build</Link>
           <Link href="/book" className="vb-link">See it in the showroom</Link>
+          </>)}
         </div>
       </aside>
 

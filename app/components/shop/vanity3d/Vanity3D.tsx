@@ -16,6 +16,7 @@ import { buildVanity, ledGlowTex, textureSources, type Built } from "./build";
 import { DuluxNameInput, duluxPicked, findDulux, useDulux } from "../dulux";
 import { saveBuild } from "../savedBuild";
 import EmailBuild, { type Shot } from "./EmailBuild";
+import { money2, tradeEx, type TradeBuild } from "../../../../lib/tradeBuild";
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
@@ -59,7 +60,11 @@ function applyLights(st: Stage, b: Built | null, dark: boolean) {
   b?.group.traverse((q: any) => { if (q.name === "glow") q.material.opacity = dark ? 0.9 : 0.4; });
 }
 
-export default function Vanity3D({ range, query, backHref }: { range: WebsiteRange; query: Record<string, string>; backHref: string }) {
+export default function Vanity3D({ range, query, backHref, trade }: { range: WebsiteRange; query: Record<string, string>; backHref: string; trade?: TradeBuild }) {
+  // Trade portal: their price ex GST (RRP less their %) instead of RRP inc GST.
+  const price = (n: number) => (trade ? money2(tradeEx(n, trade.pct)) : fmt(n));
+  const gstNote = trade ? "ex GST" : "incl. GST";
+  const totalLabel = trade && trade.pct != null ? "Your Price" : "Your build";
   const o = range.options!;
   const [sel, setSel] = useState<OptionSelection>(() => readQuery(o, query));
   // Dulux colour match: the named Dulux colour paints the model.
@@ -282,7 +287,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
                         {avail.filter((c) => (c.section ?? "") === sec).map((c) => { const on = ks.includes(c.key), p = choicePrice(c, sel); return (
                           <button type="button" key={c.key} className={`v3-sw ${on ? "on" : ""}`} aria-pressed={on} title={c.label} onClick={() => pick(g, g.type === "multi" ? (on ? ks.filter((k) => k !== c.key) : [...ks, c.key]) : c.key)}>
                             {c.image ? <img src={c.image} alt="" loading="lazy" /> : <span className="v3-sw-t">{c.label}</span>}
-                            <span className="v3-sw-l">{c.label}{p ? ` +${fmt(p)}` : ""}</span>
+                            <span className="v3-sw-l">{c.label}{p ? ` +${price(p)}` : ""}</span>
                           </button>
                         ); })}
                       </div></div>))
@@ -291,7 +296,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
                         {!g.required && g.type === "single" && <button type="button" className={`v3-chip ${!ks.length ? "on" : ""}`} onClick={() => pick(g, undefined)}>Standard</button>}
                         {avail.map((c) => { const on = ks.includes(c.key), p = choicePrice(c, sel); return (
                           <button type="button" key={c.key} className={`v3-chip ${on ? "on" : ""}`} aria-pressed={on} title={c.detail ?? c.label} onClick={() => pick(g, g.type === "multi" ? (on ? ks.filter((k) => k !== c.key) : [...ks, c.key]) : on && !g.required ? undefined : c.key)}>
-                            {c.image && <img src={c.image} alt="" />}<span>{c.label}</span>{p ? <em>{p > 0 ? "+" : "-"}{fmt(Math.abs(p))}</em> : null}
+                            {c.image && <img src={c.image} alt="" />}<span>{c.label}</span>{p ? <em>{p > 0 ? "+" : "-"}{price(Math.abs(p))}</em> : null}
                           </button>
                         ); })}
                       </div>
@@ -304,20 +309,20 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
           })}
         </div>
         <div className="v3-mbar">
-          <div className="v3-total"><span>Your build</span><strong>{fmt(priced.total)}</strong><small>incl. GST</small></div>
+          <div className="v3-total"><span>{totalLabel}</span><strong>{price(priced.total)}</strong><small>{gstNote}</small></div>
           {!doneSeen && <button type="button" className="v3-mgo" onClick={goFinish}>{missing > 0 ? `${missing} to go` : "Finish"}</button>}
         </div>
         <div className="v3-done" ref={doneRef}>
-          <div className="v3-total"><span>Your build</span><strong>{fmt(priced.total)}</strong><small>incl. GST</small></div>
+          <div className="v3-total"><span>{totalLabel}</span><strong>{price(priced.total)}</strong><small>{gstNote}</small></div>
           {missing > 0 && <p className="v3-miss">{missing} answer{missing === 1 ? "" : "s"} still needed (marked *). You can finish them on the product page.</p>}
-          <button type="button" className="v3-complete" onClick={complete}>Complete and request a quote</button>
+          <button type="button" className="v3-complete" onClick={complete}>{trade ? "Complete and add to order" : "Complete and request a quote"}</button>
           <button type="button" className="v3-save" onClick={saveAndBack}>Save my build</button>
-          <p className="v3-fine">Takes your build back to the product page, ready to add to your quote.</p>
-          <button type="button" className="v3-save" onClick={() => setEmailOpen(true)}>Email me my vanity</button>
+          <p className="v3-fine">Takes your build back to the product page, ready to add to your {trade ? "order" : "quote"}.</p>
+          {!trade && <button type="button" className="v3-save" onClick={() => setEmailOpen(true)}>Email me my vanity</button>}
           <p className="v3-disc">The 3D view is an illustration only. Colours, timber grain, stone veining, sizes and details on screen are a guide and may differ from the real product, so please do not rely on it for an exact match. We are happy to show you real samples in the showroom.</p>
         </div>
       </aside>
-      {emailOpen && (
+      {emailOpen && !trade && (
         <EmailBuild
           range={range} complete={priced.ok} missing={missing} ready={ready && !failed} capture={capture}
           buildUrl={`https://onwoodtiles.com.au${backHref}?${toQuery(o, sel)}`} options={sel} onClose={() => setEmailOpen(false)}

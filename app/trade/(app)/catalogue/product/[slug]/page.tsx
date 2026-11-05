@@ -5,6 +5,8 @@ import { tradeRanges } from "../../../../../../lib/onbase/trade";
 import { pickPairs } from "../../../../../../lib/pairs";
 import { TechnicalSpecs } from "../../../../../components/shop/shared";
 import TradeProductView from "../../TradeProductView";
+import OptionsProductView from "../../../../../components/shop/OptionsProductView";
+import { tradeBuildFor } from "../../tradeBuildFor";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +28,11 @@ export default async function TradeProductPage({
   searchParams,
 }: {
   params: Promise<Params>;
-  searchParams: Promise<{ c?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
-  const { c } = await searchParams;
+  const sp = await searchParams;
+  const c = typeof sp.c === "string" ? sp.c : undefined;
 
   const [range, taxonomy, allRanges] = await Promise.all([getRange(slug), getTaxonomy(), listPairCandidates()]);
   if (!range) notFound();
@@ -51,6 +54,22 @@ export default async function TradeProductPage({
     .map((cat) => dept?.categories.find((x) => x.slug === cat)?.label || cat)
     .filter(Boolean);
   const pairs = pickPairs(range, allRanges, dept?.label);
+  const specs = (
+    <TechnicalSpecs
+      specs={range.specs}
+      material={range.specs.find((s) => /material|construction/i.test(s.label))?.value ?? null}
+      documents={range.documents}
+    />
+  );
+
+  // Made-to-order (e.g. a vanity): the same builder as the public page, priced at their
+  // % off RRP, adding the build straight to their order request.
+  const trade = range.options ? tradeBuildFor(pricedRange) : null;
+  if (range.options && trade) {
+    const query: Record<string, string> = {};
+    for (const [k, v] of Object.entries(sp)) if (typeof v === "string") query[k] = v;
+    return <OptionsProductView range={range} deptLabel={dept?.label ?? null} deptSlug={dept?.slug ?? null} query={query} specsSlot={specs} trade={trade} />;
+  }
 
   return (
     <div>
@@ -61,13 +80,7 @@ export default async function TradeProductPage({
         catLabels={catLabels}
         initialColour={c ?? null}
         pairs={pairs}
-        specsSlot={
-          <TechnicalSpecs
-            specs={range.specs}
-            material={range.specs.find((s) => /material|construction/i.test(s.label))?.value ?? null}
-            documents={range.documents}
-          />
-        }
+        specsSlot={specs}
       />
     </div>
   );

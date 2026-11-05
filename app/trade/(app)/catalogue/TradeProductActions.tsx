@@ -60,7 +60,7 @@ export default function TradeProductActions({
 
       <p style={{ marginTop: 14, fontSize: 12.5, color: "#8a8577" }}>
         {range.priceFrom
-          ? "Made to order: choose your build, then send it as a quote request. Your trade discount is applied to the quote we send you."
+          ? "Made to order: choose your build, then add it to your order request."
           : "Your trade pricing. Stock is live from our system - add it to your order request and our team will confirm."}
       </p>
 

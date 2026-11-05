@@ -34,6 +34,8 @@ export type Summary = {
   rrp: number | null;
   gst: PriceDisplayGst | undefined;
   unit: string | null;
+  /** Made-to-order build: the price is the cheapest build ("from"). */
+  from?: boolean;
 };
 
 // Reduce a range's swatch prices into what a card shows. A single-product range
@@ -54,6 +56,7 @@ function summarise(range: WebsiteRange): Summary {
     rrp: rep?.trade?.rrpPrice ?? null,
     gst: rep?.trade?.priceDisplayGst,
     unit: rep?.trade?.unit ?? range.unit ?? null,
+    from: !!range.priceFrom,
   };
 }
 
@@ -81,7 +84,7 @@ export function PriceBlock({ s, singleSwatch }: { s: Summary; singleSwatch?: boo
         </div>
       )}
       <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: saving ? 1 : 0 }}>
-        {!s.sameTrade && !singleSwatch && <span style={{ fontSize: 12.5, color: "#8a8577", fontWeight: 700 }}>from</span>}
+        {(s.from || (!s.sameTrade && !singleSwatch)) && <span style={{ fontSize: 12.5, color: "#8a8577", fontWeight: 700 }}>from</span>}
         <span style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 20, color: "var(--accent)" }}>{money(s.minTrade!)}</span>
         <span style={{ fontSize: 12, color: "#8a8577", fontWeight: 600 }}>{s.unit ? ` / ${unitLabel(s.unit)}` : ""}{gstSuffix(s.gst)}</span>
       </div>
@@ -110,13 +113,13 @@ const cardStyle: CSSProperties = {
   boxShadow: "0 10px 30px -18px rgba(32,48,58,.25)",
 };
 
-// Products with options (made-to-order builds, e.g. vanities) can't go straight into an
-// order request: the partner builds it on the product page and sends it as a quote request.
+// Products with options (made-to-order builds, e.g. vanities): the partner chooses the build
+// on the trade product page, then adds it to the same order request as their tiles.
 export function BuildButton({ slug }: { slug: string }) {
   return (
-    <a href={`/product/${slug}`} style={{ textAlign: "center", textDecoration: "none", background: "var(--ink)", color: "#fff6ee", fontWeight: 700, fontSize: 14, padding: "11px 16px", borderRadius: 99 }}>
-      Build &amp; get a quote
-    </a>
+    <Link href={`/trade/catalogue/product/${slug}`} style={{ marginTop: "auto", textAlign: "center", textDecoration: "none", background: "var(--accent)", color: "#fff6ee", fontWeight: 800, fontSize: 14, padding: "11px 12px", borderRadius: 11 }}>
+      Build &amp; add to order
+    </Link>
   );
 }
 
@@ -210,7 +213,7 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
         </Link>
         <PriceBlock s={s} />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
-          {range.priceFrom ? <BuildButton slug={range.slug} /> : s.anyPriced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
+          {range.priceFrom && s.anyPriced ? <BuildButton slug={range.slug} /> : s.anyPriced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
         </div>
       </div>
       {open && <AddToOrderModal range={range} onClose={() => setOpen(false)} />}
@@ -232,6 +235,7 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
     rrp: swatch.trade?.rrpPrice ?? null,
     gst: swatch.trade?.priceDisplayGst,
     unit: swatch.trade?.unit ?? range.unit ?? null,
+    from: !!range.priceFrom,
   };
 
   return (
@@ -264,7 +268,7 @@ export function TradeColourwayCard({ range, swatch }: { range: WebsiteRange; swa
         </Link>
         <PriceBlock s={s} singleSwatch />
         <div style={{ marginTop: 14, display: "flex", flexDirection: "column", flex: 1 }}>
-          {range.priceFrom ? <BuildButton slug={range.slug} /> : priced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
+          {range.priceFrom && priced ? <BuildButton slug={range.slug} /> : priced ? <AddButton onClick={() => setOpen(true)} /> : <AskButton />}
         </div>
       </div>
       {open && <AddToOrderModal range={range} preselectColour={swatch.colour} onClose={() => setOpen(false)} />}

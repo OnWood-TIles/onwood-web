@@ -123,6 +123,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <div key={it.id} style={{ display: "flex", alignItems: "flex-start", padding: "14px 20px", borderTop: i === 0 ? "none" : "1px solid var(--line)" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 14.5 }}>{it.name}</div>
+              {it.spec && it.spec.length > 0 && (
+                <ul style={{ margin: "4px 0 0", padding: 0, listStyle: "none", color: "#5a6067", fontSize: 12.5, lineHeight: 1.45 }}>
+                  {it.spec.map((s) => <li key={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</li>)}
+                </ul>
+              )}
               {it.variationColour && (
                 <div style={{ color: "#8a8577", fontSize: 13, marginTop: 2 }}>
                   {it.variationColour}

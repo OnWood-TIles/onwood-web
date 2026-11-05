@@ -3,8 +3,20 @@ import {
   tradeListOrders,
   tradeCreateOrder,
   TradeError,
+  type BuildOptions,
   type CreateOrderPayload,
 } from "../../../../lib/onbase/trade";
+
+// A build's option picks: string or string[] values only, a sane size.
+function cleanOptions(v: unknown): BuildOptions | undefined {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return undefined;
+  const out: BuildOptions = {};
+  for (const [k, x] of Object.entries(v as Record<string, unknown>).slice(0, 60)) {
+    if (typeof x === "string") out[k.slice(0, 60)] = x.slice(0, 200);
+    else if (Array.isArray(x)) out[k.slice(0, 60)] = x.filter((y): y is string => typeof y === "string").slice(0, 30).map((y) => y.slice(0, 200));
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 
 export const runtime = "nodejs";
 
@@ -32,14 +44,18 @@ export async function POST(request: Request) {
     const items = Array.isArray(b.items)
       ? b.items
           .filter(
-            (it): it is { productId: string; quantity: number; colour?: string } =>
+            (it): it is { productId: string; quantity: number; colour?: string; options?: BuildOptions } =>
               !!it && typeof it.productId === "string" && typeof it.quantity === "number",
           )
-          .map((it) => ({
-            productId: it.productId,
-            quantity: it.quantity,
-            ...(typeof it.colour === "string" && it.colour ? { colour: it.colour } : {}),
-          }))
+          .map((it) => {
+            const options = cleanOptions(it.options);
+            return {
+              productId: it.productId,
+              quantity: it.quantity,
+              ...(typeof it.colour === "string" && it.colour ? { colour: it.colour } : {}),
+              ...(options ? { options } : {}),
+            };
+          })
       : [];
     if (items.length === 0) {
       return NextResponse.json({ error: "Your order is empty." }, { status: 400 });

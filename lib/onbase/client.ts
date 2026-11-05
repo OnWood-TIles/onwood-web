@@ -43,6 +43,8 @@ export type TradeSwatchInfo = {
   boxQuantity: number; // order qty snaps up to whole multiples of this
   coverageM2: number | null; // m² one sold unit covers
   unit: string; // sold unit (m², LM, Per Unit…)
+  /** Their "Discount off RRP" percent; made-to-order builds are priced at the build's RRP less this. */
+  rrpDiscount?: number | null;
 };
 
 export type Swatch = {

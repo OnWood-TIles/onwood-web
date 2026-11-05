@@ -99,6 +99,8 @@ export type OrderItem = {
   unitPrice: number;
   lineTotal: number;
   variationColour: string | null;
+  /** A made-to-order build's spec lines (size, top, finish...). */
+  spec?: string[] | null;
 };
 
 export type OrderDetail = {
@@ -115,8 +117,11 @@ export type OrderDetail = {
   items: OrderItem[];
 };
 
+export type BuildOptions = Record<string, string | string[]>;
+
 export type CreateOrderPayload = {
-  items: { productId: string; quantity: number; colour?: string }[];
+  /** `options` = a made-to-order build (OnBase prices it from the build's RRP less their % off). */
+  items: { productId: string; quantity: number; colour?: string; options?: BuildOptions }[];
   note?: string;
   poReference?: string;
   deliveryAddress?: string;

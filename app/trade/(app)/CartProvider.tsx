@@ -19,14 +19,23 @@ export type CartLine = {
   quantity: number;
   /** "Sold in multiples of" - quantities snap to whole boxes of this. */
   boxQuantity?: number;
+  /** A made-to-order build (e.g. a vanity): its option picks, priced by OnBase at submit. */
+  options?: Record<string, string | string[]>;
+  /** The build's spec lines, for display. */
+  spec?: string[];
+  /** Product page link that reopens this build. */
+  href?: string;
 };
+
+/** What identifies a line: product + colour, or product + build. */
+export type LineKey = Pick<CartLine, "productId" | "colour" | "options">;
 
 type CartContextValue = {
   lines: CartLine[];
   count: number;
   add: (line: Omit<CartLine, "quantity">, quantity: number) => void;
-  setQty: (productId: string, colour: string | undefined, quantity: number) => void;
-  remove: (productId: string, colour: string | undefined) => void;
+  setQty: (line: LineKey, quantity: number) => void;
+  remove: (line: LineKey) => void;
   clear: () => void;
   ready: boolean;
 };
@@ -35,9 +44,14 @@ const STORAGE_KEY = "ow_trade_cart_v1";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-// Match on product + colour together, so the same product in two colours is two lines.
-const sameLine = (a: { productId: string; colour?: string }, b: { productId: string; colour?: string }) =>
-  a.productId === b.productId && (a.colour ?? "") === (b.colour ?? "");
+// A build's picks as a stable string (key order doesn't matter).
+const buildKey = (o: CartLine["options"]) =>
+  o ? JSON.stringify(Object.keys(o).sort().map((k) => [k, o[k]])) : "";
+
+// Match on product + colour (+ build) together, so the same product in two colours, or two
+// different builds of one vanity, are separate lines.
+const sameLine = (a: LineKey, b: LineKey) =>
+  a.productId === b.productId && (a.colour ?? "") === (b.colour ?? "") && buildKey(a.options) === buildKey(b.options);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -81,17 +95,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const setQty = useCallback((productId: string, colour: string | undefined, quantity: number) => {
+  const setQty = useCallback((line: LineKey, quantity: number) => {
     const qty = Math.max(0, round3(quantity));
     setLines((prev) =>
       qty === 0
-        ? prev.filter((l) => !sameLine(l, { productId, colour }))
-        : prev.map((l) => (sameLine(l, { productId, colour }) ? { ...l, quantity: qty } : l)),
+        ? prev.filter((l) => !sameLine(l, line))
+        : prev.map((l) => (sameLine(l, line) ? { ...l, quantity: qty } : l)),
     );
   }, []);
 
-  const remove = useCallback((productId: string, colour: string | undefined) => {
-    setLines((prev) => prev.filter((l) => !sameLine(l, { productId, colour })));
+  const remove = useCallback((line: LineKey) => {
+    setLines((prev) => prev.filter((l) => !sameLine(l, line)));
   }, []);
 
   const clear = useCallback(() => setLines([]), []);

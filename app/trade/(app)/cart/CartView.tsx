@@ -63,6 +63,7 @@ export default function CartView() {
             productId: l.productId,
             quantity: l.quantity,
             ...(l.colour ? { colour: l.colour } : {}),
+            ...(l.options ? { options: l.options } : {}),
           })),
           note: note.trim() || undefined,
           poReference: poReference.trim() || undefined,
@@ -90,7 +91,7 @@ export default function CartView() {
       <div style={{ background: "#fff", border: "1px solid var(--line)", borderRadius: 18, overflow: "hidden" }}>
         {lines.map((l, i) => (
           <div
-            key={`${l.productId}-${l.colour ?? ""}`}
+            key={`${l.productId}-${l.colour ?? ""}-${i}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -106,8 +107,14 @@ export default function CartView() {
               )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, fontSize: 14.5 }}>{l.name}</div>
+              <div style={{ fontWeight: 800, fontSize: 14.5 }}>{l.href ? <Link href={l.href} style={{ color: "inherit", textDecoration: "none" }}>{l.name}</Link> : l.name}</div>
               {l.colour && <div style={{ color: "#8a8577", fontSize: 13, marginTop: 2 }}>{l.colour}</div>}
+              {l.spec && l.spec.length > 0 && (
+                <ul style={{ margin: "4px 0 0", padding: 0, listStyle: "none", color: "#5a6067", fontSize: 12.5, lineHeight: 1.45 }}>
+                  {l.spec.map((s) => <li key={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</li>)}
+                </ul>
+              )}
+              {l.options && l.href && <Link href={l.href} style={{ fontSize: 12.5, fontWeight: 700, color: "var(--accent)", textDecoration: "none" }}>View build</Link>}
               <div style={{ color: "#8a8577", fontSize: 12.5, marginTop: 3 }}>
                 {money(l.unitPrice)}
                 {l.unit ? ` / ${unitLabel(l.unit)}` : ""} <span style={{ opacity: 0.7 }}>(indicative)</span>
@@ -117,26 +124,26 @@ export default function CartView() {
               </div>
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", border: "1px solid var(--line)", borderRadius: 10, overflow: "hidden" }}>
-              <button type="button" onClick={() => setQty(l.productId, l.colour, stepQty(l.quantity, l.boxQuantity, -1))} aria-label="Decrease quantity" style={stepBtn}>
+              <button type="button" onClick={() => setQty(l, stepQty(l.quantity, l.boxQuantity, -1))} aria-label="Decrease quantity" style={stepBtn}>
                 &minus;
               </button>
               <input
                 type="number"
                 min={0}
                 value={l.quantity}
-                onChange={(e) => setQty(l.productId, l.colour, Math.max(0, Number(e.target.value) || 0))}
-                onBlur={() => setQty(l.productId, l.colour, roundUpToBox(l.quantity, l.boxQuantity))}
+                onChange={(e) => setQty(l, Math.max(0, Number(e.target.value) || 0))}
+                onBlur={() => setQty(l, roundUpToBox(l.quantity, l.boxQuantity))}
                 aria-label={`Quantity of ${l.name}`}
                 style={{ width: 52, textAlign: "center", border: "none", fontSize: 14, fontWeight: 700, color: "var(--ink)", background: "transparent" }}
               />
-              <button type="button" onClick={() => setQty(l.productId, l.colour, stepQty(l.quantity, l.boxQuantity, 1))} aria-label="Increase quantity" style={stepBtn}>
+              <button type="button" onClick={() => setQty(l, stepQty(l.quantity, l.boxQuantity, 1))} aria-label="Increase quantity" style={stepBtn}>
                 +
               </button>
             </div>
             <div style={{ width: 84, textAlign: "right", fontWeight: 800, fontSize: 14.5 }}>{money(l.unitPrice * l.quantity)}</div>
             <button
               type="button"
-              onClick={() => remove(l.productId, l.colour)}
+              onClick={() => remove(l)}
               aria-label={`Remove ${l.name}`}
               style={{ border: "none", background: "none", cursor: "pointer", color: "#a13a2c", fontSize: 18, lineHeight: 1, padding: 6 }}
             >
