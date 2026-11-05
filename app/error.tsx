@@ -44,7 +44,7 @@ export default function Error({
       >
         <a href="/" aria-label="OnWood Tiles home" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/onwood-logo-ink-tight.png" alt="OnWood Tiles" style={{ height: 40, width: "auto", display: "block" }} />
+          <img src="/onwood-logo-ink-sm.png" alt="OnWood Tiles" style={{ height: 40, width: "auto", display: "block" }} />
         </a>
       </header>
 

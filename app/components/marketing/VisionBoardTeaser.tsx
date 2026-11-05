@@ -2,6 +2,7 @@ import Link from "next/link";
 import Reveal from "../ui/Reveal";
 import AmbientDriftBoard from "./AmbientDriftBoard";
 import { TEASER_BOARDS } from "../../../lib/heroBoards";
+import { rs } from "../../../lib/rs";
 
 // Homepage teaser for the Vision Board tool. The card is topped with the real
 // Antikella (536) benchtop stone; the 4 NEW AI collections fly in over it (room +
@@ -27,7 +28,7 @@ export default function VisionBoardTeaser() {
         borderRadius: 28,
         border: "1px solid var(--line)",
         backgroundColor: "#b98c68",
-        backgroundImage: "url(/images/backdrops/plaster-eucalyptus-l.jpg)",
+        backgroundImage: `url(${rs("/images/backdrops/plaster-eucalyptus-l.jpg", 1600)})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -99,7 +100,7 @@ export default function VisionBoardTeaser() {
         </div>
       </div>
       <style>{`
-        @media(max-width:700px){.vbt-card{background-image:url(/images/backdrops/plaster-eucalyptus-p.jpg)!important}}
+        @media(max-width:700px){.vbt-card{background-image:url(${rs("/images/backdrops/plaster-eucalyptus-p.jpg", 828)})!important}}
         @keyframes vbtPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
         .vbt-cta{animation:vbtPulse 2.8s ease-in-out infinite;transition:transform .2s ease}
         .vbt-cta:hover{transform:scale(1.06)!important;animation:none}

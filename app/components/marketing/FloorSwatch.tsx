@@ -3,6 +3,7 @@
 // it reads like a focused material sample, not a wide floor shot), with a floating
 // name/range pill and a brand badge in the corner. Fills its parent.
 import { BrandBadge } from "./CarpetSwatch";
+import { rs } from "../../../lib/rs";
 
 export function floorNameSize(name: string): number {
   const n = name.trim().length;
@@ -55,7 +56,7 @@ export function FloorSwatchFace({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={url}
+        src={rs(url, 480)}
         alt={showLabel ? "" : [range, name].filter(Boolean).join(" ")} // the visible label names it otherwise
         loading={eager ? "eager" : "lazy"}
         fetchPriority={eager ? "high" : undefined}

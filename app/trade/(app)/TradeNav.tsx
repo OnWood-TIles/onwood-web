@@ -64,7 +64,7 @@ export default function TradeNav({ customerName, shopDepts }: { customerName: st
           style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/onwood-logo-ink-tight.png" alt="OnWood Tiles" style={{ height: 32, width: "auto", display: "block" }} />
+          <img src="/onwood-logo-ink-sm.png" alt="OnWood Tiles" style={{ height: 32, width: "auto", display: "block" }} />
           <span
             style={{
               fontSize: 10.5,

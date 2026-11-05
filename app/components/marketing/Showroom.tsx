@@ -4,6 +4,7 @@ import { imageAlt } from "../../../lib/alt";
 import Reveal from "../ui/Reveal";
 import VisionBoardTeaser from "./VisionBoardTeaser";
 import styles from "./Showroom.module.css";
+import { rs } from "../../../lib/rs";
 
 // Section 07 - Showroom. Centred head, a wide arched niche + a 3-up row of
 // arched niches, then the vision-board head and the interactive <VisionBoard/>.
@@ -64,7 +65,7 @@ function nicheFill(niche: Niche) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={niche.src}
+        src={rs(niche.src, 1280)}
         alt={niche.alt}
         loading="lazy"
         decoding="async"

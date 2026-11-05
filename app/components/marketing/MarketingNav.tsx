@@ -95,7 +95,7 @@ export default function MarketingNav() {
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/onwood-logo-ink-tight.png" alt="OnWood Tiles" style={{ height: 44, width: "auto", display: "block" }} />
+        <img src="/onwood-logo-ink-sm.png" alt="OnWood Tiles" style={{ height: 44, width: "auto", display: "block" }} />
       </a>
 
       {/* Desktop nav */}

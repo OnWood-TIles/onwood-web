@@ -6,6 +6,7 @@ import { BOARD_H, BOARD_W, HERO_BOARDS, type BoardPiece, type HeroBoard } from "
 import { PaintChipFace } from "./PaintChip";
 import { CarpetSwatchFace } from "./CarpetSwatch";
 import { FloorSwatchFace } from "./FloorSwatch";
+import { rs } from "../../../lib/rs";
 
 // "Ambient Drift" hero showcase (ported from the Claude Design handoff): each
 // board's samples float in like dust, magnetise into the assembled vision
@@ -137,6 +138,13 @@ function Scaled({
 }
 
 // One piece, rendered exactly like the Vision Board tool renders it.
+// The URL a piece's face actually renders (resized per kind), so the preload above fetches the same file.
+const FACE_W: Partial<Record<BoardPiece["kind"], number>> = { photo: 640, metal: 320, styling: 480, tile: 480, stone: 480 };
+function faceSrc(piece: BoardPiece) {
+  const w = FACE_W[piece.kind];
+  return w ? rs(piece.src, w) : piece.src || "";
+}
+
 function PieceFace({ piece, eager = false }: { piece: BoardPiece; eager?: boolean }) {
   switch (piece.kind) {
     case "photo":
@@ -151,7 +159,7 @@ function PieceFace({ piece, eager = false }: { piece: BoardPiece; eager?: boolea
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={piece.src} alt="A room styled with OnWood tiles"
+            src={rs(piece.src, 640)} alt="A room styled with OnWood tiles"
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: 4 }}
           />
         </div>
@@ -202,7 +210,7 @@ function PieceFace({ piece, eager = false }: { piece: BoardPiece; eager?: boolea
         <Scaled dw={METAL_W} dh={METAL_W} w={piece.w}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={piece.src} alt={piece.name}
+            src={rs(piece.src, 320)} alt={piece.name}
             style={{
               width: "100%", height: "100%", objectFit: "contain", display: "block",
               filter: "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 13px 20px rgba(30,22,15,.32))",
@@ -216,7 +224,7 @@ function PieceFace({ piece, eager = false }: { piece: BoardPiece; eager?: boolea
       return (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={piece.src} alt={piece.name || "Styling accent"}
+          src={rs(piece.src, 480)} alt={piece.name || "Styling accent"}
           style={{
             width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom",
             display: "block", filter: "drop-shadow(0 3px 5px rgba(30,22,15,.30)) drop-shadow(0 14px 22px rgba(30,22,15,.32))",
@@ -387,7 +395,7 @@ export default function AmbientDriftBoard({
             const i = flatIdx;
             const docked = startAssembled && bi === 0;
             // first-view images: fetch at high priority (the swatch imgs are lazy)
-            if (docked && piece.src) preload(piece.src, { as: "image", fetchPriority: "high" });
+            if (docked && piece.src) preload(faceSrc(piece), { as: "image", fetchPriority: "high" });
             return (
               <div
                 key={`${b.id}-${piece.id}`}

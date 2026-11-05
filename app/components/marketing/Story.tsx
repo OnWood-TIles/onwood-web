@@ -8,6 +8,7 @@ import { listRanges, type WebsiteRange } from "../../../lib/onbase/client";
 import Reveal from "../ui/Reveal";
 import CountUp from "../ui/CountUp";
 import styles from "./Story.module.css";
+import { rs } from "../../../lib/rs";
 
 const sectionStyle: React.CSSProperties = {
   padding: "100px 40px",
@@ -136,7 +137,7 @@ export default async function Story() {
           <Reveal className={styles.cellTall}>
             {pics[0].src ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img className={styles.fill} src={pics[0].src} alt={pics[0].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img className={styles.fill} src={rs(pics[0].src, 828)} alt={pics[0].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div className={styles.fill} style={{ background: mosaicFills[0] }} aria-hidden />
             )}
@@ -144,7 +145,7 @@ export default async function Story() {
           <Reveal className={styles.cellSmall} delay={0.08}>
             {pics[1].src ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img className={styles.fill} src={pics[1].src} alt={pics[1].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img className={styles.fill} src={rs(pics[1].src, 828)} alt={pics[1].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div className={styles.fill} style={{ background: mosaicFills[1] }} aria-hidden />
             )}
@@ -152,7 +153,7 @@ export default async function Story() {
           <Reveal className={styles.cellSmall} delay={0.16}>
             {pics[2].src ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img className={styles.fill} src={pics[2].src} alt={pics[2].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img className={styles.fill} src={rs(pics[2].src, 828)} alt={pics[2].alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div className={styles.fill} style={{ background: mosaicFills[2] }} aria-hidden />
             )}

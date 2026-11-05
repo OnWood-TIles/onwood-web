@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { rs } from "../../../lib/rs";
 
 // Homepage prompt for the Trade Partner program. A dark premium band (stands out
 // against the cream page) with a compact material peek and a CTA into /trade.
@@ -33,7 +34,7 @@ export default function TradeBanner() {
           <div className="tb-art" style={{ position: "relative", justifySelf: "center", width: "100%", maxWidth: 320 }}>
             <div style={{ borderRadius: 20, overflow: "hidden", border: "5px solid #fff", boxShadow: "0 40px 74px -34px rgba(0,0,0,.7)", aspectRatio: "1 / 1" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/trade-partner.webp" alt="An OnWood trade partner tiling a project" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src={rs("/images/trade-partner.webp", 640)} loading="lazy" alt="An OnWood trade partner tiling a project" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { rs } from "../../../lib/rs";
 
 // A featured-product card that shows off BOTH the product photo and its
 // "see it installed" room shot. At rest: the tile/product photo fills the card
@@ -28,8 +29,8 @@ export default function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
     <Link href={`/product/${p.slug}`} className={`owf-card${hasRoom ? " owf-has-room" : ""}`} aria-label={p.name}>
       <div className="owf-media">
         {/* eslint-disable @next/next/no-img-element */}
-        <img className="owf-front" src={p.productImage} alt={p.alt} loading="lazy" />
-        {hasRoom && <img className="owf-back" src={p.roomImage as string} alt={p.roomAlt ?? `${p.name} installed`} loading="lazy" />}
+        <img className="owf-front" src={rs(p.productImage, 828)} alt={p.alt} loading="lazy" />
+        {hasRoom && <img className="owf-back" src={rs(p.roomImage, 828)} alt={p.roomAlt ?? `${p.name} installed`} loading="lazy" />}
         {/* eslint-enable @next/next/no-img-element */}
 
         <span className="owf-bar" aria-hidden />
@@ -47,8 +48,8 @@ export default function FeaturedProductCard({ p }: { p: FeaturedProduct }) {
         {hasRoom && (
           <span className="owf-inset" aria-hidden>
             {/* eslint-disable @next/next/no-img-element */}
-            <img className="owf-inset-room" src={p.roomImage as string} alt="" loading="lazy" />
-            <img className="owf-inset-tile" src={p.productImage} alt="" loading="lazy" />
+            <img className="owf-inset-room" src={rs(p.roomImage, 320)} alt="" loading="lazy" />
+            <img className="owf-inset-tile" src={rs(p.productImage, 320)} alt="" loading="lazy" />
             {/* eslint-enable @next/next/no-img-element */}
           </span>
         )}

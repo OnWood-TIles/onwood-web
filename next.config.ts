@@ -2,14 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Serve product images DIRECTLY (bypass Next's image optimizer). The
-    // catalogue pulls photos from several supplier domains (e.g. ABI on
-    // abiinteriors.com.au) — the optimizer's strict per-host allowlist made
-    // those images 400 ("hostname not configured") on the live site after the
-    // next/image conversion. Direct serving is robust for ANY host and has no
-    // per-image quota. Trade-off: no automatic WebP/resize (same as a plain
-    // <img>). Re-enable only once every image is re-hosted onto our own storage.
-    unoptimized: true,
+    // Next's built-in optimizer stays off (its per-host allowlist 400'd supplier photos and it has a
+    // per-image quota). Instead every <Image> goes through our own resizer: lib/imageLoader.ts ->
+    // /api/rs (sharp -> WebP, edge-cached), so pages get properly sized images. Hosts the resizer
+    // does not allow are left as the original URL.
+    loader: "custom",
+    loaderFile: "./lib/imageLoader.ts",
     remotePatterns: [
       // OnBase-hosted product imagery (catalogue photos + swatches)
       { protocol: "https", hostname: "onbasehq.com.au" },

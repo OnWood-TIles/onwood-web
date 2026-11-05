@@ -129,7 +129,7 @@ export default async function TradeFooter() {
           {/* ── Brand + company details + open hours ─────────────── */}
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/onwood-logo-ink-tight.png" alt="OnWood Tiles" style={{ height: 42, width: "auto", display: "block" }} />
+            <img src="/onwood-logo-ink-sm.png" alt="OnWood Tiles" style={{ height: 42, width: "auto", display: "block" }} />
 
             <p style={taglineStyle}>
               Your OnWood Tiles trade account. Browse the full range at your pricing, build an order request and track it through to delivery.
