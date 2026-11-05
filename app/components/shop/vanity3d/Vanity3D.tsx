@@ -128,7 +128,10 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     if (prev) { st.scene.remove(prev.group); prev.group.traverse((q: any) => { q.geometry?.dispose?.(); }); }
     b.movers.forEach((m) => { m.t = anim.current.open ? 1 : 0; if (m.kind === "drawer") m.obj.position.z = (m.z0 ?? 0) + m.t * 0.3; else m.obj.rotation.y = (m.dir ?? 1) * m.t * 1.35; });
     st.scene.add(b.group); built.current = b; setDims(b.dims); setLedOn(b.led);
-    const target = new THREE.Vector3(0, b.focusY, -0.38), dist = Math.max(1.6, b.widthM * 1.55 + 0.9);
+    // Fit the whole build (tap included) in view, whatever the window shape.
+    const box = new THREE.Box3().setFromObject(b.group), mid = box.getCenter(new THREE.Vector3()), rad = box.getSize(new THREE.Vector3()).length() / 2;
+    const vfov = THREE.MathUtils.degToRad(st.camera.fov), hfov = 2 * Math.atan(Math.tan(vfov / 2) * st.camera.aspect);
+    const target = new THREE.Vector3(0, mid.y, mid.z), dist = Math.max(1.6, (rad / Math.sin(Math.min(vfov, hfov) / 2)) * 0.88);
     views.current = { front: new THREE.Vector3(0, target.y + 0.12, target.z + dist), angle: new THREE.Vector3(dist * 0.62, target.y + 0.55, target.z + dist * 0.78), side: new THREE.Vector3(dist * 0.95, target.y + 0.2, target.z + dist * 0.25) };
     st.controls.target.copy(target);
     if (!prev) st.camera.position.copy(views.current.angle);

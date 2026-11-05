@@ -23,8 +23,8 @@ export default function ShowroomBanner() {
     return () => clearTimeout(t);
   }, [pathname]);
 
-  // Don't show on the showroom page itself, or in the admin/trade app areas.
-  const hidden = pathname === "/showroom" || pathname.startsWith("/admin") || pathname.startsWith("/trade");
+  // Don't show on the showroom page itself, the full-screen 3D builder, or in the admin/trade app areas.
+  const hidden = pathname === "/showroom" || pathname.endsWith("/3d") || pathname.startsWith("/admin") || pathname.startsWith("/trade");
   if (!show || hidden) return null;
 
   return (
