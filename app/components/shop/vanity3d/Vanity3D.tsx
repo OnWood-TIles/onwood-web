@@ -13,6 +13,7 @@ import {
   type OptionGroup, type OptionSelection, type ProductOptions,
 } from "../../../../lib/options";
 import { buildVanity, ledGlowTex, textureSources, type Built } from "./build";
+import { DuluxNameInput, duluxPicked, findDulux, useDulux } from "../dulux";
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
@@ -49,6 +50,9 @@ type Stage = {
 export default function Vanity3D({ range, query, backHref }: { range: WebsiteRange; query: Record<string, string>; backHref: string }) {
   const o = range.options!;
   const [sel, setSel] = useState<OptionSelection>(() => readQuery(o, query));
+  // Dulux colour match: the named Dulux colour paints the model.
+  // (before a colour is named: a plain paint colour, not the multi-colour swatch)
+  const isDulux = duluxPicked(o, sel), dulux = useDulux(isDulux), duluxHex = isDulux ? findDulux(dulux, sel)?.[2] ?? "#e4e1da" : undefined;
   const [open, setOpen] = useState<string | null>(null);
   const [doorsOpen, setDoorsOpen] = useState(false);
   const [dark, setDark] = useState(false);
@@ -124,7 +128,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
   useEffect(() => {
     const st = stage.current; if (!st || !ready) return;
     const prev = built.current;
-    const b = buildVanity(o, sel, imgs.current);
+    const b = buildVanity(o, sel, imgs.current, duluxHex);
     if (prev) { st.scene.remove(prev.group); prev.group.traverse((q: any) => { q.geometry?.dispose?.(); }); }
     b.movers.forEach((m) => { m.t = anim.current.open ? 1 : 0; if (m.kind === "drawer") m.obj.position.z = (m.z0 ?? 0) + m.t * 0.3; else m.obj.rotation.y = (m.dir ?? 1) * m.t * 1.35; });
     st.scene.add(b.group); built.current = b; setDims(b.dims); setLedOn(b.led);
@@ -137,7 +141,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     if (!prev) st.camera.position.copy(views.current.angle);
     else if (Math.abs((prev.widthM) - b.widthM) > 0.01) anim.current.fly = { from: st.camera.position.clone(), to: views.current.angle.clone(), t: 0 };
     if (!b.led && dark) setDark(false);
-  }, [o, sel, ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [o, sel, ready, duluxHex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lights: room on / off (off shows the LED strip's warm glow).
   useEffect(() => {
@@ -198,16 +202,18 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
                   <div className="v3-step-b">
                     {g.help && <p className="v3-help">{g.help}</p>}
                     {g.type === "text" ? (
-                      <input className="v3-text" id={`v3-${g.key}`} value={String(one(sel[g.key]) ?? "")} placeholder={g.placeholder} onChange={(e) => setSel((s) => ({ ...s, [g.key]: e.target.value }))} />
+                      g.key === "duluxName" ? <DuluxNameInput list={dulux} sel={sel} setSel={setSel} className="v3-text" id={`v3-${g.key}`} /> : <input className="v3-text" id={`v3-${g.key}`} value={String(one(sel[g.key]) ?? "")} placeholder={g.placeholder} onChange={(e) => setSel((s) => ({ ...s, [g.key]: e.target.value }))} />
                     ) : photos ? (
+                      [...new Set(avail.map((c) => c.section ?? ""))].map((sec) => (<div key={sec || "all"}>
+                      {sec && <h4 className="v3-sec">{sec}</h4>}
                       <div className="v3-sws">
-                        {avail.map((c) => { const on = ks.includes(c.key), p = choicePrice(c, sel); return (
+                        {avail.filter((c) => (c.section ?? "") === sec).map((c) => { const on = ks.includes(c.key), p = choicePrice(c, sel); return (
                           <button type="button" key={c.key} className={`v3-sw ${on ? "on" : ""}`} aria-pressed={on} title={c.label} onClick={() => pick(g, g.type === "multi" ? (on ? ks.filter((k) => k !== c.key) : [...ks, c.key]) : c.key)}>
                             {c.image ? <img src={c.image} alt="" loading="lazy" /> : <span className="v3-sw-t">{c.label}</span>}
                             <span className="v3-sw-l">{c.label}{p ? ` +${fmt(p)}` : ""}</span>
                           </button>
                         ); })}
-                      </div>
+                      </div></div>))
                     ) : (
                       <div className="v3-chips">
                         {!g.required && g.type === "single" && <button type="button" className={`v3-chip ${!ks.length ? "on" : ""}`} onClick={() => pick(g, undefined)}>Standard</button>}
@@ -270,6 +276,7 @@ const CSS = `
 .v3-sw{display:flex;flex-direction:column;gap:3px;padding:0;border:0;background:none;cursor:pointer;font:inherit;text-align:left;color:inherit}
 .v3-sw img,.v3-sw-t{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;box-shadow:inset 0 0 0 1px #dedad2;border:2px solid transparent;display:grid;place-items:center;font-size:10px;background:#f7f5f1;box-sizing:border-box}
 .v3-sw.on img,.v3-sw.on .v3-sw-t{border-color:#2f6f6a}
+.v3-sec{margin:10px 0 6px;font-size:12px;font-weight:700;color:#20303a}
 .v3-sw-l{font-size:10.5px;line-height:1.2;color:#45504f;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .v3-text{width:100%;font:inherit;padding:10px 12px;border-radius:10px;border:1px solid #dedad2;box-sizing:border-box}
 .v3-next{margin-top:10px;font:inherit;font-size:13px;font-weight:600;border:0;background:none;color:#2f6f6a;cursor:pointer;padding:0}

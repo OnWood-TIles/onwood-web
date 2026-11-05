@@ -10,6 +10,7 @@ import {
 import SaveButton from "../wishlist/SaveButton";
 import AddToQuoteButton from "../quote/AddToQuoteButton";
 import OptionsDrawing from "./OptionsDrawing";
+import { DuluxNameInput, duluxPicked, findDulux, solidSwatch, useDulux } from "./dulux";
 
 // Customer price builder for any product with options (set up on the OnBase Pricing
 // tab), e.g. a Marquis vanity range: one collapsible step per option group (picking
@@ -87,7 +88,10 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
 
   const priced = useMemo(() => priceOptions(o, sel), [o, sel]);
   const spec = describeOptions(o, sel);
-  const meta = drawMeta(o, sel);
+  // A Dulux colour match named from the Dulux range paints the drawing in that colour.
+  // (before a colour is named: a plain paint colour, not the multi-colour swatch)
+  const isDulux = duluxPicked(o, sel), dulux = useDulux(isDulux), duluxHit = findDulux(dulux, sel);
+  const meta0 = drawMeta(o, sel), meta = isDulux ? { ...meta0, cabinetImage: solidSwatch(duluxHit?.[2] ?? "#e4e1da") } : meta0;
   const steps = visibleGroups(o, sel);
   const draws = o.drawing !== "none";
   const lead = o.groups[0];
@@ -170,7 +174,7 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
               {isOpen && (
                 <div className="vb-step-b">
                   {g.type === "text" ? (
-                    <input className="vb-text" value={String(one(sel[g.key]) ?? "")} placeholder={g.placeholder} onChange={(e) => setSel((s) => ({ ...s, [g.key]: e.target.value }))} />
+                    g.key === "duluxName" ? <DuluxNameInput list={dulux} sel={sel} setSel={setSel} className="vb-text" id={`vb-${g.key}`} /> : <input className="vb-text" value={String(one(sel[g.key]) ?? "")} placeholder={g.placeholder} onChange={(e) => setSel((s) => ({ ...s, [g.key]: e.target.value }))} />
                   ) : gi === 0 && sizeCards ? (
                     <>
                       {widths.length > 1 && (

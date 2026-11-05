@@ -53,14 +53,14 @@ function sdRoundRect(x: number, y: number, w: number, h: number, r: number) { //
 function faceHeight(face: string, w: number, h: number, colX: number, colY: number, colW: number, colH: number): HFn | null {
   switch (face) {
     case "fluted": return (x) => Math.sqrt(Math.abs(Math.sin(Math.PI * x / 16)));
-    case "shiplap": return (x) => { const d = x % 70; return d < 3 ? d / 3 * 0.2 : d > 67 ? (70 - d) / 3 * 0.2 : 0.2; };
+    case "shiplap": return (x) => { const d = x % 70; return d < 4 ? d / 4 : d > 66 ? (70 - d) / 4 : 1; }; // 70mm boards, V-grooves
     case "sawtooth": return (x) => (x % 30) / 30;
     case "shaker": case "shaker-round": case "shaker-v": {
       const fw = Math.max(28, Math.min(70, Math.min(w, h) * 0.14)), r = face === "shaker-round" ? 28 : 2, bev = 7;
       return (x, y) => {
         const d = sdRoundRect(x - fw, y - fw, w - 2 * fw, h - 2 * fw, r); // <0 inside panel
         let v = clamp01(d / bev) * 0.6 + 0.4 * (d > 0 ? 1 : 0.0);
-        if (face === "shaker-v" && d < -2) { const g = x % 25; if (g < 2.4) v -= 0.25 * (1 - Math.abs(g - 1.2) / 1.2); }
+        if (face === "shaker-v" && d < -2) { const g = x % 25; if (g < 3.6) v -= 0.5 * (1 - Math.abs(g - 1.8) / 1.8); }
         return v;
       };
     }
@@ -98,7 +98,7 @@ function bakeFront(face: string, img: HTMLImageElement | undefined, fallback: st
     const p = j * W + i, l = hgt[j * W + Math.max(0, i - 1)], r = hgt[j * W + Math.min(W - 1, i + 1)], u = hgt[Math.max(0, j - 1) * W + i], d = hgt[Math.min(H - 1, j + 1) * W + i];
     let nx = (l - r) * k / (sx * 2), ny = (d - u) * k / (sy * 2), nz = 1; const len = Math.hypot(nx, ny, nz); nx /= len; ny /= len; nz /= len;
     nd.data[p * 4] = (nx * 0.5 + 0.5) * 255; nd.data[p * 4 + 1] = (ny * 0.5 + 0.5) * 255; nd.data[p * 4 + 2] = nz * 255; nd.data[p * 4 + 3] = 255;
-    const ao = 1 - 0.55 * (1 - nz) - (face === "fluted" || face === "sawtooth" ? 0.12 * (1 - hgt[p]) : 0); // slopes + grooves read darker, flat panels keep their colour
+    const ao = 1 - 0.55 * (1 - nz) - (face === "fluted" || face === "sawtooth" ? 0.12 * (1 - hgt[p]) : face === "shiplap" ? 0.3 * (1 - hgt[p]) : 0); // slopes + grooves read darker, flat panels keep their colour
     ad.data[p * 4] *= ao; ad.data[p * 4 + 1] *= ao; ad.data[p * 4 + 2] *= ao;
   }
   ng.putImageData(nd, 0, 0); ag.putImageData(ad, 0, 0);
@@ -222,10 +222,20 @@ function handleObj(type: string, fin: string, len: number, vertical: boolean): T
     add(new THREE.BoxGeometry(L, 0.012, 0.004), m, 0, 0, 0.03);
     [-1, 1].forEach((s) => add(new THREE.BoxGeometry(0.008, 0.012, 0.03), m, s * (L / 2 - 0.006), 0, 0.015));
   } else if (/Trim/.test(type)) add(new THREE.BoxGeometry(L, 0.02, 0.012), m, 0, 0, 0.006);
-  else if (/Shell/.test(type)) { const cup = add(new THREE.SphereGeometry(0.032, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), m, 0, 0, 0.004, -Math.PI / 2); cup.scale.set(1, 0.8, 0.85); add(new THREE.BoxGeometry(0.064, 0.006, 0.008), m, 0, 0.012, 0.004); }
+  else if (/Shell/.test(type)) {
+    const hood = m.clone(); hood.side = THREE.DoubleSide;
+    const cup = add(new THREE.SphereGeometry(1, 40, 20, 0, Math.PI, 0, Math.PI / 2), hood, 0, -0.012, 0); cup.scale.set(0.032, 0.03, 0.022); // upper-front quarter sphere, open below
+    add(new THREE.BoxGeometry(0.07, 0.012, 0.003), m, 0, 0.012, 0.0015); // the fixing plate with its two screw tabs
+  }
   else if (/Luna/.test(type)) { add(new THREE.CylinderGeometry(0.0375, 0.0375, 0.005, 40, 1, false, Math.PI / 2, Math.PI), m, 0, 0, 0.02, Math.PI / 2); add(new THREE.BoxGeometry(0.075, 0.006, 0.02), m, 0, 0, 0.01); }
   else if (/Bell Knob/.test(type)) { const pts = [[0.004, 0], [0.006, 0.004], [0.0075, 0.016], [0.015, 0.026], [0.014, 0.029], [0, 0.03]].map(([r, y]) => new THREE.Vector2(r, y)); add(new THREE.LatheGeometry(pts, 32), m, 0, 0, 0, Math.PI / 2); }
-  else if (/Clover/.test(type)) { for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; add(new THREE.TorusGeometry(0.01, 0.0028, 12, 32), m, Math.cos(a) * 0.014, Math.sin(a) * 0.014, 0.024); } add(new THREE.CylinderGeometry(0.004, 0.005, 0.024, 16), m, 0, 0, 0.012, Math.PI / 2); }
+  else if (/Clover/.test(type)) {
+    const R0 = 0.024, pts: THREE.Vector3[] = [];
+    for (let i = 0; i < 96; i++) { const t = i / 96 * Math.PI * 2, r = R0 * (0.7 + 0.3 * Math.abs(Math.cos(2 * t)) ** 0.6) * 1.12; pts.push(new THREE.Vector3(Math.cos(t) * r, Math.sin(t) * r - R0, 0.016)); }
+    add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 200, 0.0029, 12, true), m); // 55mm clover ring
+    add(new THREE.CylinderGeometry(0.004, 0.006, 0.016, 20), m, 0, 0, 0.008, Math.PI / 2); // the post it hangs from
+    add(new THREE.SphereGeometry(0.0045, 16, 12), m, 0, 0, 0.016);
+  }
   else if (/Knob/.test(type)) {
     const body = /Black Matte & Brass/.test(fin) ? finOf("Black Matte") : m;
     add(new THREE.CylinderGeometry(0.025, 0.023, 0.014, 40), body, 0, 0, 0.02, Math.PI / 2); add(new THREE.CylinderGeometry(0.006, 0.008, 0.014, 20), body, 0, 0, 0.007, Math.PI / 2);
@@ -262,18 +272,9 @@ function handleFromSel(o: ProductOptions, sel: OptionSelection, meta: DrawMeta):
   return d === "none" ? { type: "No handle", fin: "", len } : d === "knob" ? { type: "Bell Knob", fin: "Black Matte", len } : d === "top" ? { type: "Curved Top Pull", fin: "Brushed Aluminium", len } : { type: "Lounge Handle", fin: "Stainless Steel", len: 160 };
 }
 
-// A routed groove: shadow under the top lip, light catching the lower edge.
-let grooveM: THREE.MeshBasicMaterial | null = null;
-function grooveMat() {
-  if (grooveM) return grooveM;
-  const c = document.createElement("canvas"); c.width = 4; c.height = 32; const g = c.getContext("2d")!;
-  const gr = g.createLinearGradient(0, 0, 0, 32); gr.addColorStop(0, "rgba(0,0,0,.6)"); gr.addColorStop(0.55, "rgba(0,0,0,.34)"); gr.addColorStop(0.85, "rgba(0,0,0,.08)"); gr.addColorStop(1, "rgba(255,255,255,.2)");
-  g.fillStyle = gr; g.fillRect(0, 0, 4, 32);
-  return (grooveM = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
-}
-
 // ── The vanity ─────────────────────────────────────────────────────────────────────
-export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs): Built {
+/** cabinetHex: a Dulux colour match picked by name, painted instead of the finish swatch. */
+export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs, cabinetHex?: string): Built {
   const meta = drawMeta(o, sel);
   const group = new THREE.Group(), movers: Mover[] = [];
   const widthMm = meta.width ?? 900, W = mm(widthMm), Wc = mm(widthMm - (meta.cabInsetMm ?? 0)), Dp = mm(meta.depthMm ?? 460);
@@ -284,8 +285,8 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
   const y0 = onFloor ? plinth : mm(850) - H;
   const frontT = 0.018, carD = Dp - 0.016 - frontT, zBack = -0.6 + 0.001, zFront = zBack + carD;
   const face = meta.face ?? "plain";
-  const cabImg = meta.cabinetImage ? imgs.get(meta.cabinetImage) : undefined;
-  const finishPlain = (wM: number, hM: number) => new THREE.MeshStandardMaterial({ map: canvasTex(swatchCanvas(cabImg, wM * 1000, hM * 1000, "#d8cfc2")), roughness: 0.75, envMapIntensity: 0.15 });
+  const cabImg = !cabinetHex && meta.cabinetImage ? imgs.get(meta.cabinetImage) : undefined, cabCol = cabinetHex ?? "#d8cfc2";
+  const finishPlain = (wM: number, hM: number) => new THREE.MeshStandardMaterial({ map: canvasTex(swatchCanvas(cabImg, wM * 1000, hM * 1000, cabCol)), roughness: 0.75, envMapIntensity: 0.15 });
   const P = 0.016;
   const slab = (w: number, h: number, d: number, x: number, y: number, z: number, mats: THREE.Material | THREE.Material[] = carcassInner) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mats); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; group.add(m); return m; };
 
@@ -301,7 +302,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
   const xL = -Wc / 2 + (sideW || (ends.includes(-1) ? endW : 0)), xR = Wc / 2 - (sideW || (ends.includes(1) ? endW : 0));
 
   // Carcass: open box, finished outside, melamine inside (cut back where a curved or open end takes over).
-  const fSide = finishPlain(carD, H), fEdge = finishPlain(P, H);
+  const fSide = face === "shiplap" ? (() => { const bk = bakeFront("shiplap", cabImg, cabCol, carD * 1000, H * 1000, [0, 0, carD * 1000, H * 1000]); return new THREE.MeshStandardMaterial({ map: bk.map, normalMap: bk.normal ?? null, roughness: 0.72, envMapIntensity: 0.15 }); })() : finishPlain(carD, H), fEdge = finishPlain(P, H);
   const openL = ends.includes(-1), openR = ends.includes(1), bx0 = xL + (openL ? 0 : P), bx1 = xR - (openR ? 0 : P);
   if (!openL) slab(P, H, carD, xL + P / 2, y0 + H / 2, zBack + carD / 2, [carcassInner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
   if (!openR) slab(P, H, carD, xR - P / 2, y0 + H / 2, zBack + carD / 2, [fSide, carcassInner, fEdge, carcassInner, fEdge, carcassInner]);
@@ -348,24 +349,36 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
 
   const hnd = handleFromSel(o, sel, meta);
   const gapMat = finishPlain(0.2, 0.2); gapMat.color.set(0x55514b); gapMat.side = THREE.DoubleSide;
+  const slotMat = finishPlain(0.3, 0.03); slotMat.color.set(0x6d6861);
   const topPull = /Top Pull/.test(hnd.type), curvedPull = /Curved/.test(hnd.type), hMat = finOf(hnd.fin);
-  function frontPanel(parent: THREE.Object3D, w: number, h: number, colRect: [number, number, number, number]) {
-    const fp = hnd.type === "Recessed Fingerpull" && face !== "fingerpull" ? 0.022 : hnd.type === "Reverse Fingerpull" ? 0.016 : 0;
-    const ph = h - fp;
-    const baked = bakeFront(face, cabImg, "#d8cfc2", w * 1000, ph * 1000, colRect);
+  // slotDrop: a routed groove this far below the top (Rossi). Recessed fingerpull = a round-ended slot
+  // routed into the front just under its top edge; reverse fingerpull = the top edge bevelled back
+  // (as pictured in the Marquis Bathroom Book, p122).
+  function frontPanel(parent: THREE.Object3D, w: number, h: number, colRect: [number, number, number, number], slotDrop = 0) {
+    const rev = hnd.type === "Reverse Fingerpull" ? Math.min(0.035, h * 0.3) : 0;
+    const slot = hnd.type === "Recessed Fingerpull" && face !== "fingerpull" ? { top: 0.014, hh: 0.026 } : slotDrop ? { top: Math.max(0.01, slotDrop - 0.009), hh: 0.018 } : null;
+    const ph = h - rev;
+    const baked = bakeFront(face, cabImg, cabCol, w * 1000, ph * 1000, colRect);
     const fm = new THREE.MeshStandardMaterial({ map: baked.map, normalMap: baked.normal ?? null, normalScale: new THREE.Vector2(1, 1), roughness: 0.72, envMapIntensity: 0.15 });
     const side = finishPlain(0.02, h);
-    const p = new THREE.Mesh(new THREE.BoxGeometry(w, ph, frontT), [side, side, side, side, fm, carcassInner]);
-    p.position.y = -fp / 2; p.castShadow = p.receiveShadow = true; parent.add(p);
+    let p: THREE.Mesh;
+    if (slot && w > 0.1 && ph > slot.top + slot.hh + 0.02) {
+      const sh = new THREE.Shape(); sh.moveTo(-w / 2, -ph / 2); sh.lineTo(w / 2, -ph / 2); sh.lineTo(w / 2, ph / 2); sh.lineTo(-w / 2, ph / 2); sh.lineTo(-w / 2, -ph / 2);
+      const sw = w - 2 * Math.min(0.03, w * 0.08), r = slot.hh / 2, cy = ph / 2 - slot.top - r;
+      const hole = new THREE.Path(); hole.moveTo(-sw / 2 + r, cy - r); hole.lineTo(sw / 2 - r, cy - r); hole.absarc(sw / 2 - r, cy, r, -Math.PI / 2, Math.PI / 2, false);
+      hole.lineTo(-sw / 2 + r, cy + r); hole.absarc(-sw / 2 + r, cy, r, Math.PI / 2, Math.PI * 1.5, false); sh.holes.push(hole);
+      const geo = new THREE.ExtrudeGeometry(sh, { depth: frontT, bevelEnabled: false, curveSegments: 16 }); geo.translate(0, 0, -frontT / 2);
+      const pos = geo.getAttribute("position") as THREE.BufferAttribute, nor = geo.getAttribute("normal") as THREE.BufferAttribute, uv = geo.getAttribute("uv") as THREE.BufferAttribute;
+      for (let i = 0; i < uv.count; i++) if (Math.abs(nor.getZ(i)) > 0.5) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / ph + 0.5); // the face photo across the front
+      p = new THREE.Mesh(geo, [fm, side]);
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(sw, slot.hh), slotMat); back.position.set(0, cy, -frontT / 2 + 0.004); p.add(back); // the slot's floor, 14mm in
+    } else p = new THREE.Mesh(new THREE.BoxGeometry(w, ph, frontT), [side, side, side, side, fm, carcassInner]);
+    p.position.y = -rev / 2; p.castShadow = p.receiveShadow = true; parent.add(p);
     const bk = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.003, h + 0.003), gapMat); bk.position.z = -frontT / 2 - 0.0015; parent.add(bk);
-    if (hnd.type === "Recessed Fingerpull" && face !== "fingerpull") {
-      const back = new THREE.Mesh(new THREE.BoxGeometry(w, fp, 0.006), shadowMat); back.position.set(0, h / 2 - fp / 2, -frontT / 2 + 0.003); parent.add(back);
-      const lip = new THREE.Mesh(new THREE.BoxGeometry(w, 0.004, frontT * 0.6), side); lip.position.set(0, h / 2 - 0.002, -frontT * 0.2); parent.add(lip);
-    }
-    if (hnd.type === "Reverse Fingerpull") {
-      const sh = new THREE.Shape(); sh.moveTo(-frontT / 2, 0); sh.lineTo(frontT / 2, 0); sh.lineTo(-frontT / 2 + 0.004, fp); sh.lineTo(-frontT / 2, fp); sh.lineTo(-frontT / 2, 0);
+    if (rev) { // the bevel: full thickness at the bottom of the pull, a thin edge at the top
+      const sh = new THREE.Shape(); sh.moveTo(-frontT / 2, 0); sh.lineTo(frontT / 2, 0); sh.lineTo(-frontT / 2 + 0.005, rev); sh.lineTo(-frontT / 2, rev); sh.lineTo(-frontT / 2, 0);
       const geo = new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false }); geo.rotateY(-Math.PI / 2); geo.translate(w / 2, 0, 0);
-      const wedge = new THREE.Mesh(geo, side); wedge.position.y = h / 2 - fp; wedge.castShadow = true; parent.add(wedge);
+      const wedge = new THREE.Mesh(geo, finishPlain(w, rev)); wedge.position.y = h / 2 - rev; wedge.castShadow = wedge.receiveShadow = true; parent.add(wedge);
     }
   }
   function addHandle(parent: THREE.Object3D, w: number, h: number, kind: string, towardsCentre: number) {
@@ -413,13 +426,10 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs)
         drawer.position.set(cx, cy, zFront + frontT / 2);
         if (pull) { const r = new THREE.Mesh(new THREE.BoxGeometry(colW, pull, 0.006), shadowMat); r.position.set(0, dh / 2 - pull / 2, -frontT / 2 + 0.003); drawer.add(r); }
         const fGroup = new THREE.Group(); fGroup.position.y = -pull / 2; drawer.add(fGroup);
-        frontPanel(fGroup, colW, dh - pull, [0, (j * (dh + gap) + pull) * 1000, colW * 1000, colH * 1000]);
+        frontPanel(fGroup, colW, dh - pull, [0, (j * (dh + gap) + pull) * 1000, colW * 1000, colH * 1000], meta.grooveMm && hnd.type === "No handle" ? mm(meta.grooveMm) : 0);
         const bx = j === 0 ? centres.find((b) => Math.abs(b - cx) < colW / 2) : undefined;
         drawerBox(drawer, colW, dh, bx == null ? null : bx - cx);
         addHandle(fGroup, colW, dh - pull, "drawer", towardsCentre);
-        if (meta.grooveMm && hnd.type === "No handle") { // routed finger-pull groove in the front (Rossi)
-          const gq = new THREE.Mesh(new THREE.PlaneGeometry(colW - 0.05, 0.018), grooveMat()); gq.position.set(0, (dh - pull) / 2 - mm(meta.grooveMm), frontT / 2 + 0.0006); fGroup.add(gq);
-        }
         group.add(drawer); movers.push({ obj: drawer, kind: "drawer", z0: drawer.position.z, t: 0 });
       }
     }
