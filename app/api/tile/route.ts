@@ -39,7 +39,11 @@ export async function GET(req: Request) {
     } catch {
       /* trim can throw on a single-colour image - keep the original */
     }
-    const sized = sharp(src).resize(700, 700, { fit: "inside", withoutEnlargement: true });
+    // ?w= asks for a smaller copy (hero boards show tiles well under 700px); snapped so the CDN only
+    // ever holds a few sizes per tile.
+    const wq = Number(new URL(req.url).searchParams.get("w")) || 700;
+    const box = [160, 320, 480, 700].find((s) => s >= wq) ?? 700;
+    const sized = sharp(src).resize(box, box, { fit: "inside", withoutEnlargement: true });
     // ?cut=1 (Vision Board): shaped tiles (hex, fan, crazy pave, tumbled edges) still
     // sit on white after the rectangular trim - knock that white out to transparency.
     const cut = new URL(req.url).searchParams.get("cut") === "1" ? await cutout(await sized.clone().removeAlpha().raw().toBuffer({ resolveWithObject: true })) : null;
