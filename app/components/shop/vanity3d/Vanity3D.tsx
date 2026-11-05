@@ -57,6 +57,18 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
   const [open, setOpen] = useState<string | null>(null);
   const [doorsOpen, setDoorsOpen] = useState(false);
   const [dark, setDark] = useState(false);
+  // The benchtop uses the full-size colour photo (laid over a whole slab), fetched when a colour is picked.
+  const [hiTick, setHiTick] = useState(0);
+  const hiDone = useRef(new Set<string>());
+  useEffect(() => {
+    const g = o.groups.find((x) => x.drawFill === "top"), k = g ? one(sel[g.key]) : undefined;
+    const src = g?.choices.find((c) => c.key === k)?.image;
+    if (!src || hiDone.current.has(src)) return;
+    hiDone.current.add(src);
+    const hi = src.replace(/-\d+x\d+(\.(?:jpe?g|png|webp))/i, "$1"); if (hi === src) return;
+    const im = new Image(); im.crossOrigin = "anonymous";
+    im.onload = () => { imgs.current.set(src, im); setHiTick((t) => t + 1); }; im.src = hi;
+  }, [o, sel]);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [dims, setDims] = useState("");
@@ -142,7 +154,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     if (!prev) st.camera.position.copy(views.current.angle);
     else if (Math.abs((prev.widthM) - b.widthM) > 0.01) anim.current.fly = { from: st.camera.position.clone(), to: views.current.angle.clone(), t: 0 };
     if (!b.led && dark) setDark(false);
-  }, [o, sel, ready, duluxHex]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [o, sel, ready, duluxHex, hiTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lights: room lights on, or dimmed to a warm evening glow (shows off the LED strip).
   useEffect(() => {
@@ -193,7 +205,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
           <button type="button" className="v3-tool" onClick={() => flyTo("angle")}>Angle</button>
           <button type="button" className="v3-tool" onClick={() => flyTo("side")}>Side</button>
         </div>
-        <div className="v3-hint">Drag to turn · pinch or scroll to zoom</div>
+        <div className="v3-hint">Illustration only · drag to turn · pinch or scroll to zoom</div>
       </section>
 
       <aside className="v3-panel" aria-label="Your options">
@@ -248,6 +260,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
           <button type="button" className="v3-complete" onClick={complete}>Complete and request a quote</button>
           <button type="button" className="v3-save" onClick={keepShopping}>Save my build and keep shopping</button>
           <p className="v3-fine">Takes your build back to the product page, ready to add to your quote.</p>
+          <p className="v3-disc">The 3D view is an illustration only. Colours, timber grain, stone veining, sizes and details on screen are a guide and may differ from the real product, so please do not rely on it for an exact match. We are happy to show you real samples in the showroom.</p>
         </div>
       </aside>
     </div>
@@ -263,7 +276,8 @@ const CSS = `
 .v3-back{display:inline-block;font-size:13px;font-weight:600;color:#2f6f6a;text-decoration:none;margin-bottom:4px}
 .v3-top h1{margin:0;font-size:22px;font-weight:600}
 .v3-top p{margin:2px 0 0;font-size:12.5px;color:#5d6766;font-variant-numeric:tabular-nums}
-.v3-stage.night .v3-top h1,.v3-stage.night .v3-hint{color:#e9ecea}.v3-stage.night .v3-top p{color:#b9c0bf}
+.v3-stage.night .v3-top h1,.v3-stage.night .v3-disc{margin:10px 0 0;font-size:11.5px;line-height:1.45;color:#6b7473}
+.v3-hint{color:#e9ecea}.v3-stage.night .v3-top p{color:#b9c0bf}
 .v3-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#5d6766;font-size:14px}
 .v3-tools{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px)}
 .v3-tool{font:inherit;font-weight:600;font-size:13px;border:1px solid #dedad2;background:#fff;color:#1f2a2e;border-radius:999px;padding:8px 14px;cursor:pointer}

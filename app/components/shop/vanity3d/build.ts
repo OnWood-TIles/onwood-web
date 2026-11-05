@@ -40,6 +40,37 @@ function swatchCanvas(img: HTMLImageElement | undefined, wMm: number, hMm: numbe
   if (img && img.naturalWidth) { const t = TILE * pxPerMm; for (let y = 0; y < H; y += t) for (let x = 0; x < W; x += t) g.drawImage(img, x, y, t, t); }
   return c;
 }
+// Benchtops are all cut from one 1800 x 900mm slab: the colour photo is laid over the slab once
+// (never tiled, squashed or stretched) and each top is taken from its middle, so a 600mm top shows
+// the same scale of veining as an 1800mm one.
+const SLAB_W = 1800, SLAB_D = 900;
+function slabCanvas(img: HTMLImageElement | undefined, wMm: number, dMm: number, fallback: string): HTMLCanvasElement {
+  const px = Math.min(1.1, 2048 / Math.max(wMm, dMm));
+  const W = Math.max(8, Math.round(wMm * px)), H = Math.max(8, Math.round(dMm * px));
+  const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d")!;
+  g.fillStyle = fallback; g.fillRect(0, 0, W, H);
+  if (img && img.naturalWidth) {
+    const mmPerPx = Math.max(SLAB_W / img.naturalWidth, SLAB_D / img.naturalHeight); // photo covers the slab, keeping its shape
+    const iw = img.naturalWidth * mmPerPx, ih = img.naturalHeight * mmPerPx;
+    g.drawImage(img, -((iw - wMm) / 2) * px, -((ih - dMm) / 2) * px, iw * px, ih * px);
+  }
+  return c;
+}
+/** Benchtop UVs from real positions: the top and underside show the slab at true scale, and each
+ *  edge carries on the slab from the face it meets (instead of the whole photo squeezed into 20mm). */
+function slabUVs(geo: THREE.BufferGeometry, W: number, Dp: number, T: number) {
+  const pos = geo.getAttribute("position") as THREE.BufferAttribute, nor = geo.getAttribute("normal") as THREE.BufferAttribute, uv = geo.getAttribute("uv") as THREE.BufferAttribute;
+  for (let i = 0; i < uv.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i), nx = nor.getX(i), ny = nor.getY(i), nz = nor.getZ(i);
+    let u = (x + W / 2) / W, v = 0.5 - z / Dp; const down = (T - y) / Dp;
+    if (Math.abs(ny) < 0.5) {
+      if (Math.abs(nz) >= Math.abs(nx)) v += nz > 0 ? down : -down; // front / back edge: folds back onto the slab
+      else u += (nx > 0 ? -1 : 1) * (T - y) / W; // end edges
+    }
+    uv.setXY(i, u, v);
+  }
+  uv.needsUpdate = true;
+}
 function canvasTex(c: HTMLCanvasElement, srgb = true) { const t = new THREE.CanvasTexture(c); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; return t; }
 
 // ── Front relief: per-range face styles baked into colour (with groove shading) + normals
@@ -485,7 +516,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   if (!bare) {
     const topImg = meta.topImage ? imgs.get(meta.topImage) : undefined;
     const topCol = moulded && !topImg ? "#ecebe7" : "#d8d4cc";
-    const tc = swatchCanvas(topImg, W * 1000, Dp * 1000, topCol);
+    const tc = slabCanvas(topImg, W * 1000, Dp * 1000, topCol);
     const topMat = new THREE.MeshStandardMaterial({ map: canvasTex(tc), color: 0xb6b2ab, roughness: /symphony/i.test(topChoice?.label ?? "") ? 0.6 : 0.5, envMapIntensity: 0.06 });
     if (moulded && !topImg) topMat.color.set(0xd9d9d6);
     // A hole where the basin sits down into (semi-inset / moulded / under-counter) the top.
@@ -504,6 +535,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
       // shape UVs are in metres: map one top-width of photo across
       const uv = topGeo.getAttribute("uv") as THREE.BufferAttribute; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W / 2) / W, (uv.getY(i) + Dp / 2) / Dp);
     } else { topGeo = new THREE.BoxGeometry(W, T, Dp); topGeo.translate(0, T / 2, 0); }
+    slabUVs(topGeo, W, Dp, T);
     const top = new THREE.Mesh(topGeo, topMat); top.position.set(0, y0 + H, zTop); top.castShadow = top.receiveShadow = true; group.add(top);
     if (moulded) centres.forEach((x) => { // the integrated / under-counter bowl below the opening
       const bsp: BSpec = { plan: "super", n: 3.2, W: 0.42, D: 0.3, H: 0.15, above: 0, bowl: "curved", base: 0.45 };
