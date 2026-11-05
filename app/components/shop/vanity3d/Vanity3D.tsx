@@ -205,7 +205,7 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
   const [doneSeen, setDoneSeen] = useState(false);
   useEffect(() => {
     const el = doneRef.current; if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setDoneSeen(e.isIntersecting), { threshold: 0.2 });
+    const io = new IntersectionObserver(([e]) => setDoneSeen(e.isIntersecting), { threshold: 0.6 });
     io.observe(el); return () => io.disconnect();
   }, []);
 
