@@ -287,6 +287,13 @@ export default function OptionsBuilder({ range, query }: { range: WebsiteRange; 
             )}
             <SaveButton variant="inline" item={{ href: url || `/product/${range.slug}`, name: `${range.name} (your build)` }} />
           </div>
+          {priced.ok && range.department === "vanities" && (
+            // Opens the 3D builder with the email form up: the renders are made there.
+            <a href={`/product/${range.slug}/3d?email=1`} className="vb-link" style={{ display: "block", fontWeight: 700 }}
+              onClick={(e) => { e.preventDefault(); const q = new URLSearchParams(window.location.search); q.set("email", "1"); window.location.href = `/product/${range.slug}/3d?${q}`; }}>
+              Email me my vanity, with 3D views
+            </a>
+          )}
           <Link href={enquire} className="vb-link" style={{ display: "block" }}>Or ask us a question about this build</Link>
           <Link href="/book" className="vb-link">See it in the showroom</Link>
         </div>

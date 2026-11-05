@@ -15,6 +15,7 @@ import {
 import { buildVanity, ledGlowTex, textureSources, type Built } from "./build";
 import { DuluxNameInput, duluxPicked, findDulux, useDulux } from "../dulux";
 import { saveBuild } from "../savedBuild";
+import EmailBuild, { type Shot } from "./EmailBuild";
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 const visibleGroups = (o: ProductOptions, sel: OptionSelection) =>
@@ -47,6 +48,16 @@ type Stage = {
   renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; controls: OrbitControls;
   hemi: THREE.HemisphereLight; sun: THREE.DirectionalLight; fill: THREE.DirectionalLight; env: THREE.Texture | null; leds: THREE.PointLight[];
 };
+
+// Room lights on, or dimmed to a warm evening glow (shows off the LED strip).
+function applyLights(st: Stage, b: Built | null, dark: boolean) {
+  const on = !!b?.led;
+  st.hemi.color.set(dark ? 0xffcf96 : 0xffffff); st.hemi.groundColor.set(dark ? 0x6b5640 : 0xd8d2c8); st.sun.color.set(dark ? 0xffc27a : 0xffffff);
+  st.hemi.intensity = dark ? 0.24 : 0.62; st.sun.intensity = dark ? 0.16 : 0.72; st.fill.intensity = dark ? 0.04 : 0.22;
+  st.scene.environment = dark ? null : st.env; st.scene.background = new THREE.Color(dark ? 0x3a3027 : 0xe9e5de);
+  st.leds.forEach((l, i) => { l.intensity = on ? (dark ? 1.8 : 0.55) : 0; if (b) l.position.set((i - 1) * (b.group.userData.ledW ?? 1) * 0.33, Math.max(0.05, (b.group.userData.ledY ?? 0.3) - 0.04), b.group.userData.ledZ ?? -0.2); });
+  b?.group.traverse((q: any) => { if (q.name === "glow") q.material.opacity = dark ? 0.9 : 0.4; });
+}
 
 export default function Vanity3D({ range, query, backHref }: { range: WebsiteRange; query: Record<string, string>; backHref: string }) {
   const o = range.options!;
@@ -156,16 +167,37 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
     if (!b.led && dark) setDark(false);
   }, [o, sel, ready, duluxHex, hiTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Lights: room lights on, or dimmed to a warm evening glow (shows off the LED strip).
-  useEffect(() => {
-    const st = stage.current; if (!st) return;
-    const b = built.current, on = !!b?.led;
-    st.hemi.color.set(dark ? 0xffcf96 : 0xffffff); st.hemi.groundColor.set(dark ? 0x6b5640 : 0xd8d2c8); st.sun.color.set(dark ? 0xffc27a : 0xffffff);
-    st.hemi.intensity = dark ? 0.24 : 0.62; st.sun.intensity = dark ? 0.16 : 0.72; st.fill.intensity = dark ? 0.04 : 0.22;
-    st.scene.environment = dark ? null : st.env; st.scene.background = new THREE.Color(dark ? 0x3a3027 : 0xe9e5de);
-    st.leds.forEach((l, i) => { l.intensity = on ? (dark ? 1.8 : 0.55) : 0; if (b) l.position.set((i - 1) * (b.group.userData.ledW ?? 1) * 0.33, Math.max(0.05, (b.group.userData.ledY ?? 0.3) - 0.04), b.group.userData.ledZ ?? -0.2); });
-    b?.group.traverse((q: any) => { if (q.name === "glow") q.material.opacity = dark ? 0.9 : 0.4; });
-  }, [dark, ledOn, sel, ready]);
+  useEffect(() => { const st = stage.current; if (st) applyLights(st, built.current, dark); }, [dark, ledOn, sel, ready]);
+
+  // "Email me my vanity": four stills of the current build (angle, front, side, then the angle
+  // again with the room lights dimmed), rendered off-screen at a fixed 1200 x 800 with the
+  // drawers shut, then everything is put back as it was. Synchronous, so no frame shows it.
+  const capture = (): Shot[] => {
+    const st = stage.current, b = built.current, canvas = canvasRef.current;
+    if (!st || !b || !canvas || !views.current.angle) return [];
+    const { renderer, camera, controls, scene } = st;
+    const pos = camera.position.clone(), pr = renderer.getPixelRatio();
+    const shut = (closed: boolean) => b.movers.forEach((m) => { const t = closed ? 0 : m.t, e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; if (m.kind === "drawer") m.obj.position.z = (m.z0 ?? 0) + e * 0.3; else m.obj.rotation.y = (m.dir ?? 1) * e * 1.35; });
+    const shots: Shot[] = [];
+    try {
+      shut(true);
+      renderer.setPixelRatio(1); renderer.setSize(1200, 800, false); camera.aspect = 1.5; camera.updateProjectionMatrix();
+      for (const [label, view, dim] of [["Angle", "angle", false], ["Front", "front", false], ["Side", "side", false], ["Lights dimmed", "angle", true]] as const) {
+        applyLights(st, b, dim);
+        camera.position.copy(views.current[view]); camera.lookAt(controls.target);
+        renderer.render(scene, camera);
+        shots.push({ label, data: canvas.toDataURL("image/jpeg", 0.82) });
+      }
+    } finally {
+      shut(false); applyLights(st, b, dark);
+      const r = canvas.getBoundingClientRect();
+      renderer.setPixelRatio(pr); renderer.setSize(r.width, r.height, false); camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix();
+      camera.position.copy(pos); controls.update(); renderer.render(scene, camera);
+    }
+    return shots;
+  };
+  // Opened straight from the 2D builder's "Email me my vanity" link (?email=1).
+  const [emailOpen, setEmailOpen] = useState(query.email === "1");
 
   useEffect(() => { anim.current.open = doorsOpen; }, [doorsOpen]);
   const flyTo = (k: string) => { const st = stage.current; if (st && views.current[k]) anim.current.fly = { from: st.camera.position.clone(), to: views.current[k].clone(), t: 0 }; };
@@ -260,9 +292,16 @@ export default function Vanity3D({ range, query, backHref }: { range: WebsiteRan
           <button type="button" className="v3-complete" onClick={complete}>Complete and request a quote</button>
           <button type="button" className="v3-save" onClick={saveAndBack}>Save my build</button>
           <p className="v3-fine">Takes your build back to the product page, ready to add to your quote.</p>
+          <button type="button" className="v3-save" onClick={() => setEmailOpen(true)}>Email me my vanity</button>
           <p className="v3-disc">The 3D view is an illustration only. Colours, timber grain, stone veining, sizes and details on screen are a guide and may differ from the real product, so please do not rely on it for an exact match. We are happy to show you real samples in the showroom.</p>
         </div>
       </aside>
+      {emailOpen && (
+        <EmailBuild
+          range={range} complete={priced.ok} missing={missing} ready={ready && !failed} capture={capture}
+          buildUrl={`https://onwoodtiles.com.au${backHref}?${toQuery(o, sel)}`} options={sel} onClose={() => setEmailOpen(false)}
+        />
+      )}
     </div>
   );
 }
