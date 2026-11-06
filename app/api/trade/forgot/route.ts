@@ -22,7 +22,9 @@ export async function POST(request: Request) {
   if (email) {
     // Where OnBase should point the "set your password" link back to. OnBase appends
     // "/trade/set-password?token=..." itself, so pass the bare origin (no suffix).
-    const portalUrl = new URL(request.url).origin;
+    // Fixed to the real site (not the request's Host header) so a reset link can never point elsewhere.
+    const origin = new URL(request.url).origin;
+    const portalUrl = /^http:\/\/localhost(:\d+)?$/.test(origin) ? origin : "https://onwoodtiles.com.au";
     try {
       await tradeForgot(email, portalUrl);
     } catch (err) {

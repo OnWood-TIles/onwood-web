@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../../lib/rateLimit";
 import { tradeLogin, TradeError, TRADE_COOKIE } from "../../../../lib/onbase/trade";
 
 export const runtime = "nodejs";
@@ -8,6 +9,8 @@ export const runtime = "nodejs";
 // client JS) and return only the customer summary. On failure we echo the upstream
 // status (401 bad credentials, 429 rate limited).
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "trade-login", RL_FORM);
+  if (rl) return rl;
   let email = "";
   let password = "";
   try {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../../lib/rateLimit";
 import { tradeSetPassword, TradeError } from "../../../../lib/onbase/trade";
 
 export const runtime = "nodejs";
@@ -6,6 +7,8 @@ export const runtime = "nodejs";
 // Sets a new password from a reset token (from the emailed link). On success the
 // user is sent to /trade/login to sign in with it. Passwords are min 8 chars.
 export async function POST(request: Request) {
+  const rl = checkRateLimit(request, "trade-set-password", RL_FORM);
+  if (rl) return rl;
   let resetToken = "";
   let password = "";
   try {

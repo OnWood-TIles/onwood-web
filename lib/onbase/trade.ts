@@ -11,7 +11,7 @@
 //   - These FAIL CLOSED (throw on error) because they gate real customer actions,
 //     unlike the catalogue reads in client.ts which fail-open into a page render.
 import "server-only";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { Availability, WebsiteRange } from "./client";
 
 const BASE = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
@@ -174,11 +174,13 @@ async function tradePublic<T>(
   init: { method: "POST"; body: unknown },
 ): Promise<T> {
   const key = requireKey();
+  // The visitor's IP, so OnBase rate-limits each person rather than this server as a whole.
+  const clientIp = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "";
   let res: Response;
   try {
     res = await fetch(`${BASE}/api/v1/trade${path}`, {
       method: init.method,
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...(clientIp ? { "X-Client-IP": clientIp } : {}) },
       body: JSON.stringify(init.body),
       cache: "no-store",
     });
@@ -307,6 +309,7 @@ export async function tradeListOrders(): Promise<OrderSummary[]> {
 
 /** One order with its line items. Throws 404 when it isn't the customer's. */
 export async function tradeGetOrder(id: string): Promise<OrderDetail> {
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) throw new TradeError("Not found", 404);
   const json = await tradeAuthed<{ data: OrderDetail }>(`/orders/${encodeURIComponent(id)}`);
   return json.data;
 }
