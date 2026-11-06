@@ -30,8 +30,10 @@ export default async function TradeVanity3DPage({ params, searchParams }: { para
   const query: Record<string, string> = {};
   for (const [k, v] of Object.entries(sp)) if (typeof v === "string") query[k] = v;
   return (
-    // Inside the portal's page frame: the 3D view is a framed panel rather than full screen.
-    <div style={{ borderRadius: 18, overflow: "hidden", border: "1px solid var(--line)" }}>
+    // Full screen, like the public 3D page: it covers the portal header and footer (the page
+    // behind is locked from scrolling). "Back" returns to the trade product page.
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "#f3f1ed" }}>
+      <style>{"html,body{overflow:hidden}"}</style>
       <Vanity3DLoader range={range} query={query} backHref={back} trade={trade} />
     </div>
   );

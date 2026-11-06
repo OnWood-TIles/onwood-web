@@ -292,6 +292,16 @@ export default function OptionsBuilder({ range, query, trade }: { range: Website
           {trade ? (
             <TradeBuildActions trade={trade} name={range.name} image={range.heroImage ?? null} unitPrice={tradeEx(priced.total, trade.pct)}
               options={sel} spec={spec} href={url || `${trade.base}/${range.slug}`} ok={priced.ok} />
+          ) : null}
+          {trade && priced.ok && trade.pct != null && range.department === "vanities" && (
+            // Opens the trade 3D builder with the email form up: the renders are made there.
+            <a href={`${trade.base}/${range.slug}/3d?email=1`} className="vb-link" style={{ display: "block", fontWeight: 700, marginTop: 10 }}
+              onClick={(e) => { e.preventDefault(); const q = new URLSearchParams(window.location.search); q.set("email", "1"); window.location.href = `${trade.base}/${range.slug}/3d?${q}`; }}>
+              Email me my vanity, with 3D views
+            </a>
+          )}
+          {trade ? (
+            null
           ) : (<>
           <div className="vb-ctas">
             {priced.ok && (

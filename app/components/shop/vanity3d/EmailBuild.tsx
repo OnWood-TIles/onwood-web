@@ -2,6 +2,8 @@
 // "Email me my vanity" (3D builder): renders four views of the build in the browser, then
 // sends them with the build to /api/vanity-email. OnBase re-prices it, files an enquiry
 // with the renders, and emails the customer their build plus a copy to the team.
+// `trade`: the trade portal version. No contact fields (OnBase uses the trade account), their
+// price, sent through /api/trade/vanity-email.
 import { useEffect, useState } from "react";
 import type { WebsiteRange } from "../../../../lib/onbase/client";
 import type { OptionSelection } from "../../../../lib/options";
@@ -9,15 +11,16 @@ import MarketingConsent, { MARKETING_CONSENT_TEXT } from "../../marketing/Market
 
 export type Shot = { label: string; data: string };
 
-export default function EmailBuild({ range, options, buildUrl, complete, missing, ready, capture, onClose }: {
+export default function EmailBuild({ range, options, buildUrl, complete, missing, ready, capture, onClose, trade }: {
   range: WebsiteRange; options: OptionSelection; buildUrl: string; complete: boolean; missing: number; ready: boolean;
-  capture: () => Shot[]; onClose: () => void;
+  capture: () => Shot[]; onClose: () => void; trade?: boolean;
 }) {
   const [f, setF] = useState({ name: "", email: "", phone: "", suburb: "", notes: "", company: "" });
   const [consent, setConsent] = useState(false);
   const [shots, setShots] = useState<Shot[]>([]);
   const [state, setState] = useState<"form" | "sending" | "sent">("form");
   const [error, setError] = useState("");
+  const [sentTo, setSentTo] = useState("");
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF((v) => ({ ...v, [k]: e.target.value }));
 
   // Preview the renders as soon as the 3D view is ready (the same stills are sent).
@@ -33,16 +36,19 @@ export default function EmailBuild({ range, options, buildUrl, complete, missing
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault(); setError("");
-    if (!f.name.trim()) return setError("Please add your name.");
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return setError("Please add a valid email.");
+    if (!trade && !f.name.trim()) return setError("Please add your name.");
+    if (!trade && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return setError("Please add a valid email.");
     setState("sending");
     try {
       const pics = shots.length ? shots : capture();
-      const res = await fetch("/api/vanity-email", {
+      const res = await fetch(trade ? "/api/trade/vanity-email" : "/api/vanity-email", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...f, rangeId: range.id, options, buildUrl, shots: pics, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
+        body: JSON.stringify(trade
+          ? { rangeId: range.id, options, buildUrl, shots: pics, notes: f.notes }
+          : { ...f, rangeId: range.id, options, buildUrl, shots: pics, marketingConsent: consent, consentText: MARKETING_CONSENT_TEXT }),
       });
-      const j = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+      const j = (await res.json().catch(() => null)) as { ok?: boolean; error?: string; email?: string } | null;
+      if (j?.email) setSentTo(j.email);
       if (!res.ok || !j?.ok) { setState("form"); return setError(j?.error || "We could not send that just now. Please try again, or call us."); }
       setState("sent");
     } catch { setState("form"); setError("We could not send that just now. Please check your connection and try again."); }
@@ -56,8 +62,8 @@ export default function EmailBuild({ range, options, buildUrl, complete, missing
         {state === "sent" ? (
           <div className="eb-done">
             <h2 id="eb-title">On its way</h2>
-            <p>We have emailed your {range.name} to <strong>{f.email.trim()}</strong>, with the renders and everything you chose. Check your junk folder if it is not there in a few minutes.</p>
-            <p>Our team has a copy too, and may give you a quick call to help with sizes and finishes.</p>
+            <p>We have emailed your {range.name} to <strong>{trade ? sentTo || "the email on your trade account" : f.email.trim()}</strong>, with the renders, everything you chose and {trade ? "your price" : "the price"}. Check your junk folder if it is not there in a few minutes.</p>
+            <p>{trade ? "Our team has a copy too. When you are ready, add the build to your order from the builder." : "Our team has a copy too, and may give you a quick call to help with sizes and finishes."}</p>
             <button type="button" className="eb-send" onClick={onClose}>Back to my vanity</button>
           </div>
         ) : !complete ? (
@@ -69,7 +75,7 @@ export default function EmailBuild({ range, options, buildUrl, complete, missing
         ) : (
           <form onSubmit={send} noValidate>
             <h2 id="eb-title">Email me my vanity</h2>
-            <p className="eb-sub">We will send you these views of your {range.name}, everything you chose and the price, with a link back to your build.</p>
+            <p className="eb-sub">We will send you these views of your {range.name}, everything you chose and {trade ? "your trade price" : "the price"}, with a link back to your build{trade ? ", to the email on your trade account" : ""}.</p>
             <div className="eb-shots" aria-label="Your renders">
               {(shots.length ? shots : [0, 1, 2, 3].map((i) => ({ label: String(i), data: "" }))).map((s, i) => (
                 <figure key={i} className={i === 0 ? "big" : ""}>
@@ -78,15 +84,15 @@ export default function EmailBuild({ range, options, buildUrl, complete, missing
                 </figure>
               ))}
             </div>
-            <div className="eb-grid">
+            {!trade && <div className="eb-grid">
               <label><span>Name</span><input value={f.name} onChange={set("name")} autoComplete="name" required /></label>
               <label><span>Email</span><input type="email" value={f.email} onChange={set("email")} autoComplete="email" required /></label>
               <label><span>Phone <em>(optional)</em></span><input type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" /></label>
               <label><span>Suburb <em>(optional)</em></span><input value={f.suburb} onChange={set("suburb")} autoComplete="address-level2" /></label>
-            </div>
+            </div>}
             <label className="eb-notes"><span>Anything we should know? <em>(optional)</em></span><textarea rows={2} value={f.notes} onChange={set("notes")} /></label>
             <input tabIndex={-1} autoComplete="off" value={f.company} onChange={set("company")} aria-hidden="true" className="eb-hp" />
-            <MarketingConsent checked={consent} onChange={setConsent} />
+            {!trade && <MarketingConsent checked={consent} onChange={setConsent} />}
             {error && <p className="eb-err" role="alert">{error}</p>}
             <button type="submit" className="eb-send" disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Email me my vanity"}</button>
             <p className="eb-fine">Renders are an illustration only. We will only use your details to help with this vanity{consent ? " and to send you the updates you asked for" : ""}.</p>

@@ -335,6 +335,17 @@ export async function tradeSendSamples(
   return json.data;
 }
 
+/** "Email me my vanity" for the signed-in partner (their account email, their price). */
+export async function tradeVanityEmail(payload: {
+  rangeId: string;
+  options: BuildOptions;
+  buildUrl: string;
+  notes?: string;
+  shots: { label: string; data: string }[];
+}): Promise<{ email: string }> {
+  return tradeAuthed<{ ok: true; email: string }>("/vanity-builds", { method: "POST", body: payload });
+}
+
 /** Kick off a password reset email. Always resolves (OnBase returns {ok:true}). */
 export async function tradeForgot(email: string, portalUrl: string): Promise<void> {
   await tradePublic<{ ok: boolean }>("/forgot-password", {

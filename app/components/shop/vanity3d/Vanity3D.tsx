@@ -318,12 +318,13 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
           <button type="button" className="v3-complete" onClick={complete}>{trade ? "Complete and add to order" : "Complete and request a quote"}</button>
           <button type="button" className="v3-save" onClick={saveAndBack}>Save my build</button>
           <p className="v3-fine">Takes your build back to the product page, ready to add to your {trade ? "order" : "quote"}.</p>
-          {!trade && <button type="button" className="v3-save" onClick={() => setEmailOpen(true)}>Email me my vanity</button>}
+          {/* Trade partners can email it once their price is set (it is priced for them). */}
+          {(!trade || trade.pct != null) && <button type="button" className="v3-save" onClick={() => setEmailOpen(true)}>Email me my vanity</button>}
           <p className="v3-disc">The 3D view is an illustration only. Colours, timber grain, stone veining, sizes and details on screen are a guide and may differ from the real product, so please do not rely on it for an exact match. We are happy to show you real samples in the showroom.</p>
         </div>
       </aside>
-      {emailOpen && !trade && (
-        <EmailBuild
+      {emailOpen && (!trade || trade.pct != null) && (
+        <EmailBuild trade={!!trade}
           range={range} complete={priced.ok} missing={missing} ready={ready && !failed} capture={capture}
           buildUrl={`https://onwoodtiles.com.au${backHref}?${toQuery(o, sel)}`} options={sel} onClose={() => setEmailOpen(false)}
         />
