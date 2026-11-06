@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
+import { line, text } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 import { showroomAddress } from "../../../lib/content";
 
@@ -88,11 +89,10 @@ export async function POST(request: Request) {
   if (typeof b.company === "string" && b.company.trim() !== "") {
     return NextResponse.json({ ok: true });
   }
-  const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");
-  const name = str("name"), email = str("email"), phone = str("phone"), purpose = str("purpose") || "Showroom visit";
-  const when = str("when"), notes = str("notes"), startISO = str("startISO"), endISO = str("endISO");
+  const name = line(b.name, 120), email = line(b.email, 160), phone = line(b.phone, 40), purpose = line(b.purpose, 120) || "Showroom visit";
+  const when = line(b.when, 120), notes = text(b.notes, 2000), startISO = line(b.startISO, 40), endISO = line(b.endISO, 40);
   const marketingConsent = b.marketingConsent === true;
-  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentText = text(b.consentText, 600) || undefined;
   const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
   if (!name || !EMAIL_RE.test(email) || !when) return NextResponse.json({ ok: false, error: "Missing details" }, { status: 400 });
   const first = name.split(/\s+/)[0] || "there";
@@ -116,8 +116,8 @@ ${notes ? `<p><strong>Notes:</strong> ${esc(notes).replace(/\n/g, "<br>")}</p>` 
       });
       salesOk = true;
     } catch (e) { console.error("[book] sales email failed:", e); }
-    // 2) customer confirmation
-    try {
+    // 2) customer confirmation (skipped if this address has already had several today)
+    if (canEmailVisitor(email)) try {
       const contact = await getContact();
       await t.sendMail({ from: MAIL_FROM, to: email, replyTo: contact.email || SALES_TO, subject: "Your OnWood Tiles showroom visit is confirmed", html: customerHtml({ first, purpose, when, address: contact.address, phone: contact.phone, email: contact.email }) });
       custOk = true;

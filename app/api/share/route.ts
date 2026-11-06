@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_SHARE } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_SHARE } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
 import {
   composeBoardImage,
@@ -38,7 +38,7 @@ function escapeHtml(s: string): string {
 }
 
 const str = (v: unknown, max = 200) =>
-  (typeof v === "string" ? v : "").trim().slice(0, max);
+  (typeof v === "string" ? v : "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, max);
 const num = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : 0);
 
 export async function POST(request: Request) {
@@ -96,9 +96,9 @@ export async function POST(request: Request) {
       w: Math.min(3000, Math.max(300, num(boardIn.w) || 900)),
       h: Math.min(3000, Math.max(200, num(boardIn.h) || 560)),
       backdropName: str(boardIn.backdropName, 80) || null,
-      backdropUrl: typeof boardIn.backdropUrl === "string" ? boardIn.backdropUrl : null,
+      backdropUrl: typeof boardIn.backdropUrl === "string" ? boardIn.backdropUrl.slice(0, 2_000_000) : null,
       stoneName: str(boardIn.stoneName, 80) || null,
-      stoneUrl: typeof boardIn.stoneUrl === "string" ? boardIn.stoneUrl : null,
+      stoneUrl: typeof boardIn.stoneUrl === "string" ? boardIn.stoneUrl.slice(0, 2_000_000) : null,
     },
     pieces,
   };
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
   // Each returns a result (never throws) so the response can report exactly what
   // happened with the email + CRM side of the flow.
   const tasks = await Promise.all([
-    sendCustomerEmail(email, firstName, attachments),
+    canEmailVisitor(email) ? sendCustomerEmail(email, firstName, attachments) : Promise.resolve({ name: "customerEmail", ok: false, detail: "daily limit for this address" }),
     sendSalesEmail(payload, attachments),
     upsertOnBaseCustomer(payload),
     addOnConnectContact(email, firstName, lastName, consent, consentText, consentIp),

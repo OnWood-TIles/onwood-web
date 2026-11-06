@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
+import { line } from "../../../lib/formInput";
 
 export const runtime = "nodejs";
 
@@ -11,7 +12,7 @@ export const runtime = "nodejs";
 const ONBASE_API_URL = process.env.ONBASE_API_URL || "https://onbasehq.com.au";
 const ONBASE_API_KEY = process.env.ONBASE_API_KEY;
 
-const str = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(0, n) : "");
+const str = line;
 
 type InItem = { rangeId?: unknown; colour?: unknown; quantity?: unknown; areaM2?: unknown; wastePct?: unknown; options?: unknown };
 
@@ -28,7 +29,9 @@ export async function POST(request: Request) {
   const pickup = b.pickup === true;
   const addr = (b.address ?? {}) as Record<string, unknown>;
   const address = pickup ? null : { street: str(addr.street, 160), suburb: str(addr.suburb, 80), state: str(addr.state, 20), postcode: str(addr.postcode, 10) };
-  const neededBy = str(b.neededBy, 40), notes = str(b.notes, 2000);
+  const neededBy = str(b.neededBy, 40), notes = typeof b.notes === "string" ? b.notes.trim().slice(0, 2000) : "";
+  // OnBase emails this address a copy, so cap how many requests one address can trigger a day.
+  if (email && !canEmailVisitor(email, 5)) return NextResponse.json({ ok: false, error: "We already have several requests from this email today. Please call us or email sales@onwoodtiles.com.au." }, { status: 429 });
 
   // 1) OnBase: customer + draft job sheet + enquiry + bell.
   let reference = "";
@@ -39,7 +42,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({ name, email, phone, pickup, address, neededBy, notes, items: items.map((i) => ({ rangeId: i.rangeId, colour: i.colour, quantity: i.quantity, areaM2: i.areaM2, wastePct: i.wastePct, options: i.options })) }),
     });
     const j = (await res.json().catch(() => null)) as { ok?: boolean; error?: string; reference?: string; jobSheetId?: string; existingCustomer?: boolean } | null;
-    if (!res.ok || !j?.ok) return NextResponse.json({ ok: false, error: j?.error || "We could not send that just now. Please call us or email sales@onwoodtiles.com.au." }, { status: res.status === 400 ? 400 : 502 });
+    if (!res.ok || !j?.ok) return NextResponse.json({ ok: false, error: (res.status === 400 && j?.error) || "We could not send that just now. Please call us or email sales@onwoodtiles.com.au." }, { status: res.status === 400 ? 400 : 502 });
     reference = j.reference ?? "";
   } catch (err) {
     console.error("[quote-request] OnBase failed:", err);

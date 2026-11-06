@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, checkDailyCap, RL_AI } from "../../../lib/rateLimit";
 import { isAllowedImageHost } from "../../../lib/imageHosts";
+import { fetchAllowedImage, SHARP_PIXEL_LIMIT } from "../../../lib/safeImageFetch";
 import sharp from "sharp";
 import { buildImaginePrompt, type ImagineRequest } from "../../../lib/imagine";
 
@@ -23,19 +24,12 @@ const MODEL = process.env.CLOUDFLARE_AI_MODEL || "@cf/black-forest-labs/flux-1-s
 async function swatchHex(url: string | undefined, self: string): Promise<string | null> {
   if (!url || !isAllowedImageHost(url, self)) return null; // SSRF guard
   try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 3500);
-    const r = await fetch(url, {
-      signal: ctrl.signal,
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        Referer: "https://onwoodtiles.com.au/",
-      },
+    const got = await fetchAllowedImage(url, (x) => isAllowedImageHost(x, self), {
+      timeoutMs: 3500,
+      headers: { "User-Agent": "Mozilla/5.0", Referer: "https://onwoodtiles.com.au/" },
     });
-    clearTimeout(t);
-    if (!r.ok) return null;
-    const buf = Buffer.from(await r.arrayBuffer());
-    const c = (await sharp(buf).stats()).channels;
+    if (!got) return null;
+    const c = (await sharp(got.buf, { limitInputPixels: SHARP_PIXEL_LIMIT }).stats()).channels;
     if (!c || c.length < 3) return null;
     const h = (n: number) =>
       Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");

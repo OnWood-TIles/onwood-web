@@ -13,6 +13,7 @@ import sharp, { type OverlayOptions } from "sharp";
 import path from "node:path";
 import { readFile } from "node:fs/promises";
 import { isAllowedImageHost } from "./imageHosts";
+import { fetchAllowedImage } from "./safeImageFetch";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage, type Color } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 
@@ -83,7 +84,11 @@ async function resolveImg(url: string, origin: string): Promise<Buffer | null> {
   }
   const abs = url.startsWith("/") ? origin + url : url;
   if (!isAllowedImageHost(abs, origin)) return null; // SSRF guard
-  return fetchImg(abs);
+  const got = await fetchAllowedImage(abs, (x) => isAllowedImageHost(x, origin), {
+    timeoutMs: 7000,
+    headers: { "User-Agent": "Mozilla/5.0", Referer: "https://onwoodtiles.com.au/" },
+  }).catch(() => null);
+  return got?.buf ?? null;
 }
 
 // Load a bundled public/ asset. Prefer fetching it over HTTP from the origin

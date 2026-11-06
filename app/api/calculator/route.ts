@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
+import { line, text, num } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -33,17 +34,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const email = typeof b.email === "string" ? b.email.trim() : "";
+  const email = line(b.email, 160);
   if (!email || !EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
 
-  const name = typeof b.name === "string" ? b.name.trim() : "";
-  const phone = typeof b.phone === "string" ? b.phone.trim() : "";
-  const roomType = typeof b.roomType === "string" ? b.roomType.trim() : "";
-  const totalArea = typeof b.totalArea === "number" ? b.totalArea : 0;
-  const wastage = typeof b.wastage === "number" ? b.wastage : 10;
-  const toOrder = typeof b.toOrder === "number" ? b.toOrder : 0;
-  const boxes = typeof b.boxes === "number" ? b.boxes : null;
-  const cost = typeof b.cost === "number" ? b.cost : null;
+  const name = line(b.name, 120);
+  const phone = line(b.phone, 40);
+  const roomType = line(b.roomType, 60);
+  const totalArea = num(b.totalArea, 0, 100_000, 0);
+  const wastage = num(b.wastage, 0, 50, 10);
+  const toOrder = num(b.toOrder, 0, 100_000, 0);
+  const boxes = typeof b.boxes === "number" ? Math.round(num(b.boxes, 0, 100_000, 0)) : null;
+  const cost = typeof b.cost === "number" ? num(b.cost, 0, 10_000_000, 0) : null;
 
   const parts = name.split(/\s+/).filter(Boolean);
   const firstName = parts[0] || undefined;
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
 
   // Marketing consent (express, from the unticked checkbox) + audit data.
   const marketingConsent = b.marketingConsent === true;
-  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentText = text(b.consentText, 600) || undefined;
   const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
 
   // Everyone is captured (fail-open); only consenters get "Marketing" + a subscribed
@@ -83,8 +84,8 @@ export async function POST(request: Request) {
         ...(boxes != null ? ([["Boxes to order", `${boxes}`]] as [string, string][]) : []),
         ...(cost != null ? ([["Rough supply cost", `$${money(cost)}`]] as [string, string][]) : []),
       ];
-      // Customer estimate
-      await t.sendMail({ from: MAIL_FROM, to: email, subject: "Your tile estimate - OnWood Tiles", html: estimateHtml(firstName, lines, roomType) });
+      // Customer estimate (skipped if this address has already had several today)
+      if (canEmailVisitor(email)) await t.sendMail({ from: MAIL_FROM, to: email, subject: "Your tile estimate - OnWood Tiles", html: estimateHtml(firstName, lines, roomType) });
       // Showroom lead notification
       await t.sendMail({
         from: MAIL_FROM, to: ZOHO_SMTP_USER, subject: `Tile calculator lead: ${name || email}`,

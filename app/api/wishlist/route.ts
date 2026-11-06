@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
+import { line, text } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -21,6 +22,7 @@ const SITE = "https://onwoodtiles.com.au";
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 type Item = { name: string; colour?: string; href: string };
+const SAFE_PATH = /^\/(?!\/)[A-Za-z0-9\-._~/?=&%]{0,300}$/;
 
 export async function POST(request: Request) {
   const rl = checkRateLimit(request, "wishlist", RL_FORM);
@@ -34,16 +36,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const email = typeof b.email === "string" ? b.email.trim() : "";
+  const email = line(b.email, 160);
   if (!email || !EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 });
 
-  const name = typeof b.name === "string" ? b.name.trim() : "";
-  const phone = typeof b.phone === "string" ? b.phone.trim() : "";
+  const name = line(b.name, 120);
+  const phone = line(b.phone, 40);
+  // Links in the email are built as SITE + href, so href must be a plain path on our own
+  // site ("/product/x"). Anything else ("@evil.com/...", "//evil.com") would turn the
+  // "view" link into a link to another website, sent from our mailbox.
   const items: Item[] = Array.isArray(b.items)
     ? (b.items as unknown[])
-        .filter((x): x is Item => !!x && typeof x === "object" && typeof (x as Item).name === "string" && typeof (x as Item).href === "string")
+        .filter((x): x is Item => !!x && typeof x === "object" && typeof (x as Item).name === "string" && typeof (x as Item).href === "string" && SAFE_PATH.test((x as Item).href))
         .slice(0, 60)
-        .map((x) => ({ name: x.name, colour: typeof x.colour === "string" ? x.colour : undefined, href: x.href }))
+        .map((x) => ({ name: line(x.name, 120), colour: line(x.colour, 120) || undefined, href: x.href }))
     : [];
 
   const parts = name.split(/\s+/).filter(Boolean);
@@ -51,7 +56,7 @@ export async function POST(request: Request) {
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
   const marketingConsent = b.marketingConsent === true;
-  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentText = text(b.consentText, 600) || undefined;
   const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
 
   const tags = ["Saved Board", "Website Lead"];
@@ -74,7 +79,7 @@ export async function POST(request: Request) {
     try {
       const t = nodemailer.createTransport({ host: ZOHO_SMTP_HOST, port: ZOHO_SMTP_PORT, secure: ZOHO_SMTP_PORT === 465, auth: { user: ZOHO_SMTP_USER, pass: ZOHO_SMTP_PASS } });
       const list = items.map((i) => `<li style="margin:0 0 6px">${esc(i.name)}${i.colour ? ` <span style="color:#8a959b">- ${esc(i.colour)}</span>` : ""} &nbsp;<a href="${SITE}${esc(i.href)}" style="color:#1e7a8c;text-decoration:none">view</a></li>`).join("");
-      await t.sendMail({ from: MAIL_FROM, to: email, subject: "Your saved tiles - OnWood Tiles", html: boardHtml(firstName, list, items.length) });
+      if (canEmailVisitor(email)) await t.sendMail({ from: MAIL_FROM, to: email, subject: "Your saved tiles - OnWood Tiles", html: boardHtml(firstName, list, items.length) });
       await t.sendMail({
         from: MAIL_FROM, to: ZOHO_SMTP_USER, subject: `Saved-tiles lead: ${name || email} (${items.length})`,
         html: `<div style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#20303a">

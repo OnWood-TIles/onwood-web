@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, clientIp, type RateRule } from "../../../lib/rateLimit";
 import { submitReview } from "../../../lib/onbase/client";
+import { OWN_BLOB_HOST } from "../../../lib/imageHosts";
+import { line, text } from "../../../lib/formInput";
 
 // Public product-review submission. Creates a PENDING review in OnBase (moderated
 // there before it ever shows on the site). Mirrors the site's other forms: a
@@ -18,7 +20,10 @@ const RL_REVIEW: RateRule[] = [
   { limit: 20, windowMs: 86_400_000 }, // 20 per day
 ];
 
-const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+// Review photos must be ones our own upload route stored (reviews/ in this site's blob store).
+const isOwnReviewPhoto = (u: string) => {
+  try { const x = new URL(u); return x.protocol === "https:" && x.hostname === OWN_BLOB_HOST && x.pathname.startsWith("/reviews/"); } catch { return false; }
+};
 
 export async function POST(request: Request) {
   const rl = checkRateLimit(request, "reviews", RL_REVIEW);
@@ -36,19 +41,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const productId = str(b.productId);
-  const authorName = str(b.authorName);
-  const authorEmail = str(b.authorEmail);
+  const productId = line(b.productId, 60);
+  const authorName = line(b.authorName, 200);
+  const authorEmail = line(b.authorEmail, 160);
   const rating = Math.round(typeof b.rating === "number" ? b.rating : Number(b.rating));
-  const title = str(b.title);
-  const body = str(b.body);
-  const orderRef = str(b.orderRef);
+  const title = line(b.title, 140);
+  const body = text(b.body, 5000);
+  const orderRef = line(b.orderRef, 60);
 
   // Photos: only accept a short list of https urls (they come back from our own
   // upload route, which returns Vercel Blob URLs). Anything else is discarded.
   const images = Array.isArray(b.images)
     ? b.images
-        .filter((u): u is string => typeof u === "string" && /^https:\/\//i.test(u))
+        .filter((u): u is string => typeof u === "string" && isOwnReviewPhoto(u))
         .slice(0, 4)
     : [];
 

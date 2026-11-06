@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, checkDailyCap, RL_AI } from "../../../lib/rateLimit";
 import { isAllowedImageHost } from "../../../lib/imageHosts";
+import { fetchAllowedImage, SHARP_PIXEL_LIMIT } from "../../../lib/safeImageFetch";
 import crypto from "node:crypto";
 import sharp from "sharp";
 import { GoogleGenAI } from "@google/genai";
@@ -58,15 +59,15 @@ type Ref = { mimeType: string; data: string; buffer: Buffer };
 async function fetchImage(url: string, self: string): Promise<Ref | null> {
   if (!isAllowedImageHost(url, self)) return null; // SSRF guard
   try {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
+    const got = await fetchAllowedImage(url, (x) => isAllowedImageHost(x, self), {
+      timeoutMs: 8000,
       headers: { "User-Agent": "Mozilla/5.0", Referer: "https://onwoodtiles.com.au/" },
     });
-    if (!r.ok) return null;
-    const buffer = Buffer.from(await r.arrayBuffer());
+    if (!got) return null;
+    const buffer = got.buf;
     // Normalise to a modest JPEG so odd formats (webp/avif) and huge sources are
     // safe + cheap to send to Gemini.
-    const jpeg = await sharp(buffer).resize(768, 768, { fit: "inside" }).jpeg({ quality: 86 }).toBuffer();
+    const jpeg = await sharp(buffer, { limitInputPixels: SHARP_PIXEL_LIMIT }).resize(768, 768, { fit: "inside" }).jpeg({ quality: 86 }).toBuffer();
     return { mimeType: "image/jpeg", data: jpeg.toString("base64"), buffer: jpeg };
   } catch {
     return null;

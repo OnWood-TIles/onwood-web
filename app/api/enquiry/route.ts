@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
+import { line, text } from "../../../lib/formInput";
 
 // Contact-form handler. Unlike signups, an enquiry must NEVER be silently lost
 // (red-team B9): we DOUBLE-WRITE - email the enquiry to the shop inbox (the
@@ -47,12 +48,12 @@ export async function POST(request: Request) {
     if (typeof b.company === "string" && b.company.trim() !== "") {
       return NextResponse.json({ ok: true });
     }
-    name = typeof b.name === "string" ? b.name.trim() : "";
-    email = typeof b.email === "string" ? b.email.trim() : "";
-    phone = typeof b.phone === "string" ? b.phone.trim() : "";
-    message = typeof b.message === "string" ? b.message.trim() : "";
+    name = line(b.name, 120);
+    email = line(b.email, 160);
+    phone = line(b.phone, 40);
+    message = text(b.message, 5000);
     marketingConsent = b.marketingConsent === true;
-    consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+    consentText = text(b.consentText, 600) || undefined;
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
   }

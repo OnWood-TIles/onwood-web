@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
+import { line } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 // SMTP send needs the Node.js runtime (nodemailer opens a TCP socket).
@@ -57,8 +58,8 @@ export async function POST(request: Request) {
     if (typeof body.company === "string" && body.company.trim() !== "") {
       return NextResponse.json({ ok: true });
     }
-    email = typeof body.email === "string" ? body.email.trim() : "";
-    name = typeof body.name === "string" ? body.name.trim() : "";
+    email = line(body.email, 160);
+    name = line(body.name, 120);
   } catch {
     return NextResponse.json(
       { ok: false, error: "Invalid request." },
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
 
   // 2) Send a welcome email via Zoho SMTP — only once credentials are set. Fails-open:
   //    a mail hiccup must never fail the signup (they're already saved in OnConnect).
-  if (ZOHO_SMTP_PASS) {
+  if (ZOHO_SMTP_PASS && canEmailVisitor(email)) {
     try {
       const transporter = nodemailer.createTransport({
         host: ZOHO_SMTP_HOST,

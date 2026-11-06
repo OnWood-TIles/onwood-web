@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
+import { line, text } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -29,8 +30,7 @@ export async function POST(request: Request) {
   // honeypot
   if (typeof b.company === "string" && b.company.trim() !== "") return NextResponse.json({ ok: true });
 
-  const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");
-  const name = str("name"), email = str("email"), phone = str("phone"), businessName = str("businessName");
+  const name = line(b.name, 120), email = line(b.email, 160), phone = line(b.phone, 40), businessName = line(b.businessName, 160);
   const trade = b.trade === true;
   if (!name || !EMAIL_RE.test(email)) {
     return NextResponse.json({ ok: false, error: "Please add your name and a valid email." }, { status: 400 });
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
   const marketingConsent = b.marketingConsent === true;
-  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentText = text(b.consentText, 600) || undefined;
   const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
   const tags = ["Showroom Interest", "Website Lead"];
   if (trade) tags.push("Trade Partner Early Access");
@@ -78,8 +78,8 @@ ${trade ? `<p><strong>Trade Partner early access:</strong> YES${businessName ? `
     } catch (err) { console.error(`[showroom] shop email failed for ${email}:`, err); }
   }
 
-  // 3) Customer acknowledgement (best-effort).
-  if (ZOHO_PASS) {
+  // 3) Customer acknowledgement (best-effort; skipped if this address has already had several today).
+  if (ZOHO_PASS && canEmailVisitor(email)) {
     try {
       const t = nodemailer.createTransport({ host: ZOHO_HOST, port: ZOHO_PORT, secure: ZOHO_PORT === 465, auth: { user: ZOHO_USER, pass: ZOHO_PASS } });
       await t.sendMail({

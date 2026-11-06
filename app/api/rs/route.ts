@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { isAllowedImageHost } from "../../../lib/imageHosts";
 import { snapWidth } from "../../../lib/rs";
+import { fetchAllowedImage, SHARP_PIXEL_LIMIT } from "../../../lib/safeImageFetch";
 
 // Image resizer behind lib/rs.ts: fetches a catalogue image, shrinks it to the requested width
 // step and returns WebP. The response is immutable (source URLs carry their own version stamps),
@@ -18,7 +19,9 @@ export async function GET(req: Request) {
 
   let src: string;
   try { src = new URL(u, url.origin).toString(); } catch { return new NextResponse("bad url", { status: 400 }); }
-  if (!isAllowedImageHost(src, url.origin)) return new NextResponse("bad url", { status: 400 });
+  // Never our own /api/ routes (a request could otherwise nest image calls inside each other).
+  const ok = (x: string) => isAllowedImageHost(x, url.origin) && !new URL(x).pathname.startsWith("/api/");
+  if (!ok(src)) return new NextResponse("bad url", { status: 400 });
 
   const original = () => {
     const res = NextResponse.redirect(src, 302);
@@ -27,9 +30,9 @@ export async function GET(req: Request) {
   };
 
   try {
-    const r = await fetch(src, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(9000) });
-    if (!r.ok) return original();
-    const out = await sharp(Buffer.from(await r.arrayBuffer()))
+    const got = await fetchAllowedImage(src, ok, { headers: { "User-Agent": "Mozilla/5.0" } });
+    if (!got) return original();
+    const out = await sharp(got.buf, { limitInputPixels: SHARP_PIXEL_LIMIT })
       .rotate() // honour camera orientation before EXIF is dropped
       .resize({ width: w, withoutEnlargement: true })
       .webp({ quality: q })

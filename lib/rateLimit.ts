@@ -65,6 +65,14 @@ export function checkDailyCap(scope: string, limit: number, message: string): Ne
   return null;
 }
 
+/** May we email an address a visitor typed into a form? At most `perAddress` emails per
+ *  address per day plus a site-wide daily ceiling, so the forms can't be used to flood
+ *  someone's inbox from our mailbox (best-effort, per instance like the rest of this file). */
+export function canEmailVisitor(email: string, perAddress = 3): boolean {
+  if (!rateLimit(`mailto:${email.toLowerCase()}`, perAddress, 86_400_000).ok) return false;
+  return rateLimit("mailto:global:day", 400, 86_400_000).ok;
+}
+
 // Per-endpoint window presets (per IP unless noted).
 export const RL_FORM: RateRule[] = [{ limit: 5, windowMs: 60_000 }, { limit: 30, windowMs: 3_600_000 }];
 export const RL_SHARE: RateRule[] = [{ limit: 3, windowMs: 60_000 }, { limit: 15, windowMs: 3_600_000 }];

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { list, put } from "@vercel/blob";
 import crypto from "node:crypto";
+import { fetchAllowedImage } from "../../../lib/safeImageFetch";
+import { rateLimit, clientIp } from "../../../lib/rateLimit";
 
 // Self-hosting image proxy. Supplier product photos (e.g. ABI on
 // abiinteriors.com.au) are hotlinked in the OnBase feed; if the supplier
@@ -10,8 +12,10 @@ import crypto from "node:crypto";
 // the supplier's URLs staying put. Fails open to the original on any error.
 export const runtime = "nodejs";
 
-// Only cache images from the known catalogue hosts (SSRF guard).
-const ALLOW = /^https:\/\/([a-z0-9-]+\.)?(abiinteriors\.com\.au|marquis\.com\.au|onbasehq\.com\.au|onwoodtiles\.com\.au)\//i;
+// Only cache images from the supplier hosts lib/onbase/client.ts routes through here
+// (SSRF guard; our own images are already self-hosted and never come this way).
+const ALLOW = /^https:\/\/([a-z0-9-]+\.)?(abiinteriors\.com\.au|marquis\.com\.au)\//i;
+const allowed = (u: string) => ALLOW.test(u);
 const WEEK = 604800;
 
 export async function GET(req: Request) {
@@ -38,15 +42,18 @@ export async function GET(req: Request) {
     /* no token / transient — fall through and try to fetch + cache */
   }
 
-  // 2) Fetch the original, store our own copy, redirect to it.
+  // 2) Fetch the original, store our own copy, redirect to it. New copies are limited per
+  //    visitor and per day, so nobody can fill our storage by inventing image addresses.
+  if (!rateLimit(`img-miss:${clientIp(req)}`, 120, 600_000).ok || !rateLimit("img-miss:global:day", 3000, 86_400_000).ok) {
+    return NextResponse.redirect(u, 302);
+  }
   try {
-    const r = await fetch(u, {
+    const got = await fetchAllowedImage(u, allowed, {
       headers: { "User-Agent": "Mozilla/5.0", Referer: "https://onwoodtiles.com.au/" },
-      signal: AbortSignal.timeout(9000),
     });
-    if (!r.ok) return NextResponse.redirect(u, 302);
-    const buf = Buffer.from(await r.arrayBuffer());
-    const contentType = r.headers.get("content-type") || `image/${ext === "jpg" ? "jpeg" : ext}`;
+    if (!got) return NextResponse.redirect(u, 302);
+    const buf = got.buf;
+    const contentType = got.contentType.startsWith("image/") ? got.contentType : `image/${ext === "jpg" ? "jpeg" : ext}`;
     try {
       const saved = await put(pathname, buf, {
         access: "public",

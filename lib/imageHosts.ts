@@ -4,13 +4,19 @@
 // body (the AI room visualiser references, the Flux swatch colours, the mood-
 // board share). Without a check, an attacker could POST an internal URL
 // (169.254.x, localhost:<other-port>, a private service) and make OUR server
-// fetch it. This central allowlist mirrors next.config.ts images.remotePatterns
-// and the /api/tile allowlist: only the known catalogue image hosts (plus our
-// own origin, so relative URLs resolved against this deployment still work in
-// dev + prod) may be fetched.
+// fetch it. This central allowlist mirrors the /api/tile allowlist: only the
+// known catalogue image hosts (plus our own origin, so relative URLs resolved
+// against this deployment still work in dev + prod) may be fetched.
+//
+// Blob storage is pinned to OUR two stores (OnBase uploads + this site's own
+// image cache / review photos) - "any *.public.blob.vercel-storage.com" would
+// let anyone point the resizer at files in their own Vercel account.
 
 const ALLOWED_HOST =
-  /^([a-z0-9-]+\.)*(onwoodtiles\.com\.au|onbasehq\.com\.au|abiinteriors\.com\.au|supabase\.co|public\.blob\.vercel-storage\.com)$/i;
+  /^(([a-z0-9-]+\.)*(onwoodtiles\.com\.au|onbasehq\.com\.au|abiinteriors\.com\.au|marquis\.com\.au)|jwxkc2x6hmfp0lqp\.public\.blob\.vercel-storage\.com|tzfi4dlc6lrdan9a\.public\.blob\.vercel-storage\.com)$/i;
+
+/** This site's own blob store (image cache + review photo uploads). */
+export const OWN_BLOB_HOST = "tzfi4dlc6lrdan9a.public.blob.vercel-storage.com";
 
 /**
  * True if `url` is safe to fetch server-side.
@@ -26,6 +32,7 @@ export function isAllowedImageHost(url: string, selfOrigin?: string): boolean {
   } catch {
     return false;
   }
+  if (u.username || u.password) return false;
   // Our own origin (covers "/relative" paths resolved against this deployment).
   if (selfOrigin && u.origin === selfOrigin) return true;
   // Everything else must be https to a known catalogue image host.

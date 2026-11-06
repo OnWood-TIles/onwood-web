@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
+import { createHash, timingSafeEqual } from "node:crypto";
+
+// Constant-time compare (hash both so lengths always match).
+const same = (a: string, b: string) => timingSafeEqual(createHash("sha256").update(a).digest(), createHash("sha256").update(b).digest());
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +15,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   const secret = process.env.WEBSITE_REVALIDATE_SECRET;
   if (!secret) return NextResponse.json({ error: "Revalidation not configured" }, { status: 503 });
-  if (req.headers.get("x-revalidate-secret") !== secret) {
+  if (!same(req.headers.get("x-revalidate-secret") ?? "", secret)) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
   for (const tag of ["ranges", "taxonomy", "nav"]) revalidateTag(tag, "max");

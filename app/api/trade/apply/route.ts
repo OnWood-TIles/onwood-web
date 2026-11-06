@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, RL_FORM } from "../../../../lib/rateLimit";
+import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../../lib/rateLimit";
+import { line, text } from "../../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -30,9 +31,8 @@ export async function POST(request: Request) {
   if (typeof b.company === "string" && b.company.trim() !== "") {
     return NextResponse.json({ ok: true });
   }
-  const str = (k: string) => (typeof b[k] === "string" ? (b[k] as string).trim() : "");
-  const name = str("name"), email = str("email"), phone = str("phone");
-  const businessName = str("businessName"), abn = str("abn"), tradeType = str("tradeType"), message = str("message");
+  const name = line(b.name, 120), email = line(b.email, 160), phone = line(b.phone, 40);
+  const businessName = line(b.businessName, 160), abn = line(b.abn, 20), tradeType = line(b.tradeType, 80), message = text(b.message, 3000);
   if (!name || !businessName || !EMAIL_RE.test(email)) {
     return NextResponse.json({ ok: false, error: "Please add your name, business name and a valid email." }, { status: 400 });
   }
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   const lastName = parts.length > 1 ? parts.slice(1).join(" ") : undefined;
 
   const marketingConsent = b.marketingConsent === true;
-  const consentText = typeof b.consentText === "string" ? b.consentText : undefined;
+  const consentText = text(b.consentText, 600) || undefined;
   const consentIp = (request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "").trim() || undefined;
   const tags = ["Trade Application", "Website Lead"];
   if (marketingConsent) tags.push("Marketing");
@@ -82,8 +82,8 @@ ${message ? `<p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>
     } catch (err) { console.error(`[trade-apply] OnConnect failed for ${email}:`, err); }
   }
 
-  // Customer acknowledgement (best-effort).
-  if (ZOHO_PASS) {
+  // Customer acknowledgement (best-effort; skipped if this address has already had several today).
+  if (ZOHO_PASS && canEmailVisitor(email)) {
     try {
       const t = nodemailer.createTransport({ host: ZOHO_HOST, port: ZOHO_PORT, secure: ZOHO_PORT === 465, auth: { user: ZOHO_USER, pass: ZOHO_PASS } });
       await t.sendMail({

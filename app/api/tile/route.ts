@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { cutout } from "../../../lib/tileCutout";
+import { fetchAllowedImage, SHARP_PIXEL_LIMIT } from "../../../lib/safeImageFetch";
 
 // On-demand tile-image trimmer. The catalogue tile photos are shot on a big white
 // canvas (ABI / Tile One house style), so in the Vision Board + hero mood-boards a
@@ -15,15 +16,16 @@ const ALLOW = /^https:\/\/([a-z0-9-]+\.)?(onwoodtiles\.com\.au|onbasehq\.com\.au
 
 export async function GET(req: Request) {
   const u = new URL(req.url).searchParams.get("u") || "";
-  if (!ALLOW.test(u)) return new NextResponse("bad url", { status: 400 });
+  // Never our own /api/ routes (a request could otherwise nest image calls inside each other).
+  if (!ALLOW.test(u) || /^https:\/\/[^/]+\/api\//i.test(u)) return new NextResponse("bad url", { status: 400 });
   try {
-    const r = await fetch(u, {
+    const got = await fetchAllowedImage(u, (x) => ALLOW.test(x) && !/^https:\/\/[^/]+\/api\//i.test(x), {
+      timeoutMs: 8000,
       headers: { "User-Agent": "Mozilla/5.0", Referer: "https://onwoodtiles.com.au/" },
-      signal: AbortSignal.timeout(8000),
     });
-    if (!r.ok) return NextResponse.redirect(u);
-    const buf = Buffer.from(await r.arrayBuffer());
-    const meta = await sharp(buf).metadata();
+    if (!got) return NextResponse.redirect(u);
+    const buf = got.buf;
+    const meta = await sharp(buf, { limitInputPixels: SHARP_PIXEL_LIMIT }).metadata();
     const ow = meta.width || 0, oh = meta.height || 0;
     let src: Buffer = buf;
     try {
