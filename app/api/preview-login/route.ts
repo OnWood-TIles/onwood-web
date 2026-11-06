@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -16,6 +17,9 @@ function safeNext(v: unknown): string {
 // Exchanges the shared staff password for a preview cookie that the proxy gate
 // recognises. On success -> redirect to the site; on failure -> back to /staff.
 export async function POST(request: Request) {
+  // Guessing the staff password is throttled (5 a minute, 30 an hour per address).
+  const limited = checkRateLimit(request, "preview-login", RL_FORM);
+  if (limited) return limited;
   const password = process.env.PREVIEW_PASSWORD || "";
   const token = process.env.PREVIEW_TOKEN || "";
 
