@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { cspHeaders } from "./lib/csp";
 
 const nextConfig: NextConfig = {
   images: {
@@ -39,9 +40,8 @@ const nextConfig: NextConfig = {
       { source: "/brands", destination: "/brands/marquis", permanent: false },
     ];
   },
-  // Baseline security headers on every response. (No CSP here yet — a strict
-  // Content-Security-Policy needs per-route testing against Next's inline
-  // bootstrap + JSON-LD + data: images before it can go live safely.)
+  // Baseline security headers on every response, plus the Content-Security-Policy
+  // (lib/csp.ts; report-only while it is tuned, production deploys only).
   async headers() {
     return [
       {
@@ -63,6 +63,7 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
           },
+          ...(process.env.VERCEL_ENV === "production" ? cspHeaders() : []),
         ],
       },
     ];
