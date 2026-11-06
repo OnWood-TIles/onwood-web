@@ -341,8 +341,10 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   const openL = ends.includes(-1), openR = ends.includes(1), bx0 = xL + (openL ? 0 : P), bx1 = xR - (openR ? 0 : P);
   // An open shelf under the drawers (Oxford, Merewether) is finished inside like the outside, as Marquis builds it.
   const inner = meta.shelf === "below" ? finishPlain(Wc, carD) : carcassInner;
-  if (!openL) slab(P, H, carD, xL + P / 2, y0 + H / 2, zBack + carD / 2, [inner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
-  if (!openR) slab(P, H, carD, xR - P / 2, y0 + H / 2, zBack + carD / 2, [fSide, inner, fEdge, carcassInner, fEdge, carcassInner]);
+  // Inset fronts (Merewether): the sides come forward to the face of the fronts, which sit between them.
+  const inset = !!meta.insetFronts && !sideW, sideD = inset ? carD + frontT : carD;
+  if (!openL) slab(P, H, sideD, xL + P / 2, y0 + H / 2, zBack + sideD / 2, [inner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
+  if (!openR) slab(P, H, sideD, xR - P / 2, y0 + H / 2, zBack + sideD / 2, [fSide, inner, fEdge, carcassInner, fEdge, carcassInner]);
   slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + P / 2, zBack + carD / 2, [carcassInner, carcassInner, inner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
   slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + H - P / 2, zBack + carD / 2);
   slab(bx1 - bx0, H - 2 * P, 0.006, (bx0 + bx1) / 2, y0 + H / 2, zBack + 0.003, inner);
@@ -360,7 +362,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
     const m = new THREE.Mesh(geo, mat); if (side < 0) m.scale.x = -1; // mirrored for the left end (three flips the face winding)
     m.position.set(x, y, zBack); m.castShadow = m.receiveShadow = true; group.add(m); return m;
   };
-  const fx0 = -Wc / 2 + sideW + (ends.includes(-1) ? endW : 0), fx1 = Wc / 2 - sideW - (ends.includes(1) ? endW : 0);
+  const fx0 = -Wc / 2 + sideW + (ends.includes(-1) ? endW : 0) + (inset && !openL ? P : 0), fx1 = Wc / 2 - sideW - (ends.includes(1) ? endW : 0) - (inset && !openR ? P : 0);
   const fyTop = y0 + H - recess - rail, fyFull = y0;
   const shelfBelow = meta.shelf === "below";
   const fyBot = shelfBelow ? fyFull + (fyTop - fyFull) * 0.47 : fyFull;
@@ -426,10 +428,12 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
     else obj.position.set(0, h / 2 - Math.min(0.05, h * 0.28), frontT / 2);
     parent.add(obj);
   }
-  // Dividers between drawer stacks / door compartments.
+  // Dividers between drawer stacks / door compartments. Over an open shelf they stop at the shelf:
+  // the shelf has its own evenly spaced bays (Merewether 8 / 11: three equal shelves, no centre panel).
+  const divBot = shelfBelow ? fyBot + P / 2 : y0 + P, divTop = y0 + H - P;
   for (let c = 0; c < seq.length - 1; c++) {
     if (seq[c] === "door" && seq[c + 1] === "door") continue;
-    slab(P, H - 2 * P, carD - 0.02, fx0 + gap + (c + 1) * (colW + gap) - gap / 2, y0 + H / 2, zBack + 0.006 + (carD - 0.02) / 2, inner); // seen through an open shelf
+    slab(P, divTop - divBot, carD - 0.02, fx0 + gap + (c + 1) * (colW + gap) - gap / 2, (divBot + divTop) / 2, zBack + 0.006 + (carD - 0.02) / 2, inner);
   }
   // A drawer box (the top one under a basin notched round the plumbing: 90 x 200mm).
   function drawerBox(parent: THREE.Object3D, w: number, h: number, notchX: number | null) {

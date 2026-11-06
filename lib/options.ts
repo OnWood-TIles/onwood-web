@@ -32,6 +32,7 @@ export interface DrawMeta {
   splitFrom?: number; // all-drawer fronts split into 2 columns from this width (mm), e.g. Nelson 1500
   doorHandle?: "top"; // door handles run across the top of the door (Marq, Hamilton) instead of up the side
   shelf?: "below" | "ends"; // open shelf under the drawer (Oxford) / open shelf ends (Avion)
+  insetFronts?: boolean; // the fronts sit between the side panels, flush with their front edges (Merewether)
   shelfSide?: "left" | "right"; // which end the single open shelf sits
   // Measurements from the supplier's spec sheets (mm). Heights are the CABINET only: the
   // benchtop sits on top and is added from its own thickness.
