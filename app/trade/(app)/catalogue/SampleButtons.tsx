@@ -8,10 +8,11 @@ import type { Swatch, WebsiteRange } from "../../../../lib/onbase/client";
 import { MAX_SAMPLES, useSamples, type SampleLine } from "../SamplesProvider";
 
 // "Add sample" for the trade catalogue: a free single-tile sample per colour, collected in the
-// sample request (/trade/samples), apart from the order cart. Not offered on made-to-order
-// ranges (a vanity has no single sample).
+// sample request (/trade/samples), apart from the order cart. Tiles only: no other department
+// (stone cladding, pavers, vanities...) offers samples. OnBase enforces the same rule.
 
-const sampleSwatches = (range: WebsiteRange): Swatch[] => (range.priceFrom ? [] : range.swatches.filter((s) => s.trade));
+const canSample = (range: WebsiteRange) => range.department === "tiles" && !range.priceFrom;
+const sampleSwatches = (range: WebsiteRange): Swatch[] => (canSample(range) ? range.swatches.filter((s) => s.trade) : []);
 
 export const sampleLine = (range: WebsiteRange, s: Swatch): SampleLine => ({
   productId: s.trade!.productId,
@@ -24,7 +25,7 @@ export const sampleLine = (range: WebsiteRange, s: Swatch): SampleLine => ({
 /** One colourway: tap to add, tap again to remove. */
 export function SampleToggle({ range, swatch, big }: { range: WebsiteRange; swatch: Swatch | undefined; big?: boolean }) {
   const { has, toggle, count } = useSamples();
-  if (!swatch?.trade || range.priceFrom) return null;
+  if (!swatch?.trade || !canSample(range)) return null;
   const line = sampleLine(range, swatch);
   const on = has(line.productId, line.colour);
   const full = !on && count >= MAX_SAMPLES;

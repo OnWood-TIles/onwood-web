@@ -31,7 +31,7 @@ export default function SamplesView() {
     return (
       <div style={emptyBox}>
         <p style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 19, margin: 0 }}>No samples picked yet</p>
-        <p style={{ color: "#5a6067", fontSize: 14.5, margin: "10px 0 18px" }}>Use &ldquo;Add sample&rdquo; on any tile in the catalogue, then send your request from here.</p>
+        <p style={{ color: "#5a6067", fontSize: 14.5, margin: "10px 0 18px" }}>Use &ldquo;Add sample&rdquo; on any tile in the Tiles catalogue, then send your request from here.</p>
         <Link href="/trade/catalogue" style={primaryLink}>Browse the catalogue &rarr;</Link>
       </div>
     );

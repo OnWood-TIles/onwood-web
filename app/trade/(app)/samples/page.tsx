@@ -10,7 +10,7 @@ export default function SamplesPage() {
     <div>
       <PageHeading
         title="Your sample request"
-        sub="Free single-tile samples for your showroom or your clients. Each one comes labelled with the tile name and details."
+        sub="Free single-tile samples of our tiles, for your showroom or your clients. Each one comes labelled with the tile name and details."
       />
       <SamplesView />
     </div>
