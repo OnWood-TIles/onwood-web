@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
-import { line } from "../../../lib/formInput";
+import { line, maskEmail } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 // SMTP send needs the Node.js runtime (nodemailer opens a TCP socket).
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
         );
       }
     } catch (err) {
-      console.error(`[subscribe] OnConnect request failed for ${email}:`, err);
+      console.error(`[subscribe] OnConnect request failed for ${maskEmail(email)}:`, err);
     }
   } else {
     console.error(
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
         html: welcomeEmailHtml(firstName),
       });
     } catch (err) {
-      console.error(`[subscribe] Zoho welcome email failed for ${email}:`, err);
+      console.error(`[subscribe] Zoho welcome email failed for ${maskEmail(email)}:`, err);
     }
   }
 

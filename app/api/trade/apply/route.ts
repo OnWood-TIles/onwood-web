@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../../lib/rateLimit";
-import { line, text } from "../../../../lib/formInput";
+import { line, text, maskEmail } from "../../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -67,7 +67,7 @@ ${message ? `<p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>
 <p style="color:#8a959b;font-size:13px">Marketing consent: ${marketingConsent ? "GIVEN" : "not given"}.</p>`,
       });
       emailed = true;
-    } catch (err) { console.error(`[trade-apply] email failed for ${email}:`, err); }
+    } catch (err) { console.error(`[trade-apply] email failed for ${maskEmail(email)}:`, err); }
   }
 
   // 2) OnConnect contact (fail-open).
@@ -78,8 +78,8 @@ ${message ? `<p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
         body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, businessName, tags, marketingConsent, consentText, consentSource: "Trade Partner application (onwoodtiles.com.au/trade/apply)", consentIp }),
       });
-      if (!res.ok) console.error(`[trade-apply] OnConnect ${res.status} for ${email}: ${await res.text().catch(() => "")}`);
-    } catch (err) { console.error(`[trade-apply] OnConnect failed for ${email}:`, err); }
+      if (!res.ok) console.error(`[trade-apply] OnConnect ${res.status} for ${maskEmail(email)}: ${await res.text().catch(() => "")}`);
+    } catch (err) { console.error(`[trade-apply] OnConnect failed for ${maskEmail(email)}:`, err); }
   }
 
   // Customer acknowledgement (best-effort; skipped if this address has already had several today).
@@ -94,7 +94,7 @@ ${message ? `<p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>
 <p>Any questions in the meantime, just reply to this email or call the Baringa showroom.</p>
 <p>The OnWood Tiles team</p></div>`,
       });
-    } catch (err) { console.error(`[trade-apply] ack email failed for ${email}:`, err); }
+    } catch (err) { console.error(`[trade-apply] ack email failed for ${maskEmail(email)}:`, err); }
   }
 
   if (!emailed && !ONBASE_API_KEY) {

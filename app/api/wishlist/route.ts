@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
-import { line, text } from "../../../lib/formInput";
+import { line, text, maskEmail } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -69,10 +69,10 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
         body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, tags, marketingConsent, consentText, consentSource: "Saved tiles / wishlist (onwoodtiles.com.au/saved)", consentIp }),
       });
-      if (!res.ok) console.error(`[wishlist] OnConnect ${res.status} for ${email}: ${await res.text().catch(() => "")}`);
-    } catch (err) { console.error(`[wishlist] OnConnect failed for ${email}:`, err); }
+      if (!res.ok) console.error(`[wishlist] OnConnect ${res.status} for ${maskEmail(email)}: ${await res.text().catch(() => "")}`);
+    } catch (err) { console.error(`[wishlist] OnConnect failed for ${maskEmail(email)}:`, err); }
   } else {
-    console.error(`[wishlist] ONBASE_API_KEY not set — lead not forwarded. Email: ${email}`);
+    console.error(`[wishlist] ONBASE_API_KEY not set — lead not forwarded. Email: ${maskEmail(email)}`);
   }
 
   if (ZOHO_SMTP_PASS) {
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
           <ul style="margin:8px 0;padding-left:18px">${list || "<li>(none)</li>"}</ul>
           <p style="margin:8px 0 0;color:#8a959b">Tags: ${esc(tags.join(", "))}</p></div>`,
       });
-    } catch (err) { console.error(`[wishlist] email failed for ${email}:`, err); }
+    } catch (err) { console.error(`[wishlist] email failed for ${maskEmail(email)}:`, err); }
   }
 
   return NextResponse.json({ ok: true });

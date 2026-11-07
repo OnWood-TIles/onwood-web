@@ -12,3 +12,9 @@ export const text = (v: unknown, max: number): string =>
 /** A finite number clamped to [min, max], else `fallback`. */
 export const num = (v: unknown, min: number, max: number, fallback: number): number =>
   typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : fallback;
+
+/** An email address for server logs: enough to recognise ("j***@gmail.com"), not the whole thing. */
+export const maskEmail = (email: string): string => {
+  const [user, domain] = email.split("@");
+  return domain ? `${(user || "").slice(0, 1)}***@${domain}` : "***";
+};

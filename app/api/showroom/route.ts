@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
-import { line, text } from "../../../lib/formInput";
+import { line, text, maskEmail } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -55,10 +55,10 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
         body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, businessName: businessName || undefined, tags, marketingConsent, consentText, consentSource: "Showroom interest (onwoodtiles.com.au/showroom)", consentIp }),
       });
-      if (!res.ok) console.error(`[showroom] OnConnect ${res.status} for ${email}: ${await res.text().catch(() => "")}`);
-    } catch (err) { console.error(`[showroom] OnConnect failed for ${email}:`, err); }
+      if (!res.ok) console.error(`[showroom] OnConnect ${res.status} for ${maskEmail(email)}: ${await res.text().catch(() => "")}`);
+    } catch (err) { console.error(`[showroom] OnConnect failed for ${maskEmail(email)}:`, err); }
   } else {
-    console.error(`[showroom] ONBASE_API_KEY not set — lead not forwarded. Email: ${email}`);
+    console.error(`[showroom] ONBASE_API_KEY not set — lead not forwarded. Email: ${maskEmail(email)}`);
   }
 
   // 2) Notify the shop (best-effort).
@@ -75,7 +75,7 @@ ${phone ? `<p><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
 ${trade ? `<p><strong>Trade Partner early access:</strong> YES${businessName ? ` — ${esc(businessName)}` : ""}</p>` : ""}
 <p style="color:#8a959b;font-size:13px">Tags: ${esc(tags.join(", "))}. Marketing consent: ${marketingConsent ? "GIVEN" : "not given"}.</p>`,
       });
-    } catch (err) { console.error(`[showroom] shop email failed for ${email}:`, err); }
+    } catch (err) { console.error(`[showroom] shop email failed for ${maskEmail(email)}:`, err); }
   }
 
   // 3) Customer acknowledgement (best-effort; skipped if this address has already had several today).
@@ -91,7 +91,7 @@ ${trade ? "<p>We&rsquo;ve also noted your interest in becoming a <strong>Trade P
 <p>In the meantime you can shop the full range online anytime at <a href="https://onwoodtiles.com.au/shop" style="color:#d06a45;text-decoration:none;">onwoodtiles.com.au</a>.</p>
 <p>Talk soon,<br/>The OnWood Tiles team</p></div>`,
       });
-    } catch (err) { console.error(`[showroom] ack email failed for ${email}:`, err); }
+    } catch (err) { console.error(`[showroom] ack email failed for ${maskEmail(email)}:`, err); }
   }
 
   return NextResponse.json({ ok: true });

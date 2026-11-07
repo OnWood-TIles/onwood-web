@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, canEmailVisitor, RL_FORM } from "../../../lib/rateLimit";
-import { line, text, num } from "../../../lib/formInput";
+import { line, text, num, maskEmail } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
@@ -68,10 +68,10 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ONBASE_API_KEY}` },
         body: JSON.stringify({ email, firstName, lastName, phone: phone || undefined, tags, marketingConsent, consentText, consentSource: "Tile Calculator (onwoodtiles.com.au/calculator)", consentIp }),
       });
-      if (!res.ok) console.error(`[calculator] OnConnect ${res.status} for ${email}: ${await res.text().catch(() => "")}`);
-    } catch (err) { console.error(`[calculator] OnConnect failed for ${email}:`, err); }
+      if (!res.ok) console.error(`[calculator] OnConnect ${res.status} for ${maskEmail(email)}: ${await res.text().catch(() => "")}`);
+    } catch (err) { console.error(`[calculator] OnConnect failed for ${maskEmail(email)}:`, err); }
   } else {
-    console.error(`[calculator] ONBASE_API_KEY not set — lead not forwarded. Email: ${email}`);
+    console.error(`[calculator] ONBASE_API_KEY not set — lead not forwarded. Email: ${maskEmail(email)}`);
   }
 
   // 2) Emails (fail-open; dormant until ZOHO_SMTP_PASS is set).
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
           <ul style="margin:8px 0;padding-left:18px">${lines.map(([k, v]) => `<li>${esc(k)}: <strong>${esc(v)}</strong></li>`).join("")}</ul>
           <p style="margin:8px 0 0;color:#8a959b">Tags: ${esc(tags.join(", "))}</p></div>`,
       });
-    } catch (err) { console.error(`[calculator] email failed for ${email}:`, err); }
+    } catch (err) { console.error(`[calculator] email failed for ${maskEmail(email)}:`, err); }
   }
 
   return NextResponse.json({ ok: true });

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, canEmailVisitor, RL_SHARE } from "../../../lib/rateLimit";
+import { maskEmail } from "../../../lib/formInput";
 import nodemailer from "nodemailer";
 import {
   composeBoardImage,
@@ -174,7 +175,7 @@ async function sendCustomerEmail(email: string, firstName: string | undefined, a
       html: customerEmailHtml(firstName, Boolean(attachments)),
       attachments,
     });
-    return { name: "customerEmail", ok: true, detail: `to ${email} | ${String(info?.response || "").slice(0, 120)}` };
+    return { name: "customerEmail", ok: true, detail: `to ${maskEmail(email)} | ${String(info?.response || "").slice(0, 120)}` };
   } catch (e) {
     return { name: "customerEmail", ok: false, detail: String(e).slice(0, 300) };
   }

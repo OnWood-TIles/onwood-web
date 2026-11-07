@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, RL_FORM } from "../../../lib/rateLimit";
 import nodemailer from "nodemailer";
-import { line, text } from "../../../lib/formInput";
+import { line, text, maskEmail } from "../../../lib/formInput";
 
 // Contact-form handler. Unlike signups, an enquiry must NEVER be silently lost
 // (red-team B9): we DOUBLE-WRITE - email the enquiry to the shop inbox (the
@@ -99,7 +99,7 @@ ${phone ? `<p><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
       });
       emailed = true;
     } catch (err) {
-      console.error(`[enquiry] email failed for ${email}:`, err);
+      console.error(`[enquiry] email failed for ${maskEmail(email)}:`, err);
     }
   }
 
@@ -116,10 +116,10 @@ ${phone ? `<p><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
       });
       crmed = res.ok;
       if (!res.ok) {
-        console.error(`[enquiry] OnConnect ${res.status} for ${email}`);
+        console.error(`[enquiry] OnConnect ${res.status} for ${maskEmail(email)}`);
       }
     } catch (err) {
-      console.error(`[enquiry] OnConnect failed for ${email}:`, err);
+      console.error(`[enquiry] OnConnect failed for ${maskEmail(email)}:`, err);
     }
   }
 
