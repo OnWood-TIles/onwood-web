@@ -10,12 +10,12 @@ export type BrochureContact = {
   website: string; address: string; phone: string; email: string; hours: string; abn: string; bookUrl: string;
 };
 
-const INK = "#20303a", MUTED = "#6b7a80", CREAM = "#fbfaf6", CARD = "#FBF8F1", TEAL = "#1e7a8c", TERRA = "#d06a45", DEEP = "#0e1a20", LINE = "rgba(32,48,58,.12)";
-const PH = "repeating-linear-gradient(135deg,#f0eae0 0 9px,#e7e0d2 9px 18px)";
+export const INK = "#20303a", MUTED = "#6b7a80", CREAM = "#fbfaf6", CARD = "#FBF8F1", TEAL = "#1e7a8c", TERRA = "#d06a45", DEEP = "#0e1a20", LINE = "rgba(32,48,58,.12)";
+export const PH = "repeating-linear-gradient(135deg,#f0eae0 0 9px,#e7e0d2 9px 18px)";
 
 // Image with an on-image colour caption. White text on a translucent dark chip
 // (blurred) so the label stays legible over any photo, per Reagan's request.
-function Img({ src, alt, caption, captionPos = "bl", radius, fit = "cover" }: { src: string | null; alt: string; caption?: string | null; captionPos?: "bl" | "tr"; radius?: number; fit?: "cover" | "contain" }) {
+export function Img({ src, alt, caption, captionPos = "bl", radius, fit = "cover" }: { src: string | null; alt: string; caption?: string | null; captionPos?: "bl" | "tr"; radius?: number; fit?: "cover" | "contain" }) {
   const cpos = captionPos === "tr" ? { top: 12, right: 12 } : { left: 9, bottom: 9 };
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: radius }}>
@@ -27,21 +27,19 @@ function Img({ src, alt, caption, captionPos = "bl", radius, fit = "cover" }: { 
   );
 }
 
-const Foot = ({ web, mid, n }: { web: string; mid: string; n: number }) => (
+export const Foot = ({ web, mid, n }: { web: string; mid: string; n: number }) => (
   <div className="foot"><span style={{ fontWeight: 700, color: INK, letterSpacing: ".13em" }}>{web}</span><span>{mid}</span><span>{n}</span></div>
 );
 
 // Real OnWood logo: white lockup on dark backgrounds, dark ink on light.
-const Logo = ({ onDark, h }: { onDark?: boolean; h: number }) => (
+export const Logo = ({ onDark, h }: { onDark?: boolean; h: number }) => (
   <img src={onDark ? "/onwood-logo-white.png" : "/onwood-logo-ink-tight.png"} alt="OnWood Tiles" style={{ height: h, width: "auto", display: "block" }} />
 );
 
-export default function FamilyBrochure({ data, contact }: { data: BrochureData; contact: BrochureContact }) {
-  const { familyName, accentWord, eyebrow, description, rangeSummary, hero, colours, installed, stats, specs, options, department, accessories } = data;
-
-  // Fit the fixed 794px A4 page to the screen width. scale() needs a UNITLESS
-  // factor, which CSS can't derive from viewport width - so compute it here and
-  // expose it as --bx-sc. Used only by the mobile @media rule; print is untouched.
+/** Fit the fixed 794px A4 page to the screen width. scale() needs a UNITLESS
+ *  factor, which CSS can't derive from viewport width - so compute it here and
+ *  expose it as --bx-sc. Used only by the mobile @media rule; print is untouched. */
+export function useFitToScreen() {
   useEffect(() => {
     const root = document.documentElement;
     const apply = () => root.style.setProperty("--bx-sc", Math.min(1, (window.innerWidth - 16) / 794).toFixed(4));
@@ -54,6 +52,49 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
       root.style.removeProperty("--bx-sc");
     };
   }, []);
+}
+
+export const FONTS_HREF = "https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Manrope:wght@400;500;600;700&family=Newsreader:ital,wght@1,400&family=Space+Mono:wght@400;700&display=swap";
+
+export const BROCHURE_CSS = `
+        .bx-wrap{display:flex;flex-direction:column;align-items:center;gap:26px;padding:34px 20px;background:#e6e2d9;min-height:100vh;font-family:Manrope,system-ui,sans-serif}
+        .page{width:794px;height:1123px;background:${CREAM};color:${INK};display:flex;flex-direction:column;border:1px solid ${LINE};border-radius:8px;box-shadow:0 30px 70px -34px rgba(16,28,30,.55);overflow:hidden;position:relative}
+        .sr{display:flex;justify-content:space-between;gap:14px;padding:9.5px 0;border-bottom:1px solid ${LINE}}
+        .sk{font:400 10px/1.4 'Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:${MUTED};white-space:nowrap}
+        .sv{font:600 13px/1.4 Manrope,sans-serif;text-align:right}
+        .eyebrow{font:600 11.5px/1 'Space Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:${MUTED}}
+        .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 52px 24px;border-top:1px solid ${LINE};font:400 10.5px/1 'Space Mono',monospace;letter-spacing:.11em;text-transform:uppercase;color:${MUTED}}
+        .statc{background:${CARD};border:1px solid ${LINE};border-radius:16px;padding:14px}
+        .h3d{margin:0 0 13px;display:flex;align-items:center;gap:9px;font:800 14px/1 Archivo,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+        .clip{max-width:56%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .foot span:nth-child(2){max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+        .print-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 22px;background:${DEEP};color:${CREAM};font-family:Manrope,sans-serif}
+        .print-btn{appearance:none;border:none;cursor:pointer;background:${TERRA};color:#fff;border-radius:999px;padding:10px 22px;font:700 14px Manrope,sans-serif}
+        .bx-pad{padding-top:60px}
+        /* MOBILE (screen only): scale the whole A4 page down to fit the phone
+           width so it reads like a normal scrollable brochure - the design,
+           layout and proportions are IDENTICAL to desktop, just smaller. Print
+           is untouched (always full A4), so a desktop and a phone print match. */
+        @media screen and (max-width:840px){
+          .bx-wrap{overflow-x:hidden;padding:12px 4px 22px;gap:10px}
+          .page{transform:scale(var(--bx-sc,1));transform-origin:top center;margin-bottom:calc(-1123px * (1 - var(--bx-sc,1)))}
+          .print-bar{padding:10px 14px}
+          .print-btn{padding:9px 16px;font-size:13px}
+        }
+        @page{size:A4;margin:0}
+        @media print{
+          *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+          .print-bar{display:none!important}
+          .bx-wrap{background:#fff!important;padding:0!important;gap:0!important}
+          .bx-pad{padding-top:0!important}
+          .page{box-shadow:none!important;border:none!important;border-radius:0!important;break-after:page;page-break-after:always}
+          .page:last-child{break-after:auto}
+        }
+      `;
+
+export default function FamilyBrochure({ data, contact }: { data: BrochureData; contact: BrochureContact }) {
+  const { familyName, accentWord, eyebrow, description, rangeSummary, hero, colours, installed, stats, specs, options, department, accessories } = data;
+  useFitToScreen();
 
   const STONE = department === "stone-cladding";
   const installCopy = STONE
@@ -96,42 +137,8 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
 
   return (
     <>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Manrope:wght@400;500;600;700&family=Newsreader:ital,wght@1,400&family=Space+Mono:wght@400;700&display=swap" />
-      <style>{`
-        .bx-wrap{display:flex;flex-direction:column;align-items:center;gap:26px;padding:34px 20px;background:#e6e2d9;min-height:100vh;font-family:Manrope,system-ui,sans-serif}
-        .page{width:794px;height:1123px;background:${CREAM};color:${INK};display:flex;flex-direction:column;border:1px solid ${LINE};border-radius:8px;box-shadow:0 30px 70px -34px rgba(16,28,30,.55);overflow:hidden;position:relative}
-        .sr{display:flex;justify-content:space-between;gap:14px;padding:9.5px 0;border-bottom:1px solid ${LINE}}
-        .sk{font:400 10px/1.4 'Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:${MUTED};white-space:nowrap}
-        .sv{font:600 13px/1.4 Manrope,sans-serif;text-align:right}
-        .eyebrow{font:600 11.5px/1 'Space Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:${MUTED}}
-        .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 52px 24px;border-top:1px solid ${LINE};font:400 10.5px/1 'Space Mono',monospace;letter-spacing:.11em;text-transform:uppercase;color:${MUTED}}
-        .statc{background:${CARD};border:1px solid ${LINE};border-radius:16px;padding:14px}
-        .h3d{margin:0 0 13px;display:flex;align-items:center;gap:9px;font:800 14px/1 Archivo,sans-serif;letter-spacing:.05em;text-transform:uppercase}
-        .clip{max-width:56%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .foot span:nth-child(2){max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
-        .print-bar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 22px;background:${DEEP};color:${CREAM};font-family:Manrope,sans-serif}
-        .print-btn{appearance:none;border:none;cursor:pointer;background:${TERRA};color:#fff;border-radius:999px;padding:10px 22px;font:700 14px Manrope,sans-serif}
-        .bx-pad{padding-top:60px}
-        /* MOBILE (screen only): scale the whole A4 page down to fit the phone
-           width so it reads like a normal scrollable brochure - the design,
-           layout and proportions are IDENTICAL to desktop, just smaller. Print
-           is untouched (always full A4), so a desktop and a phone print match. */
-        @media screen and (max-width:840px){
-          .bx-wrap{overflow-x:hidden;padding:12px 4px 22px;gap:10px}
-          .page{transform:scale(var(--bx-sc,1));transform-origin:top center;margin-bottom:calc(-1123px * (1 - var(--bx-sc,1)))}
-          .print-bar{padding:10px 14px}
-          .print-btn{padding:9px 16px;font-size:13px}
-        }
-        @page{size:A4;margin:0}
-        @media print{
-          *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-          .print-bar{display:none!important}
-          .bx-wrap{background:#fff!important;padding:0!important;gap:0!important}
-          .bx-pad{padding-top:0!important}
-          .page{box-shadow:none!important;border:none!important;border-radius:0!important;break-after:page;page-break-after:always}
-          .page:last-child{break-after:auto}
-        }
-      `}</style>
+      <link rel="stylesheet" href={FONTS_HREF} />
+      <style>{BROCHURE_CSS}</style>
 
       <div className="print-bar">
         <span style={{ display: "flex", alignItems: "center", gap: 11 }}><Logo onDark h={20} /><span style={{ font: "400 11px 'Space Mono',monospace", opacity: .7, letterSpacing: ".12em" }}>{familyName} brochure</span></span>

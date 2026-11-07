@@ -48,6 +48,9 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
           {!quick && range.options?.drawing === "vanity" && (
             <p className="vb-3d"><Open3DButton slug={range.slug} base={trade?.base} className="vb-3d-btn" /><span>Turn it round, open the drawers and see your colours in 3D. Same options and {trade ? "your prices" : "prices"}.</span></p>
           )}
+          {!quick && range.options?.drawing === "vanity" && (
+            <p className="vb-brochure"><a href={`/brochure/${range.slug}`} target="_blank" rel="noopener noreferrer" className="vb-link">Download the brochure (every size and option) ↓</a></p>
+          )}
           {!quick && steps.length >= 3 && <p className="vb-custom-note">Fully customisable: choose your {steps.join(", ").replace(/, ([^,]*)$/, " and $1")} below. Photos show one example build.</p>}
         </header>
       </div>

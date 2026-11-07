@@ -69,7 +69,7 @@ const numWord = (n: number) => NUM[n] ?? String(n);
 // drops off), falling back to a word-boundary cut with an ellipsis only if even
 // the first sentence is longer than the budget. This is cover-only - the full
 // description is untouched everywhere else (product page, shop).
-function coverIntro(text: string, max = 380): string {
+export function coverIntro(text: string, max = 380): string {
   const t = text.trim().replace(/\s+/g, " ");
   if (t.length <= max) return t;
   const sentences = t.match(/[^.!?]+[.!?]+(?:\s|$)/g) ?? [t];
