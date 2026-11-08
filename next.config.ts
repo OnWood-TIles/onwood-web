@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
       },
       // Only one brand page so far (app/brands/marquis); temporary so a /brands index can replace it.
       { source: "/brands", destination: "/brands/marquis", permanent: false },
+      // The single /magazine reader became /magazines (landing) + /magazines/<slug> (2026-11-08).
+      { source: "/magazine", destination: "/magazines/kiln", permanent: true },
+      { source: "/magazine/pages/:page", destination: "/magazines/kiln/pages/:page", permanent: true },
     ];
   },
   // Baseline security headers on every response, plus the Content-Security-Policy

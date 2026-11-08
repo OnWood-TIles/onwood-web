@@ -108,27 +108,30 @@ export default async function BlogIndex() {
             <div className="bl-mag" style={{ position: "relative", display: "grid", gridTemplateColumns: "minmax(0,0.86fr) minmax(0,1.14fr)", gap: "clamp(22px,4vw,52px)", alignItems: "center", color: "var(--ink)", padding: "clamp(14px,2.4vw,30px) clamp(4px,1.5vw,18px)" }}>
               {/* cover */}
               <div className="bl-mag-cov" style={{ position: "relative", justifySelf: "center" }}>
-                <Link href="/magazine" aria-label="Open the Kiln magazine" style={{ display: "block" }}>
+                <Link href="/magazines/kiln" aria-label="Open the Kiln magazine" style={{ display: "block" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/images/magazine/kiln-cover.webp" alt="Kiln magazine, Batch One cover" style={{ width: "min(316px,72vw)", height: "auto", borderRadius: 9, display: "block", transform: "rotate(-2.4deg)", boxShadow: "0 44px 72px -28px rgba(0,0,0,.72)" }} />
+                  <img src="/images/magazines/kiln-cover.webp" alt="Kiln magazine, Issue 01 · 2027 cover" style={{ width: "min(316px,72vw)", height: "auto", borderRadius: 9, display: "block", transform: "rotate(-2.4deg)", boxShadow: "0 44px 72px -28px rgba(0,0,0,.72)" }} />
                 </Link>
               </div>
               {/* copy */}
               <div style={{ position: "relative" }}>
                 <span style={{ ...eyebrow, color: "var(--accent2)" }}>New · Our magazine</span>
                 <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 900, letterSpacing: "-.025em", fontSize: "clamp(28px,3.7vw,46px)", lineHeight: 1.05, margin: "12px 0 0" }}>
-                  Introducing <span style={{ color: "var(--accent2)" }}>Kiln</span>, {serif("Batch One")}
+                  Introducing <span style={{ color: "var(--accent2)" }}>Kiln</span>, {serif("Issue 01")}
                 </h2>
                 <p style={{ fontSize: "clamp(15px,1.7vw,18px)", lineHeight: 1.65, color: "var(--muted)", margin: "14px 0 0", maxWidth: "52ch" }}>
-                  Our new magazine about inspiration, and a deeper understanding of what goes underfoot. Flick through Batch One just like a real magazine, or download a copy to keep.
+                  Our new magazine about inspiration, and a deeper understanding of what goes underfoot. Flick through it just like a real magazine, or download a copy to keep. And for bathrooms, there is Kiln: The Vanity Edition.
                 </p>
                 <div className="bl-mag-btns" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 24 }}>
-                  <Link href="/magazine" className="bl-mag-cta" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 27px", borderRadius: 999 }}>
+                  <Link href="/magazines/kiln" className="bl-mag-cta" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 27px", borderRadius: 999 }}>
                     Flip through Kiln <span aria-hidden>→</span>
                   </Link>
                   <a href="/kiln.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 9, background: "var(--surface)", color: "var(--ink)", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 24px", borderRadius: 999, border: "1px solid var(--line)" }}>
                     Download the PDF
                   </a>
+                  <Link href="/magazines" style={{ display: "inline-flex", alignItems: "center", gap: 9, color: "var(--accent)", fontWeight: 800, fontSize: 15, textDecoration: "none", padding: "14px 6px" }}>
+                    All magazines <span aria-hidden>→</span>
+                  </Link>
                 </div>
               </div>
             </div>

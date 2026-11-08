@@ -253,6 +253,20 @@ export default async function MarquisBrandPage() {
           </div>
         </section>
 
+        {/* The Vanity Edition magazine */}
+        <section style={{ marginTop: 60 }}>
+          <Link href="/magazines/vanity-edition" style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: "clamp(18px,3vw,34px)", alignItems: "center", textDecoration: "none", color: "inherit", background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 20, padding: "clamp(18px,3vw,30px)" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/magazines/vanity-edition-cover.webp" alt="Kiln: The Vanity Edition cover" loading="lazy" style={{ width: "clamp(96px,16vw,150px)", height: "auto", borderRadius: 6, transform: "rotate(-2deg)", boxShadow: "0 24px 40px -20px rgba(0,0,0,.55)" }} />
+            <span>
+              <span style={eyebrow}>Our magazine</span>
+              <span style={{ ...h2, display: "block", margin: "6px 0 8px" }}>Kiln: The Vanity Edition</span>
+              <span style={{ ...body, display: "block", margin: "0 0 10px" }}>Sizes, handles, benchtops, basins and the Duragrain, Thermograin and painted finishes explained, in 40 pages. Flick through it online or download a copy.</span>
+              <span style={{ fontWeight: 800, color: "var(--accent)" }}>Read the Vanity Edition →</span>
+            </span>
+          </Link>
+        </section>
+
         {/* Areas */}
         <section style={{ marginTop: 60 }}>
           <p style={eyebrow}>Delivered across the Coast</p>
