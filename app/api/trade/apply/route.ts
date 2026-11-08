@@ -33,6 +33,7 @@ export async function POST(request: Request) {
   }
   const name = line(b.name, 120), email = line(b.email, 160), phone = line(b.phone, 40);
   const businessName = line(b.businessName, 160), abn = line(b.abn, 20), tradeType = line(b.tradeType, 80), message = text(b.message, 3000);
+  const qbcc = line(b.qbcc, 40), monthlySpend = line(b.monthlySpend, 60);
   if (!name || !businessName || !EMAIL_RE.test(email)) {
     return NextResponse.json({ ok: false, error: "Please add your name, business name and a valid email." }, { status: 400 });
   }
@@ -63,6 +64,8 @@ ${abn ? `<p><strong>ABN:</strong> ${esc(abn)}</p>` : ""}
 <p><strong>Email:</strong> ${esc(email)}</p>
 ${phone ? `<p><strong>Phone:</strong> ${esc(phone)}</p>` : ""}
 ${tradeType ? `<p><strong>Trade:</strong> ${esc(tradeType)}</p>` : ""}
+${qbcc ? `<p><strong>QBCC licence:</strong> ${esc(qbcc)}</p>` : ""}
+${monthlySpend ? `<p><strong>Estimated monthly spend:</strong> ${esc(monthlySpend)}</p>` : ""}
 ${message ? `<p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>")}</p>` : ""}
 <p style="color:#8a959b;font-size:13px">Marketing consent: ${marketingConsent ? "GIVEN" : "not given"}.</p>`,
       });
@@ -90,7 +93,7 @@ ${message ? `<p><strong>Message:</strong><br>${esc(message).replace(/\n/g, "<br>
         from: MAIL_FROM, to: email, subject: "We've received your trade application - OnWood Tiles",
         html: `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#20303a">
 <p>Hi ${esc(firstName || "there")},</p>
-<p>Thanks for applying for a Trade Partner account with OnWood Tiles. We've received your details for <strong>${esc(businessName)}</strong> and one of the team will be in touch shortly to get you set up.</p>
+<p>Thanks for applying for a Trade Partner account with OnWood Tiles. We've received your details for <strong>${esc(businessName)}</strong> We review every application personally and will be in touch within one business day.</p>
 <p>Any questions in the meantime, just reply to this email or call the Baringa showroom.</p>
 <p>The OnWood Tiles team</p></div>`,
       });
