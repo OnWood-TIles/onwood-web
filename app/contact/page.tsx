@@ -65,8 +65,7 @@ ${build.trim().slice(0, 1500)}`
   const showroom = showroomAddress();
   const hoursSummary = (business?.openHoursSummary || SHOP.hours).trim();
   const openHours = (business?.openHours || []).filter((d) => d && d.day);
-  // Pinned by street address (see SHOWROOM_MAP_EMBED). Swap to the OnWood place
-  // ID once the Google Business Profile is set up.
+  // Pinned to the OnWood Google Business Profile (see SHOWROOM_MAP_EMBED).
   const mapEmbed = SHOWROOM_MAP_EMBED;
   const directions = BARINGA_DIRECTIONS;
   const telHref = `tel:${phone.replace(/[^0-9+]/g, "")}`;

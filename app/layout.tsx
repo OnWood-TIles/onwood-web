@@ -9,6 +9,7 @@ import ShowroomBanner from "./components/marketing/ShowroomBanner";
 import PresenceBeacon from "./components/PresenceBeacon";
 import { Analytics } from "@vercel/analytics/next";
 import { getNav, getShopMenu } from "../lib/onbase/client";
+import { GOOGLE_PROFILE_URL } from "../lib/content";
 
 // Headings / labels
 const archivo = Archivo({
@@ -90,11 +91,9 @@ const jsonLd = {
     addressCountry: "AU",
   },
   areaServed: "Sunshine Coast, Queensland",
-  // Hancock Way (Aura Business Park) street centre per OpenStreetMap - within a
-  // few hundred metres. Refine to the exact pin once the Google Business Profile
-  // is set up.
-  geo: { "@type": "GeoCoordinates", latitude: -26.8055, longitude: 153.0696 },
-  hasMap: "https://www.google.com/maps/search/?api=1&query=Unit+1%2F24-26+Hancock+Way%2C+Baringa+QLD+4551",
+  // The Google Business Profile pin.
+  geo: { "@type": "GeoCoordinates", latitude: -26.8057854, longitude: 153.0701384 },
+  hasMap: GOOGLE_PROFILE_URL,
   priceRange: "$$",
   openingHoursSpecification: [
     {
@@ -108,6 +107,7 @@ const jsonLd = {
     "https://www.instagram.com/onwood_tiles",
     "https://www.facebook.com/share/18qX1BsNrf/",
     "https://au.pinterest.com/OnWoodTiles/",
+    GOOGLE_PROFILE_URL,
   ],
 };
 

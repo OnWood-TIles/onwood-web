@@ -60,7 +60,13 @@ export const SHOWROOM_MAP_QUERY = HAS_SHOWROOM_ADDRESS && SHOP.street
   ? `${SHOP.street}, ${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`
   : `${SHOP.suburb} ${SHOP.state} ${SHOP.postcode}`;
 export const BARINGA_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(SHOWROOM_MAP_QUERY)}`;
-export const SHOWROOM_MAP_EMBED = `https://maps.google.com/maps?q=${encodeURIComponent(SHOWROOM_MAP_QUERY)}&z=16&output=embed`;
+// OnWood Tiles' Google Business Profile (Maps CID; kgmid /g/11p26xkm8y). Embedding by
+// CID pins the listing itself, so the map card shows our name, reviews and "Open in Maps".
+export const GOOGLE_PLACE_CID = "9984802934039269187";
+export const GOOGLE_PROFILE_URL = `https://www.google.com/maps?cid=${GOOGLE_PLACE_CID}`;
+export const SHOWROOM_MAP_EMBED = HAS_SHOWROOM_ADDRESS
+  ? `https://maps.google.com/maps?cid=${GOOGLE_PLACE_CID}&z=16&output=embed`
+  : `https://maps.google.com/maps?q=${encodeURIComponent(SHOWROOM_MAP_QUERY)}&z=16&output=embed`;
 
 // Root-relative so the nav works from BOTH the homepage and /specials
 // (bare "#id" only scrolls on the homepage). On the homepage "/#id" still
