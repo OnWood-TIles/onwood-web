@@ -646,6 +646,28 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     ],
     stats: { noun: ["product", "products"], second: null },
   },
+  adhesives: {
+    eyebrow: "Shop adhesives & grout",
+    h1: "Tile Adhesive & Grout",
+    intro: [
+      "LATICRETE tile adhesives and grouts, chosen to suit the tiles in our range: a flexible everyday adhesive, a top-rated one for large format, outdoors and pools, a lightweight one for walls, and a ready-to-use tub for splashbacks. Grout comes in every current LATICRETE colour, in cement or stain-proof epoxy. Not sure which you need? Our guide matches the adhesive and grout to your job. Supplied from our Baringa showroom on the Sunshine Coast.",
+    ],
+    metaTitle: "Tile Adhesive & Grout Sunshine Coast | LATICRETE",
+    metaDescription:
+      "LATICRETE tile adhesive and grout on the Sunshine Coast: flexible and lightweight adhesives, PERMACOLOR Select and SPECTRALOCK epoxy grout in every colour. Baringa showroom.",
+    links: [
+      { label: "Which adhesive and grout?", href: "/adhesive-and-grout-guide" },
+      { label: "The grout decision", href: "/blog/the-grout-decision" },
+      { label: "Shop tiles", href: "/shop/tiles" },
+    ],
+    faqs: [
+      { q: "Which tile adhesive should I use?", a: "For most porcelain and ceramic floors and walls, a flexible C2TES1 adhesive like LATICRETE 335 is right. For large format tiles, outdoor areas, balconies and pools, step up to 254, which is rated S2 for extra flexibility. For walls with big tiles, TRI-LITE won't let them slide. Our adhesive and grout guide walks you through it." },
+      { q: "What is the best adhesive for a kitchen splashback?", a: "For ceramic or stone tiles on a dry interior wall, Multimastic Premium comes ready to use in a 4 litre pail that covers about one splashback. For porcelain, glass or large tiles, use TRI-LITE instead, as a mastic dries slowly under dense tiles." },
+      { q: "Do I need to seal my grout?", a: "Not with these. PERMACOLOR Select and PERMACOLOR do not need sealing, and SPECTRALOCK epoxy grout is stain-proof and never needs sealing. Porous tiles such as some natural stone may need sealing before grouting so the grout colour does not stain them." },
+      { q: "Can I see real grout colours?", a: "Yes. Colours on screen are a guide only, so come into the Baringa showroom and hold a real grout colour against your tile before you buy." },
+    ],
+    stats: { noun: ["product", "products"], second: null },
+  },
 };
 
 // ---- async getters (constants today, CMS/OnBase later) ----

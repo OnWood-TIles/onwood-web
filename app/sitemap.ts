@@ -65,6 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/tiles`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/sunshine-coast`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/brands/marquis`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/adhesive-and-grout-guide`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/tile-shops-near-me`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/tile-shop`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.8 },

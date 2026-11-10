@@ -99,6 +99,8 @@ export default function ProductView({
   const special = hideSpecial ? null : (swatch?.special ?? range.special ?? null);
   // Standard retail price for the selected colour (GST incl.); null = hidden / none.
   const price = swatch?.price ?? range.price ?? null;
+  const isInstall = range.department === "adhesives";
+  const priceOnRequest = isInstall && price == null && !(special && special.price != null);
 
   // Close the zoom lightbox on Escape; lock body scroll while it's open.
   useEffect(() => {
@@ -346,6 +348,13 @@ export default function ProductView({
             {range.name}
           </h1>
 
+          {/* Installation products (adhesive, grout) can go live before prices are set. */}
+          {priceOnRequest && (
+            <p style={{ margin: "14px 0 0", fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 20, color: "var(--ink)" }}>
+              Price on request
+              <span style={{ display: "block", fontFamily: "inherit", fontWeight: 500, fontSize: 13, color: "#8a8577", marginTop: 4 }}>Add it to your quote or ask us, and we will come back to you with a price.</span>
+            </p>
+          )}
           {(showAvailability || price != null || (special && (special.price != null || special.was != null))) && (
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
             {showAvailability && (
@@ -376,8 +385,14 @@ export default function ProductView({
             <p style={{ margin: "6px 0 0", fontSize: 12, color: "#9a9488" }}>Price includes GST. Supply only; delivery quoted separately.</p>
           )}
 
+          {/* Adhesive: m² one bag/pail covers (drives the bag estimate on /quote). */}
+          {isInstall && range.coverageM2 != null && range.coverageM2 > 0 && (
+            <p style={{ marginTop: 12, fontSize: 13.5, color: "#5a6067" }}>
+              Each {range.unit || "unit"} covers about <strong>{range.coverageM2} m²</strong> (the trowel size changes this, see Coverage below). Add it to your quote with your area and we will work out how many you need.
+            </p>
+          )}
           {/* Per-sheet goods (mosaics): help the shopper size the job in m². */}
-          {range.coverageM2 != null && range.coverageM2 > 0 && (
+          {!isInstall && range.coverageM2 != null && range.coverageM2 > 0 && (
             <p style={{ marginTop: 12, fontSize: 13.5, color: "#5a6067" }}>
               Sold per sheet · about <strong>{Math.round(1 / range.coverageM2)}</strong> sheets per m² ({range.coverageM2} m² per sheet)
             </p>
