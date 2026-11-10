@@ -78,7 +78,12 @@ export default async function DepartmentPage({
   const featuredFace = featured?.swatches.find((s) => s.image)?.image ?? null;
   // Some departments (mirrors, basins, pavers) skip the room-shot hero: their photos
   // are product shots on plain backgrounds, which don't suit it.
-  const showHero = !seo?.noHero && !!(featuredRoom || featuredFace || deptHero);
+  // Departments with one fixed range photo instead of the rotating sample stack (matches the
+  // mega-menu "in focus" tile in lib/onbase/client.ts).
+  const fixedHero = dept.slug === "adhesives"
+    ? { image: "/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide", alt: "The LATICRETE adhesive and grout range on a pool terrace" }
+    : null;
+  const showHero = !seo?.noHero && !!(fixedHero || featuredRoom || featuredFace || deptHero);
 
   // Real, honest stats for under the hero (no invented numbers).
   const rangeCount = allRanges.length;
@@ -196,18 +201,18 @@ export default async function DepartmentPage({
                   + an "In focus" chip linking to the (daily-rotating) featured range. */}
               <div className="ow-hero-frame">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="ow-hero-img" src={(featuredRoom || featuredFace || deptHero) as string} alt={`${dept.label} styled in a room by OnWood Tiles, Sunshine Coast`} />
+                <img className="ow-hero-img" src={(fixedHero?.image || featuredRoom || featuredFace || deptHero) as string} alt={fixedHero?.alt ?? `${dept.label} styled in a room by OnWood Tiles, Sunshine Coast`} />
               </div>
-              {featuredRoom && featuredFace && (
+              {!fixedHero && featuredRoom && featuredFace && (
                 <div className="ow-hero-plate">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={featuredFace} alt={featured ? `${featured.name} tile close-up` : ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </div>
               )}
-              {featured && (
-                <Link href={`/product/${featured.slug}`} style={{ position: "absolute", left: 14, top: 14, zIndex: 2, display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,246,238,.94)", color: "var(--ink)", textDecoration: "none", fontWeight: 700, fontSize: 12.5, padding: "7px 13px", borderRadius: 999, boxShadow: "0 6px 18px -8px rgba(30,20,10,.5)" }}>
+              {(fixedHero || featured) && (
+                <Link href={fixedHero?.href ?? `/product/${featured!.slug}`} style={{ position: "absolute", left: 14, top: 14, zIndex: 2, display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,246,238,.94)", color: "var(--ink)", textDecoration: "none", fontWeight: 700, fontSize: 12.5, padding: "7px 13px", borderRadius: 999, boxShadow: "0 6px 18px -8px rgba(30,20,10,.5)" }}>
                   <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--accent)" }}>In focus</span>
-                  {featured.name}
+                  {fixedHero?.name ?? featured!.name}
                 </Link>
               )}
             </div>

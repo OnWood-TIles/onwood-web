@@ -437,6 +437,8 @@ export type ShopMenuDept = {
   focusImage: string | null;
   focusSlug: string | null;
   focusName: string | null;
+  /** Where the focus image links when it is not a single product (a fixed range shot). */
+  focusHref?: string | null;
   categories: ShopMenuCategory[];
 };
 
@@ -449,6 +451,11 @@ const MENU_FOCUS_PICK: Record<string, string> = {
   vanities: "marquis-merewether-vanity",
   basins: "marquis-wow-translucency-round-basin",
   mirrors: "marquis-mounted-mirror",
+};
+// Departments shown by one fixed range photo instead of a rotating product (Reagan 2026-11-10:
+// the LATICRETE range lined up by a pool), linking to the department's guide page.
+const MENU_FOCUS_FIXED: Record<string, { image: string; name: string; href: string }> = {
+  adhesives: { image: "https://onwoodtiles.com.au/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide" },
 };
 
 async function buildShopMenu(): Promise<ShopMenuDept[]> {
@@ -481,7 +488,10 @@ async function buildShopMenu(): Promise<ShopMenuDept[]> {
       // Rotate the highlighted product daily (by day number) so the mega-menu
       // "in focus" tile varies over time instead of being stuck on one product.
       const pick = list.find((r) => r.slug === MENU_FOCUS_PICK[d.slug] && r.heroImage);
-      const focus = focusCandidates.length
+      const fixed = MENU_FOCUS_FIXED[d.slug];
+      const focus = fixed
+        ? { image: fixed.image, slug: d.slug, name: fixed.name }
+        : focusCandidates.length
         ? focusCandidates[Math.floor(Date.now() / 86_400_000) % focusCandidates.length]
         : pick
         ? { image: pick.heroImage as string, slug: pick.slug, name: pick.name }
@@ -497,6 +507,7 @@ async function buildShopMenu(): Promise<ShopMenuDept[]> {
         focusImage: focus?.image ?? null,
         focusSlug: focus?.slug ?? null,
         focusName: focus?.name ?? null,
+        focusHref: fixed?.href ?? null,
         categories,
       };
     })

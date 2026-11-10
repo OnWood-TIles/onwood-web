@@ -210,7 +210,7 @@ export default function ShopMegaMenu({
             <div style={eyebrow}>In focus: {active.focusName ?? active.label}</div>
             {active.focusImage && active.focusSlug ? (
               <Link
-                href={`${productBase}/${active.focusSlug}`}
+                href={active.focusHref ?? `${productBase}/${active.focusSlug}`}
                 onClick={() => setOpen(false)}
                 style={{ display: "block", position: "relative", height: 260, borderRadius: 16, overflow: "hidden", background: "#efece5", border: "1px solid var(--line)", textDecoration: "none" }}
               >
