@@ -2107,7 +2107,7 @@ export const TILE_COLLECTIONS: Record<string, TileCollection> = {
       "These are real porcelain planks with a price, chosen for believable grain and colour. Browse the looks below, then order online or come and stand on the full-size boards in Baringa.",
     ],
     keywords: ["timber", "wood", "oak", "spotted gum", "blackbutt", "walnut", "teak", "hickory", "cabarita", "plank", "grain", "birch", "elm"],
-    shopHref: "/shop/tiles",
+    shopHref: "/shop/tiles?f=size:timber-look",
     guidanceIntro: "Why so many Sunshine Coast homes are choosing tile over timber.",
     guidance: [
       { title: "Built for wet feet", body: "Unlike real timber, a wood-look tile does not mind a wet towel, a splash from the pool or a mopped floor, so it works in bathrooms, laundries and alfresco areas too.", href: "/tiles/bathroom", hrefLabel: "Bathroom tiles" },

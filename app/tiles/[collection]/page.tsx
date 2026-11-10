@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
-import { RangeCard } from "../../components/shop/shared";
-import { listRanges, type WebsiteRange } from "../../../lib/onbase/client";
+import { RangeCard, ColourwayCard } from "../../components/shop/shared";
+import { listRanges, type WebsiteRange, type Swatch } from "../../../lib/onbase/client";
 import { getCollection, COLLECTION_LIST, SHOP, showroomAddress, type TileCollection } from "../../../lib/content";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +41,58 @@ function matches(c: TileCollection, r: WebsiteRange): boolean {
   return false;
 }
 
+// The broad tags are on most tiles (white on 136 of 178 ranges, bathroom on 150), so each
+// collection scores its own way to stay on-theme (Reagan 2026-11-10: pages showed nearly
+// everything). White shows the white colourways themselves; timber-look matches names only.
+type Item = { range: WebsiteRange; swatch?: Swatch };
+const MAX = 24;
+const has = (r: WebsiteRange, g: string, ...v: string[]) => v.some((x) => (r.filters?.[g] ?? []).includes(x));
+const spec = (r: WebsiteRange, label: string) => (r.specs ?? []).find((s) => s.label.toLowerCase() === label)?.value ?? "";
+const roomy = (r: WebsiteRange) => (r.swatches.some((s) => s.installedImage) ? 1 : 0);
+const TIMBER = /timber|wood|oak|plank|spotted gum|blackbutt|walnut|teak|hickory|birch|elm/i;
+const SPLASH = /subway|finger|zellige|kit ?kat|gloss|handmade|mosaic/i;
+
+function rank(list: WebsiteRange[], score: (r: WebsiteRange) => number): Item[] {
+  return list
+    .map((r, i) => ({ r, i, s: score(r) + roomy(r) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .slice(0, MAX)
+    .map((x) => ({ range: x.r }));
+}
+
+function pickItems(c: TileCollection, all: WebsiteRange[]): Item[] {
+  switch (c.slug) {
+    case "white": {
+      // One white colourway per range first, then any further white colourways.
+      const first: Item[] = [], more: Item[] = [];
+      for (const r of all) {
+        const whites = r.swatches.filter((s) => s.colours?.[0] === "white");
+        whites.forEach((s, i) => (i ? more : first).push({ range: r, swatch: s }));
+      }
+      const byRoom = (a: Item, b: Item) => (b.swatch?.installedImage ? 1 : 0) - (a.swatch?.installedImage ? 1 : 0);
+      return [...first.sort(byRoom), ...more.sort(byRoom)].slice(0, MAX);
+    }
+    case "timber-look": {
+      const ranges = all.filter((r) => TIMBER.test(r.name) || has(r, "size", "timber-look"));
+      return ranges.flatMap((r) => (r.swatches.length > 1 ? r.swatches.map((s) => ({ range: r, swatch: s })) : [{ range: r }])).slice(0, MAX);
+    }
+    case "outdoor":
+      return rank(all.filter((r) => has(r, "location-use", "outdoor")), (r) =>
+        (/R1[1-3]|P[45]/.test(spec(r, "slip rating")) ? 3 : 0) + (/external|outdoor|paver/i.test(r.name) ? 2 : 0) + (has(r, "location-use", "pool") ? 1 : 0));
+    case "floor":
+      return rank(all.filter((r) => has(r, "location-use", "floor") && !has(r, "size", "mosaic", "subway")), (r) =>
+        (has(r, "size", "600-x-600", "600-x-1200", "large-format", "450-x-450") ? 2 : 0));
+    case "bathroom":
+      return rank(all.filter((r) => has(r, "location-use", "bathroom")), (r) =>
+        (has(r, "size", "mosaic", "subway", "600-x-300") ? 2 : 0) + (has(r, "location-use", "feature-wall") ? 1 : 0));
+    case "splashback":
+      return rank(all.filter((r) => has(r, "location-use", "splashback") && (has(r, "size", "subway", "mosaic", "small") || SPLASH.test(r.name))), (r) =>
+        (has(r, "size", "subway") || /subway|finger/i.test(r.name) ? 2 : 0) + (has(r, "size", "mosaic") ? 1 : 0));
+    default:
+      return rank(all.filter((r) => matches(c, r)), () => 0);
+  }
+}
+
 const eyebrow: React.CSSProperties = {
   fontSize: 12,
   fontWeight: 800,
@@ -55,21 +107,16 @@ export default async function CollectionPage({ params }: { params: Promise<Param
   if (!c) notFound();
 
   // Real products for this collection, pulled live. Fail-open to an empty grid.
-  let products: WebsiteRange[] = [];
+  let items: Item[] = [];
   try {
-    const all = await listRanges({ department: "tiles" });
-    products = all
-      .filter((r) => matches(c, r))
-      .map((r, i) => ({ r, i, score: r.swatches.some((s) => s.installedImage) ? 1 : 0 }))
-      .sort((a, b) => b.score - a.score || a.i - b.i)
-      .map((x) => x.r)
-      .slice(0, 12);
+    items = pickItems(c, await listRanges({ department: "tiles" }));
   } catch {
-    products = [];
+    items = [];
   }
+  const products = items.map((x) => x.range);
 
   const heroImg =
-    products.map((r) => r.swatches.find((s) => s.installedImage)?.installedImage).find(Boolean) ||
+    items.map((x) => (x.swatch ? x.swatch.installedImage : x.range.swatches.find((s) => s.installedImage)?.installedImage)).find(Boolean) ||
     products.map((r) => r.heroImage).find(Boolean) ||
     null;
   const heroRange = products[0] ?? null;
@@ -201,7 +248,9 @@ export default async function CollectionPage({ params }: { params: Promise<Param
               A selection from the range, each a real OnWood product with a price. See the full choice in the shop.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
-              {products.map((r) => (<RangeCard key={r.id} range={r} />))}
+              {items.map((x) => (x.swatch
+                ? <ColourwayCard key={`${x.range.id}-${x.swatch.colour}`} range={x.range} swatch={x.swatch} />
+                : <RangeCard key={x.range.id} range={x.range} />))}
             </div>
             <div style={{ marginTop: 24 }}>
               <Link href={c.shopHref} style={ctaOutline}>See all {c.name.toLowerCase()} <span aria-hidden>→</span></Link>

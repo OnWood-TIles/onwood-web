@@ -77,6 +77,8 @@ export default function ProductView({
     ? Math.max(0, range.swatches.findIndex((s) => s.colour.toLowerCase() === initialColour.toLowerCase()))
     : 0;
   const [selected, setSelected] = useState(initialIdx);
+  // Adhesive + grout colours are flat swatches: show the product photo until a colour is picked.
+  const [picked, setPicked] = useState(!!initialColour);
   const [view, setView] = useState<"tile" | "room">("tile");
   const [zoom, setZoom] = useState(false);
   const swatch: Swatch | undefined = range.swatches[selected];
@@ -85,7 +87,8 @@ export default function ProductView({
   // hero. No thumbnail strip: colours switch via the swatch selector below and
   // tile/room via the "See it installed" toggle. When the colours are finishes of
   // one item (their images are finish chips), the product photo stays as the main.
-  const main = range.finishSwatches
+  const photoFirst = range.department === "adhesives" && !picked;
+  const main = range.finishSwatches || photoFirst
     ? range.heroImage ?? range.images[0] ?? swatch?.image ?? null
     : swatch?.image ?? swatch?.images?.[0] ?? range.heroImage ?? range.images[0] ?? null;
   const installed = swatch?.installedImage ?? null;
@@ -134,7 +137,7 @@ export default function ProductView({
               type="button"
               // Keep the Tile / See-it-installed view when switching colours -
               // so browsing "installed" across the range stays in that view.
-              onClick={() => setSelected(i)}
+              onClick={() => { setSelected(i); setPicked(true); }}
               // Stock status is trade-only - never reveal "order in" on the public storefront.
               title={`${s.colour}${showAvailability && s.availability === "out" ? " (order in)" : ""}`}
               style={{
