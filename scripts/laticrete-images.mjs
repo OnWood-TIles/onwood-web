@@ -40,10 +40,10 @@ function wrap(text, max) {
 
 function card(item) {
   const W = 1200, H = 1200;
-  const title = item.name.replace(/^LATICRETE /, "");
+  const title = item.name.replace(/^LATICRETE /, "").replace(/ \d[\d.]* (kg|L)( \+ Colour Kit| Kit)?$/, "");
   const titleLines = wrap(title, 17);
   const tag = wrap(item.tagline, 40);
-  const status = item.category === "grout" ? `${item.colours.length} COLOURS` : item.stocked ? "STOCKED IN OUR SHOWROOM" : "SPECIAL ORDER";
+  const status = item.category === "grout" ? `${item.colours.length} COLOURS` : item.stocked ? "" : "SPECIAL ORDER"; // no stock claims (Reagan 2026-11-10)
   let y = 340;
   const titleSvg = titleLines.map((l) => { const t = `<text x="90" y="${y}" font-family="Arial" font-weight="700" font-size="92" fill="${INK}" letter-spacing="-2">${esc(l)}</text>`; y += 100; return t; }).join("");
   y += 20;

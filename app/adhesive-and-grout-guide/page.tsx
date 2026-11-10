@@ -38,7 +38,7 @@ const ADH_TABLE = [
 
 const GROUT_TABLE = [
   ["PERMACOLOR Select", "Cement", "Better than standard cement", "Not needed", "40", "5 kg base + kit", "Most bathrooms, floors and walls"],
-  ["PERMACOLOR N&I", "Cement", "Better than standard cement", "Optional", "20", "10 kg bag", "Big floors, outdoors, trade jobs"],
+  ["PERMACOLOR N&I", "Cement", "Better than standard cement", "Optional", "20", "10 kg bag", "Most bathrooms, floors and walls; great value for bigger areas"],
   ["SPECTRALOCK PRO", "Epoxy", "Stain-proof (home use)", "Never", "34 Mini · 40 Full", "Mini 0.7 L · Full 3 L", "Splashbacks, showers, pools"],
 ];
 
@@ -50,18 +50,18 @@ const ONTO: [string, string[]][] = [
   ["Waterproofing membrane", ["Yes", "Yes", "Yes", "Absorbent tiles only"]],
   ["Existing tiles (sound)", ["Yes", "Yes", "Yes", "Not listed"]],
   ["Exterior-grade plywood (inside)", ["Not listed", "Yes", "Not listed", "Yes"]],
-  ["Vinyl, laminate (inside)", ["Not listed", "Yes, prepared", "Not listed", "Not listed"]],
+  ["Vinyl or laminate", ["No", "No", "No", "No"]],
 ];
 
 const PICKS: [string, string][] = [
-  ["Bathroom floor and walls", "335 adhesive with PERMACOLOR Select grout. Use SPECTRALOCK PRO on the shower floor if you want stain-proof grout."],
-  ["Large format floor (600 x 1200 and up)", "254 adhesive with a 10 or 12 mm notch trowel, back-buttering every tile. PERMACOLOR Select grout."],
+  ["Bathroom floor and walls", "335 adhesive with PERMACOLOR Select or PERMACOLOR New & Improved grout. Use SPECTRALOCK PRO on the shower floor if you want stain-proof grout."],
+  ["Large format floor (600 x 1200 and up)", "254 adhesive with a 10 or 12 mm notch trowel, back-buttering every tile. PERMACOLOR Select or New & Improved grout."],
   ["Feature or bathroom wall, big tiles", "TRI-LITE: it holds big tiles on the wall without slipping."],
   ["Kitchen splashback, ceramic or subway", "Multimastic Premium 4 L (one pail is about 2 m²) with a SPECTRALOCK PRO Mini for grout that wipes clean. A Mini grouts about 2 to 3 m² of subway tile; check yours with the grout calculator."],
   ["Kitchen splashback, porcelain or glass", "TRI-LITE adhesive. For see-through glass mosaics, 257 TITANIUM tinted to match the grout."],
   ["Outdoor patio, alfresco or balcony", "254 adhesive and PERMACOLOR Select grout (or PERMACOLOR New & Improved for big areas), over a properly prepared and waterproofed base."],
   ["Pool or water feature", "254 adhesive with SPECTRALOCK PRO or PERMACOLOR Select. Fill the pool 14 days after grouting."],
-  ["Tiling over old tiles", "335 or 254, both rated for tile over tile. The old tiles must be sound, clean and well bonded."],
+  ["Tiling over old tiles", "335 or 254, both rated for tile over tile. The old tiles must be firmly bonded, scuffed if glossy, cleaned with sugar soap, and given a skim coat of adhesive first."],
   ["Stone cladding", "MVIS Veneer Mortar, made for stone veneer and thin brick. Most stacked stone needs no grout."],
   ["Needs to be finished today", "335 RAPID: grout and light foot traffic after about 4 hours."],
 ];
@@ -82,7 +82,8 @@ const DECODE: [string, string][] = [
 ];
 
 const STEPS_LAY = [
-  ["Check the surface", "It must be sound, clean, flat and dry: no dust, paint, grease, curing compounds or loose material. Wet areas must be waterproofed first (in Australia, to AS 3740) and the membrane fully cured."],
+  ["Check the surface", "It must be sound, clean, flat and dry: no dust, paint, grease, curing compounds or loose material. Wet areas must be waterproofed first (in Australia, to AS 3740) and the membrane fully cured. Never tile over vinyl, laminate or floating floors."],
+  ["Tiling over old tiles?", "Tap every tile and lift any hollow ones. Scuff shiny glazes, scrub with sugar soap or dishwasher powder in hot water, rinse and let dry. Then work a 1.5 mm skim coat of adhesive hard into the surface before combing on the main coat."],
   ["Plan the layout", "Dry-lay a few tiles, find the centre lines and set out cuts so you do not end with thin slivers at a doorway. Leave a gap at walls and changes of plane for movement."],
   ["Mix", "Add the powder to the measured clean water (never the other way), mix with a paddle on a slow drill until smooth and lump-free, then let it stand briefly and remix as the data sheet says. Never add water once it starts to stiffen."],
   ["Spread", "Key a thin coat into the surface with the flat side of the trowel, then comb more on with the notched side in straight lines. Only spread what you can tile within the open time (30 minutes for most)."],
@@ -113,7 +114,9 @@ const FAQS = [
   { q: "Which trowel (notch) size should I use?", a: "As a guide: 6 mm for mosaics and tiles up to about 300 mm, 10 mm for 300 to 600 mm tiles, and 10 to 12 mm plus back-buttering for anything bigger. What matters is full coverage under the tile, so lift a tile to check." },
   { q: "What is the best adhesive for a kitchen splashback?", a: "For ceramic or stone tiles on a dry interior wall, Multimastic Premium comes ready to use in a 4 L pail that covers about 2 m². For porcelain, glass or large tiles, use TRI-LITE, as a ready-mixed adhesive dries very slowly under dense tiles." },
   { q: "Is there a small bag of adhesive for small jobs?", a: "LATICRETE Australia does not make a small bag of cement adhesive. The smallest options are the Multimastic 4 L pail (about 2 m²) and the 11 kg TRI-LITE bag, which covers about the same as a 20 kg bag." },
-  { q: "Can I tile over existing tiles?", a: "Yes, with 335 or 254, if the old tiles are sound, clean and well bonded. Tap them: any that sound hollow must come up first. Clean off grease and soap scum, and check that door clearances still work with the extra height." },
+  { q: "Can I tile over existing tiles?", a: "Yes, with 335 or 254, following LATICRETE's tile-over-tile steps. The old tiles must be firmly bonded: tap them, and any that sound hollow must come up first. Scuff (scarify) shiny, high-gloss glazes. Clean off grease, wax and soap with an alkaline cleaner such as sugar soap or dishwasher powder in hot water, rinse with clean water and let it dry. Then work a skim coat of adhesive about 1.5 mm thick hard into the tiles before combing on more with the notched trowel. Check door clearances and drainage falls still work with the extra height, and in showers the waterproofing must be sound." },
+  { q: "Do I need a primer?", a: "Usually not. LATICRETE's data sheets for 335, 254, TRI-LITE and Multimastic do not call for a primer on normal surfaces, and for tile over tile they rely on the preparation above (scuffing, cleaning and a skim coat) rather than a primer. LATICRETE does make a primer, PRIME-N-BOND, that improves the bond to smooth, non-absorbent surfaces such as glazed tile and steel-trowelled concrete, but it is for inside dry areas only: not for showers or other wet areas, and not under waterproofing. Waterproofing membranes have their own primers; your waterproofer will use the one their system needs. Ask us if you are unsure about your surface." },
+  { q: "Can I tile over vinyl, laminate or floating floors?", a: "No. Lift vinyl, laminate, floating timber and carpet and tile onto a sound, rigid surface underneath. These floors move and are not a reliable base for tile, whatever the adhesive." },
   { q: "Can I tile onto plasterboard?", a: "Inside, yes: 335, 254, TRI-LITE and Multimastic all list plasterboard for interior use. Not outside. In wet areas the board must be the right wet-area type and waterproofed first." },
   { q: "Do I need to waterproof first?", a: "In showers, bathrooms, laundries, balconies and pools, yes. The waterproofing membrane goes on before the adhesive. Adhesives and grout are not waterproofing. Your installer will waterproof to the Australian Standard (AS 3740 for wet areas)." },
   { q: "How long before I can grout?", a: "At least 24 hours for 335, 254, TRI-LITE, 257 TITANIUM and Multimastic at 21°C, longer in cold weather and under large tiles. 335 RAPID can be grouted after about 4 hours." },
@@ -121,7 +124,7 @@ const FAQS = [
   { q: "When can I fill the pool?", a: "LATICRETE says 14 days after grouting with 254 and PERMACOLOR grouts, and 10 days of curing for SPECTRALOCK PRO in submerged areas." },
   { q: "Cement grout or epoxy grout?", a: "Cement grout like PERMACOLOR Select suits most bathrooms and floors and is easier to use. Epoxy like SPECTRALOCK PRO is stain-proof in the home and never needs sealing, so it is worth it for kitchen splashbacks, shower floors and pools, but it takes more care to apply and clean up." },
   { q: "Do I need to seal my grout?", a: "Not with these. PERMACOLOR Select needs no sealing and SPECTRALOCK PRO never needs sealing. PERMACOLOR New & Improved can be sealed if you like, 72 hours after grouting. Separately, porous tiles and natural stone may need sealing before grouting so the grout colour does not stain the tile." },
-  { q: "What is the difference between PERMACOLOR Select and PERMACOLOR New & Improved?", a: "PERMACOLOR Select is a 5 kg base plus a separate colour kit, in 40 colours, fast setting and needs no sealing. PERMACOLOR New & Improved is pre-coloured in a 10 kg bag in 20 colours, good value for big areas. Both are high-performance cement grouts for joints from 1.5 to 12 mm." },
+  { q: "What is the difference between PERMACOLOR Select and PERMACOLOR New & Improved?", a: "Both are high-performance cement grouts that suit most everyday jobs: bathrooms, floors, walls, outdoors and pools. PERMACOLOR Select is a 5 kg base plus a separate colour kit, in 40 colours, fast setting and needs no sealing. PERMACOLOR New & Improved is pre-coloured in a 10 kg bag in 20 colours, good value for bigger areas. Both suit joints from 1.5 to 12 mm, so choose by colour and the size of the job." },
   { q: "What do I need to buy for PERMACOLOR Select?", a: "One 5 kg base and one colour kit for each batch. The colour kit holds the colour, the base is the same for every colour." },
   { q: "What is the SPECTRALOCK PRO Mini unit, and is it enough?", a: "It is the small size of SPECTRALOCK PRO epoxy grout: it makes about 0.7 litres, enough for about 4 m² of 300 x 300 tile, about 2 to 3 m² of 75 x 300 subway tile (depending on the joint), or about 1 m² of 50 x 50 mosaic. That covers most kitchen splashbacks of subway or larger tiles. Mosaics use far more grout. Our grout calculator works it out exactly for your tile." },
   { q: "Can I mix part of an epoxy grout unit?", a: "Mix the whole unit, Parts A, B and C together, as LATICRETE's instructions say. That is why picking the right size (Mini or Full) matters." },
@@ -132,7 +135,7 @@ const FAQS = [
   { q: "Can I use these in cold or hot weather?", a: "Working times in the data sheets are at 21°C. Cold slows everything down (Multimastic should not be used below 7°C, and needs an extra 24 to 48 hours before grouting below 15°C). Heat speeds everything up: SPECTRALOCK's working time drops to about 30 minutes at 35°C. 335 RAPID suits cold weather." },
   { q: "Can epoxy grout be used on natural stone?", a: "Test first. LATICRETE warns epoxy can change the colour of white or porous stone such as Carrara, and can scratch soft polished marble. PERMACOLOR Select is often the safer choice on stone, after sealing the stone." },
   { q: "Is it safe to use?", a: "Cement powders are alkaline and dusty, so wear gloves, eye protection and a dust mask when mixing. SPECTRALOCK's liquids are labelled corrosive: wear gloves and eye protection and read the label. Each product's Safety Data Sheet is available from LATICRETE." },
-  { q: "Which products are in stock?", a: "We keep 335, 254, TRI-LITE and Multimastic in the showroom. 335 RAPID, 257 TITANIUM and MVIS are ordered in. Every current grout colour is available; ask us about lead times for the colour you need." },
+  { q: "Can I pick it up today?", a: "Ask us first. We will confirm availability and lead times for your products and grout colours before you come in. 335 RAPID, 257 TITANIUM and MVIS are special-order products." },
   { q: "How much do they cost?", a: "Prices are on request for now. Add the products to your quote with your area and we will send a price with the quantities worked out." },
   { q: "Is there a warranty?", a: "LATICRETE offers system warranties when their products are used together and installed to their instructions. Ask us or your installer for the details for your job." },
 ];
@@ -151,7 +154,7 @@ function ProfileCard({ p, swatches }: { p: Profile; swatches?: string[] }) {
         <h3 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, margin: 0 }}>
           <Link href={`/product/${p.slug}`} style={{ color: "var(--ink)", textDecoration: "none" }}>{p.name}</Link>
         </h3>
-        <span style={{ ...label, color: "var(--accent)", margin: 0, whiteSpace: "nowrap" }}>{p.rating} · {p.status}</span>
+        <span style={{ ...label, color: "var(--accent)", margin: 0, whiteSpace: "nowrap" }}>{p.rating}{p.status ? ` · ${p.status}` : ""}</span>
       </div>
       <p className="ag-p" style={{ fontSize: 16, margin: "8px 0 16px", maxWidth: "75ch" }}>{p.what}</p>
       {swatches && swatches.length > 0 && <div className="ag-strip" aria-hidden>{swatches.map((h, i) => <span key={i} style={{ background: h }} />)}</div>}
@@ -266,7 +269,7 @@ export default async function AdhesiveGroutGuide() {
             ))}
           </div>
           <blockquote style={{ ...it, fontSize: 24, lineHeight: 1.35, color: "#2f6f73", borderTop: "3px solid var(--accent)", margin: "28px 0 0", padding: "18px 0 0", maxWidth: 760 }}>
-            &ldquo;If in doubt, choose 335 and PERMACOLOR Select. If it is big, outside or under water, step up to 254.&rdquo;
+            &ldquo;If in doubt, choose 335 and a PERMACOLOR grout. If it is big, outside or under water, step up to 254.&rdquo;
           </blockquote>
         </section>
 
@@ -274,7 +277,7 @@ export default async function AdhesiveGroutGuide() {
         <section style={{ marginTop: 64 }} id="adhesives">
           <p style={eyebrow}>01 / Adhesive · every product in full</p>
           <h2 style={big}>Know your <span style={it}>adhesive</span></h2>
-          <p style={body}>The first four are kept in our Baringa showroom and cover almost every home job. The last three are specialist products we order in for you.</p>
+          <p style={body}>The first four cover almost every home job. The last three are specialist products, ordered in for your job.</p>
           <div className="ag-cards">{ADHESIVE_PROFILES.map((p) => <ProfileCard key={p.slug} p={p} />)}</div>
         </section>
 
@@ -324,7 +327,7 @@ export default async function AdhesiveGroutGuide() {
         <section style={{ marginTop: 64 }} id="onto">
           <p style={eyebrow}>03 / Surfaces</p>
           <h2 style={mid}>What can I <span style={it}>tile onto?</span></h2>
-          <p style={body}>From LATICRETE&apos;s data sheets for the four adhesives we stock. Whatever the surface, it must be sound, clean, flat and dry, and wet areas must be waterproofed first.</p>
+          <p style={body}>From LATICRETE&apos;s data sheets for the four everyday adhesives. Whatever the surface, it must be sound, clean, flat and dry, and wet areas must be waterproofed first.</p>
           <Table head={["Surface", "335", "254", "TRI-LITE", "Multimastic"]} rows={ONTO.map(([s, v]) => [s, ...v])} />
         </section>
 

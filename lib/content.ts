@@ -657,7 +657,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     ],
     metaTitle: "Tile Adhesive & Grout Sunshine Coast | LATICRETE",
     metaDescription:
-      "LATICRETE tile adhesive and grout on the Sunshine Coast: flexible and lightweight adhesives, PERMACOLOR Select and SPECTRALOCK epoxy grout in every colour. Baringa showroom.",
+      "LATICRETE tile adhesive and grout on the Sunshine Coast: flexible and lightweight adhesives, PERMACOLOR cement grouts and SPECTRALOCK epoxy grout in every colour. Baringa showroom.",
     links: [
       { label: "Which adhesive and grout?", href: "/adhesive-and-grout-guide" },
       { label: "The grout decision", href: "/blog/the-grout-decision" },

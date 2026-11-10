@@ -33,11 +33,11 @@ function recommend(where: Where, tile: Tile, today: boolean, overTiles: boolean)
   if (where === "cladding") {
     return {
       adhesive: A.mvis, notch: 12, notchText: "12 x 12 mm notch, or back-butter each piece (adhered veneer method)",
-      grouts: [], notes: ["Most stacked stone is laid with tight dry joints and needs no grout. If your stone needs pointed joints, ask us.", "MVIS is ordered in for you."],
+      grouts: [], notes: ["Most stacked stone is laid with tight dry joints and needs no grout. If your stone needs pointed joints, ask us.", "MVIS is a special-order product."],
     };
   }
   let adhesive = A.s335;
-  if (tile === "glass") { adhesive = A.ti; notes.push("257 TITANIUM can be tinted with a PERMACOLOR Select colour kit so the adhesive behind clear glass matches your grout. It is ordered in for you."); }
+  if (tile === "glass") { adhesive = A.ti; notes.push("257 TITANIUM can be tinted with a PERMACOLOR Select colour kit so the adhesive behind clear glass matches your grout. It is a special-order product."); }
   else if (where === "splashback") adhesive = tile === "ceramic" || tile === "stone" ? A.mm : A.tri;
   else if (where === "outdoor" || where === "pool") adhesive = A.s254;
   else if (tile === "large") adhesive = where === "wall" ? A.tri : A.s254;
@@ -45,12 +45,13 @@ function recommend(where: Where, tile: Tile, today: boolean, overTiles: boolean)
 
   if (overTiles && ![A.s335, A.s254].includes(adhesive) && adhesive !== A.ti) {
     adhesive = tile === "large" || where === "outdoor" || where === "pool" ? A.s254 : A.s335;
-    notes.push("LATICRETE documents tile over tile for 335 and 254, so we have switched to that. The old tiles must be sound, clean and well bonded.");
-  } else if (overTiles) notes.push("The old tiles must be sound, clean and well bonded. Lift any drummy (hollow-sounding) tiles first.");
+    notes.push("LATICRETE documents tile over tile for 335 and 254, so we have switched to that.");
+  }
+  if (overTiles) notes.push("Tile over tile: lift any hollow-sounding tiles, scuff shiny glazes, scrub with sugar soap, rinse and dry, then work a 1.5 mm skim coat of adhesive into the old tiles first. No primer needed with 335 or 254.");
 
   if (today) {
     if (overTiles || tile === "glass") notes.push("Need it finished today? 335 RAPID lets you grout after about 4 hours. Ask us whether it suits your surface.");
-    else { adhesive = A.rapid; notes.push("335 RAPID lets you grout and walk on it after about 4 hours. It is ordered in for you, so allow a few days."); }
+    else { adhesive = A.rapid; notes.push("335 RAPID lets you grout and walk on it after about 4 hours. It is a special-order product, so allow a few days."); }
   }
 
   const notch: Notch = adhesive === A.mm ? 6 : tile === "large" ? (adhesive === A.s254 ? 10 : 12) : tile === "porcelain" ? 10 : 6;
@@ -66,15 +67,17 @@ function recommend(where: Where, tile: Tile, today: boolean, overTiles: boolean)
     grouts.push({ slug: A.pcs, why: "The easier cement option if you would rather not work with epoxy." });
   } else if (where === "shower") {
     grouts.push({ slug: A.pcs, why: "For the walls and floor: no sealing needed, with mould protection built in." });
+    grouts.push({ slug: A.pcni, why: "The pre-coloured 10 kg option, just as suited and good value for a bigger bathroom." });
     grouts.push({ slug: A.sl, why: "Worth it on the shower floor if you want grout that stays clean and never stains." });
   } else if (where === "pool") {
     grouts.push({ slug: A.sl, why: "Epoxy for pools and fountains. Cure 10 days before filling." });
     grouts.push({ slug: A.pcs, why: "Cement option. Cure 14 days before filling." });
   } else if (where === "outdoor") {
     grouts.push({ slug: A.pcs, why: "Fast setting, no sealing needed, inside and out." });
-    grouts.push({ slug: A.pcni, why: "Pre-coloured in 10 kg bags, good value for big areas." });
+    grouts.push({ slug: A.pcni, why: "Equally suited outdoors, pre-coloured in 10 kg bags and good value for big areas." });
   } else {
-    grouts.push({ slug: A.pcs, why: "The everyday choice: 40 colours, no sealing needed." });
+    grouts.push({ slug: A.pcs, why: "An everyday choice: 40 colours, 5 kg base plus colour kit, no sealing needed." });
+    grouts.push({ slug: A.pcni, why: "Equally good for everyday jobs: pre-coloured 10 kg bags in 20 colours, great value for bigger areas." });
     grouts.push({ slug: A.sl, why: "Choose epoxy where stains matter most." });
   }
   if (tile === "stone") notes.push("Seal natural stone before grouting so the grout colour cannot stain it. Epoxy grout can change the colour of white or porous stone such as Carrara, so test first.");
@@ -133,7 +136,7 @@ export default function Picker() {
             <div>
               <p style={{ ...q, color: "#7fc4bd" }}>Your adhesive</p>
               <Link href={`/product/${adh.slug}`} className="ag-res-name">{adh.name}</Link>
-              <p className="ag-res-p">{adh.rating} · {adh.pack} · {adh.status}</p>
+              <p className="ag-res-p">{adh.rating} · {adh.pack}{adh.status ? ` · ${adh.status}` : ""}</p>
               <p className="ag-res-p"><strong>Trowel:</strong> {r.notchText}.</p>
               <label className="ag-res-p" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
                 <span>Area to tile</span>
