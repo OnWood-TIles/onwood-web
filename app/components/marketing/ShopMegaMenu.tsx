@@ -23,6 +23,25 @@ const eyebrow: React.CSSProperties = {
   marginBottom: 14,
 };
 
+// Departments are grouped under short headings in two columns so the panel stays
+// short enough for a laptop screen as departments are added. Unknown slugs land in "More".
+const GROUPS: { label: string; slugs: string[] }[] = [
+  { label: "Tiles & stone", slugs: ["tiles", "pavers", "stone-cladding"] },
+  { label: "Bathroom", slugs: ["vanities", "basins", "mirrors", "bathroom-storage"] },
+  { label: "Install", slugs: ["adhesives", "accessories"] },
+];
+
+function groupDepts(depts: ShopMenuDept[]) {
+  const known = new Set(GROUPS.flatMap((g) => g.slugs));
+  const groups = GROUPS.map((g) => ({
+    label: g.label,
+    items: g.slugs.map((slug) => depts.findIndex((d) => d.slug === slug)).filter((i) => i >= 0),
+  }));
+  const more = depts.map((d, i) => (known.has(d.slug) ? -1 : i)).filter((i) => i >= 0);
+  if (more.length) groups.push({ label: "More", items: more });
+  return groups.filter((g) => g.items.length);
+}
+
 function triggerStyle(open: boolean): React.CSSProperties {
   return {
     display: "inline-flex",
@@ -90,6 +109,8 @@ export default function ShopMegaMenu({
   }
 
   const active = depts[Math.min(focus, depts.length - 1)];
+  const groups = groupDepts(depts);
+  let order = 0; // stagger index across all groups
 
   return (
     <div onMouseEnter={openNow} onMouseLeave={closeSoon}>
@@ -117,7 +138,8 @@ export default function ShopMegaMenu({
           right: 0,
           top: panelTop,
           zIndex: 149,
-          overflow: "hidden",
+          overflow: "hidden auto",
+          maxHeight: `calc(100vh - ${panelTop}px)`,
           clipPath: open ? "inset(0 0 0 0)" : "inset(0 0 100% 0)",
           transition: "clip-path .55s cubic-bezier(.76,0,.19,1)",
           pointerEvents: open ? "auto" : "none",
@@ -131,7 +153,7 @@ export default function ShopMegaMenu({
           style={{
             maxWidth: 1240,
             margin: "0 auto",
-            padding: "34px 28px 38px",
+            padding: "28px 28px 32px",
             display: "grid",
             gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)",
             gap: 46,
@@ -139,37 +161,45 @@ export default function ShopMegaMenu({
         >
           {/* Left: departments */}
           <div>
-            <div style={eyebrow}>Shop by category</div>
-            <div>
-              {depts.map((d, i) => (
-                <Link
-                  key={d.slug}
-                  href={`${shopBase}/${d.slug}`}
-                  onMouseEnter={() => setFocus(i)}
-                  onFocus={() => setFocus(i)}
-                  onClick={() => setOpen(false)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 16,
-                    width: "100%",
-                    textDecoration: "none",
-                    color: i === focus ? "var(--accent)" : "var(--ink)",
-                    borderBottom: "1px solid var(--line)",
-                    padding: "13px 6px",
-                    paddingLeft: open && i === focus ? 16 : 6,
-                    opacity: open ? 1 : 0,
-                    transform: open ? "translateY(0)" : "translateY(22px)",
-                    transition: `opacity .5s ${i * 0.04 + 0.05}s, transform .5s ${i * 0.04 + 0.05}s, color .25s, padding-left .25s`,
-                    fontFamily: "var(--font-archivo)",
-                    fontWeight: 800,
-                    fontSize: 20,
-                    letterSpacing: "-.01em",
-                  }}
-                >
-                  <span style={{ flex: 1 }}>{d.label}</span>
-                  <span style={{ ...eyebrow, marginBottom: 0, opacity: 0.6 }}>{d.count}</span>
-                </Link>
+            <div className="ow-mega-groups">
+              {groups.map((g) => (
+                <div key={g.label}>
+                  <div style={{ ...eyebrow, marginBottom: 6 }}>{g.label}</div>
+                  {g.items.map((i) => {
+                    const d = depts[i];
+                    const n = order++;
+                    return (
+                      <Link
+                        key={d.slug}
+                        href={`${shopBase}/${d.slug}`}
+                        onMouseEnter={() => setFocus(i)}
+                        onFocus={() => setFocus(i)}
+                        onClick={() => setOpen(false)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          width: "100%",
+                          textDecoration: "none",
+                          color: i === focus ? "var(--accent)" : "var(--ink)",
+                          borderBottom: "1px solid var(--line)",
+                          padding: "10px 4px",
+                          paddingLeft: open && i === focus ? 12 : 4,
+                          opacity: open ? 1 : 0,
+                          transform: open ? "translateY(0)" : "translateY(18px)",
+                          transition: `opacity .5s ${n * 0.04 + 0.05}s, transform .5s ${n * 0.04 + 0.05}s, color .25s, padding-left .25s`,
+                          fontFamily: "var(--font-archivo)",
+                          fontWeight: 800,
+                          fontSize: 17,
+                          letterSpacing: "-.01em",
+                        }}
+                      >
+                        <span style={{ flex: 1 }}>{d.label}</span>
+                        <span style={{ ...eyebrow, marginBottom: 0, opacity: 0.6 }}>{d.count}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               ))}
             </div>
           </div>
@@ -212,11 +242,14 @@ export default function ShopMegaMenu({
 
       <style>{`
         @keyframes owMegaFade{from{opacity:0}to{opacity:1}}
+        .ow-mega-groups{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px;align-items:start}
+        .ow-mega-groups>div:nth-child(3){grid-column:1}
         /* On tablet/phone widths (e.g. the trade portal, which has no hamburger)
            collapse the mega panel to a single column and drop the preview image. */
         @media(max-width:900px){
           .ow-mega-inner{grid-template-columns:1fr!important;gap:18px!important;padding:22px 18px 26px!important}
           .ow-mega-preview{display:none!important}
+          .ow-mega-groups{grid-template-columns:1fr}
         }
       `}</style>
     </div>
