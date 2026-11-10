@@ -49,7 +49,6 @@ const SPECIAL: Card[] = [
   { slug: "laticrete-335-rapid-adhesive", name: "335 RAPID", rating: "C2TFS1", stocked: false, line: "Fast setting: grout and walk on it in about 4 hours.", why: "For jobs that must be finished in a day.", mind: "Shorter working time, mix small batches." },
   { slug: "laticrete-257-titanium-adhesive", name: "257 TITANIUM", rating: "C2TES2", stocked: false, line: "Premium lightweight for porcelain panels and glass.", why: "Can be tinted to match the grout behind see-through glass mosaics.", mind: "A specialist product, ordered in." },
   { slug: "laticrete-mvis-veneer-mortar", name: "MVIS Veneer Mortar", rating: "C2TS1", stocked: false, line: "Made for stone cladding and adhered stone veneer.", why: "Non-sag, so heavy pieces stay put on the wall.", mind: "Coverage depends on the fixing method." },
-  { slug: "laticrete-latapoxy-310-stone-adhesive", name: "LATAPOXY 310", rating: "R2T", stocked: false, line: "Epoxy for spot-bonding heavy stone to walls.", why: "Holds without sagging up to 25 mm thick.", mind: "A trade product. Ask us about your job." },
 ];
 
 const GROUTS: (Card & { colours: string })[] = [
@@ -89,7 +88,7 @@ const PICKS: [string, string][] = [
   ["Outdoor patio, alfresco or balcony", "254 adhesive and PERMACOLOR Select grout, over a properly prepared and waterproofed base."],
   ["Pool or water feature", "254 adhesive with SPECTRALOCK PRO or PERMACOLOR Select. Allow 14 days after grouting before filling."],
   ["Tiling over old tiles", "335 or 254, both rated for tile over tile. The old tiles must be sound, clean and well bonded."],
-  ["Stone cladding", "MVIS Veneer Mortar, or LATAPOXY 310 for heavy pieces. Both ordered in for you."],
+  ["Stone cladding", "MVIS Veneer Mortar, made for stone veneer and thin brick. Ordered in for you."],
   ["Needs to be finished today", "335 RAPID: grout and light foot traffic after about 4 hours."],
 ];
 
@@ -318,7 +317,7 @@ export default async function AdhesiveGroutGuide() {
             .ag-mini { grid-template-columns: 1fr 1fr; }
           }
           @media (min-width: 1000px) {
-            .ag-mini { grid-template-columns: repeat(4, 1fr); }
+            .ag-mini { grid-template-columns: repeat(3, 1fr); }
             .ag-split { grid-template-columns: 1fr 1fr; gap: 64px; }
           }
           @media (max-width: 520px) { .ag-decode { grid-template-columns: 1fr; } }
