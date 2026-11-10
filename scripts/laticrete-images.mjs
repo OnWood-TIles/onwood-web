@@ -43,7 +43,7 @@ function card(item) {
   const title = item.name.replace(/^LATICRETE /, "");
   const titleLines = wrap(title, 17);
   const tag = wrap(item.tagline, 40);
-  const status = item.stocked ? "STOCKED IN OUR SHOWROOM" : "SPECIAL ORDER";
+  const status = item.category === "grout" ? `${item.colours.length} COLOURS` : item.stocked ? "STOCKED IN OUR SHOWROOM" : "SPECIAL ORDER";
   let y = 340;
   const titleSvg = titleLines.map((l) => { const t = `<text x="90" y="${y}" font-family="Arial" font-weight="700" font-size="92" fill="${INK}" letter-spacing="-2">${esc(l)}</text>`; y += 100; return t; }).join("");
   y += 20;

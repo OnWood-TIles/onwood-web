@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: { title: "Which tile adhesive and grout? | OnWood Tiles", url: URL_, type: "article" },
 };
 
-type Card = { slug: string; name: string; rating: string; stocked: boolean; line: string; why: string; mind: string };
+type Card = { slug: string; name: string; rating: string; stocked: boolean; avail?: string; line: string; why: string; mind: string };
 
 const ADHESIVES: Card[] = [
   { slug: "laticrete-335-premium-flexible-adhesive", name: "335 Premium Flexible", rating: "C2TES1", stocked: true,
@@ -53,7 +53,7 @@ const SPECIAL: Card[] = [
 ];
 
 const GROUTS: (Card & { colours: string })[] = [
-  { slug: "laticrete-permacolor-select-grout", name: "PERMACOLOR Select", rating: "CG2FAW", stocked: true, colours: "40 colours",
+  { slug: "laticrete-permacolor-select-grout", name: "PERMACOLOR Select", rating: "CG2FAW", stocked: false, avail: "All 40 colours available", colours: "40 colours",
     line: "Cement grout made from a 5 kg base and a separate colour kit, so the colour is consistent bag to bag.",
     why: "Fast setting, no sealing needed, better stain resistance than standard cement grout and built-in mould protection. Joints 1.5 to 12 mm, wet areas and pools.",
     mind: "Cement grout can still mark over time in a busy kitchen; choose epoxy where stains matter most." },
@@ -140,7 +140,7 @@ function ProductCard({ c, swatches }: { c: Card & { colours?: string }; swatches
         <div><p style={{ ...label, color: "#8a8577" }}>Keep in mind</p><p className="ag-p">{c.mind}</p></div>
       </div>
       <p style={{ margin: "12px 0 0", fontSize: 13, fontWeight: 700, color: c.stocked ? "var(--ink)" : "#8a8577" }}>
-        {c.stocked ? "Stocked in our Baringa showroom" : "Ordered in for you"} · <Link href={`/product/${c.slug}`} style={{ color: "var(--accent)" }}>View product →</Link>
+        {c.avail ?? (c.stocked ? "Stocked in our Baringa showroom" : "Ordered in for you")} · <Link href={`/product/${c.slug}`} style={{ color: "var(--accent)" }}>View product →</Link>
       </p>
     </article>
   );
@@ -226,7 +226,7 @@ export default async function AdhesiveGroutGuide() {
         <section style={{ marginTop: 64 }} id="grout">
           <p style={eyebrow}>02 / Grout · in depth</p>
           <h2 style={big}>Know your <span style={it}>grout</span></h2>
-          <p style={body}>Every current LATICRETE colour is available. We keep the popular PERMACOLOR Select colours in stock and order the rest in for you.</p>
+          <p style={body}>Every current LATICRETE colour is available. Ask us about lead times for the colour you need.</p>
           <div className="ag-cards">{GROUTS.map((c) => <ProductCard key={c.slug} c={c} swatches={hexes(c.slug)} />)}</div>
         </section>
 
