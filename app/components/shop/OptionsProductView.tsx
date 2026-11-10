@@ -49,7 +49,13 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
             <p className="vb-3d"><Open3DButton slug={range.slug} base={trade?.base} className="vb-3d-btn" /><span>Turn it round, open the drawers and see your colours in 3D. Same options and {trade ? "your prices" : "prices"}.</span></p>
           )}
           {!quick && range.options?.drawing === "vanity" && (
-            <p className="vb-brochure"><a href={`/brochure/${range.slug}`} target="_blank" rel="noopener noreferrer" className="vb-link">Download the brochure (every size and option) ↓</a></p>
+            <p className="vb-brochure" style={{ margin: "14px 0 0" }}>
+              {/* Same pill as the tile pages' "Download brochure" button. */}
+              <a href={`/brochure/${range.slug}`} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", textDecoration: "none", background: "#fff", color: "var(--ink)", fontWeight: 700, fontSize: 15, padding: "14px 26px", borderRadius: 99, border: "1px solid var(--line)" }}>
+                Download brochure ↓
+              </a>
+              <span style={{ display: "block", marginTop: 8, fontSize: 12.5, color: "#8a8577" }}>Every size and option, with drawings.</span>
+            </p>
           )}
           {!quick && steps.length >= 3 && <p className="vb-custom-note">Fully customisable: choose your {steps.join(", ").replace(/, ([^,]*)$/, " and $1")} below. Photos show one example build.</p>}
         </header>
