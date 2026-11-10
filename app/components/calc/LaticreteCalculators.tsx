@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ADHESIVES, GROUTS, adhesiveCoverage, groutCoverage, suggestedNotch, unitsNeeded } from "../../../lib/laticreteCalc";
+import { addQuote } from "../../../lib/quoteCart";
+import Picker from "../../adhesive-and-grout-guide/Picker";
+
+/** What the quote list needs for a product, from the live feed (passed in by the page). */
+export type QuoteProduct = { rangeId: string; name: string; image: string | null; unit: string; price: number | null; colour: string | null; coverageM2: number | null };
+type Row = { slug: string; name: string; unit: string; per: number; units: number; note?: string; warn?: string };
 
 // Grout + adhesive calculators (LATICRETE's own coverage formulas, lib/laticreteCalc.ts).
 // Enter the job once and every product we sell shows its coverage and how many units you need.
@@ -26,15 +32,16 @@ function Field({ label, value, onChange, suffix, width }: { label: string; value
   );
 }
 
-function Results({ rows, unitWord }: { rows: { slug: string; name: string; unit: string; per: number; units: number; note?: string; warn?: string }[]; unitWord: string }) {
+function Results({ rows, unitWord, highlight, action }: { rows: Row[]; unitWord: string; highlight?: string | null; action?: (r: Row) => React.ReactNode }) {
   return (
     <div className="lc-table-wrap">
       <table className="lc-table">
-        <thead><tr><th>Product</th><th>Pack</th><th>Covers per pack</th><th>{unitWord}</th></tr></thead>
+        <thead><tr><th>Product</th><th>Pack</th><th>Covers per pack</th><th>{unitWord}</th>{action && <th aria-label="Add to quote" />}</tr></thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.slug}>
+            <tr key={r.slug} className={r.slug === highlight ? "lc-hl" : undefined}>
               <th scope="row">
+                {r.slug === highlight && <span className="lc-badge">Recommended for your job</span>}
                 <Link href={`/product/${r.slug}`} style={{ color: "var(--ink)" }}>{r.name}</Link>
                 {r.note && <span className="lc-note">{r.note}</span>}
                 {r.warn && <span className="lc-warn">{r.warn}</span>}
@@ -42,6 +49,7 @@ function Results({ rows, unitWord }: { rows: { slug: string; name: string; unit:
               <td>{r.unit}</td>
               <td>{r.per > 0 ? `${fmt(r.per)} m²` : "-"}</td>
               <td><strong style={{ fontFamily: "var(--font-archivo)", fontSize: 20 }}>{r.units > 0 ? r.units : "-"}</strong></td>
+              {action && <td>{action(r)}</td>}
             </tr>
           ))}
         </tbody>
@@ -98,15 +106,37 @@ export function GroutCalculator() {
   );
 }
 
-export function AdhesiveCalculator() {
+function AddButton({ product, slug, units, unitWord, spec }: { product?: QuoteProduct; slug: string; units: number; unitWord: string; spec: string }) {
+  const [added, setAdded] = useState<number | null>(null);
+  if (!product || units <= 0) return null;
+  if (added === units) return <Link href="/quote" className="lc-add lc-added">Added ✓ View quote</Link>;
+  return (
+    <button type="button" className="lc-add" onClick={() => {
+      addQuote({
+        kind: "standard", href: `/product/${slug}`, name: product.name, colour: product.colour, image: product.image, rangeId: product.rangeId,
+        unit: product.unit, boxQuantity: 1, coverageM2: product.coverageM2, unitPrice: product.price, quantity: units, areaM2: null, wastePct: null, spec: [spec],
+      });
+      setAdded(units);
+    }}>
+      Add {units} {unitWord}{units === 1 ? "" : "s"}
+    </button>
+  );
+}
+
+export function AdhesiveCalculator({ products, preset }: { products?: Record<string, QuoteProduct>; preset?: { adhesive: string; notch: number } | null } = {}) {
   const [area, setArea] = useState("20"), [notch, setNotch] = useState(10), [waste, setWaste] = useState(10), [tile, setTile] = useState("600");
+  // Follow the picker: switch to its trowel and put its adhesive first.
+  useEffect(() => { if (preset) setNotch(preset.notch); }, [preset]);
   const A = num(area);
   const suggested = suggestedNotch(num(tile));
-  const rows = ADHESIVES.map((a) => {
+  const rows: Row[] = ADHESIVES.map((a) => {
     const per = adhesiveCoverage(a.mortarLitres, notch);
     const ok = a.notches.includes(notch);
     return { slug: a.slug, name: a.name, unit: a.unit, per: ok ? per : 0, units: ok ? unitsNeeded(A, per, waste) : 0, note: a.note, warn: ok ? undefined : `Use a ${a.notches.join(" or ")} mm notch` };
   });
+  const hl = preset?.adhesive ?? null;
+  if (hl) rows.sort((a, b) => (b.slug === hl ? 1 : 0) - (a.slug === hl ? 1 : 0));
+  const word = (r: Row) => (r.unit.includes("pail") ? "pail" : "bag");
   return (
     <div className="lc-grid">
       <div style={card}>
@@ -129,11 +159,31 @@ export function AdhesiveCalculator() {
       </div>
       <div style={card}>
         <p style={lab}>You will need</p>
-        <Results rows={rows} unitWord="Bags / pails" />
+        <Results rows={rows} unitWord="Bags / pails" highlight={hl} action={products ? (r) => (
+          <AddButton product={products[r.slug]} slug={r.slug} units={r.units} unitWord={word(r)} spec={`For ${A} m² with a ${notch} x ${notch} mm notch + ${waste}% waste (adhesive calculator)`} />
+        ) : undefined} />
         <p style={{ fontSize: 13, color: "#6b746f", margin: "14px 0 0", lineHeight: 1.55 }}>
-          Not sure which adhesive? <Link href="/adhesive-and-grout-guide#picker" style={{ color: "var(--accent)", fontWeight: 700 }}>Use the picker</Link>.
+          Add to quote puts that number of bags on your quote list, where you can still change it before you send it.
         </p>
       </div>
     </div>
+  );
+}
+
+/** The adhesive calculator page: the picker on top drives the calculator below. */
+export function AdhesiveCalcWithPicker({ products }: { products: Record<string, QuoteProduct> }) {
+  const [preset, setPreset] = useState<{ adhesive: string; notch: number } | null>(null);
+  return (
+    <>
+      <section className="ag-dark lc-picker">
+        <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, margin: "0 0 6px", color: "#fff" }}>
+          1. Which adhesive? <span style={{ fontFamily: "var(--font-newsreader)", fontStyle: "italic", fontWeight: 400, color: "#cfe3e1" }}>Answer three questions</span>
+        </h2>
+        <p style={{ margin: "0 0 20px", color: "#cfe3e1", fontSize: 15 }}>Already know? Skip straight to the calculator below.</p>
+        <Picker onResult={setPreset} hideQuantity />
+      </section>
+      <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 26, margin: "36px 0 14px" }}>2. How much, and add it to your quote</h2>
+      <AdhesiveCalculator products={products} preset={preset} />
+    </>
   );
 }

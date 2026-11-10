@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { bySlug, SPECTRALOCK_MINI, type Notch } from "./data";
 
 // "Which adhesive and grout?" picker: three questions -> the adhesive, grout and trowel for the
@@ -93,7 +93,9 @@ const chip = (on: boolean): React.CSSProperties => ({
 });
 const q: React.CSSProperties = { fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 10px" };
 
-export default function Picker() {
+/** onResult: lets the adhesive calculator follow the recommendation (it then shows the
+ *  quantity itself, so it passes hideQuantity). */
+export default function Picker({ onResult, hideQuantity }: { onResult?: (r: { adhesive: string; notch: Notch } | null) => void; hideQuantity?: boolean } = {}) {
   const [where, setWhere] = useState<Where | null>(null);
   const [tile, setTile] = useState<Tile | null>(null);
   const [today, setToday] = useState(false);
@@ -107,6 +109,12 @@ export default function Picker() {
   const per = adh?.perNotch?.[r!.notch] ?? (adh?.perNotch ? Object.values(adh.perNotch)[0] : undefined);
   const packs = per && m2 > 0 ? Math.ceil((m2 * 1.1) / per[0]) : null;
   const unit = adh?.pack.includes("pail") ? "pail" : "bag";
+  const resultKey = r ? `${r.adhesive}|${r.notch}` : "";
+  useEffect(() => {
+    if (!onResult) return;
+    onResult(r ? { adhesive: r.adhesive, notch: r.notch } : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultKey]);
 
   return (
     <div className="ag-picker">
@@ -138,6 +146,9 @@ export default function Picker() {
               <Link href={`/product/${adh.slug}`} className="ag-res-name">{adh.name}</Link>
               <p className="ag-res-p">{adh.rating} · {adh.pack}{adh.status ? ` · ${adh.status}` : ""}</p>
               <p className="ag-res-p"><strong>Trowel:</strong> {r.notchText}.</p>
+              {hideQuantity ? (
+                <p className="ag-res-p" style={{ color: "#fff", fontWeight: 700, marginTop: 12 }}>Your quantity is worked out below, ready to add to your quote.</p>
+              ) : (<>
               <label className="ag-res-p" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
                 <span>Area to tile</span>
                 <input inputMode="decimal" value={area} onChange={(e) => setArea(e.target.value.replace(/[^0-9.]/g, ""))} placeholder="e.g. 12"
@@ -149,6 +160,7 @@ export default function Picker() {
                   About {packs} {unit}{packs === 1 ? "" : "s"}, including 10% spare. Back-buttering and uneven floors use more.
                 </p>
               )}
+              </>)}
             </div>
             <div>
               <p style={{ ...q, color: "#7fc4bd" }}>{r.grouts.length ? "Your grout" : "Grout"}</p>
@@ -171,9 +183,9 @@ export default function Picker() {
               {r.notes.map((n) => <li key={n}>{n}</li>)}
             </ul>
           )}
-          <p style={{ margin: "16px 0 0", fontSize: 13, color: "#9fb4b2" }}>
+          {!hideQuantity && <p style={{ margin: "16px 0 0", fontSize: 13, color: "#9fb4b2" }}>
             A guide only. For exact quantities use the <Link href="/adhesive-calculator" style={{ color: "#cfe3e1" }}>adhesive</Link> and <Link href="/grout-calculator" style={{ color: "#cfe3e1" }}>grout</Link> calculators, or add the products to your quote and we will check everything for your job.
-          </p>
+          </p>}
         </div>
       )}
     </div>

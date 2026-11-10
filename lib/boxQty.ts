@@ -67,5 +67,8 @@ export function unitLabel(unit: string | null | undefined, qty = 1): string {
   const u = (unit ?? "").trim();
   if (isAreaUnit(u)) return "m²";
   if (/^per\s*unit$/i.test(u)) return qty === 1 ? "unit" : "units";
+  // Countable packs (bag, pail, kit...) read "6 bags", not "6 bag".
+  if (/^(bag|pail|kit|tub|unit|piece|sheet|carton)$/i.test(u)) return qty === 1 ? u : `${u}s`;
+  if (/^box$/i.test(u)) return qty === 1 ? u : "boxes";
   return u || "unit";
 }

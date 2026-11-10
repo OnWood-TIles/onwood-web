@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import CalcPage from "../components/calc/CalcPage";
-import { AdhesiveCalculator } from "../components/calc/LaticreteCalculators";
+import { AdhesiveCalcWithPicker, type QuoteProduct } from "../components/calc/LaticreteCalculators";
+import { listRanges } from "../../lib/onbase/client";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { absolute: "Tile Adhesive Calculator | How Many Bags Do I Need? | OnWood Tiles" },
@@ -15,15 +18,23 @@ const FAQS = [
   { q: "Why does an 11 kg bag cover as much as a 20 kg bag?", a: "TRI-LITE and 257 TITANIUM are lightweight, sand-free adhesives. They mix up to about the same volume as a standard 20 kg bag, so they cover about the same area." },
   { q: "What is back-buttering, and does it use more?", a: "Skimming a thin coat of adhesive onto the back of each tile as well as the floor or wall. It is a must for large format tiles and outdoors, and it uses more adhesive, so allow extra." },
   { q: "Does the surface change how much I need?", a: "Yes. Uneven or rough surfaces fill more of the notch. Level the surface first and allow extra waste on rough or old surfaces." },
-  { q: "Which adhesive should I choose?", a: "Use the picker on our LATICRETE adhesive and grout guide: answer three questions and it tells you the adhesive, grout and trowel for your job." },
+  { q: "Which adhesive should I choose?", a: "Use the picker at the top of this page: answer three questions and it picks the adhesive and trowel, then the calculator works out how many bags. Our LATICRETE adhesive and grout guide explains every product in full." },
 ];
 
-export default function AdhesiveCalculatorPage() {
+export default async function AdhesiveCalculatorPage() {
+  // Live products so each result can go straight onto the quote list.
+  const products: Record<string, QuoteProduct> = {};
+  try {
+    for (const r of await listRanges({ department: "adhesives" })) {
+      const s = r.swatches[0];
+      products[r.slug] = { rangeId: r.id, name: r.name, image: r.heroImage ?? s?.image ?? null, unit: s?.unit ?? r.unit ?? "bag", price: s?.price ?? r.price ?? null, colour: s?.colour ?? null, coverageM2: s?.coverageM2 ?? r.coverageM2 ?? null };
+    }
+  } catch { /* calculator still works without the add buttons */ }
   return (
     <CalcPage
       title="How much adhesive do I" italic="need?"
-      intro="Enter your area and trowel size. We will show how far each LATICRETE adhesive goes and how many bags you need, side by side."
-      tool={<AdhesiveCalculator />} faqs={FAQS} other={{ href: "/grout-calculator", label: "Grout calculator" }}
+      intro="Not sure which adhesive? Answer three quick questions, then enter your area. We work out how many bags you need and you can add them to your quote in one click."
+      tool={<AdhesiveCalcWithPicker products={products} />} faqs={FAQS} other={{ href: "/grout-calculator", label: "Grout calculator" }}
     />
   );
 }

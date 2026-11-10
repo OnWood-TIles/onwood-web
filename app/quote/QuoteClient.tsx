@@ -154,8 +154,12 @@ export default function QuoteClient({ pickupAddress }: { pickupAddress: string }
         <div style={{ ...card, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline", justifyContent: "space-between" }}>
           <div>
             <span style={label}>Estimated total</span>
-            <strong style={{ fontFamily: "var(--font-archivo)", fontSize: 30, fontWeight: 900 }}>{fmt(total)}</strong>
-            <span style={{ fontSize: 13.5, color: "#5a6067", marginLeft: 8 }}>incl. GST{onRequest ? `, plus ${onRequest} item${onRequest === 1 ? "" : "s"} priced on request` : ""}</span>
+            {priced.length > 0 || !onRequest ? (<>
+              <strong style={{ fontFamily: "var(--font-archivo)", fontSize: 30, fontWeight: 900 }}>{fmt(total)}</strong>
+              <span style={{ fontSize: 13.5, color: "#5a6067", marginLeft: 8 }}>incl. GST{onRequest ? `, plus ${onRequest} item${onRequest === 1 ? "" : "s"} priced on request` : ""}</span>
+            </>) : (
+              <strong style={{ fontFamily: "var(--font-archivo)", fontSize: 24, fontWeight: 900 }}>Price on request</strong>
+            )}
           </div>
         </div>
         <div style={{ ...card, background: "#fff8ec", borderColor: "#f0d9a8" }}>

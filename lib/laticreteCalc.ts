@@ -62,5 +62,16 @@ export const calcStyles = `
   .lc-table td { padding: 12px 10px 12px 0; border-bottom: 1px solid var(--line); color: #3a444a; white-space: nowrap; }
   .lc-note, .lc-warn { display: block; font-family: var(--font-manrope, inherit); font-weight: 600; font-size: 12px; color: #8a8577; margin-top: 2px; }
   .lc-warn { color: #a5543a; }
+  .lc-hl th, .lc-hl td { background: color-mix(in srgb, var(--accent) 8%, #fff); }
+  .lc-badge { display: block; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+  .lc-add { display: inline-block; white-space: nowrap; padding: 9px 14px; border-radius: 99px; border: 1px solid var(--ink); background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: none; }
+  .lc-added { background: #fff; color: var(--ink); }
+  .ag-dark { background: #17262d; border-radius: 22px; padding: clamp(22px,4vw,36px); }
+  .ag-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ag-result { margin-top: 24px; padding-top: 20px; border-top: 1px solid #2c4048; }
+  .ag-result-grid { display: grid; grid-template-columns: 1fr; gap: 22px; }
+  .ag-res-name { display: inline-block; font-family: var(--font-archivo); font-weight: 800; font-size: 21px; color: #fff; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; margin-bottom: 4px; }
+  .ag-res-p { margin: 4px 0 0; color: #d7e2e0; font-size: 14.5px; line-height: 1.55; }
+  @media (min-width: 760px) { .ag-result-grid { grid-template-columns: 1fr 1fr; gap: 36px; } }
   @media (min-width: 900px) { .lc-grid { grid-template-columns: 0.9fr 1.1fr; align-items: start; } }
 `;
