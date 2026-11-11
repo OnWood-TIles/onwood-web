@@ -31,7 +31,7 @@ const GROUPS: { label: string; slugs: string[] }[] = [
   { label: "Install", slugs: ["adhesives", "trims", "wastes", "accessories"] },
 ];
 // Departments whose types are listed as small links under them (one click to e.g. Waterproofing).
-const SUBLINK_DEPTS = new Set(["adhesives", "trims"]);
+const SUBLINK_DEPTS = new Set<string>(); // Reagan 2026-11-12: no sub-links in the Shop menu (too busy); types live on the department page
 
 function groupDepts(depts: ShopMenuDept[]) {
   const known = new Set(GROUPS.flatMap((g) => g.slugs));
