@@ -5,7 +5,7 @@ import { BUILDER_CSS } from "./builderCss";
 import OptionsBuilder from "./OptionsBuilder";
 import PhotoGallery from "./OptionsPhotoGallery";
 import OptionsQuickPick from "./OptionsQuickPick";
-import { isQuickPick } from "./quickPick";
+import { isQuickPick, SUPPLY } from "./quickPick";
 import { Open3DButton } from "./vanity3d/Vanity3DLoader";
 import { FAQ_CATEGORIES } from "../../../lib/faq";
 import { Markdown } from "../../../lib/markdown";
@@ -41,7 +41,7 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
       <div className={`vb-intro ${photos.length ? "has-photo" : ""}`}>
         {photos.length > 0 && <PhotoGallery photos={photos} name={range.name} />}
         <header className="vb-head">
-          <div className="vb-eyebrow">{brandHref ? <><Link href={brandHref} style={{ color: "inherit" }}>{range.options?.source?.supplier}</Link> · made to order</> : range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : quick ? "Made to order" : "Build your own"}</div>
+          <div className="vb-eyebrow">{SUPPLY.has(range.department ?? "") ? (deptLabel ?? "") : brandHref ? <><Link href={brandHref} style={{ color: "inherit" }}>{range.options?.source?.supplier}</Link> · made to order</> : range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : quick ? "Made to order" : "Build your own"}</div>
           <h1>{range.name}</h1>
           <p>{range.description || (trade ? "Choose your options and watch your price update as you go, then add the build to your order." : "Choose your options and watch the price update as you go. Send the build to us for a quote, or save it for later.")}</p>
           {quick && <OptionsQuickPick range={range} query={query} />}

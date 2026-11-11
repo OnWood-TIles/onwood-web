@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { SUPPLY } from "./quickPick";
 import type { WebsiteRange } from "../../../lib/onbase/client";
 import {
   choicePrice, describeOptions, groupShown, isAvailable, many, normalizeSelection, priceOptions,
@@ -34,10 +35,21 @@ export default function OptionsQuickPick({ range, query }: { range: WebsiteRange
   const priced = useMemo(() => priceOptions(o, sel), [o, sel]);
   const spec = describeOptions(o, sel);
   const pick = (g: OptionGroup, v: string | string[] | undefined) => setSel((s) => normalizeSelection(o, { ...s, [g.key]: v }));
+  // Supply lines go live before the supplier price list: a $0 build reads "Price on request".
+  const supply = SUPPLY.has(range.department ?? "");
+  const onRequest = supply && !(priced.total > 0);
+  // The picked choice with a photo (e.g. a trim finish) swaps the main gallery photo.
+  useEffect(() => {
+    let img: string | null = null;
+    for (const g of o.groups) for (const k of many(sel[g.key])) { const c = g.choices.find((x) => x.key === k); if (c?.image) img = c.image; }
+    if (img) window.dispatchEvent(new CustomEvent("vb-photo", { detail: img }));
+  }, [sel, o.groups]);
 
   return (
     <div className="vb-qp">
-      <div className="vb-qp-price"><strong>{fmt(priced.total)}</strong><span>incl. GST</span></div>
+      {onRequest
+        ? <div className="vb-qp-price"><strong>Price on request</strong><span>add it to your quote and we will come back to you with a price</span></div>
+        : <div className="vb-qp-price"><strong>{fmt(priced.total)}</strong><span>incl. GST</span></div>}
       {o.groups.filter((g) => groupShown(g, sel)).map((g) => {
         const avail = g.choices.filter((c) => isAvailable(o, g, c, sel));
         if (!avail.length) return null;
@@ -59,7 +71,7 @@ export default function OptionsQuickPick({ range, query }: { range: WebsiteRange
                     onClick={() => pick(g, g.type === "multi" ? (on ? picked.filter((k) => k !== c.key) : [...picked, c.key]) : on && !g.required ? undefined : c.key)}>
                     {c.image && <img src={c.image} alt="" />}
                     <span>{c.label}</span>
-                    {p ? <em>{tableish ? fmt(o.basePrice + p) : `+${fmt(p)}`}</em> : null}
+                    {p && !onRequest ? <em>{tableish ? fmt(o.basePrice + p) : `+${fmt(p)}`}</em> : null}
                   </button>
                 );
               })}
@@ -72,12 +84,12 @@ export default function OptionsQuickPick({ range, query }: { range: WebsiteRange
         {priced.ok && (
           <AddToQuoteButton label="Add to quote" item={{
             kind: "options", href: url || `/product/${range.slug}`, name: range.name, image: range.heroImage ?? null, rangeId: range.id,
-            unit: "Per Unit", boxQuantity: 1, coverageM2: null, unitPrice: priced.total, quantity: 1, options: sel, spec,
+            unit: "Per Unit", boxQuantity: 1, coverageM2: null, unitPrice: onRequest ? null : priced.total, quantity: 1, options: sel, spec,
           }} />
         )}
         <SaveButton variant="inline" item={{ href: url || `/product/${range.slug}`, name: range.name }} />
       </div>
-      <p className="vb-fine">{o.source?.supplier ? `Made to order by ${o.source.supplier}. ` : ""}We confirm stock, freight and timing with your quote.</p>
+      <p className="vb-fine">{supply ? (o.source?.edition ? `${o.source.edition} ` : "") : o.source?.supplier ? `Made to order by ${o.source.supplier}. ` : ""}We confirm stock, freight and timing with your quote.</p>
     </div>
   );
 }
