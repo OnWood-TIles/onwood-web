@@ -626,11 +626,13 @@ export function TechnicalSpecs({
         {hero.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24, marginTop: 26 }}>
             {hero.map((s, i) => (
+              // Label ABOVE the value (Reagan 2026-11-12): a value that wraps onto two lines no longer
+              // pushes its label out of line with the labels beside it.
               <div key={`hero-${i}`}>
+                <div style={{ ...eyebrow, marginBottom: 8 }}>{s.label}</div>
                 <div style={{ fontFamily: "var(--font-archivo)", fontWeight: 820, fontSize: "clamp(23px,2.9vw,37px)", letterSpacing: "-.02em", lineHeight: 1.08 }}>
                   {s.value}
                 </div>
-                <div style={{ ...eyebrow, marginTop: 6 }}>{s.label}</div>
               </div>
             ))}
           </div>
