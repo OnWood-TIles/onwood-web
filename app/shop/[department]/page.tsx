@@ -152,7 +152,7 @@ export default async function DepartmentPage({
   // force-dynamic, so it reshuffles per visit; picking a Sort option overrides it.
   // Mirrors the gallery. The hero/featured picks above use the original order.
   const gridRanges = [...allRanges];
-  if (dept.slug === "adhesives") {
+  if (dept.slug === "adhesives" || dept.slug === "trims") {
     // Tiling Supplies reads as a job in order (adhesive, grout, waterproofing...), not shuffled:
     // by type in taxonomy order, then OnBase's website sort order within each type.
     const rank = (r: (typeof allRanges)[number]) => Math.min(...(r.categories ?? []).map((c) => dept.categories.findIndex((x) => x.slug === c)).filter((n) => n >= 0), 99);
@@ -257,7 +257,7 @@ export default async function DepartmentPage({
           labelMap={labelMap}
           initialActive={initialActive}
           deptSlug={dept.slug}
-          typeChips={dept.slug === "adhesives"}
+          typeChips={dept.slug === "adhesives" || dept.slug === "trims"}
         />
 
         {seo?.faqs?.length ? (

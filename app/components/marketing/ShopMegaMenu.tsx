@@ -28,10 +28,10 @@ const eyebrow: React.CSSProperties = {
 const GROUPS: { label: string; slugs: string[] }[] = [
   { label: "Tiles & stone", slugs: ["tiles", "pavers", "stone-cladding"] },
   { label: "Bathroom", slugs: ["vanities", "basins", "mirrors", "bathroom-storage"] },
-  { label: "Install", slugs: ["adhesives", "accessories"] },
+  { label: "Install", slugs: ["adhesives", "trims", "wastes", "accessories"] },
 ];
 // Departments whose types are listed as small links under them (one click to e.g. Waterproofing).
-const SUBLINK_DEPTS = new Set(["adhesives"]);
+const SUBLINK_DEPTS = new Set(["adhesives", "trims"]);
 
 function groupDepts(depts: ShopMenuDept[]) {
   const known = new Set(GROUPS.flatMap((g) => g.slugs));

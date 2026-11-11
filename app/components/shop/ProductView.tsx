@@ -103,7 +103,9 @@ export default function ProductView({
   // Standard retail price for the selected colour (GST incl.); null = hidden / none.
   const price = swatch?.price ?? range.price ?? null;
   const isInstall = range.department === "adhesives";
-  const priceOnRequest = isInstall && price == null && !(special && special.price != null);
+  // Supply lines (LATICRETE, B.A.T trims/wastes/tools) can go live before the price list arrives.
+  const isSupply = isInstall || ["trims", "wastes", "accessories"].includes(range.department ?? "");
+  const priceOnRequest = isSupply && price == null && !(special && special.price != null);
 
   // Close the zoom lightbox on Escape; lock body scroll while it's open.
   useEffect(() => {
@@ -234,7 +236,7 @@ export default function ProductView({
             style={{
               position: "relative",
               // Tiling-supply photos are square scenes with the pack near the bottom; 4:3 cut it off.
-              aspectRatio: isInstall ? "1 / 1" : "4 / 3",
+              aspectRatio: isSupply ? "1 / 1" : "4 / 3",
               borderRadius: 22,
               overflow: "hidden",
               // White so transparent product PNGs (many ABI hardware/tapware
