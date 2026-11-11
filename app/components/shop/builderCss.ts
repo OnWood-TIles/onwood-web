@@ -44,14 +44,18 @@ export const BUILDER_CSS = `
 .vb-qp-price{display:flex;align-items:baseline;gap:8px}
 .vb-qp-price strong{font-family:var(--font-archivo);font-size:34px;font-weight:800;letter-spacing:-.02em}
 .vb-qp-price span{font-size:13px;color:#6a7075;font-weight:600}
-.vb-qp-l{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7a8085}
+.vb-qp-l{margin:0 0 10px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.vb-qp-l span{color:var(--accent)}
 .vb-qp-fact{margin:0;font-size:14.5px;color:#3a444a}
 .vb-qp-fact span{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7a8085;margin-bottom:4px}
-.vb-qp-chips{display:flex;flex-wrap:wrap;gap:8px}
-.vb-qp-chip{font:inherit;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:14px;font-weight:700;cursor:pointer}
-.vb-qp-chip img{width:28px;height:28px;border-radius:7px;object-fit:cover}
+.vb-qp-chips{display:flex;flex-wrap:wrap;gap:10px}
+.vb-qp-chip{font:inherit;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;color:#3a4750;font-size:13px;font-weight:600;cursor:pointer}
+.vb-qp-chip.card{flex-direction:column;align-items:center;gap:5px;padding:6px;border-radius:12px;width:84px}
+.vb-qp-chip.card img{width:68px;height:52px;border-radius:8px;object-fit:cover;display:block}
+.vb-qp-chip.card span{font-size:11px;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vb-qp-chip em{font-style:normal;font-weight:700;color:var(--accent);font-size:13px}
-.vb-qp-chip.on{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 18%,transparent)}
+.vb-qp-chip.on{border:2px solid var(--accent);padding:6px 11px}
+.vb-qp-chip.card.on{padding:5px}
 .vb-qp .vb-fine{margin:0}
 .vb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .vb-chip{font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}

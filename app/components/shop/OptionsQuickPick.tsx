@@ -60,14 +60,15 @@ export default function OptionsQuickPick({ range, query, description }: { range:
         }
         return (
           <div key={g.key} className="vb-qp-g">
-            <p className="vb-qp-l">{g.type === "multi" ? "Add" : g.label}</p>
+            {/* Same look as the colour/variation picker on standard product pages: "Size: 10 mm". */}
+            <p className="vb-qp-l">{g.type === "multi" ? "Add" : g.label}{g.type !== "multi" && picked[0] ? <>: <span>{g.choices.find((c) => c.key === picked[0])?.label}</span></> : null}</p>
             <div className="vb-qp-chips">
               {avail.map((c) => {
                 const on = picked.includes(c.key);
                 const p = choicePrice(c, sel);
                 const tableish = g.type === "single" && g.required;
                 return (
-                  <button type="button" key={c.key} aria-pressed={on} className={`vb-qp-chip ${on ? "on" : ""}`}
+                  <button type="button" key={c.key} aria-pressed={on} className={`vb-qp-chip ${c.image ? "card" : ""} ${on ? "on" : ""}`} title={c.label}
                     onClick={() => pick(g, g.type === "multi" ? (on ? picked.filter((k) => k !== c.key) : [...picked, c.key]) : on && !g.required ? undefined : c.key)}>
                     {c.image && <img src={c.image} alt="" />}
                     <span>{c.label}</span>
