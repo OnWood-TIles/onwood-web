@@ -73,6 +73,7 @@ export function DepartmentShop({
   basePath = "/shop",
   renderCard,
   renderColourway,
+  typeChips = false,
 }: {
   allRanges: WebsiteRange[];
   groups: FilterGroupVM[];
@@ -88,6 +89,9 @@ export function DepartmentShop({
    *  its classic paginated grid, unchanged. */
   renderCard?: (range: WebsiteRange) => ReactNode;
   renderColourway?: (range: WebsiteRange, swatch: Swatch) => ReactNode;
+  /** Show the department's Type values as one-tap buttons above the filter bar
+   *  (single choice; "All" clears it). Scrolls sideways on phones. */
+  typeChips?: boolean;
 }) {
   const isPublic = !renderCard;
 
@@ -120,6 +124,18 @@ export function DepartmentShop({
     });
     resetPager();
   };
+  const pickType = (value: string | null) => {
+    setActive((prev) => {
+      const next = { ...prev };
+      if (value) next.type = [value];
+      else delete next.type;
+      syncUrl(next);
+      return next;
+    });
+    resetPager();
+  };
+  const typeGroup = typeChips ? groups.find((g) => g.slug === "type") : undefined;
+  const typeCount = (v: string) => allRanges.filter((r) => (r.filters?.type ?? []).includes(v)).length;
   const clearAll = () => { setActive({}); setPriceBands([]); syncUrl({}); resetPager(); };
   const onSearch = (v: string) => { setSearch(v); resetPager(); };
   const togglePriceBand = (k: string) => {
@@ -274,6 +290,31 @@ export function DepartmentShop({
 
   return (
     <>
+      {typeGroup && typeGroup.values.length > 1 && (
+        <div className="ow-typechips" role="group" aria-label="Product type">
+          {[{ slug: "", label: "All" }, ...typeGroup.values].map((v) => {
+            const cur = active.type ?? [];
+            const on = v.slug ? cur.length === 1 && cur[0] === v.slug : cur.length === 0;
+            return (
+              <button key={v.slug || "all"} type="button" aria-pressed={on} onClick={() => pickType(v.slug || null)} className={on ? "on" : ""}>
+                {v.label}
+                <span>{v.slug ? typeCount(v.slug) : allRanges.length}</span>
+              </button>
+            );
+          })}
+          <style>{`
+            .ow-typechips { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+            .ow-typechips button { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 700; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; transition: all .15s ease; }
+            .ow-typechips button span { font-size: 12px; font-weight: 700; color: #8a8577; }
+            .ow-typechips button.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+            .ow-typechips button.on span { color: rgba(255,255,255,.7); }
+            @media (max-width: 640px) {
+              .ow-typechips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px 14px; padding: 0 16px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+              .ow-typechips::-webkit-scrollbar { display: none; }
+            }
+          `}</style>
+        </div>
+      )}
       <FilterBar
         groups={isPublic ? [...groups, PRICE_GROUP] : groups}
         active={isPublic && priceBands.length ? { ...active, price: priceBands } : active}

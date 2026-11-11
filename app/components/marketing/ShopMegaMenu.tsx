@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { ShopMenuDept } from "../../../lib/onbase/client";
 import { rs } from "../../../lib/rs";
@@ -30,6 +30,8 @@ const GROUPS: { label: string; slugs: string[] }[] = [
   { label: "Bathroom", slugs: ["vanities", "basins", "mirrors", "bathroom-storage"] },
   { label: "Install", slugs: ["adhesives", "accessories"] },
 ];
+// Departments whose types are listed as small links under them (one click to e.g. Waterproofing).
+const SUBLINK_DEPTS = new Set(["adhesives"]);
 
 function groupDepts(depts: ShopMenuDept[]) {
   const known = new Set(GROUPS.flatMap((g) => g.slugs));
@@ -168,9 +170,10 @@ export default function ShopMegaMenu({
                   {g.items.map((i) => {
                     const d = depts[i];
                     const n = order++;
+                    const subs = SUBLINK_DEPTS.has(d.slug) ? d.categories.filter((c) => c.count > 0) : [];
                     return (
+                      <Fragment key={d.slug}>
                       <Link
-                        key={d.slug}
                         href={`${shopBase}/${d.slug}`}
                         onMouseEnter={() => setFocus(i)}
                         onFocus={() => setFocus(i)}
@@ -197,6 +200,19 @@ export default function ShopMegaMenu({
                         <span style={{ flex: 1 }}>{d.label}</span>
                         <span style={{ ...eyebrow, marginBottom: 0, opacity: 0.6 }}>{d.count}</span>
                       </Link>
+                      {subs.length > 1 && (
+                        <div
+                          className="ow-mega-subs"
+                          style={{ opacity: open ? 1 : 0, transition: `opacity .5s ${n * 0.04 + 0.1}s` }}
+                        >
+                          {subs.map((c) => (
+                            <Link key={c.slug} href={`${shopBase}/${d.slug}?c=${c.slug}`} onMouseEnter={() => setFocus(i)} onClick={() => setOpen(false)}>
+                              {c.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                      </Fragment>
                     );
                   })}
                 </div>
@@ -244,6 +260,9 @@ export default function ShopMegaMenu({
         @keyframes owMegaFade{from{opacity:0}to{opacity:1}}
         .ow-mega-groups{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px;align-items:start}
         .ow-mega-groups>div:nth-child(3){grid-column:1}
+        .ow-mega-subs{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 4px 10px;border-bottom:1px solid var(--line)}
+        .ow-mega-subs a{font-size:13px;font-weight:600;color:#5a6067;text-decoration:none}
+        .ow-mega-subs a:hover{color:var(--accent)}
         /* On tablet/phone widths (e.g. the trade portal, which has no hamburger)
            collapse the mega panel to a single column and drop the preview image. */
         @media(max-width:900px){

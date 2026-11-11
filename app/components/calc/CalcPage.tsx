@@ -28,7 +28,7 @@ export default function CalcPage({ title, italic, intro, tool, faqs, other }: {
           <Link href={other.href} className="lc-btn">{other.label}</Link>
           <Link href="/adhesive-and-grout-guide" className="lc-btn">LATICRETE adhesive & grout guide</Link>
           <Link href="/calculator" className="lc-btn">Tile calculator</Link>
-          <Link href="/shop/adhesives" className="lc-btn lc-btn-dark">Shop adhesive & grout</Link>
+          <Link href="/shop/adhesives" className="lc-btn lc-btn-dark">Shop tiling supplies</Link>
         </div>
         <section style={{ marginTop: 56, maxWidth: 860 }}>
           <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 28, margin: "0 0 12px" }}>Good to know</h2>

@@ -11,6 +11,10 @@ const PAGES: { name: string; url: string; kw: string }[] = [
   { name: "Floor, wall & outdoor tiles", url: "/shop/tiles", kw: "tiles porcelain ceramic floor wall outdoor timber look stone look" },
   { name: "Stone cladding", url: "/shop/stone-cladding", kw: "stone veneer cladding feature wall facade" },
   { name: "Tapware", url: "/shop/tapware", kw: "tapware mixers" },
+  { name: "Tiling supplies", url: "/shop/adhesives", kw: "tiling supplies adhesive grout waterproofing membrane silicone sealant caulk screed self leveller primer cleaner sealer laticrete stonetech" },
+  { name: "Waterproofing", url: "/shop/adhesives?c=waterproofing", kw: "waterproofing waterproof membrane hydro ban bond breaker fillet shower balcony wet area" },
+  { name: "Cleaners & sealers", url: "/shop/adhesives?c=care", kw: "cleaners sealers grout sealer stone sealer cleaning haze stonetech" },
+  { name: "LATICRETE adhesive & grout guide", url: "/adhesive-and-grout-guide", kw: "laticrete guide which adhesive grout how to tile" },
   { name: "Wastes & grates", url: "/shop/wastes", kw: "wastes grates shower channel floor waste drainage" },
   { name: "The gallery", url: "/gallery", kw: "gallery inspiration installed room shots looks ideas" },
   { name: "Ideas & Inspiration", url: "/blog", kw: "blog guides ideas inspiration journal how to" },
@@ -29,6 +33,16 @@ const PAGES: { name: string; url: string; kw: string }[] = [
   { name: "Downloads", url: "/downloads", kw: "downloads care install warranty pdf datasheet guides" },
 ];
 
+// Words people type for tiling supplies that are not in the product names (by website category).
+const CATEGORY_KW: Record<string, string> = {
+  adhesives: "adhesive glue tile glue thinset thin-set mortar fixing",
+  grout: "grout grouting joints",
+  waterproofing: "waterproofing waterproof membrane bond breaker fillet tanking wet area shower balcony",
+  sealants: "silicone sealant caulk caulking movement joint",
+  prep: "floor prep self leveller self-leveller self levelling leveling levelling compound screed primer uncoupling",
+  care: "cleaner cleaning sealer sealing grout sealer stone sealer haze remover",
+};
+
 export async function GET(req: Request) {
   const q = (new URL(req.url).searchParams.get("q") || "").trim().toLowerCase();
   const words = q.split(/\s+/).filter(Boolean);
@@ -41,7 +55,8 @@ export async function GET(req: Request) {
     .map((r) => {
       const colours = (r.swatches || []).map((s) => s.colour).filter(Boolean).join(" ");
       const filters = Object.values(r.filters || {}).flat().join(" ");
-      const hay = `${r.name} ${colours} ${r.department || ""} ${filters} ${r.description || ""}`.toLowerCase();
+      const kw = (r.categories || []).map((c) => CATEGORY_KW[c] ?? "").join(" ");
+      const hay = `${r.name} ${colours} ${r.department || ""} ${filters} ${kw} ${r.description || ""}`.toLowerCase();
       return { r, hay };
     })
     .filter((x) => hit(x.hay))

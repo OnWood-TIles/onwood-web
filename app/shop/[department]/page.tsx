@@ -250,6 +250,7 @@ export default async function DepartmentPage({
           labelMap={labelMap}
           initialActive={initialActive}
           deptSlug={dept.slug}
+          typeChips={dept.slug === "adhesives"}
         />
 
         {seo?.faqs?.length ? (

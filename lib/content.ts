@@ -650,23 +650,27 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     stats: { noun: ["product", "products"], second: null },
   },
   adhesives: {
-    eyebrow: "Shop adhesives & grout",
-    h1: "Tile Adhesive & Grout",
+    eyebrow: "Shop tiling supplies",
+    h1: "Tiling Supplies",
     intro: [
-      "LATICRETE tile adhesives and grouts, chosen to suit the tiles in our range: a flexible everyday adhesive, a top-rated one for large format, outdoors and pools, a lightweight one for walls, and a ready-to-use tub for splashbacks. Grout comes in every current LATICRETE colour, in cement or stain-proof epoxy. Not sure which you need? Our guide matches the adhesive and grout to your job. Supplied from our Baringa showroom on the Sunshine Coast.",
+      "LATICRETE tile adhesives and grouts, chosen to suit the tiles in our range: a flexible everyday adhesive, a top-rated one for large format, outdoors and pools, a lightweight one for walls, and a ready-to-use tub for splashbacks. Grout comes in every current LATICRETE colour, in cement or stain-proof epoxy. Alongside them: HYDRO BAN waterproofing and the fillet that goes with it, LATASIL silicone matched to the grout colours, floor levelling and screeds, and STONETECH cleaners and sealers for handover. Not sure which you need? Our guide matches the adhesive and grout to your job. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
-    metaTitle: "Tile Adhesive & Grout Sunshine Coast | LATICRETE",
+    metaTitle: "Tile Adhesive, Grout & Waterproofing Sunshine Coast | LATICRETE",
     metaDescription:
-      "LATICRETE tile adhesive and grout on the Sunshine Coast: flexible and lightweight adhesives, PERMACOLOR cement grouts and SPECTRALOCK epoxy grout in every colour. Baringa showroom.",
+      "LATICRETE tile adhesive, grout, HYDRO BAN waterproofing, LATASIL silicone, floor prep and STONETECH cleaners and sealers on the Sunshine Coast. Baringa showroom.",
     links: [
       { label: "Which adhesive and grout?", href: "/adhesive-and-grout-guide" },
+      { label: "Waterproofing", href: "/shop/adhesives?c=waterproofing" },
+      { label: "Cleaners & sealers", href: "/shop/adhesives?c=care" },
       { label: "The grout decision", href: "/blog/the-grout-decision" },
       { label: "Shop tiles", href: "/shop/tiles" },
     ],
     faqs: [
       { q: "Which tile adhesive should I use?", a: "For most porcelain and ceramic floors and walls, a flexible C2TES1 adhesive like LATICRETE 335 is right. For large format tiles, outdoor areas, balconies and pools, step up to 254, which is rated S2 for extra flexibility. For walls with big tiles, TRI-LITE won't let them slide. Our adhesive and grout guide walks you through it." },
       { q: "What is the best adhesive for a kitchen splashback?", a: "For ceramic or stone tiles on a dry interior wall, Multimastic Premium comes ready to use in a 4 litre pail that covers about one splashback. For porcelain, glass or large tiles, use TRI-LITE instead, as a mastic dries slowly under dense tiles." },
-      { q: "Do I need to seal my grout?", a: "Not with these. PERMACOLOR Select and PERMACOLOR do not need sealing, and SPECTRALOCK epoxy grout is stain-proof and never needs sealing. Porous tiles such as some natural stone may need sealing before grouting so the grout colour does not stain them." },
+      { q: "Do I need to seal my grout?", a: "LATICRETE says sealing is not required for PERMACOLOR Select or PERMACOLOR New & Improved, and SPECTRALOCK epoxy grout is stain-proof and never needs sealing. A STONETECH grout sealer adds extra stain protection to cement grout if you want it. Porous tiles such as some natural stone may need sealing before grouting so the grout colour does not stain them." },
+      { q: "What waterproofing do I need under tiles?", a: "Bathrooms, showers, laundries and balconies need a waterproofing membrane under the tiles. HYDRO BAN is a Class 3 liquid membrane that suits all of them, and pools too. Run HYDRO BAN Fillet & Sealant into the wall and floor junctions first, then roll on two coats. Always follow the data sheet and AS 3740, the Australian Standard for wet-area waterproofing." },
+      { q: "Where should I use silicone instead of grout?", a: "Anywhere two surfaces meet or move: internal corners, where the walls meet the floor, around baths and basins, against glass and window frames, and in movement joints. LATASIL comes in colours matched to the LATICRETE grouts." },
       { q: "Can I see real grout colours?", a: "Yes. Colours on screen are a guide only, so come into the Baringa showroom and hold a real grout colour against your tile before you buy." },
     ],
     stats: { noun: ["product", "products"], second: null },

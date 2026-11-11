@@ -391,7 +391,7 @@ export default function ProductView({
           {/* Adhesive: m² one bag/pail covers (drives the bag estimate on /quote). */}
           {isInstall && range.coverageM2 != null && range.coverageM2 > 0 && (
             <p style={{ marginTop: 12, fontSize: 13.5, color: "#5a6067" }}>
-              Each {range.unit || "unit"} covers about <strong>{range.coverageM2} m²</strong> (the trowel size changes this, see Coverage below). Add it to your quote with your area and we will work out how many you need.
+              Each {range.unit || "unit"} covers about <strong>{range.coverageM2} m²</strong> ({range.categories.includes("adhesives") ? "the trowel size changes this, see Coverage below" : "see the data sheet for your job"}). Add it to your quote with your area and we will work out how many you need.
             </p>
           )}
           {/* Per-sheet goods (mosaics): help the shopper size the job in m². */}
@@ -410,7 +410,7 @@ export default function ProductView({
 
           {/* Imagery disclosure — placed after the name + price so the product,
               not a warning, is the first thing a shopper reads. */}
-          <ProductDisclosure department={range.department} />
+          <ProductDisclosure department={range.department} categories={range.categories} />
 
           {/* CTAs - the trade portal swaps in its price + add-to-order block. */}
           {renderActions ? (

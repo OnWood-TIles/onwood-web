@@ -66,6 +66,16 @@ const PICKS: [string, string][] = [
   ["Needs to be finished today", "335 RAPID: grout and light foot traffic after about 4 hours."],
 ];
 
+// The whole job, in order: [step, heading, what, shop link].
+const JOB: [string, string, string, string][] = [
+  ["01", "Floor prep", "Get the floor flat and sound first: LEVEL self-leveller for flat indoor floors, SCREED for shower falls, STRATA_MAT over floors prone to movement.", "/shop/adhesives?c=prep"],
+  ["02", "Waterproofing", "HYDRO BAN Fillet & Sealant into every wall and floor junction, then two coats of HYDRO BAN over the wet area, as AS 3740 requires.", "/shop/adhesives?c=waterproofing"],
+  ["03", "Adhesives", "Fix the tiles with the adhesive that suits the tile, the surface and the room (see above).", "/shop/adhesives?c=adhesives"],
+  ["04", "Grout", "Cement or epoxy grout in the colour you chose, once the adhesive has cured.", "/shop/adhesives?c=grout"],
+  ["05", "Silicone", "LATASIL in the matching colour in corners, at the wall and floor join, around the bath and shower base, and in movement joints.", "/shop/adhesives?c=sealants"],
+  ["06", "Cleaners & sealers", "Clear grout haze, seal porous stone and grout if you want extra stain protection, then a gentle everyday cleaner from day one.", "/shop/adhesives?c=care"],
+];
+
 const DECODE: [string, string][] = [
   ["C", "Cement-based adhesive"],
   ["D", "Dispersion (ready-mixed) adhesive"],
@@ -217,7 +227,7 @@ export default async function AdhesiveGroutGuide() {
 
   const faqLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
   const ld = (o: object) => <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(o).replace(/</g, "\\u003c") }} />;
-  const jump: [string, string][] = [["#picker", "Find yours"], ["#quick-picks", "Quick picks"], ["#adhesives", "Adhesives"], ["#grout", "Grout"], ["#onto", "Tile onto"], ["#how-to", "Step by step"], ["#ratings", "Ratings"], ["#faq", "Questions"]];
+  const jump: [string, string][] = [["#picker", "Find yours"], ["#quick-picks", "Quick picks"], ["#adhesives", "Adhesives"], ["#grout", "Grout"], ["#onto", "Tile onto"], ["#how-to", "Step by step"], ["#ratings", "Ratings"], ["#whole-job", "The whole job"], ["#faq", "Questions"]];
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
@@ -227,7 +237,7 @@ export default async function AdhesiveGroutGuide() {
         <nav style={{ fontSize: 13, color: "#8a8577", marginBottom: 14 }} aria-label="Breadcrumb">
           <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>Home</Link>
           <span style={{ margin: "0 8px" }}>/</span>
-          <Link href="/shop/adhesives" style={{ color: "inherit", textDecoration: "none" }}>Adhesives & Grout</Link>
+          <Link href="/shop/adhesives" style={{ color: "inherit", textDecoration: "none" }}>Tiling Supplies</Link>
           <span style={{ margin: "0 8px" }}>/</span>
           <span style={{ color: "var(--ink)", fontWeight: 600 }}>LATICRETE guide</span>
         </nav>
@@ -367,11 +377,30 @@ export default async function AdhesiveGroutGuide() {
           </div>
         </section>
 
+        {/* THE WHOLE JOB */}
+        <section style={{ marginTop: 64 }} id="whole-job">
+          <p style={eyebrow}>05 / The whole job</p>
+          <h2 style={mid}>From bare floor <span style={it}>to handover</span></h2>
+          <p style={body}>Adhesive and grout are two of the six steps. This is the order a tiled bathroom goes in, and what we carry for each step.</p>
+          <ol className="ag-job">
+            {JOB.map(([n, h, t, href]) => (
+              <li key={n}>
+                <span className="ag-job-n">{n}</span>
+                <div>
+                  <h3>{h}</h3>
+                  <p>{t}</p>
+                  <Link href={href}>Shop {h.toLowerCase()} →</Link>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         {ranges.length > 0 && (
           <section style={{ marginTop: 64 }}>
             <h2 style={{ fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 28, margin: "0 0 18px" }}>Shop adhesive <span style={it}>& grout</span></h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 18 }}>
-              {ranges.map((r) => <RangeCard key={r.id} range={r} />)}
+              {ranges.filter((r) => r.categories.some((c) => c === "adhesives" || c === "grout")).map((r) => <RangeCard key={r.id} range={r} />)}
             </div>
           </section>
         )}
@@ -440,6 +469,14 @@ export default async function AdhesiveGroutGuide() {
           .ag-table td { padding: 14px 12px 14px 0; border-bottom: 1px solid var(--line); color: #3a444a; }
           .ag-split { display: grid; grid-template-columns: 1fr; gap: 44px; scroll-margin-top: 90px; }
           .ag-steps-grid { display: grid; grid-template-columns: 1fr; gap: 36px; }
+          .ag-job { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 14px; }
+          .ag-job li { display: flex; gap: 16px; align-items: flex-start; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+          .ag-job-n { font-family: var(--font-archivo); font-weight: 800; font-size: 22px; color: var(--accent); line-height: 1; min-width: 32px; }
+          .ag-job h3 { font-family: var(--font-archivo); font-weight: 800; font-size: 18px; margin: 0 0 6px; }
+          .ag-job p { margin: 0 0 8px; font-size: 14.5px; line-height: 1.6; color: #3a444a; }
+          .ag-job a { color: var(--accent); font-weight: 700; font-size: 14px; text-decoration: none; }
+          @media (min-width: 760px) { .ag-job { grid-template-columns: 1fr 1fr; } }
+          @media (min-width: 1080px) { .ag-job { grid-template-columns: 1fr 1fr 1fr; } }
           .ag-steps { margin: 0; padding-left: 22px; list-style: decimal; font-size: 15.5px; line-height: 1.65; color: #3a444a; }
           .ag-steps li { margin-bottom: 10px; padding-left: 4px; }
           .ag-steps li::marker { font-family: var(--font-archivo); font-weight: 800; color: var(--accent); }
