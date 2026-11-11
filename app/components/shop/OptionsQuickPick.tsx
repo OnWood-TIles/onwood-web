@@ -51,6 +51,17 @@ export default function OptionsQuickPick({ range, query, description }: { range:
         ? <div style={{ margin: "4px 0 18px" }}><strong style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 22, color: "var(--ink)" }}>Price on request</strong><span style={{ display: "block", marginTop: 4, fontSize: 13, color: "#8a8577" }}>Add it to your quote or ask us, and we will come back to you with a price.</span></div>
         : <div className="vb-qp-price"><strong>{fmt(priced.total)}</strong><span>incl. GST</span></div>}
       {o.groups.filter((g) => groupShown(g, sel)).map((g) => {
+        // Typed answers (e.g. a Dulux colour name when "Dulux colour match" is picked).
+        if (g.type === "text") {
+          const val = typeof sel[g.key] === "string" ? (sel[g.key] as string) : "";
+          return (
+            <div key={g.key} className="vb-qp-g">
+              <p className="vb-qp-l">{g.label}{g.required ? "" : " (optional)"}</p>
+              <input className="vb-qp-text" value={val} placeholder={g.placeholder ?? ""} onChange={(e) => pick(g, e.target.value || undefined)} />
+              {g.help && <p className="vb-fine" style={{ marginTop: 6 }}>{g.help}</p>}
+            </div>
+          );
+        }
         const avail = g.choices.filter((c) => isAvailable(o, g, c, sel));
         if (!avail.length) return null;
         const picked = many(sel[g.key]);

@@ -57,6 +57,7 @@ export const BUILDER_CSS = `
 .vb-qp-chip.on{border:2px solid var(--accent);padding:6px 11px}
 .vb-qp-chip.card.on{padding:5px}
 .vb-qp .vb-fine{margin:0}
+.vb-qp-text{font:inherit;width:100%;max-width:360px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--ink)}
 .vb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .vb-chip{font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
 .vb-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
