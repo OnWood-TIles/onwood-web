@@ -476,14 +476,14 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     ],
   },
   wastes: {
-    eyebrow: "Shop wastes & grates",
-    h1: "Shower Wastes, Floor Wastes & Grates",
+    eyebrow: "Shop floor wastes",
+    h1: "Floor Wastes",
     intro: [
-      "Finish your bathroom or laundry with a waste as considered as the tiles around it: linear shower channel wastes, tile-insert and square floor wastes and grates, in brushed brass, copper, gunmetal and stainless steel. Choose a tile-insert waste to disappear into your floor, or a designer channel to make a feature of it.",
+      "Finish your shower, bathroom or laundry with a waste as considered as the tiles around it. Choose a tile-insert waste that you tile into so it almost disappears into the floor, or a classic round grate. Frames come in chrome, matt black, brushed gold, antique brass, satin nickel and gunmetal to match your tapware, for 80 mm and 100 mm outlets. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
-    metaTitle: "Shower & Floor Wastes & Grates",
+    metaTitle: "Tile Insert Floor Wastes Sunshine Coast | Matt Black, Gold, Chrome",
     metaDescription:
-      "Shower channel wastes, tile-insert and square floor wastes and grates in brass, copper, gunmetal and stainless steel. Supply only from our Sunshine Coast showroom.",
+      "Tile insert and round grate floor wastes for showers, bathrooms and laundries in chrome, matt black, brushed gold, antique brass, satin nickel and gunmetal. Baringa showroom, Sunshine Coast.",
     links: [
       { label: "Shop tapware", href: "/shop/tapware" },
       { label: "Shop tiles", href: "/shop/tiles" },
@@ -491,9 +491,8 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     ],
     faqs: [
       { q: "What's the difference between a tile-insert waste and a standard floor waste?", a: "A tile-insert waste has a recessed tray you fill with your own floor tile, so the drain almost disappears into the floor. A standard floor waste or channel shows its metal finish as a deliberate design feature. It comes down to whether you want the drain to blend in or stand out." },
-      { q: "What finishes do your wastes and grates come in?", a: "Brushed brass, copper, gunmetal and stainless steel, so you can match your tapware, tiles and the rest of your fittings." },
-      { q: "Are your floor wastes suitable for laundries and outdoor areas?", a: "Yes. Our stainless steel options suit wet areas, laundries and outdoor spaces where durability matters most." },
-      { q: "What size shower channel do I need?", a: "Channel length depends on your shower size and the floor fall. Bring your measurements into the Baringa showroom and we'll help you choose a length and finish that works." },
+      { q: "What finishes do your floor wastes come in?", a: "Chrome, matt black, brushed gold, antique brass, satin nickel and gunmetal, so you can match your tapware and the rest of your fittings." },
+      { q: "Which outlet size do I need?", a: "Check the size of the pipe your plumber has set in the floor: most showers are 80 mm or 100 mm. Ask your plumber, or tell us and we will match the waste to it." },
     ],
   },
   "stone-cladding": {
@@ -634,14 +633,14 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     noHero: true,
   },
   accessories: {
-    eyebrow: "Shop accessories",
-    h1: "Tile Accessories & Finishing Pieces",
+    eyebrow: "Shop tools & accessories",
+    h1: "Tiling Tools & Accessories",
     intro: [
-      "The finishing pieces that complete a tiled space: step treads with a grooved nosing for stairs and landings, tactile ground indicators for safer paths and entries, and matching cove skirting for a clean wall-to-floor junction. Chosen to go with the tiles in our range, so the details match the floor. Supplied from our Baringa showroom on the Sunshine Coast.",
+      "The tools a tiler reaches for every day: spacers and levelling clips for a flat, even floor, notched trowels matched to our LATICRETE adhesives, grout floats and sponges, a caulking gun that takes both silicone and fillet sausages, and diamond bits for drilling porcelain. Plus step treads, tactiles and cove skirting to finish stairs, paths and floors. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
-    metaTitle: "Step Treads, Tactiles & Skirting Tiles",
+    metaTitle: "Tiling Tools Sunshine Coast | Spacers, Levelling Clips, Trowels",
     metaDescription:
-      "Tile step treads, tactile ground indicators and matching cove skirting to finish stairs, paths and floors. Supply only from our Sunshine Coast showroom.",
+      "Tiling tools on the Sunshine Coast: tile spacers, levelling clips, notched trowels, grout floats, sponges, caulking guns and diamond drill bits, plus step treads and tactiles. Baringa showroom.",
     links: [
       { label: "Shop tiles", href: "/shop/tiles" },
       { label: "Shop wastes & grates", href: "/shop/wastes" },

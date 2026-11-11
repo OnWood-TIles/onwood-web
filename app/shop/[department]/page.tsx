@@ -13,6 +13,8 @@ export const dynamic = "force-dynamic";
 type Params = { department: string };
 type Search = { c?: string; f?: string | string[] };
 const TYPE_GROUP = "type"; // synthetic filter group made from the department's categories
+// Supply departments (tiling supplies, trims, wastes, tools): type buttons on top and a grid ordered by type, not shuffled.
+const SUPPLY_DEPTS = new Set(["adhesives", "trims", "wastes", "accessories"]);
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { department } = await params;
@@ -152,7 +154,7 @@ export default async function DepartmentPage({
   // force-dynamic, so it reshuffles per visit; picking a Sort option overrides it.
   // Mirrors the gallery. The hero/featured picks above use the original order.
   const gridRanges = [...allRanges];
-  if (dept.slug === "adhesives" || dept.slug === "trims") {
+  if (SUPPLY_DEPTS.has(dept.slug)) {
     // Tiling Supplies reads as a job in order (adhesive, grout, waterproofing...), not shuffled:
     // by type in taxonomy order, then OnBase's website sort order within each type.
     const rank = (r: (typeof allRanges)[number]) => Math.min(...(r.categories ?? []).map((c) => dept.categories.findIndex((x) => x.slug === c)).filter((n) => n >= 0), 99);
@@ -257,7 +259,7 @@ export default async function DepartmentPage({
           labelMap={labelMap}
           initialActive={initialActive}
           deptSlug={dept.slug}
-          typeChips={dept.slug === "adhesives" || dept.slug === "trims"}
+          typeChips={SUPPLY_DEPTS.has(dept.slug)}
         />
 
         {seo?.faqs?.length ? (
