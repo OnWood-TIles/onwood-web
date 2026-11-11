@@ -43,6 +43,8 @@ const CATEGORY_KW: Record<string, string> = {
   care: "cleaner cleaning sealer sealing grout sealer stone sealer haze remover",
 };
 
+const SUPPLY_DEPTS = new Set(["adhesives", "trims", "wastes", "accessories"]);
+
 export async function GET(req: Request) {
   const q = (new URL(req.url).searchParams.get("q") || "").trim().toLowerCase();
   const words = q.split(/\s+/).filter(Boolean);
@@ -64,7 +66,8 @@ export async function GET(req: Request) {
     .map(({ r }) => ({
       name: r.name,
       url: `/product/${r.slug}`,
-      sub: r.swatches?.length ? `${r.swatches.length} colour${r.swatches.length === 1 ? "" : "s"}` : (r.department || ""),
+      // Only tiles/stone choices are true colours; supply lines (trims, wastes, tools, adhesives) get no subline.
+      sub: !SUPPLY_DEPTS.has(r.department ?? "") && (r.swatches?.length ?? 0) > 1 ? `${r.swatches.length} colours` : "",
       image: r.swatches?.find((s) => s.image)?.image || r.heroImage || r.swatches?.find((s) => s.installedImage)?.installedImage || null,
     }));
 
