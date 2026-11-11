@@ -678,7 +678,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop tile trims",
     h1: "Tile Trims",
     intro: [
-      "The finishing edge for every tiled corner, niche, window reveal, step and benchtop return. Choose a crisp L trim (square edge) or a softer half round, in matt black, matt white, polished and brushed silver, brushed gold, brushed copper, raw aluminium, solid brass or stainless steel. Pick the size that matches your tile thickness. Every trim comes in 3 metre lengths from our Baringa showroom on the Sunshine Coast, and if you need a profile or finish you don't see here, ask us: we can order the full range in.",
+      "The finishing edge for every tiled corner, niche, window reveal, step and benchtop return. Choose a crisp L trim (square edge) or a softer half round, in matt black, matt white, polished and brushed silver, brushed gold, brushed copper, raw aluminium, solid brass or stainless steel. Pick a trim about 2 mm taller than your tile, to allow for the adhesive. Every trim comes in 3 metre lengths from our Baringa showroom on the Sunshine Coast, and if you need a profile or finish you don't see here, ask us: we can order the full range in.",
     ],
     metaTitle: "Tile Trims Sunshine Coast | L Trims, Half Round, Brass",
     metaDescription:
@@ -688,7 +688,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
       { label: "Tiling supplies", href: "/shop/adhesives" },
     ],
     faqs: [
-      { q: "What size tile trim do I need?", a: "Match the trim size to the thickness of your tile. Most wall tiles need 8 mm, most porcelain floor tiles 10 mm, and thicker tiles 12 mm. Measure the tile, or tell us which tile you are using and we will pick it for you." },
+      { q: "What size tile trim do I need?", a: "Measure your tile thickness and add about 2 mm for the adhesive bed under it. A 10 mm tile needs a 12 mm trim, an 8 mm wall tile a 10 mm trim. The trim then sits flush with the tile face instead of below it. Not sure? Tell us which tile you are using and we will pick the trim for you." },
       { q: "L trim or half round?", a: "An L trim (square edge) gives a crisp, modern line and suits most bathrooms, niches and window reveals. A half round trim softens the edge, which is kinder on benchtop returns, sills and anywhere you might bump it." },
       { q: "Which finish should I choose?", a: "Match your tapware and fittings, or match the tile so the trim disappears. Matt black frames white and light tiles, brushed gold and brass warm up cream and patterned tiles, and matt white or silver trims blend into white and grey tiles." },
       { q: "How long are the trims?", a: "Our trims come in 3 metre lengths. Allow for mitred corners and a little extra for cutting." },
