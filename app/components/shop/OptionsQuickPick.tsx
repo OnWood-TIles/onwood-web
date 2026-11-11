@@ -48,7 +48,7 @@ export default function OptionsQuickPick({ range, query }: { range: WebsiteRange
   return (
     <div className="vb-qp">
       {onRequest
-        ? <div className="vb-qp-price"><strong>Price on request</strong><span>add it to your quote and we will come back to you with a price</span></div>
+        ? <div style={{ margin: "4px 0 18px" }}><strong style={{ display: "block", fontFamily: "var(--font-archivo)", fontWeight: 800, fontSize: 22, color: "var(--ink)" }}>Price on request</strong><span style={{ display: "block", marginTop: 4, fontSize: 13, color: "#8a8577" }}>Add it to your quote or ask us, and we will come back to you with a price.</span></div>
         : <div className="vb-qp-price"><strong>{fmt(priced.total)}</strong><span>incl. GST</span></div>}
       {o.groups.filter((g) => groupShown(g, sel)).map((g) => {
         const avail = g.choices.filter((c) => isAvailable(o, g, c, sel));
