@@ -43,8 +43,10 @@ export default function OptionsProductView({ range, deptLabel, deptSlug, query, 
         <header className="vb-head">
           <div className="vb-eyebrow">{SUPPLY.has(range.department ?? "") ? (deptLabel ?? "") : brandHref ? <><Link href={brandHref} style={{ color: "inherit" }}>{range.options?.source?.supplier}</Link> · made to order</> : range.options?.source?.supplier ? `${range.options.source.supplier} · made to order` : quick ? "Made to order" : "Build your own"}</div>
           <h1>{range.name}</h1>
-          <p>{range.description || (trade ? "Choose your options and watch your price update as you go, then add the build to your order." : "Choose your options and watch the price update as you go. Send the build to us for a quote, or save it for later.")}</p>
-          {quick && <OptionsQuickPick range={range} query={query} />}
+          {/* Quick-pick pages read like a standard product page: name, price, choices, then the
+              description, then the buttons (price straight under the title). */}
+          {!quick && <p>{range.description || (trade ? "Choose your options and watch your price update as you go, then add the build to your order." : "Choose your options and watch the price update as you go. Send the build to us for a quote, or save it for later.")}</p>}
+          {quick && <OptionsQuickPick range={range} query={query} description={range.description ? <p>{range.description}</p> : null} />}
           {!quick && range.options?.drawing === "vanity" && (
             <p className="vb-3d"><Open3DButton slug={range.slug} base={trade?.base} className="vb-3d-btn" /><span>Turn it round, open the drawers and see your colours in 3D. Same options and {trade ? "your prices" : "prices"}.</span></p>
           )}

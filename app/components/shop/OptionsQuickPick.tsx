@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { SUPPLY } from "./quickPick";
 import type { WebsiteRange } from "../../../lib/onbase/client";
 import {
@@ -16,7 +16,7 @@ import AddToQuoteButton from "../quote/AddToQuoteButton";
 
 const fmt = (n: number) => `$${n.toLocaleString("en-AU", { maximumFractionDigits: 0 })}`;
 
-export default function OptionsQuickPick({ range, query }: { range: WebsiteRange; query: Record<string, string> }) {
+export default function OptionsQuickPick({ range, query, description }: { range: WebsiteRange; query: Record<string, string>; description?: ReactNode }) {
   const o = range.options!;
   const [sel, setSel] = useState<OptionSelection>(() => {
     const s: OptionSelection = {};
@@ -80,6 +80,7 @@ export default function OptionsQuickPick({ range, query }: { range: WebsiteRange
         );
       })}
       {!priced.ok && <p className="vb-fine" style={{ color: "#b42318" }}>{priced.errors[0]}</p>}
+      {description}
       <div className="vb-ctas">
         {priced.ok && (
           <AddToQuoteButton label="Add to quote" item={{
