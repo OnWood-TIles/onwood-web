@@ -411,10 +411,6 @@ export default function ProductView({
             <p style={{ marginTop: 22, fontSize: 15.5, lineHeight: 1.7, color: "#3a4750" }}>{range.description}</p>
           )}
 
-          {/* Imagery disclosure — placed after the name + price so the product,
-              not a warning, is the first thing a shopper reads. */}
-          <ProductDisclosure department={range.department} categories={range.categories} />
-
           {/* CTAs - the trade portal swaps in its price + add-to-order block. */}
           {renderActions ? (
             renderActions({ range, swatch, selectedIndex: selected })
@@ -483,6 +479,10 @@ export default function ProductView({
               </p>
             </>
           )}
+
+          {/* Imagery disclosure: last, under the buttons (Reagan 2026-11-12: the least important
+              part of the page), on desktop and mobile alike. */}
+          <ProductDisclosure department={range.department} categories={range.categories} />
         </div>
       </div>
 
