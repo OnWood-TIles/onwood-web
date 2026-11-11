@@ -121,7 +121,8 @@ export default function ProductView({
   // appear. Rendered twice: under the image on mobile (so colours switch without
   // scrolling past the description) and in the details column on desktop.
   const renderOptions = (marginTop: number, className: string) =>
-    range.swatches.length >= 1 && (
+    // Supply products with a single choice (e.g. a one-colour adhesive) show no picker: nothing to choose.
+    (isSupply ? range.swatches.length > 1 : range.swatches.length >= 1) && (
       <div style={{ marginTop }} className={className}>
         <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 700 }}>
           {swatch ? (
