@@ -233,7 +233,8 @@ export default function ProductView({
           <div
             style={{
               position: "relative",
-              aspectRatio: "4 / 3",
+              // Tiling-supply photos are square scenes with the pack near the bottom; 4:3 cut it off.
+              aspectRatio: isInstall ? "1 / 1" : "4 / 3",
               borderRadius: 22,
               overflow: "hidden",
               // White so transparent product PNGs (many ABI hardware/tapware
