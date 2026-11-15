@@ -183,6 +183,7 @@ function normalizeRange(r: WebsiteRange): WebsiteRange {
     })),
     documents: (r.documents ?? []).map((d) => ({ ...d, url: abs(d.url) as string })),
     options: r.options ? { ...r.options, groups: r.options.groups.map((g) => ({ ...g, choices: g.choices.map((c) => (c.image ? { ...c, image: img(c.image) ?? null } : c)) })) } : r.options,
+    optionColours: r.optionColours ? { ...r.optionColours, chips: r.optionColours.chips.map((c) => ({ ...c, image: img(c.image) ?? c.image })) } : r.optionColours,
   };
 }
 
