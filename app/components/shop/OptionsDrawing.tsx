@@ -143,7 +143,7 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   const colShape = face === "rounded";
   function front(x: number, y: number, ww: number, hh: number, kind: Col, towardsCentre: number) {
     if (!colShape) R(x, y, ww, hh, 2);
-    const i = Math.max(3, Math.min(6, ww * 0.12, hh * 0.2));
+    const i = meta.frameMm ? Math.max(1.6, meta.frameMm / MM) : Math.max(3, Math.min(6, ww * 0.12, hh * 0.2)); // slim frames (Reef) draw slim
     if (face === "shaker" || face === "shaker-v" || face === "shaker-round") {
       R(x + i, y + i, ww - 2 * i, hh - 2 * i, face === "shaker-round" ? Math.min(6, i) : 1, 1);
       if (face === "shaker-v") vLines(x + i, y + i, ww - 2 * i, hh - 2 * i, 5, 0.5);
@@ -151,6 +151,7 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
     if (face === "shiplap") vLines(x, y, ww, hh, 7, 0.5);
     if (face === "fluted") vLines(x, y, ww, hh, 3, 0.45);
     if (face === "sawtooth") { vLines(x, y, ww, hh, 4, 0.75); vLines(x + 2, y, ww - 2, hh, 4, 0.3); }
+    if (face === "batten") { vLines(x, y, ww, hh, 4, 0.6); vLines(x + 2, y, ww - 2, hh, 4, 0.6); } // square battens: both edges of each rib
     if (face === "fingerpull") { solids.push(<rect key={`f${n++}`} x={x + 1} y={y + 1} width={ww - 2} height={3.5} fill="rgba(20,30,34,.32)" />); L(`M${x + 1} ${y + 4.5} H${x + ww - 1}`, 0.8); }
     // Routed finger-pull groove in each drawer front (Rossi), when there is no handle.
     if (meta.grooveMm && kind === "drawer" && handle === "none") { solids.push(<rect key={`g${n++}`} x={x + 5} y={y + meta.grooveMm / MM} width={ww - 10} height={2.6} rx={1} fill="rgba(20,30,34,.32)" />); }

@@ -32,7 +32,8 @@ export interface DrawMeta {
   splitFrom?: number; // all-drawer fronts split into 2 columns from this width (mm), e.g. Nelson 1500
   doorHandle?: "top"; // door handles run across the top of the door (Marq, Hamilton) instead of up the side
   shelf?: "below" | "ends"; // open shelf under the drawer (Oxford) / open shelf ends (Avion)
-  insetFronts?: boolean; // the fronts sit between the side panels, flush with their front edges (Merewether)
+  insetFronts?: boolean; // the fronts sit inside the carcass (sides, top + base), flush with its front edges (Merewether, Lake)
+  frameMm?: number; // shaker faces: a slim frame this wide (Reef 16, Anna 20) instead of the usual rails
   shelfSide?: "left" | "right"; // which end the single open shelf sits
   // Measurements from the supplier's spec sheets (mm). Heights are the CABINET only: the
   // benchtop sits on top and is added from its own thickness.
@@ -53,7 +54,7 @@ export interface DrawMeta {
 }
 
 /** Front styles for the line drawing, one per range look. */
-export type DrawFace = "plain" | "shaker" | "shaker-v" | "shaker-round" | "shiplap" | "fluted" | "arch" | "rounded" | "sawtooth" | "frieze" | "fingerpull" | "framed";
+export type DrawFace = "plain" | "shaker" | "shaker-v" | "shaker-round" | "shiplap" | "fluted" | "arch" | "rounded" | "sawtooth" | "frieze" | "fingerpull" | "framed" | "batten";
 
 export interface OptionChoice {
   key: string;

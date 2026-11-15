@@ -20,7 +20,9 @@ const carcassInner = std({ color: 0xcfc9be, roughness: 0.85, envMapIntensity: 0.
 const boxWhite = std({ color: 0xf5f3ef, roughness: 0.7, envMapIntensity: 0.2 });
 const chrome = std({ color: 0xdfe2e4, roughness: 0.12, metalness: 1 });
 const shadowMat = std({ color: 0x1a1816, roughness: 0.9 });
-const metal = ([c, m, r]: number[]) => std({ color: c, metalness: m, roughness: r });
+// Handles reflect the room only a little: at full strength the bright room environment turned
+// brushed aluminium (and every pale metal) white.
+const metal = ([c, m, r]: number[]) => std({ color: c, metalness: m, roughness: r, envMapIntensity: m > 0.5 ? 0.55 : 0.8 });
 const HFIN: Record<string, number[]> = {
   "Brushed Aluminium": [0xc5c9cc, 0.9, 0.38], "Brushed Brass": [0xc8a564, 1, 0.32], "Gun Metal": [0x4b4e52, 1, 0.35],
   "Black Matte": [0x1b1c1d, 0.3, 0.62], "White Matte": [0xefefec, 0.1, 0.6], "Polished Stainless Steel": [0xe2e5e7, 1, 0.12],
@@ -36,8 +38,14 @@ function swatchCanvas(img: HTMLImageElement | undefined, wMm: number, hMm: numbe
   const pxPerMm = Math.min(1.2, maxPx / Math.max(wMm, hMm));
   const W = Math.max(8, Math.round(wMm * pxPerMm)), H = Math.max(8, Math.round(hMm * pxPerMm));
   const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d")!;
-  g.fillStyle = fallback; g.fillRect(0, 0, W, H);
-  if (img && img.naturalWidth) { const t = TILE * pxPerMm; for (let y = 0; y < H; y += t) for (let x = 0; x < W; x += t) g.drawImage(img, x, y, t, t); }
+  // A painted finish's swatch is one flat colour (an SVG): fill with it rather than tiling it,
+  // which left faint seams across the fronts.
+  const flat = img?.src.startsWith("data:image/svg") ? decodeURIComponent(img.src).match(/^[^]*?<rect width="10" height="10" fill="(#[0-9a-f]{6})"\/><\/svg>$/i)?.[1] : undefined;
+  g.fillStyle = flat ?? fallback; g.fillRect(0, 0, W, H);
+  if (img && img.naturalWidth && !flat) {
+    const t = TILE * pxPerMm; // whole pixels with a 1px overlap, so no hairline gaps between tiles
+    for (let y = 0; y < H; y += t) for (let x = 0; x < W; x += t) g.drawImage(img, Math.floor(x), Math.floor(y), Math.ceil(t) + 1, Math.ceil(t) + 1);
+  }
   return c;
 }
 // Benchtops are all cut from one 1800 x 900mm slab: the colour photo is laid over the slab once
@@ -81,13 +89,16 @@ function sdRoundRect(x: number, y: number, w: number, h: number, r: number) { //
   const qx = Math.abs(x - w / 2) - (w / 2 - r), qy = Math.abs(y - h / 2) - (h / 2 - r);
   return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r;
 }
-function faceHeight(face: string, w: number, h: number, colX: number, colY: number, colW: number, colH: number): HFn | null {
+function faceHeight(face: string, w: number, h: number, colX: number, colY: number, colW: number, colH: number, frameMm?: number): HFn | null {
   switch (face) {
     case "fluted": return (x) => Math.sqrt(Math.abs(Math.sin(Math.PI * x / 16)));
     case "shiplap": return (x) => { const d = x % 70; return d < 4 ? d / 4 : d > 66 ? (70 - d) / 4 : 1; }; // 70mm boards, V-grooves
     case "sawtooth": return (x) => (x % 30) / 30;
+    // Square battens (Peak): flat-topped 12mm ribs with 12mm grooves between, small chamfers.
+    case "batten": return (x) => { const d = x % 24; return d < 1.5 ? d / 1.5 : d < 10.5 ? 1 : d < 12 ? (12 - d) / 1.5 : 0; };
     case "shaker": case "shaker-round": case "shaker-v": {
-      const fw = Math.max(28, Math.min(70, Math.min(w, h) * 0.14)), r = face === "shaker-round" ? 28 : 2, bev = 7;
+      // frameMm: a slim frame (Reef, Anna) instead of the usual wide shaker rails.
+      const fw = frameMm ?? Math.max(28, Math.min(70, Math.min(w, h) * 0.14)), r = face === "shaker-round" ? 28 : 2, bev = frameMm ? 3 : 7;
       return (x, y) => {
         const d = sdRoundRect(x - fw, y - fw, w - 2 * fw, h - 2 * fw, r); // <0 inside panel
         let v = clamp01(d / bev) * 0.6 + 0.4 * (d > 0 ? 1 : 0.0);
@@ -110,14 +121,15 @@ function faceHeight(face: string, w: number, h: number, colX: number, colY: numb
       const d = Math.abs(sdRoundRect(colX + x - 10, colY + y - 10, colW - 20, colH - 20, Math.min(colW, colH) * 0.3));
       return d < 4 ? d / 4 : 1;
     };
-    case "fingerpull": return (_x, y) => (y < 26 ? (y < 20 ? 0 : (y - 20) / 6) : 1);
+    // "fingerpull" (Gold, Marlo) is a plain front: the pull itself comes from the handle choice
+    // (Gold's routed slots, Marlo's shark fin), not a groove across every front.
     default: return null;
   }
 }
-function bakeFront(face: string, img: HTMLImageElement | undefined, fallback: string, wMm: number, hMm: number, col: [number, number, number, number]) {
-  const ribbed = face === "fluted" || face === "sawtooth";
+function bakeFront(face: string, img: HTMLImageElement | undefined, fallback: string, wMm: number, hMm: number, col: [number, number, number, number], frameMm?: number) {
+  const ribbed = face === "fluted" || face === "sawtooth" || face === "batten";
   const albedo = swatchCanvas(img, wMm, hMm, fallback, ribbed ? 2048 : 1024); // ribs need the extra pixels to stay crisp
-  const fn = faceHeight(face, wMm, hMm, ...col);
+  const fn = faceHeight(face, wMm, hMm, ...col, frameMm);
   if (!fn) return { map: canvasTex(albedo), normal: null as THREE.Texture | null };
   const W = albedo.width, H = albedo.height, sx = wMm / W, sy = hMm / H;
   const hgt = new Float32Array(W * H);
@@ -125,7 +137,8 @@ function bakeFront(face: string, img: HTMLImageElement | undefined, fallback: st
   const nc = document.createElement("canvas"); nc.width = W; nc.height = H;
   const ng = nc.getContext("2d")!, nd = ng.createImageData(W, H);
   const ag = albedo.getContext("2d")!, ad = ag.getImageData(0, 0, W, H);
-  const k = ribbed ? 3 : 3.2;
+  // Shaker frames get a crisper edge: over a timber photo the soft bevel barely read (Hamilton, Pier).
+  const k = ribbed ? 3 : face.startsWith("shaker") ? 5 : 3.2;
   // Ribs: a timber photo's own grain runs the same way as the flutes and swallows soft shading, so
   // grooves darken harder (and crests lift a little) over a photo than over a plain colour.
   const groove = ribbed ? (img ? 0.34 : 0.2) : face === "shiplap" ? 0.3 : 0, crest = ribbed ? (img ? 0.08 : 0.04) : 0;
@@ -262,7 +275,8 @@ function handleObj(type: string, fin: string, len: number, vertical: boolean): T
     const cup = add(new THREE.SphereGeometry(1, 40, 20, 0, Math.PI, 0, Math.PI / 2), hood, 0, -0.012, 0); cup.scale.set(0.032, 0.03, 0.022); // upper-front quarter sphere, open below
     add(new THREE.BoxGeometry(0.07, 0.012, 0.003), m, 0, 0.012, 0.0015); // the fixing plate with its two screw tabs
   }
-  else if (/Luna/.test(type)) { add(new THREE.CylinderGeometry(0.0375, 0.0375, 0.005, 40, 1, false, Math.PI / 2, Math.PI), m, 0, 0, 0.02, Math.PI / 2); add(new THREE.BoxGeometry(0.075, 0.006, 0.02), m, 0, 0, 0.01); }
+  // Luna: a half-moon plate, flat edge on top (fixed along it), round side hanging down.
+  else if (/Luna/.test(type)) { add(new THREE.CylinderGeometry(0.0375, 0.0375, 0.005, 40, 1, false, Math.PI / 2, Math.PI), m, 0, 0, 0.02, -Math.PI / 2); add(new THREE.BoxGeometry(0.075, 0.006, 0.02), m, 0, -0.003, 0.01); }
   else if (/Bell Knob/.test(type)) { const pts = [[0.004, 0], [0.006, 0.004], [0.0075, 0.016], [0.015, 0.026], [0.014, 0.029], [0, 0.03]].map(([r, y]) => new THREE.Vector2(r, y)); add(new THREE.LatheGeometry(pts, 32), m, 0, 0, 0, Math.PI / 2); }
   else if (/Clover/.test(type)) {
     const R0 = 0.024, pts: THREE.Vector3[] = [];
@@ -296,10 +310,12 @@ export const ledGlowTex = (() => {
 const picked = (o: ProductOptions, sel: OptionSelection, key: string) => { const g = o.groups.find((x) => x.key === key); const k = one(sel[key]); return g && k ? g.choices.find((c) => c.key === k) : undefined; };
 /** The handle shown before one is picked: the range's own default (spec drawing look). */
 function handleFromSel(o: ProductOptions, sel: OptionSelection, meta: DrawMeta): { type: string; fin: string; len: number } {
-  const c = picked(o, sel, "handle");
+  // A range with only one handle (Marlo's shark fin) shows it before it is picked.
+  const only = o.groups.find((g) => g.key === "handle")?.choices;
+  const c = picked(o, sel, "handle") ?? (only?.length === 1 ? only[0] : undefined);
   const lenC = picked(o, sel, "handleLength"); const len = lenC ? parseInt(lenC.label) || 200 : 200;
   if (c) {
-    const type = /fingerpull|shark/i.test(c.label) ? (/recess/i.test(c.label) ? "Recessed Fingerpull" : "Reverse Fingerpull") : c.section || c.label;
+    const type = /shark/i.test(c.label) ? "Shark Fin" : /fingerpull/i.test(c.label) ? (/recess/i.test(c.label) ? "Recessed Fingerpull" : "Reverse Fingerpull") : c.section || c.label;
     return { type, fin: c.label, len: /Shell/.test(type) ? 64 : /Luna/.test(type) ? 75 : /Pinta/.test(type) ? 192 : /Trim/.test(type) ? 168 : len };
   }
   if (meta.face === "fingerpull") return { type: "Recessed Fingerpull", fin: "", len };
@@ -341,12 +357,13 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   const openL = ends.includes(-1), openR = ends.includes(1), bx0 = xL + (openL ? 0 : P), bx1 = xR - (openR ? 0 : P);
   // An open shelf under the drawers (Oxford, Merewether) is finished inside like the outside, as Marquis builds it.
   const inner = meta.shelf === "below" ? finishPlain(Wc, carD) : carcassInner;
-  // Inset fronts (Merewether): the sides come forward to the face of the fronts, which sit between them.
+  // Inset fronts (Merewether, Lake, Cove, Peak, Salamander, Marlo, Oxford): the sides, top and base come
+  // forward to the face of the fronts, which sit inside that frame.
   const inset = !!meta.insetFronts && !sideW, sideD = inset ? carD + frontT : carD;
   if (!openL) slab(P, H, sideD, xL + P / 2, y0 + H / 2, zBack + sideD / 2, [inner, fSide, fEdge, carcassInner, fEdge, carcassInner]);
   if (!openR) slab(P, H, sideD, xR - P / 2, y0 + H / 2, zBack + sideD / 2, [fSide, inner, fEdge, carcassInner, fEdge, carcassInner]);
-  slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + P / 2, zBack + carD / 2, [carcassInner, carcassInner, inner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
-  slab(bx1 - bx0, P, carD, (bx0 + bx1) / 2, y0 + H - P / 2, zBack + carD / 2);
+  slab(bx1 - bx0, P, sideD, (bx0 + bx1) / 2, y0 + P / 2, zBack + sideD / 2, [carcassInner, carcassInner, inner, finishPlain(Wc, carD), finishPlain(Wc, P), carcassInner]);
+  slab(bx1 - bx0, P, sideD, (bx0 + bx1) / 2, y0 + H - P / 2, zBack + sideD / 2, inset ? [carcassInner, carcassInner, carcassInner, carcassInner, finishPlain(Wc, P), carcassInner] : carcassInner);
   slab(bx1 - bx0, H - 2 * P, 0.006, (bx0 + bx1) / 2, y0 + H / 2, zBack + 0.003, inner);
   // A flat plan shape (x outward from 0, outer front corner rounded by r) extruded up by h, at an end of the cabinet.
   const endPiece = (wd: number, r: number, h: number, side: number, x: number, y: number, mat: THREE.MeshStandardMaterial) => {
@@ -363,7 +380,7 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
     m.position.set(x, y, zBack); m.castShadow = m.receiveShadow = true; group.add(m); return m;
   };
   const fx0 = -Wc / 2 + sideW + (ends.includes(-1) ? endW : 0) + (inset && !openL ? P : 0), fx1 = Wc / 2 - sideW - (ends.includes(1) ? endW : 0) - (inset && !openR ? P : 0);
-  const fyTop = y0 + H - recess - rail, fyFull = y0;
+  const fyTop = y0 + H - recess - rail - (inset ? P : 0), fyFull = y0 + (inset ? P : 0);
   const shelfBelow = meta.shelf === "below";
   const fyBot = shelfBelow ? fyFull + (fyTop - fyFull) * 0.47 : fyFull;
 
@@ -388,32 +405,52 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
 
   const hnd = handleFromSel(o, sel, meta);
   const gapMat = finishPlain(0.2, 0.2); gapMat.color.set(0x55514b); gapMat.side = THREE.DoubleSide;
+  // Inset fronts: the frame's inside faces just behind the 3mm gaps are in deep shadow in real life
+  // (the renderer has no ambient occlusion, so the white carcass showed through as a light outline).
+  if (inset) {
+    const lw = frontT + 0.006, lz = zFront + frontT - lw / 2;
+    const liner = (w: number, h: number, x: number, y: number, rx: number, ry: number) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), gapMat); m.position.set(x, y, lz); m.rotation.set(rx, ry, 0); group.add(m); };
+    if (!openL) liner(lw, fyTop - fyFull, xL + P + 0.0004, (fyTop + fyFull) / 2, 0, Math.PI / 2);
+    if (!openR) liner(lw, fyTop - fyFull, xR - P - 0.0004, (fyTop + fyFull) / 2, 0, -Math.PI / 2);
+    if (!shelfBelow) liner(fx1 - fx0, lw, (fx0 + fx1) / 2, fyFull + 0.0004, -Math.PI / 2, 0);
+    liner(fx1 - fx0, lw, (fx0 + fx1) / 2, fyTop - 0.0004, Math.PI / 2, 0);
+  }
   const slotMat = finishPlain(0.3, 0.03); slotMat.color.set(0x6d6861);
   const topPull = /Top Pull/.test(hnd.type), curvedPull = /Curved/.test(hnd.type), hMat = finOf(hnd.fin);
   // slotDrop: a routed groove this far below the top (Rossi). Recessed fingerpull = a round-ended slot
   // routed into the front just under its top edge; reverse fingerpull = the back of the top edge bevelled away
   // (as pictured in the Marquis Bathroom Book, p122).
-  function frontPanel(parent: THREE.Object3D, w: number, h: number, colRect: [number, number, number, number], slotDrop = 0) {
-    const rev = hnd.type === "Reverse Fingerpull" ? Math.min(0.035, h * 0.3) : 0;
-    const slot = hnd.type === "Recessed Fingerpull" && face !== "fingerpull" ? { top: 0.014, hh: 0.026 } : slotDrop ? { top: Math.max(0.01, slotDrop - 0.009), hh: 0.018 } : null;
+  // Recessed fingerpull (Gold, Rossi): a round-ended slot routed into the front - across the top of a
+  // drawer, and down a door from its top near the edge it opens on (Gold photos).
+  function frontPanel(parent: THREE.Object3D, w: number, h: number, colRect: [number, number, number, number], slotDrop = 0, kind = "drawer", tc = 1) {
+    const rev = hnd.type === "Reverse Fingerpull" && kind !== "rail" ? Math.min(0.035, h * 0.3) : 0;
+    const recessed = hnd.type === "Recessed Fingerpull" && kind !== "rail"; // the fixed rail panel (Bowral, Kiama) is never routed
+    const slot = recessed && kind === "door" && h > 0.2 ? { x: tc * (w / 2 - 0.05), cy: h / 2 - 0.008 - Math.min(0.32, h * 0.62) / 2, sw: 0.022, sh: Math.min(0.32, h * 0.62) }
+      : recessed ? { x: 0, cy: h / 2 - 0.014 - 0.013, sw: w - 2 * Math.min(0.05, w * 0.1), sh: 0.026 }
+      : slotDrop ? { x: 0, cy: h / 2 - Math.max(0.01, slotDrop - 0.009) - 0.009, sw: w - 2 * Math.min(0.03, w * 0.08), sh: 0.018 } : null;
     const ph = h - rev;
-    const baked = bakeFront(face, cabImg, cabCol, w * 1000, ph * 1000, colRect);
+    const baked = bakeFront(face, cabImg, cabCol, w * 1000, ph * 1000, colRect, meta.frameMm);
     const fm = new THREE.MeshStandardMaterial({ map: baked.map, normalMap: baked.normal ?? null, normalScale: new THREE.Vector2(1, 1), roughness: 0.72, envMapIntensity: 0.15 });
     const side = finishPlain(0.02, h);
     let p: THREE.Mesh;
-    if (slot && w > 0.1 && ph > slot.top + slot.hh + 0.02) {
+    if (slot && w > 0.1 && ph > 0.06) {
       const sh = new THREE.Shape(); sh.moveTo(-w / 2, -ph / 2); sh.lineTo(w / 2, -ph / 2); sh.lineTo(w / 2, ph / 2); sh.lineTo(-w / 2, ph / 2); sh.lineTo(-w / 2, -ph / 2);
-      const sw = w - 2 * Math.min(0.03, w * 0.08), r = slot.hh / 2, cy = ph / 2 - slot.top - r;
-      const hole = new THREE.Path(); hole.moveTo(-sw / 2 + r, cy - r); hole.lineTo(sw / 2 - r, cy - r); hole.absarc(sw / 2 - r, cy, r, -Math.PI / 2, Math.PI / 2, false);
-      hole.lineTo(-sw / 2 + r, cy + r); hole.absarc(-sw / 2 + r, cy, r, Math.PI / 2, Math.PI * 1.5, false); sh.holes.push(hole);
+      const across = slot.sw >= slot.sh, r = Math.min(slot.sw, slot.sh) / 2, a = (across ? slot.sw : slot.sh) / 2 - r; // half the straight part
+      const hole = new THREE.Path();
+      if (across) { hole.moveTo(slot.x - a, slot.cy - r); hole.lineTo(slot.x + a, slot.cy - r); hole.absarc(slot.x + a, slot.cy, r, -Math.PI / 2, Math.PI / 2, false); hole.lineTo(slot.x - a, slot.cy + r); hole.absarc(slot.x - a, slot.cy, r, Math.PI / 2, Math.PI * 1.5, false); }
+      else { hole.moveTo(slot.x + r, slot.cy - a); hole.lineTo(slot.x + r, slot.cy + a); hole.absarc(slot.x, slot.cy + a, r, 0, Math.PI, false); hole.lineTo(slot.x - r, slot.cy - a); hole.absarc(slot.x, slot.cy - a, r, Math.PI, Math.PI * 2, false); }
+      sh.holes.push(hole);
       const geo = new THREE.ExtrudeGeometry(sh, { depth: frontT, bevelEnabled: false, curveSegments: 16 }); geo.translate(0, 0, -frontT / 2);
       const pos = geo.getAttribute("position") as THREE.BufferAttribute, nor = geo.getAttribute("normal") as THREE.BufferAttribute, uv = geo.getAttribute("uv") as THREE.BufferAttribute;
       for (let i = 0; i < uv.count; i++) if (Math.abs(nor.getZ(i)) > 0.5) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / ph + 0.5); // the face photo across the front
       p = new THREE.Mesh(geo, [fm, side]);
-      const back = new THREE.Mesh(new THREE.PlaneGeometry(sw, slot.hh), slotMat); back.position.set(0, cy, -frontT / 2 + 0.004); p.add(back); // the slot's floor, 14mm in
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(slot.sw, slot.sh), slotMat); back.position.set(slot.x, slot.cy, -frontT / 2 + 0.004); p.add(back); // the slot's floor, 14mm in
     } else p = new THREE.Mesh(new THREE.BoxGeometry(w, ph, frontT), [side, side, side, side, fm, carcassInner]);
     p.position.y = -rev / 2; p.castShadow = p.receiveShadow = true; parent.add(p);
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.003, h + 0.003), gapMat); bk.position.z = -frontT / 2 - 0.0015; parent.add(bk);
+    // A dark backing behind the gaps round each front. Inset fronts sit in a frame, so it covers the
+    // whole 3mm gap there (else the white drawer boxes showed through as a white outline).
+    const bg = inset ? 0.008 : 0.003;
+    const bk = new THREE.Mesh(new THREE.PlaneGeometry(w + bg, h + bg), gapMat); bk.position.z = -frontT / 2 - 0.0015; parent.add(bk);
     if (rev) { // the face runs straight up to a thin top edge; the back is bevelled away into the vanity for your fingers
       const sh = new THREE.Shape(); sh.moveTo(-frontT / 2, 0); sh.lineTo(frontT / 2, 0); sh.lineTo(frontT / 2, rev); sh.lineTo(frontT / 2 - 0.005, rev); sh.lineTo(-frontT / 2, 0);
       const geo = new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false }); geo.rotateY(-Math.PI / 2); geo.translate(w / 2, 0, 0);
@@ -422,9 +459,18 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   }
   function addHandle(parent: THREE.Object3D, w: number, h: number, kind: string, towardsCentre: number) {
     if (/Fingerpull|No handle/.test(hnd.type)) return;
+    if (hnd.type === "Shark Fin") { // Marlo: a fin running along the bottom edge of the front, sloping out to a lip you pull from below
+      const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(0.011, 0); sh.lineTo(0.011, 0.003); sh.lineTo(0, 0.026); sh.lineTo(0, 0);
+      const geo = new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false }); geo.rotateY(-Math.PI / 2); geo.translate(w / 2, 0, 0);
+      const fin = new THREE.Mesh(geo, finishPlain(w, 0.03)); fin.position.set(0, -h / 2, frontT / 2); fin.castShadow = fin.receiveShadow = true; parent.add(fin); return;
+    }
     if (topPull) { const len = Math.min(hnd.len / 1000, w - 0.03); const m = new THREE.Mesh(pullGeo(curvedPull, len), hMat); m.position.set(0, h / 2, frontT / 2); m.castShadow = true; parent.add(m); return; }
     const obj = handleObj(hnd.type, hnd.fin, hnd.len, kind === "door" && !meta.doorHandle);
-    if (kind === "door") obj.position.set(meta.doorHandle ? 0 : towardsCentre * (w / 2 - 0.045), h / 2 - (meta.doorHandle ? 0.04 : Math.min(0.14, h * 0.25)), frontT / 2);
+    // Luna + shell pulls hang just under the top edge, centred, on doors as well as drawers (Chelsea,
+    // Chifley, Pier, Port, Provincial, Bowral photos).
+    const cup = /Luna|Shell/.test(hnd.type), cupY = h / 2 - (/Luna/.test(hnd.type) ? 0.014 : 0.035);
+    if (cup) obj.position.set(0, kind === "door" ? cupY - 0.02 : cupY, frontT / 2);
+    else if (kind === "door") obj.position.set(meta.doorHandle ? 0 : towardsCentre * (w / 2 - 0.045), h / 2 - (meta.doorHandle ? 0.04 : Math.min(0.14, h * 0.25)), frontT / 2);
     else obj.position.set(0, h / 2 - Math.min(0.05, h * 0.28), frontT / 2);
     parent.add(obj);
   }
@@ -450,13 +496,21 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
     add(nr - nl, 0.008, dd - nd, (nl + nr) / 2, yb + 0.004, z0 - (dd - nd) / 2);
   }
   const pull = mm(meta.pullRecessMm ?? 0);
+  // Which way a door opens (+1 = its free edge is on its right): doors side by side open as pairs
+  // meeting in the middle (Gold photo); a door on its own opens towards the middle of the vanity.
+  const doorDir = (c: number, cx: number) => {
+    let a = c, b = c; while (a > 0 && seq[a - 1] === "door") a--; while (b < seq.length - 1 && seq[b + 1] === "door") b++;
+    const n = b - a + 1, i = c - a;
+    if (n >= 2 && (n % 2 === 0 || i < n - 1)) return i % 2 === 0 ? 1 : -1;
+    return cx <= 0 ? 1 : -1;
+  };
   seq.forEach((kind, c) => {
-    const cx = fx0 + gap + c * (colW + gap) + colW / 2, towardsCentre = cx <= 0 ? 1 : -1;
+    const cx0 = fx0 + gap + c * (colW + gap) + colW / 2, cx = cx0, towardsCentre = kind === "door" ? doorDir(c, cx0) : cx0 <= 0 ? 1 : -1;
     if (kind === "door") {
       const fh = colH - 2 * gap, hinge = new THREE.Group(), hx = cx - towardsCentre * colW / 2;
       hinge.position.set(hx, fyBot + gap + fh / 2, zFront + frontT / 2);
       const door = new THREE.Group(); door.position.x = towardsCentre * colW / 2; hinge.add(door);
-      frontPanel(door, colW, fh, [0, 0, colW * 1000, fh * 1000]);
+      frontPanel(door, colW, fh, [0, 0, colW * 1000, fh * 1000], 0, "door", towardsCentre);
       addHandle(door, colW, fh, "door", towardsCentre);
       group.add(hinge); movers.push({ obj: hinge, kind: "door", dir: -towardsCentre, t: 0 });
       const sd = carD * 0.45; slab(colW - 0.004, P, sd, cx, fyBot + colH * 0.45, zBack + carD - sd / 2 - 0.01, boxWhite);
@@ -479,16 +533,22 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   if (recess) { const fm = finishPlain(Wc, recess); fm.color.set(0x77726b); slab(xR - xL - 2 * P, recess, 0.012, (xL + xR) / 2, y0 + H - recess / 2, zFront - 0.002, fm); }
   if (rail) {
     const ry = y0 + H - recess - rail / 2, rp = new THREE.Group(); rp.position.set(0, ry, zFront + frontT / 2);
-    frontPanel(rp, fx1 - fx0 - 2 * gap, rail - gap, [0, 0, (fx1 - fx0) * 1000, rail * 1000]); group.add(rp);
+    frontPanel(rp, fx1 - fx0 - 2 * gap, rail - gap, [0, 0, (fx1 - fx0) * 1000, rail * 1000], 0, "rail"); group.add(rp);
   }
   // Framed front (Palm): stiles and rails standing proud round the fronts.
   if (face === "framed") {
     const fr = finishPlain(0.03, H), z = zFront + frontT + 0.004;
     slab(0.02, H, 0.012, -Wc / 2 + 0.01, y0 + H / 2, z, fr); slab(0.02, H, 0.012, Wc / 2 - 0.01, y0 + H / 2, z, fr);
     slab(Wc, 0.02, 0.012, 0, y0 + H - 0.01, z, fr); slab(Wc, 0.02, 0.012, 0, y0 + 0.01, z, fr);
+    // ...and between every door / drawer stack and every drawer (Palm photos): each front sits in its own opening.
+    for (let c = 0; c < seq.length - 1; c++) if (!(seq[c] === "door" && seq[c + 1] === "door")) slab(0.02, H, 0.012, fx0 + gap + (c + 1) * (colW + gap) - gap / 2, y0 + H / 2, z, fr);
+    const dh = (colH - gap * (perCol + 1)) / Math.max(1, perCol);
+    seq.forEach((k, c) => { if (k !== "drawer") return; const cx = fx0 + gap + c * (colW + gap) + colW / 2; for (let j = 0; j < perCol - 1; j++) slab(colW, 0.02, 0.012, cx, fyTop - gap - (j + 1) * (dh + gap) + gap / 2, z, fr); });
   }
   // Curved end panels (Reef, Shore): rounded front corners each side.
-  if (sideW) for (const s of [-1, 1]) endPiece(sideW, sideW, H, s, s * (Wc / 2 - sideW), y0, finishPlain(carD, H));
+  // Fluted fronts (Shore) carry their flutes on round the curved ends.
+  const endMat = () => { if (face !== "fluted") return finishPlain(carD, H); const L = (sideW + carD) * 1000, bk = bakeFront("fluted", cabImg, cabCol, L, H * 1000, [0, 0, L, H * 1000]); return new THREE.MeshStandardMaterial({ map: bk.map, normalMap: bk.normal ?? null, roughness: 0.72, envMapIntensity: 0.15 }); };
+  if (sideW) for (const s of [-1, 1]) endPiece(sideW, sideW, H, s, s * (Wc / 2 - sideW), y0, endMat());
   // Open shelves: ends (Avion: no outer side; top, shelf and base round off at the front) or under the drawers (Oxford, Merewether).
   for (const e of ends) {
     const b = e * (Wc / 2 - endW);

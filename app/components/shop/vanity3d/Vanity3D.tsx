@@ -54,7 +54,9 @@ type Stage = {
 function applyLights(st: Stage, b: Built | null, dark: boolean) {
   const on = !!b?.led;
   st.hemi.color.set(dark ? 0xffcf96 : 0xffffff); st.hemi.groundColor.set(dark ? 0x6b5640 : 0xd8d2c8); st.sun.color.set(dark ? 0xffc27a : 0xffffff);
-  st.hemi.intensity = dark ? 0.24 : 0.62; st.sun.intensity = dark ? 0.16 : 0.72; st.fill.intensity = dark ? 0.04 : 0.22;
+  // Day: the front (facing the key light) gets about 1x its colour, not 1.4x, so pale finishes keep their
+  // colour on the fronts instead of clipping to white while only the shaded sides showed it.
+  st.hemi.intensity = dark ? 0.24 : 0.46; st.sun.intensity = dark ? 0.16 : 0.56; st.fill.intensity = dark ? 0.04 : 0.12;
   st.scene.environment = dark ? null : st.env; st.scene.background = new THREE.Color(dark ? 0x3a3027 : 0xe9e5de);
   st.leds.forEach((l, i) => { l.intensity = on ? (dark ? 1.8 : 0.55) : 0; if (b) l.position.set((i - 1) * (b.group.userData.ledW ?? 1) * 0.33, Math.max(0.05, (b.group.userData.ledY ?? 0.3) - 0.04), b.group.userData.ledZ ?? -0.2); });
   b?.group.traverse((q: any) => { if (q.name === "glow") q.material.opacity = dark ? 0.9 : 0.4; });
@@ -114,12 +116,12 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true; controls.dampingFactor = 0.08; controls.minDistance = 0.7; controls.maxDistance = 6;
     controls.maxPolarAngle = Math.PI * 0.53; controls.minAzimuthAngle = -Math.PI * 0.62; controls.maxAzimuthAngle = Math.PI * 0.62;
-    const hemi = new THREE.HemisphereLight(0xffffff, 0xd8d2c8, 0.62); scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffffff, 0.72); sun.position.set(1.4, 2.6, 2.6); sun.castShadow = true;
+    const hemi = new THREE.HemisphereLight(0xffffff, 0xd8d2c8, 0.46); scene.add(hemi);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.56); sun.position.set(1.4, 2.6, 2.6); sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 2, bottom: -1 }); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.015; sun.shadow.radius = 5; scene.add(sun);
-    const fill = new THREE.DirectionalLight(0xffffff, 0.22); fill.position.set(-2, 1.2, 2.4); scene.add(fill);
-    const floorTex = tileTexture(2, 2, [138, 133, 126], "#77726b", 0.07); floorTex.repeat.set(8 / 1.2, 6 / 1.2);
-    const wallTex = tileTexture(1, 2, [176, 172, 166], "#a19c95", 0.05); wallTex.repeat.set(8 / 1.2, 3.2 / 1.2);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.12); fill.position.set(-2, 1.2, 2.4); scene.add(fill);
+    const floorTex = tileTexture(2, 2, [156, 151, 144], "#86817a", 0.07); floorTex.repeat.set(8 / 1.2, 6 / 1.2);
+    const wallTex = tileTexture(1, 2, [198, 194, 188], "#b5b0a9", 0.05); wallTex.repeat.set(8 / 1.2, 3.2 / 1.2);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.55, envMapIntensity: 0.3 }));
     floor.rotation.x = -Math.PI / 2; floor.position.z = 2.4; floor.receiveShadow = true; scene.add(floor);
     const wall = new THREE.Mesh(new THREE.PlaneGeometry(8, 3.2), new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.7, envMapIntensity: 0.2 }));
