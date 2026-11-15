@@ -120,6 +120,9 @@ export default function ProductView({
   // Options / colours - also shown for a SINGLE colour so its name + thumbnail still
   // appear. Rendered twice: under the image on mobile (so colours switch without
   // scrolling past the description) and in the details column on desktop.
+  // Colour variations (tiles, grouts, trims, basins) read "Colour"; supply ranges grouping sizes or packs
+  // (spacers, trowels, floor wastes) keep "Option" (Reagan 2026-11-16: colours, not options, where it fits).
+  const pickNoun = isSupply && range.id.startsWith("rng_") ? "Option" : "Colour";
   const renderOptions = (marginTop: number, className: string) =>
     // Supply products with a single choice (e.g. a one-colour adhesive) show no picker: nothing to choose.
     (isSupply ? range.swatches.length > 1 : range.swatches.length >= 1) && (
@@ -127,10 +130,10 @@ export default function ProductView({
         <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 700 }}>
           {swatch ? (
             <>
-              {range.swatches.length > 1 ? "Option" : "Colour"}: <span style={{ color: "var(--accent)" }}>{swatch.colour}</span>
+              {range.swatches.length > 1 ? pickNoun : "Colour"}: <span style={{ color: "var(--accent)" }}>{swatch.colour}</span>
             </>
           ) : (
-            range.swatches.length > 1 ? "Options" : "Colour"
+            range.swatches.length > 1 ? `${pickNoun}s` : "Colour"
           )}
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
