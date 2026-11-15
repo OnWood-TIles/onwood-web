@@ -141,14 +141,17 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
 
   // Port: one rounded (capsule) shape per column, drawers split inside it, not one per drawer.
   const colShape = face === "rounded";
+  // Shaker frame (+ V-grooves) inside a rectangle: one front, or a whole drawer stack (stackFrame).
+  const frame = (x: number, y: number, ww: number, hh: number) => {
+    const i = meta.frameMm ? Math.max(1.6, meta.frameMm / MM) : Math.max(3, Math.min(6, ww * 0.12, hh * 0.2)); // slim frames (Reef) draw slim
+    R(x + i, y + i, ww - 2 * i, hh - 2 * i, face === "shaker-round" ? Math.min(6, i) : 1, 1);
+    if (face === "shaker-v") vLines(x + i, y + i, ww - 2 * i, hh - 2 * i, 8, 0.5);
+  };
+  const stacked = !!meta.stackFrame && face.startsWith("shaker");
   function front(x: number, y: number, ww: number, hh: number, kind: Col, towardsCentre: number) {
     if (!colShape) R(x, y, ww, hh, 2);
-    const i = meta.frameMm ? Math.max(1.6, meta.frameMm / MM) : Math.max(3, Math.min(6, ww * 0.12, hh * 0.2)); // slim frames (Reef) draw slim
-    if (face === "shaker" || face === "shaker-v" || face === "shaker-round") {
-      R(x + i, y + i, ww - 2 * i, hh - 2 * i, face === "shaker-round" ? Math.min(6, i) : 1, 1);
-      if (face === "shaker-v") vLines(x + i, y + i, ww - 2 * i, hh - 2 * i, 5, 0.5);
-    }
-    if (face === "shiplap") vLines(x, y, ww, hh, 7, 0.5);
+    if ((face === "shaker" || face === "shaker-v" || face === "shaker-round") && !(stacked && kind === "drawer")) frame(x, y, ww, hh);
+    if (face === "shiplap") vLines(x, y, ww, hh, meta.boardMm ? meta.boardMm / MM : 7, 0.5);
     if (face === "fluted") vLines(x, y, ww, hh, 3, 0.45);
     if (face === "sawtooth") { vLines(x, y, ww, hh, 4, 0.75); vLines(x + 2, y, ww - 2, hh, 4, 0.3); }
     if (face === "batten") { vLines(x, y, ww, hh, 4, 0.6); vLines(x + 2, y, ww - 2, hh, 4, 0.6); } // square battens: both edges of each rib
@@ -159,7 +162,8 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
     if (handle === "none") return;
     const doorX = towardsCentre > 0 ? x + ww - 8 : x + 8; // near the edge facing the middle
     if (handle === "knob") {
-      const cx = kind === "door" ? doorX : x + ww / 2, cy = kind === "door" ? y + 16 : y + Math.min(9, hh / 2);
+      const mid = meta.handleAt === "centre"; // Chateau: middle of each drawer, on the door panel
+      const cx = kind === "door" && !mid ? doorX : x + ww / 2, cy = kind === "door" ? (mid ? y + hh * 0.3 : y + 16) : mid ? y + hh / 2 : y + Math.min(9, hh / 2);
       solids.push(<circle key={`k${n++}`} cx={cx} cy={cy} r={2.6} fill={STROKE} />);
     } else if (handle === "top") {
       if (kind === "door") L(`M${doorX - 5} ${y + 2.5} H${doorX + 5}`, 2.4); else L(`M${x + ww / 2 - 9} ${y + 2.5} H${x + ww / 2 + 9}`, 2.4);
@@ -175,6 +179,7 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
     if (t === "door") front(x + 1.5, fy0, colW - 3, fy1 - fy0, "door", towardsCentre);
     else {
       const dh = (fy1 - fy0) / perCol;
+      if (stacked) frame(x + 1.5, fy0, colW - 3, fy1 - fy0 - 2);
       for (let j = 0; j < perCol; j++) {
         if (colShape && j) L(`M${x + 1.5} ${fy0 + j * dh - 1} H${x + colW - 1.5}`, 1.2);
         if (pullH) solids.push(<rect key={`p${n++}`} x={x + 1.5} y={fy0 + j * dh} width={colW - 3} height={pullH - 0.5} fill="rgba(20,30,34,.26)" />);
@@ -197,9 +202,9 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   if (railH) {
     const ry = bodyY + inset + frieze, rx0 = fx0 + 1.5, rw = fx1 - fx0 - 3, rh = railH - 2;
     R(rx0, ry, rw, rh, 1.5);
-    if (face === "shaker-v") { R(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 1, 0.9); vLines(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 5, 0.5); }
+    if (face === "shaker-v") { R(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 1, 0.9); vLines(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 8, 0.5); }
     else if (face.startsWith("shaker")) R(rx0 + 3, ry + 2.5, rw - 6, rh - 5, 1, 0.9);
-    else if (face === "shiplap" || face === "fluted") vLines(rx0, ry, rw, rh, face === "fluted" ? 3 : 7, 0.5);
+    else if (face === "shiplap" || face === "fluted") vLines(rx0, ry, rw, rh, face === "fluted" ? 3 : meta.boardMm ? meta.boardMm / MM : 7, 0.5);
   }
   // Curved end panels (Reef, Shore): a rounded side each end, shaded to read as a curve.
   if (sideW) for (const left of [true, false]) {

@@ -33,7 +33,12 @@ export interface DrawMeta {
   doorHandle?: "top"; // door handles run across the top of the door (Marq, Hamilton) instead of up the side
   shelf?: "below" | "ends"; // open shelf under the drawer (Oxford) / open shelf ends (Avion)
   insetFronts?: boolean; // the fronts sit inside the carcass (sides, top + base), flush with its front edges (Merewether, Lake)
-  frameMm?: number; // shaker faces: a slim frame this wide (Reef 16, Anna 20) instead of the usual rails
+  frameMm?: number; // shaker faces: a slim frame this wide (Reef 16) instead of the usual rails
+  stackFrame?: boolean; // shaker faces: one frame round each stack of drawers, shared by the drawers (Camden, Chateau)
+  boardMm?: number; // V-groove boards this wide (Anna 85; default 70)
+  handleAt?: "centre"; // knobs in the middle of each drawer front and on the door panel (Chateau)
+  revealMm?: number; // a gap this wide between drawers, backed by a panel in the finish (Riviera 6)
+  setbackMm?: number; // inset fronts sit this far back from the frame's face, boxed in (Marlo 10)
   shelfSide?: "left" | "right"; // which end the single open shelf sits
   // Measurements from the supplier's spec sheets (mm). Heights are the CABINET only: the
   // benchtop sits on top and is added from its own thickness.
