@@ -166,6 +166,10 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
   const roomShot = range.swatches[0]?.installedImage || null;
   const s = summarise(range);
   const colourCount = orderableSwatches(range).length;
+  // Colour chips as on the public shop card: the colour variations, or the finishes in a trim / waste's options.
+  const oc = range.swatches.length > 1 ? null : range.optionColours ?? null;
+  const chips: { colour: string; image?: string | null; swatchHex?: string | null }[] = oc ? oc.chips : range.swatches.length > 1 ? range.swatches : [];
+  const chipCount = oc ? oc.count : range.swatches.length;
 
   return (
     <div style={cardStyle} className="ow-range-card">
@@ -196,10 +200,10 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
           <h3 style={nameStyle}>{range.name}</h3>
           {/* Colour thumbnails - mirrors the public shop card (capped + lazy). */}
           <div style={{ margin: "6px 0 0", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12.5, color: "#8a8577" }}>{colourCount > 1 ? `${colourCount} options` : "1 option"}</span>
-            {range.swatches.length > 1 && (
+            {chipCount > 1 && <span style={{ fontSize: 12.5, color: "#8a8577" }}>{chipCount} colours</span>}
+            {chipCount > 1 && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                {range.swatches.slice(0, 5).map((sw, i) =>
+                {chips.slice(0, 5).map((sw, i) =>
                   sw.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img key={i} src={sw.image} alt="" loading="lazy" width={22} height={22} title={sw.colour} style={{ width: 22, height: 22, borderRadius: 5, objectFit: "cover", border: "1px solid var(--line)", display: "block" }} />
@@ -207,7 +211,7 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
                     <span key={i} title={sw.colour} style={{ width: 22, height: 22, borderRadius: 5, background: sw.swatchHex || "#d8d3c7", border: "1px solid var(--line)", display: "block" }} />
                   ),
                 )}
-                {range.swatches.length > 5 && <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8577" }}>+{range.swatches.length - 5}</span>}
+                {chipCount > 5 && <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8577" }}>+{chipCount - 5}</span>}
               </span>
             )}
           </div>

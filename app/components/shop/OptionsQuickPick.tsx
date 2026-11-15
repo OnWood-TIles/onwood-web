@@ -69,10 +69,27 @@ export default function OptionsQuickPick({ range, query, description }: { range:
         if (g.type === "single" && avail.length === 1 && g.required) {
           return <p key={g.key} className="vb-qp-fact"><span>{g.label}</span>{avail[0].label}{avail[0].detail ? ` (${avail[0].detail})` : ""}</p>;
         }
+        const pickedChoice = g.type === "single" ? g.choices.find((c) => c.key === picked[0]) : undefined;
+        // A long list of plain choices (a trim's 17 sizes) is a dropdown, so the finishes sit
+        // right under it instead of a screen further down on a phone.
+        if (g.type === "single" && avail.length > 6 && !avail.some((c) => c.image)) {
+          const tableish = g.required;
+          return (
+            <div key={g.key} className="vb-qp-g">
+              <label className="vb-qp-l" style={{ display: "block" }} htmlFor={`qp-${g.key}`}>{g.label}</label>
+              <select id={`qp-${g.key}`} className="vb-qp-select" value={picked[0] ?? ""} onChange={(e) => pick(g, e.target.value || undefined)}>
+                {(!g.required || !picked[0]) && <option value="">{g.required ? `Choose a ${g.label.toLowerCase()}` : "None"}</option>}
+                {avail.map((c) => { const p = choicePrice(c, sel); return <option key={c.key} value={c.key}>{c.label}{p && !onRequest ? ` · ${tableish ? fmt(o.basePrice + p) : `+${fmt(p)}`}` : ""}</option>; })}
+              </select>
+            </div>
+          );
+        }
         return (
           <div key={g.key} className="vb-qp-g">
             {/* Same look as the colour/variation picker on standard product pages: "Size: 10 mm". */}
-            <p className="vb-qp-l">{g.type === "multi" ? "Add" : g.label}{g.type !== "multi" && picked[0] ? <>: <span>{g.choices.find((c) => c.key === picked[0])?.label}</span></> : null}</p>
+            <p className="vb-qp-l">{g.type === "multi" ? "Add" : g.label}{pickedChoice ? <>: <span>{pickedChoice.label}</span></> : null}</p>
+            {/* Phones: the picked finish shown big right here (the main photo is a screen above). */}
+            {pickedChoice?.image && <div className="vb-qp-preview"><img src={pickedChoice.image} alt={`${range.name} in ${pickedChoice.label}`} /></div>}
             <div className="vb-qp-chips">
               {avail.map((c) => {
                 const on = picked.includes(c.key);

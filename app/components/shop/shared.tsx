@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import type { Availability, ShopMenuDept, Swatch, WebsiteRange } from "../../../lib/onbase/client";
 import { imageAlt } from "../../../lib/alt";
 import SaveButton from "../wishlist/SaveButton";
+import { SUPPLY } from "./quickPick";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
 
@@ -222,6 +223,13 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
   const insetSrc = range.swatches[0]?.image || image;
   const insetImg = insetSrc?.startsWith("https://") ? `/api/tile?u=${encodeURIComponent(insetSrc)}` : insetSrc;
   const colourCount = range.swatches.length;
+  // Colour chips: the colour variations, or for trims / wastes / shavers the finishes in the product's
+  // options (Reagan 2026-11-16: "Colour options" on the trims page like the tiles). Labelled colours,
+  // not options; a single-colour supply line or an options product with nothing to show says nothing.
+  const oc = colourCount > 1 ? null : range.optionColours ?? null;
+  const chips: { colour: string; image?: string | null; swatchHex?: string | null }[] = oc ? oc.chips : colourCount > 1 ? range.swatches : [];
+  const chipCount = oc ? oc.count : colourCount;
+  const chipLabel = isCustomisable(range) ? "Build it your way" : chipCount > 1 ? `${chipCount} colours` : !range.priceFrom && !SUPPLY.has(range.department ?? "") ? "1 colour" : "";
   return (
     <Link
       href={`${productBase}/${range.slug}`}
@@ -335,14 +343,12 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
           {range.name}
         </h3>
         <div style={{ margin: "8px 0 0", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13, color: "#8a8577" }}>
-            {isCustomisable(range) ? "Build it your way" : colourCount > 1 ? `${colourCount} options` : "1 option"}
-          </span>
-          {/* Colour thumbnails - a quick visual that a product comes in variations.
-              Capped + lazy so the grid stays fast; falls back to a hex dot. */}
-          {colourCount > 1 && (
+          {chipLabel && <span style={{ fontSize: 13, color: "#8a8577" }}>{chipLabel}</span>}
+          {/* Colour thumbnails - a quick visual that a product comes in colours (its variations, or the
+              finishes in its options). Capped + lazy so the grid stays fast; falls back to a hex dot. */}
+          {chipCount > 1 && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              {range.swatches.slice(0, 5).map((s, i) =>
+              {chips.slice(0, 5).map((s, i) =>
                 s.image ? (
                   <Image
                     key={i}
@@ -352,6 +358,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
                     width={22}
                     height={22}
                     title={s.colour}
+                    unoptimized={s.image.startsWith("data:")}
                     style={{ width: 22, height: 22, borderRadius: 5, objectFit: "cover", border: "1px solid var(--line)", display: "block" }}
                   />
                 ) : (
@@ -362,8 +369,8 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
                   />
                 ),
               )}
-              {colourCount > 5 && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8577" }}>+{colourCount - 5}</span>
+              {chipCount > 5 && (
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8577" }}>+{chipCount - 5}</span>
               )}
             </span>
           )}

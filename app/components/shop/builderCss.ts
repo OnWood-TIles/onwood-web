@@ -58,6 +58,10 @@ export const BUILDER_CSS = `
 .vb-qp-chip.card.on{padding:5px}
 .vb-qp .vb-fine{margin:0}
 .vb-qp-text{font:inherit;width:100%;max-width:360px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--ink)}
+.vb-qp-select{font:inherit;display:block;width:100%;max-width:360px;padding:11px 40px 11px 14px;border-radius:10px;border:1px solid var(--line);background:#fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 fill=%27none%27 stroke=%27%2320303a%27 stroke-width=%271.8%27/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;-webkit-appearance:none;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
+.vb-qp-select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.vb-qp-preview{display:none}
+@media (max-width:900px){.vb-qp-preview{display:block;margin:0 0 12px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#fff;aspect-ratio:16/10;max-height:260px}.vb-qp-preview img{width:100%;height:100%;object-fit:cover;display:block}}
 .vb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .vb-chip{font:inherit;font-size:13.5px;font-weight:700;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
 .vb-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
