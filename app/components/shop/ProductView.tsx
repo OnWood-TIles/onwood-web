@@ -74,9 +74,10 @@ export default function ProductView({
    *  promotion; the trade portal shows trade pricing (RRP + Your Price) only. */
   hideSpecial?: boolean;
 }) {
+  // Sizes / packs keep their natural order, with the default choice flagged `lead`.
   const initialIdx = initialColour
     ? Math.max(0, range.swatches.findIndex((s) => s.colour.toLowerCase() === initialColour.toLowerCase()))
-    : 0;
+    : Math.max(0, range.swatches.findIndex((s) => s.lead));
   const [selected, setSelected] = useState(initialIdx);
   // Adhesive + grout colours are flat swatches: show the product photo until a colour is picked.
   const [picked, setPicked] = useState(!!initialColour);

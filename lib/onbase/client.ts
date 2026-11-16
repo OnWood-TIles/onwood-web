@@ -49,6 +49,8 @@ export type TradeSwatchInfo = {
 
 export type Swatch = {
   colour: string;
+  /** Default choice for sizes / packs, which keep their natural order (not moved to the front). */
+  lead?: boolean;
   swatchHex?: string | null;
   image?: string | null;
   /** "See it installed" room photo for this colour, when the tenant added one. */
