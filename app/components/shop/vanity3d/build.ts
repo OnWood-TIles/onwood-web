@@ -428,7 +428,9 @@ export function buildVanity(o: ProductOptions, sel: OptionSelection, imgs: Imgs,
   const off = meta.basinLayout === "off centre";
   const split = seq.length > 2 && seq[0] === seq[seq.length - 1] && new Set(seq).size > 1;
   const basinLeft = meta.basinSide ? meta.basinSide === "left" : !split && drawerCols > 0 && !drawersLeft;
-  const centres = meta.basinLayout === "double" ? [-W * 0.25, W * 0.25] : off ? [(basinLeft ? -1 : 1) * W * 0.25] : [0];
+  // One open shelf end (Avion 4, 6): the off-centre basin sits over the cabinet, clear of the shelf.
+  const shelfOff = off && !meta.basinSide && ends.length === 1;
+  const centres = meta.basinLayout === "double" ? [-W * 0.25, W * 0.25] : shelfOff ? [(xL + xR) / 2] : off ? [(basinLeft ? -1 : 1) * W * 0.25] : [0];
 
   const hnd = handleFromSel(o, sel, meta);
   const gapMat = finishPlain(0.2, 0.2); gapMat.color.set(0x55514b); gapMat.side = THREE.DoubleSide;

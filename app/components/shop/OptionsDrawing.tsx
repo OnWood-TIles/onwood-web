@@ -231,7 +231,9 @@ export default function OptionsDrawing({ style, meta, size = 320, dims }: { styl
   const basin = meta.basin ?? "above";
   const split = seq[0] === seq[seq.length - 1] && seq.length > 2 && new Set(seq).size > 1;
   const basinLeft = meta.basinSide ? meta.basinSide === "left" : !split && !!drawerCols && !drawersLeft;
-  const centres = meta.basinLayout === "double" ? [tx + tw * 0.27, tx + tw * 0.73] : offCentre ? [tx + tw * (basinLeft ? 0.25 : 0.75)] : [tx + tw / 2];
+  // One open shelf end (Avion 4, 6): the off-centre basin sits over the cabinet, clear of the shelf.
+  const shelfOff = offCentre && !meta.basinSide && ends.length === 1;
+  const centres = meta.basinLayout === "double" ? [tx + tw * 0.27, tx + tw * 0.73] : shelfOff ? [tx + (ends[0] === "left" ? tw + endW : tw - endW) / 2] : offCentre ? [tx + tw * (basinLeft ? 0.25 : 0.75)] : [tx + tw / 2];
   const bw = Math.min(110, tw * (meta.basinLayout === "double" ? 0.34 : 0.45));
   const bare = basin === "none"; // cabinet only: no top, basin or tap
   const basins = tall || bare ? null : centres.map((cx, i) => basin === "above"
