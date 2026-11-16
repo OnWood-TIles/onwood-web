@@ -5,6 +5,7 @@ import type { Availability, ShopMenuDept, Swatch, WebsiteRange } from "../../../
 import { imageAlt } from "../../../lib/alt";
 import SaveButton from "../wishlist/SaveButton";
 import { SUPPLY } from "./quickPick";
+import { choiceNoun } from "../../../lib/choiceNoun";
 
 // Shared building blocks for the shop (server-safe, no client hooks).
 
@@ -75,7 +76,7 @@ export function Stars({ value, size = 18, label }: { value: number; size?: numbe
 // when the unit is unknown, so we never guess a wrong unit.
 export function priceUnitSuffix(u?: string | null): string {
   if (u == null || u === "") return "";
-  if (u === "Per Unit") return " each";
+  if (u === "Per Unit" || u === "each") return " each";
   if (u === "m2") return "/m²";
   if (u === "LM") return "/lm";
   return `/${u}`;
@@ -227,9 +228,11 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
   // options (Reagan 2026-11-16: "Colour options" on the trims page like the tiles). Labelled colours,
   // not options; a single-colour supply line or an options product with nothing to show says nothing.
   const oc = colourCount > 1 ? null : range.optionColours ?? null;
-  const chips: { colour: string; image?: string | null; swatchHex?: string | null }[] = oc ? oc.chips : colourCount > 1 ? range.swatches : [];
+  // Sizes / packs with no photo of their own (clip joint widths) show the count only, e.g. "4 joint widths".
+  const chips: { colour: string; image?: string | null; swatchHex?: string | null }[] = oc ? oc.chips : colourCount > 1 && range.swatches.some((s) => s.image || s.swatchHex) ? range.swatches : [];
   const chipCount = oc ? oc.count : colourCount;
-  const chipLabel = isCustomisable(range) ? "Build it your way" : chipCount > 1 ? `${chipCount} colours` : !range.priceFrom && !SUPPLY.has(range.department ?? "") ? "1 colour" : "";
+  const noun = choiceNoun(range.variationLabel);
+  const chipLabel = isCustomisable(range) ? "Build it your way" : chipCount > 1 ? `${chipCount} ${noun.many}` : !range.priceFrom && !SUPPLY.has(range.department ?? "") ? "1 colour" : "";
   return (
     <Link
       href={`${productBase}/${range.slug}`}
@@ -346,7 +349,7 @@ export function RangeCard({ range, productBase = "/product", roomFirst = false }
           {chipLabel && <span style={{ fontSize: 13, color: "#8a8577" }}>{chipLabel}</span>}
           {/* Colour thumbnails - a quick visual that a product comes in colours (its variations, or the
               finishes in its options). Capped + lazy so the grid stays fast; falls back to a hex dot. */}
-          {chipCount > 1 && (
+          {chips.length > 1 && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
               {chips.slice(0, 5).map((s, i) =>
                 s.image ? (

@@ -50,6 +50,8 @@ const nextConfig: NextConfig = {
         ["tile-trim-square-edge-aluminium-10mm", "/product/l-trim-10mm"], ["tile-trim-solid-brass-10mm", "/product/l-trim-10mm"], ["tile-trim-stainless-steel-10mm", "/product/l-trim-10mm"],
         ["tile-trim-square-edge-aluminium-12mm", "/product/l-trim-12mm"], ["tile-trim-solid-brass-12mm", "/product/l-trim-12mm"], ["tile-trim-stainless-steel-12mm", "/product/l-trim-12mm"],
         ["tile-trim-half-round-8mm", "/product/half-round-trim-8mm"], ["tile-trim-half-round-10mm", "/product/half-round-trim-10mm"], ["tile-trim-half-round-12mm", "/product/half-round-trim-12mm"],
+        // Spacers became one product per joint width (2026-11-16): the old all-in-one page goes to the spacers list.
+        ["tile-spacers", "/shop/accessories?c=spacers-levelling"],
       ].map(([from, to]) => ({ source: `/product/${from}`, destination: to, permanent: true })),
     ];
   },

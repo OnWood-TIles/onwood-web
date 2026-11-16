@@ -9,6 +9,7 @@ import { AvailabilityPill, Watermark } from "../../../components/shop/shared";
 import { useCart } from "../CartProvider";
 import { boxesFor, coveragePerUnit, hasBoxes, isAreaUnit, roundUpToBox, round3, stepFor, stepQty, unitLabel, unitsForArea } from "../../../../lib/boxQty";
 import ImageDisclosure from "../../../components/legal/ImageDisclosure";
+import { choiceNoun } from "../../../../lib/choiceNoun";
 import { RangeSampleButton, SampleToggle } from "./SampleButtons";
 
 // The trade portal renders the SAME shop range/colourway cards, but each carries
@@ -168,8 +169,9 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
   const colourCount = orderableSwatches(range).length;
   // Colour chips as on the public shop card: the colour variations, or the finishes in a trim / waste's options.
   const oc = range.swatches.length > 1 ? null : range.optionColours ?? null;
-  const chips: { colour: string; image?: string | null; swatchHex?: string | null }[] = oc ? oc.chips : range.swatches.length > 1 ? range.swatches : [];
+  const chips: { colour: string; image?: string | null; swatchHex?: string | null }[] = oc ? oc.chips : range.swatches.length > 1 && range.swatches.some((s) => s.image || s.swatchHex) ? range.swatches : [];
   const chipCount = oc ? oc.count : range.swatches.length;
+  const noun = choiceNoun(range.variationLabel);
 
   return (
     <div style={cardStyle} className="ow-range-card">
@@ -200,8 +202,8 @@ export function TradeRangeCard({ range }: { range: WebsiteRange }) {
           <h3 style={nameStyle}>{range.name}</h3>
           {/* Colour thumbnails - mirrors the public shop card (capped + lazy). */}
           <div style={{ margin: "6px 0 0", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            {chipCount > 1 && <span style={{ fontSize: 12.5, color: "#8a8577" }}>{chipCount} colours</span>}
-            {chipCount > 1 && (
+            {chipCount > 1 && <span style={{ fontSize: 12.5, color: "#8a8577" }}>{chipCount} {noun.many}</span>}
+            {chips.length > 1 && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                 {chips.slice(0, 5).map((sw, i) =>
                   sw.image ? (
@@ -394,7 +396,7 @@ export function AddToOrderModal({ range, preselectColour, onClose }: { range: We
           {swatches.length > 1 && (
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#5a6067", marginBottom: 8 }}>
-                {isVariation ? "Colour" : "Option"}: <span style={{ color: "var(--ink)" }}>{sel.colour}</span>
+                {isVariation ? choiceNoun(range.variationLabel).one : "Option"}: <span style={{ color: "var(--ink)" }}>{sel.colour}</span>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                 {swatches.map((sw, i) => {

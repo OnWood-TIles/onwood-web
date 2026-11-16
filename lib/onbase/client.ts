@@ -114,6 +114,8 @@ export type WebsiteRange = {
   options?: ProductOptions | null;
   /** Options products sold in finishes (trims, wastes, shavers): the finish choices for the card's colour chips (listing reads). */
   optionColours?: { count: number; chips: { colour: string; image: string }[] };
+  /** What the variations are called when they are not colours ("Joint width", "Pack size", "Finish"). */
+  variationLabel?: string | null;
 };
 
 export type WebsiteCategory = { slug: string; label: string };
