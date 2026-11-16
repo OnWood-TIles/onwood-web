@@ -41,15 +41,18 @@ const nextConfig: NextConfig = {
       // The single /magazine reader became /magazines (landing) + /magazines/<slug> (2026-11-08).
       { source: "/magazine", destination: "/magazines/kiln", permanent: true },
       { source: "/magazine/pages/:page", destination: "/magazines/kiln/pages/:page", permanent: true },
-      // Tile trims became one product per size, finishes as colours (2026-11-16): the old single
-      // listings go to the trims page, the old per-material size pages to the matching size.
+      // Tile trims became one product per size, finishes as colours (2026-11-16), then took search-friendly
+      // names ("12mm L Angle Tile Trim"): the old single listings go to the trims page, every older size page
+      // straight to its new one.
+      { source: "/product/l-trim-:size(\d+)mm", destination: "/product/:sizemm-l-angle-tile-trim", permanent: true },
+      { source: "/product/half-round-trim-:size(\d+)mm", destination: "/product/:sizemm-half-round-tile-trim", permanent: true },
       ...[
         ["l-trim", "/shop/trims"], ["half-round-trim", "/shop/trims"],
-        ["tile-trim-square-edge-aluminium-6mm", "/product/l-trim-6mm"],
-        ["tile-trim-square-edge-aluminium-8mm", "/product/l-trim-8mm"], ["tile-trim-solid-brass-8mm", "/product/l-trim-8mm"],
-        ["tile-trim-square-edge-aluminium-10mm", "/product/l-trim-10mm"], ["tile-trim-solid-brass-10mm", "/product/l-trim-10mm"], ["tile-trim-stainless-steel-10mm", "/product/l-trim-10mm"],
-        ["tile-trim-square-edge-aluminium-12mm", "/product/l-trim-12mm"], ["tile-trim-solid-brass-12mm", "/product/l-trim-12mm"], ["tile-trim-stainless-steel-12mm", "/product/l-trim-12mm"],
-        ["tile-trim-half-round-8mm", "/product/half-round-trim-8mm"], ["tile-trim-half-round-10mm", "/product/half-round-trim-10mm"], ["tile-trim-half-round-12mm", "/product/half-round-trim-12mm"],
+        ["tile-trim-square-edge-aluminium-6mm", "/product/6mm-l-angle-tile-trim"],
+        ["tile-trim-square-edge-aluminium-8mm", "/product/8mm-l-angle-tile-trim"], ["tile-trim-solid-brass-8mm", "/product/8mm-l-angle-tile-trim"],
+        ["tile-trim-square-edge-aluminium-10mm", "/product/10mm-l-angle-tile-trim"], ["tile-trim-solid-brass-10mm", "/product/10mm-l-angle-tile-trim"], ["tile-trim-stainless-steel-10mm", "/product/10mm-l-angle-tile-trim"],
+        ["tile-trim-square-edge-aluminium-12mm", "/product/12mm-l-angle-tile-trim"], ["tile-trim-solid-brass-12mm", "/product/12mm-l-angle-tile-trim"], ["tile-trim-stainless-steel-12mm", "/product/12mm-l-angle-tile-trim"],
+        ["tile-trim-half-round-8mm", "/product/8mm-half-round-tile-trim"], ["tile-trim-half-round-10mm", "/product/10mm-half-round-tile-trim"], ["tile-trim-half-round-12mm", "/product/12mm-half-round-tile-trim"],
         // Spacers became one product per joint width (2026-11-16): the old all-in-one page goes to the spacers list.
         ["tile-spacers", "/shop/accessories?c=spacers-levelling"],
       ].map(([from, to]) => ({ source: `/product/${from}`, destination: to, permanent: true })),
