@@ -44,8 +44,8 @@ const nextConfig: NextConfig = {
       // Tile trims became one product per size, finishes as colours (2026-11-16), then took search-friendly
       // names ("12mm L Angle Tile Trim"): the old single listings go to the trims page, every older size page
       // straight to its new one.
-      { source: "/product/l-trim-:size(\d+)mm", destination: "/product/:sizemm-l-angle-tile-trim", permanent: true },
-      { source: "/product/half-round-trim-:size(\d+)mm", destination: "/product/:sizemm-half-round-tile-trim", permanent: true },
+      ...[4, 6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 22, 23, 25, 28].map((n) => ({ source: `/product/l-trim-${n}mm`, destination: `/product/${n}mm-l-angle-tile-trim`, permanent: true })),
+      ...[6, 8, 10, 12].map((n) => ({ source: `/product/half-round-trim-${n}mm`, destination: `/product/${n}mm-half-round-tile-trim`, permanent: true })),
       ...[
         ["l-trim", "/shop/trims"], ["half-round-trim", "/shop/trims"],
         ["tile-trim-square-edge-aluminium-6mm", "/product/6mm-l-angle-tile-trim"],
