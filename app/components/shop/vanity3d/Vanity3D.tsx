@@ -9,12 +9,13 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import type { WebsiteRange } from "../../../../lib/onbase/client";
 import {
-  choicePrice, groupShown, isAvailable, many, normalizeSelection, one, priceOptions,
+  choicePrice, defaultSelection, groupShown, isAvailable, many, normalizeSelection, one, priceOptions,
   type OptionGroup, type OptionSelection, type ProductOptions,
 } from "../../../../lib/options";
 import { buildVanity, ledGlowTex, textureSources, type Built } from "./build";
 import { DuluxNameInput, duluxPicked, findDulux, useDulux } from "../dulux";
-import { saveBuild } from "../savedBuild";
+import { addressWithoutBuild, clearBuild, saveBuild } from "../savedBuild";
+import ResetBuildButton from "../ResetBuildButton";
 import EmailBuild, { type Shot } from "./EmailBuild";
 import { money2, tradeEx, type TradeBuild } from "../../../../lib/tradeBuild";
 
@@ -97,6 +98,8 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
   const imgs = useRef(new Map<string, HTMLImageElement>());
   const anim = useRef({ open: false, fly: null as null | { from: THREE.Vector3; to: THREE.Vector3; t: number } });
   const views = useRef<Record<string, THREE.Vector3>>({});
+  const resetView = useRef(false); // "Reset build": fly back to the opening view once the start build is drawn
+  const panelRef = useRef<HTMLElement>(null);
 
   const steps = useMemo(() => visibleGroups(o, sel), [o, sel]);
   const priced = useMemo(() => priceOptions(o, sel), [o, sel]);
@@ -170,7 +173,8 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
     views.current = { front: new THREE.Vector3(0, target.y + 0.12, target.z + dist), angle: new THREE.Vector3(dist * 0.62, target.y + 0.55, target.z + dist * 0.78), side: new THREE.Vector3(dist * 0.95, target.y + 0.2, target.z + dist * 0.25) };
     st.controls.target.copy(target);
     if (!prev) st.camera.position.copy(views.current.angle);
-    else if (Math.abs((prev.widthM) - b.widthM) > 0.01) anim.current.fly = { from: st.camera.position.clone(), to: views.current.angle.clone(), t: 0 };
+    else if (resetView.current || Math.abs((prev.widthM) - b.widthM) > 0.01) anim.current.fly = { from: st.camera.position.clone(), to: views.current.angle.clone(), t: 0 };
+    resetView.current = false;
     if (!b.led && dark) setDark(false);
   }, [o, sel, ready, duluxHex, hiTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -223,12 +227,26 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
   const missing = priced.ok ? 0 : steps.filter((g) => g.required && !one(sel[g.key])).length;
   // Every change is kept: in this page's address (refresh) and in the browser, so the product
   // page picks it up however they leave (buttons or the browser Back button).
+  // At the starting build (opened with nothing picked, or "Reset build") the address carries no
+  // build and the saved one is cleared; the product page then starts from scratch too.
   const slug = backHref.split("/").pop() ?? "";
+  const startQ = useMemo(() => toQuery(o, defaultSelection(o)), [o]);
+  const atStart = toQuery(o, sel) === startQ;
   useEffect(() => {
     const q = toQuery(o, sel);
+    if (q === startQ) { window.history.replaceState(null, "", addressWithoutBuild()); clearBuild(slug, true); return; }
     window.history.replaceState(null, "", `${window.location.pathname}?${q}`);
     saveBuild(slug, q, true);
-  }, [o, sel, slug]);
+  }, [o, sel, slug, startQ]);
+  /** "Reset build": every option back to the start, drawers shut, lights on, the opening view. */
+  const reset = () => {
+    setSel(defaultSelection(o));
+    setOpen(null);
+    setDoorsOpen(false);
+    setDark(false);
+    resetView.current = true;
+    panelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
   // The bar's button: open the first unanswered step, or jump down to the finish block.
   const goFinish = () => {
     const g = steps.find((x) => x.required && !one(sel[x.key]));
@@ -264,7 +282,7 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
         <div className="v3-hint">Illustration only · drag to turn · pinch or scroll to zoom</div>
       </section>
 
-      <aside className="v3-panel" aria-label="Your options">
+      <aside className="v3-panel" aria-label="Your options" ref={panelRef}>
         <div className="v3-steps">
           {steps.map((g, i) => {
             const isOpen = open === g.key, avail = g.type === "text" ? [] : g.choices.filter((c) => isAvailable(o, g, c, sel)), ks = many(sel[g.key]);
@@ -322,6 +340,7 @@ export default function Vanity3D({ range, query, backHref, trade }: { range: Web
           <p className="v3-fine">Takes your build back to the product page, ready to add to your {trade ? "order" : "quote"}.</p>
           {/* Trade partners can email it once their price is set (it is priced for them). */}
           {(!trade || trade.pct != null) && <button type="button" className="v3-save" onClick={() => setEmailOpen(true)}>Email me my vanity</button>}
+          <ResetBuildButton className="v3-reset" disabled={atStart} onReset={reset} />
           <p className="v3-disc">The 3D view is an illustration only. Colours, timber grain, stone veining, sizes and details on screen are a guide and may differ from the real product, so please do not rely on it for an exact match. We are happy to show you real samples in the showroom.</p>
         </div>
       </aside>
@@ -380,6 +399,10 @@ const CSS = `
 .v3-save{width:100%;margin-top:8px;font:inherit;font-size:14px;font-weight:600;padding:11px;border-radius:12px;border:1.5px solid #2f6f6a;background:#fff;color:#2f6f6a;cursor:pointer}
 .v3-complete{width:100%;margin-top:10px;font:inherit;font-size:15px;font-weight:700;padding:13px;border-radius:12px;border:0;background:#2f6f6a;color:#fff;cursor:pointer}
 .v3-fine{margin:6px 0 0;font-size:12px;color:#65706f;text-align:center}
+.v3-reset{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:4px;font:inherit;font-size:13px;font-weight:600;padding:10px;border:0;border-radius:12px;background:none;color:#65706f;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(101,112,111,.4)}
+.v3-reset:hover:not(:disabled){color:#1f2a2e}
+.v3-reset.armed{color:#b42318}
+.v3-reset:disabled{opacity:.45;cursor:default;text-decoration:none}
 .v3 button:focus-visible,.v3 a:focus-visible,.v3 input:focus-visible{outline:2px solid #2f6f6a;outline-offset:2px}
 .v3-panel{overflow-y:auto;overscroll-behavior:contain}
 .v3-steps{flex:none;overflow:visible;padding-bottom:4px}

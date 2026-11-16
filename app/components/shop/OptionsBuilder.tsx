@@ -4,14 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { WebsiteRange } from "../../../lib/onbase/client";
 import {
-  choicePrice, describeOptions, drawMeta, groupShown, isAvailable, many, normalizeSelection, one, priceOptions,
+  choicePrice, defaultSelection, describeOptions, drawMeta, groupShown, isAvailable, many, normalizeSelection, one, priceOptions,
   type OptionChoice, type OptionGroup, type OptionSelection, type ProductOptions,
 } from "../../../lib/options";
 import SaveButton from "../wishlist/SaveButton";
 import AddToQuoteButton from "../quote/AddToQuoteButton";
 import OptionsDrawing from "./OptionsDrawing";
 import { DuluxNameInput, duluxPicked, findDulux, solidSwatch, useDulux } from "./dulux";
-import { queryRecord, readBuild, saveBuild } from "./savedBuild";
+import { addressWithoutBuild, clearBuild, queryRecord, readBuild, saveBuild } from "./savedBuild";
+import ResetBuildButton from "./ResetBuildButton";
 import { money2, rrpEx, tradeEx, type TradeBuild } from "../../../lib/tradeBuild";
 import TradeBuildActions from "../../trade/(app)/catalogue/TradeBuildActions";
 
@@ -34,6 +35,17 @@ function readQuery(o: ProductOptions, q: Record<string, string>): OptionSelectio
     sel[g.key] = g.type === "multi" ? v.split(",").filter(Boolean) : v;
   }
   return normalizeSelection(o, sel);
+}
+
+/** The build as URL params (o_<group>=choice), the same form the 3D builder uses. */
+function toQuery(o: ProductOptions, sel: OptionSelection): string {
+  const q = new URLSearchParams();
+  for (const g of o.groups) {
+    const v = sel[g.key];
+    const s = Array.isArray(v) ? v.join(",") : v;
+    if (s) q.set(`o_${g.key}`, s);
+  }
+  return q.toString();
 }
 
 /** Cheapest price that includes this choice ("from"). */
@@ -71,7 +83,7 @@ export default function OptionsBuilder({ range, query, trade }: { range: Website
     const restore = (fresh: boolean) => {
       const s = readBuild(range.slug); if (!s) return;
       const hasBuild = [...new URLSearchParams(window.location.search).keys()].some((k) => k.startsWith("o_"));
-      if (s.from3d || (fresh && !hasBuild)) { setSel(readQuery(o, queryRecord(s.q))); saveBuild(range.slug, s.q); }
+      if (s.from3d || (fresh && !hasBuild)) { setSel(readQuery(o, queryRecord(s.q))); if (s.q) saveBuild(range.slug, s.q); else clearBuild(range.slug); }
     };
     restore(true);
     const onShow = (e: PageTransitionEvent) => { if (e.persisted) restore(false); };
@@ -87,18 +99,23 @@ export default function OptionsBuilder({ range, query, trade }: { range: Website
     return () => clearTimeout(t);
   }, []);
 
+  // The starting build (a fresh visit, or "Reset build"): the same picks as a visit with no build
+  // in the address. It is kept out of the address and the browser, so nothing old comes back.
+  const startQ = useMemo(() => toQuery(o, defaultSelection(o)), [o]);
+  const atStart = toQuery(o, sel) === startQ;
+
   useEffect(() => {
-    const q = new URLSearchParams();
-    for (const g of o.groups) {
-      const v = sel[g.key];
-      const s = Array.isArray(v) ? v.join(",") : v;
-      if (s) q.set(`o_${g.key}`, s);
+    const q = toQuery(o, sel);
+    const next = `${window.location.pathname}?${q}`;
+    setUrl(next); // links (quote, wishlist, enquiry) always carry the whole build
+    if (q === startQ) {
+      window.history.replaceState(null, "", addressWithoutBuild());
+      clearBuild(range.slug);
+      return;
     }
-    const next = `${window.location.pathname}?${q.toString()}`;
     window.history.replaceState(null, "", next);
-    setUrl(next);
-    saveBuild(range.slug, q.toString());
-  }, [sel, o.groups]);
+    saveBuild(range.slug, q);
+  }, [sel, o, startQ, range.slug]);
 
   // After a pick moves on to the next step, bring that step into view.
   useEffect(() => {
@@ -130,6 +147,16 @@ export default function OptionsBuilder({ range, query, trade }: { range: Website
     const k = after[after.findIndex((x) => x.key === g.key) + 1]?.key ?? null;
     scrollTo.current = k;
     setOpen(k);
+  };
+  /** "Reset build": back to a fresh visit's picks, with the first step open and the builder in view. */
+  const reset = () => {
+    const first = o.groups[0]?.key ?? null;
+    setSel(defaultSelection(o));
+    setOpen(first);
+    setWidth(null);
+    setPopup(null);
+    scrollTo.current = null;
+    requestAnimationFrame(() => (document.getElementById(`vb-step-${first}`) ?? document.getElementById("vb-builder"))?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
   const toggle = (g: OptionGroup, c: OptionChoice, picked: string[]) => {
     const on = picked.includes(c.key);
@@ -279,6 +306,7 @@ export default function OptionsBuilder({ range, query, trade }: { range: Website
           ) : null}
           <h3>{range.name}</h3>
           <ul>{spec.map((s) => <li key={s}>{cap(s)}</li>)}</ul>
+          <ResetBuildButton className="vb-reset" disabled={atStart} onReset={reset} />
           {trade && !!trade.pct && (
             <div className="vb-total" style={{ marginBottom: -6 }}><span>RRP</span><s style={{ color: "#8a8577", fontWeight: 600 }}>{money2(rrpEx(priced.total))}</s></div>
           )}

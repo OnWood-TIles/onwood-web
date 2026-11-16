@@ -106,6 +106,10 @@ export const BUILDER_CSS = `
 .vb-draw small{display:block;font-size:11px;color:#8a9094;margin-top:2px}
 .vb-summary h3{font-family:var(--font-archivo);font-size:19px;font-weight:800;line-height:1.25;margin:16px 0 8px}
 .vb-summary ul{margin:0;padding:0 0 0 18px;color:#4f565c;font-size:14px;line-height:1.6}
+.vb-reset{font:inherit;display:inline-flex;align-items:center;gap:6px;margin:10px 0 -4px;padding:8px 0;border:0;background:none;color:#5a6067;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in oklab,currentColor 35%,transparent)}
+.vb-reset:hover:not(:disabled){color:var(--ink)}
+.vb-reset.armed{color:#b42318}
+.vb-reset:disabled{opacity:.4;cursor:default;text-decoration:none}
 .vb-total{display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
 .vb-total span{font-size:14px;font-weight:700;color:#5a6067}
 .vb-total strong{font-family:var(--font-archivo);font-size:32px;font-weight:800;letter-spacing:-.02em}
@@ -166,6 +170,7 @@ export const BUILDER_CSS = `
   .vb-sw{font-size:12.5px;line-height:1.3;text-align:left}
   .vb{grid-template-columns:1fr}
   .vb-side{position:static}
+  .vb-reset{padding:11px 0;margin-bottom:-8px}
   .vb-wrap{padding-left:16px;padding-right:16px}
   .vb-models{grid-template-columns:repeat(2,minmax(0,1fr))}
   .vb-bar{display:flex;align-items:center;gap:10px;position:fixed;left:12px;right:12px;bottom:12px;z-index:40;background:var(--ink);color:#fff;text-decoration:none;border-radius:99px;padding:12px 18px;box-shadow:0 12px 30px -10px rgba(0,0,0,.45)}
