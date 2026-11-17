@@ -81,10 +81,14 @@ export default async function DepartmentPage({
   // Some departments (mirrors, basins, pavers) skip the room-shot hero: their photos
   // are product shots on plain backgrounds, which don't suit it.
   // Departments with one fixed range photo instead of the rotating sample stack (matches the
-  // mega-menu "in focus" tile in lib/onbase/client.ts).
-  const fixedHero = dept.slug === "adhesives"
-    ? { image: "/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide", alt: "The LATICRETE adhesive and grout range on a pool terrace" }
-    : null;
+  // mega-menu "in focus" tile in lib/onbase/client.ts). No href = no "In focus" chip (tools + trims: the
+  // photo is the whole kit or a styled scene, not one product).
+  const FIXED_HERO: Record<string, { image: string; alt: string; name?: string; href?: string }> = {
+    adhesives: { image: "/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide", alt: "The LATICRETE adhesive and grout range on a pool terrace" },
+    trims: { image: "/images/bat/trims/guide-hob.webp", alt: "Solid brass half round tile trim finishing a green tiled bath hob, with matching brass tapware" },
+    accessories: { image: "/images/bat/tools/range-tools.webp", alt: "Tiling tools on a freshly tiled floor: notched trowel, grout float, levelling clips and pliers, caulking gun, tile nippers, knee pads, sponge and grout clean-up bucket" },
+  };
+  const fixedHero = FIXED_HERO[dept.slug] ?? null;
   const showHero = !seo?.noHero && !!(fixedHero || featuredRoom || featuredFace || deptHero);
 
   // Real, honest stats for under the hero (no invented numbers).
@@ -218,7 +222,7 @@ export default async function DepartmentPage({
                   <img src={featuredFace} alt={featured ? `${featured.name} tile close-up` : ""} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </div>
               )}
-              {(fixedHero || featured) && (
+              {(fixedHero ? fixedHero.href : featured) && (
                 <Link href={fixedHero?.href ?? `/product/${featured!.slug}`} style={{ position: "absolute", left: 14, top: 14, zIndex: 2, display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,246,238,.94)", color: "var(--ink)", textDecoration: "none", fontWeight: 700, fontSize: 12.5, padding: "7px 13px", borderRadius: 999, boxShadow: "0 6px 18px -8px rgba(30,20,10,.5)" }}>
                   <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--accent)" }}>In focus</span>
                   {fixedHero?.name ?? featured!.name}
