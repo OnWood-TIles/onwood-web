@@ -108,6 +108,8 @@ export default function ProductView({
   // Supply lines (LATICRETE, B.A.T trims/wastes/tools) can go live before the price list arrives.
   const isSupply = isInstall || ["trims", "wastes", "accessories"].includes(range.department ?? "");
   const priceOnRequest = isSupply && price == null && !(special && special.price != null);
+  // Spacer products open the clip and spacer calculator on their own joint width ("tile-spacers-1-5mm" -> 1.5).
+  const spacerJoint = range.slug.match(/^tile-spacers-(\d+)(?:-(\d))?mm$/)?.slice(1).filter(Boolean).join(".") ?? null;
 
   // Close the zoom lightbox on Escape; lock body scroll while it's open.
   useEffect(() => {
@@ -441,6 +443,11 @@ export default function ProductView({
           {range.department === "trims" && (
             <p style={{ marginTop: 10, fontSize: 14 }}>
               <Link href="/blog/tile-trims-guide" style={{ color: "var(--accent)", fontWeight: 600 }}>New to trims? Read our guide to sizes, finishes and grades →</Link>
+            </p>
+          )}
+          {range.categories.includes("spacers-levelling") && range.slug !== "tile-wedges" && (
+            <p style={{ marginTop: 10, fontSize: 14 }}>
+              <Link href={`/clip-and-spacer-calculator${spacerJoint ? `?joint=${spacerJoint}` : ""}`} style={{ color: "var(--accent)", fontWeight: 600 }}>How many do I need? Use our clip and spacer calculator →</Link>
             </p>
           )}
 

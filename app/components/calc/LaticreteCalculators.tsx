@@ -13,14 +13,14 @@ type Row = { slug: string; name: string; unit: string; per: number; units: numbe
 // Grout + adhesive calculators (LATICRETE's own coverage formulas, lib/laticreteCalc.ts).
 // Enter the job once and every product we sell shows its coverage and how many units you need.
 
-const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--line)", borderRadius: 20, padding: "clamp(18px,3vw,28px)" };
-const lab: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 6px" };
-const inp: React.CSSProperties = { width: "100%", padding: "11px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 16, fontFamily: "inherit", background: "#fbfaf6", color: "var(--ink)", boxSizing: "border-box" };
-const pill = (on: boolean): React.CSSProperties => ({ padding: "8px 12px", borderRadius: 99, border: `1.5px solid ${on ? "var(--accent)" : "var(--line)"}`, background: on ? "var(--accent)" : "#fff", color: on ? "#fff" : "var(--ink)", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
-const num = (s: string) => { const n = parseFloat(s); return Number.isFinite(n) ? n : 0; };
+export const card: React.CSSProperties = { background: "#fff", border: "1px solid var(--line)", borderRadius: 20, padding: "clamp(18px,3vw,28px)" };
+export const lab: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--accent)", margin: "0 0 6px" };
+export const inp: React.CSSProperties = { width: "100%", padding: "11px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 16, fontFamily: "inherit", background: "#fbfaf6", color: "var(--ink)", boxSizing: "border-box" };
+export const pill = (on: boolean): React.CSSProperties => ({ padding: "8px 12px", borderRadius: 99, border: `1.5px solid ${on ? "var(--accent)" : "var(--line)"}`, background: on ? "var(--accent)" : "#fff", color: on ? "#fff" : "var(--ink)", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
+export const num = (s: string) => { const n = parseFloat(s); return Number.isFinite(n) ? n : 0; };
 const fmt = (n: number) => (n >= 10 ? n.toFixed(1) : n.toFixed(2)).replace(/\.0+$|(\.\d*[1-9])0+$/, "$1");
 
-function Field({ label, value, onChange, suffix, width }: { label: string; value: string; onChange: (v: string) => void; suffix?: string; width?: number }) {
+export function Field({ label, value, onChange, suffix, width }: { label: string; value: string; onChange: (v: string) => void; suffix?: string; width?: number }) {
   return (
     <label style={{ display: "block", minWidth: 0, width }}>
       <span style={lab}>{label}</span>

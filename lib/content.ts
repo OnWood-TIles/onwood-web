@@ -121,6 +121,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/calculator", label: "Tile Calculator" },
       { href: "/grout-calculator", label: "Grout Calculator" },
       { href: "/adhesive-calculator", label: "Adhesive Calculator" },
+      { href: "/clip-and-spacer-calculator", label: "Clip & Spacer Calculator" },
       { href: "/vision-board", label: "Vision Board" },
       { href: "/#showroom", label: "The Showroom" },
       { href: "/why", label: "Why OnWood" },
@@ -642,6 +643,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     metaDescription:
       "Tiling tools on the Sunshine Coast: tile spacers, levelling clips, notched trowels, grout floats, sponges, caulking guns and diamond drill bits, plus step treads and tactiles. Baringa showroom.",
     links: [
+      { label: "Clip & spacer calculator", href: "/clip-and-spacer-calculator" },
       { label: "Shop tiles", href: "/shop/tiles" },
       { label: "Shop wastes & grates", href: "/shop/wastes" },
       { label: "Tile calculator", href: "/calculator" },
