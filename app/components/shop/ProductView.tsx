@@ -438,6 +438,11 @@ export default function ProductView({
           {range.description && (
             <p style={{ marginTop: 22, fontSize: 15.5, lineHeight: 1.7, color: "#3a4750" }}>{range.description}</p>
           )}
+          {range.department === "trims" && (
+            <p style={{ marginTop: 10, fontSize: 14 }}>
+              <Link href="/blog/tile-trims-guide" style={{ color: "var(--accent)", fontWeight: 600 }}>New to trims? Read our guide to sizes, finishes and grades →</Link>
+            </p>
+          )}
 
           {/* CTAs - the trade portal swaps in its price + add-to-order block. */}
           {renderActions ? (
