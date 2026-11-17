@@ -467,6 +467,7 @@ const MENU_FOCUS_FIXED: Record<string, { image: string; name: string; href: stri
   adhesives: { image: "https://onwoodtiles.com.au/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide" },
   accessories: { image: "https://onwoodtiles.com.au/images/bat/tools/range-tools.webp", name: "The tiling toolkit", href: "/shop/accessories" },
   trims: { image: "https://onwoodtiles.com.au/images/bat/trims/guide-hob.webp", name: "The tile trims guide", href: "/blog/tile-trims-guide" },
+  wastes: { image: "https://onwoodtiles.com.au/images/bat/wastes/round-insert-chrome.webp?v=2", name: "Tile insert floor wastes", href: "/shop/wastes" },
 };
 
 async function buildShopMenu(): Promise<ShopMenuDept[]> {

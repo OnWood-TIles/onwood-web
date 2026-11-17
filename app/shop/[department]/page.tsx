@@ -81,11 +81,12 @@ export default async function DepartmentPage({
   // Some departments (mirrors, basins, pavers) skip the room-shot hero: their photos
   // are product shots on plain backgrounds, which don't suit it.
   // Departments with one fixed range photo instead of the rotating sample stack (matches the
-  // mega-menu "in focus" tile in lib/onbase/client.ts). No href = no "In focus" chip (tools + trims: the
-  // photo is the whole kit or a styled scene, not one product).
+  // mega-menu "in focus" tile in lib/onbase/client.ts). No href = no "In focus" chip (tools, trims, wastes:
+  // the photo is the whole kit or a styled scene, not one product).
   const FIXED_HERO: Record<string, { image: string; alt: string; name?: string; href?: string }> = {
     adhesives: { image: "/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide", alt: "The LATICRETE adhesive and grout range on a pool terrace" },
     trims: { image: "/images/bat/trims/guide-hob.webp", alt: "Solid brass half round tile trim finishing a green tiled bath hob, with matching brass tapware" },
+    wastes: { image: "/images/bat/wastes/round-insert-chrome.webp?v=2", alt: "A chrome round tile insert floor waste set flush in a tiled shower floor" },
     accessories: { image: "/images/bat/tools/range-tools.webp", alt: "Tiling tools on a freshly tiled floor: notched trowel, grout float, levelling clips and pliers, caulking gun, tile nippers, knee pads, sponge and grout clean-up bucket" },
   };
   const fixedHero = FIXED_HERO[dept.slug] ?? null;
