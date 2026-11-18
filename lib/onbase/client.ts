@@ -268,6 +268,22 @@ export function getBlog(): Promise<BlogPost[]> {
   ).then((p) => (Array.isArray(p) ? p : []));
 }
 
+// ── Recommended trades (OnBase Contacts > Recommended Trades; published ones only, public fields) ──
+export type TradeListing = {
+  slug: string; businessName: string; contactName: string | null; phone: string | null; website: string | null;
+  logoUrl: string | null; blurb: string | null; skills: string[]; serviceAreas: string[]; abn: string | null; qbccLicence: string | null;
+};
+export type TradeCategoryListing = { slug: string; name: string; description: string | null; qbccRequired: boolean; trades: TradeListing[] };
+
+/** Published recommended trades grouped by category (purged by OnBase on change via the "trades" tag). */
+export function getTrades(): Promise<TradeCategoryListing[]> {
+  return onbaseGet<TradeCategoryListing[]>(
+    "/api/v1/website/trades",
+    { revalidate: TTL_STOCK, tags: ["trades"] },
+    [],
+  ).then((d) => (Array.isArray(d) ? d : []));
+}
+
 /** Save all blog posts (server-to-server; called by the /admin API). WRITES fail closed. */
 export async function saveBlog(posts: BlogPost[]): Promise<BlogPost[]> {
   if (!KEY) throw new Error("ONBASE_API_KEY not configured");

@@ -125,6 +125,7 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/vision-board", label: "Vision Board" },
       { href: "/#showroom", label: "The Showroom" },
       { href: "/why", label: "Why OnWood" },
+      { href: "/recommended-trades", label: "Recommended Trades" },
     ],
   },
   {

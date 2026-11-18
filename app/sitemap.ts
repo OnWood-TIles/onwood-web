@@ -79,6 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/grout-calculator`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/adhesive-calculator`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/clip-and-spacer-calculator`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/recommended-trades`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/terms-of-sale`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/terms-of-use`, changeFrequency: "yearly", priority: 0.3 },

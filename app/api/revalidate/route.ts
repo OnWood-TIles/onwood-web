@@ -18,6 +18,6 @@ export async function POST(req: NextRequest) {
   if (!same(req.headers.get("x-revalidate-secret") ?? "", secret)) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
-  for (const tag of ["ranges", "taxonomy", "nav"]) revalidateTag(tag, "max");
+  for (const tag of ["ranges", "taxonomy", "nav", "trades"]) revalidateTag(tag, "max");
   return NextResponse.json({ revalidated: true });
 }
