@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { listRanges, getBlog } from "../../../lib/onbase/client";
+import { laticreteLinkOk } from "../../../lib/flags";
 
 // Global site search: products (the live catalogue), guides (the blog) and key
 // pages, all matched against one query. Reads the same cached feeds the storefront
@@ -77,7 +78,7 @@ export async function GET(req: Request) {
     .slice(0, 5)
     .map((p) => ({ name: p.title, url: `/blog/${p.slug}`, sub: p.category || "Guide", image: p.coverImage || null }));
 
-  const pages = PAGES.filter((p) => hit(`${p.name} ${p.kw}`.toLowerCase())).slice(0, 6).map((p) => ({ name: p.name, url: p.url, sub: "", image: null }));
+  const pages = PAGES.filter((p) => laticreteLinkOk(p.url) && hit(`${p.name} ${p.kw}`.toLowerCase())).slice(0, 6).map((p) => ({ name: p.name, url: p.url, sub: "", image: null }));
 
   return NextResponse.json({ products, guides, pages });
 }

@@ -3,6 +3,7 @@ import CalcPage from "../components/calc/CalcPage";
 import ClipSpacerCalculator, { type PackProduct } from "../components/calc/ClipSpacerCalculator";
 import { CLIP_SLUG, JOINTS, packSize, type Joint } from "../../lib/clipSpacerCalc";
 import { listRanges } from "../../lib/onbase/client";
+import { laticreteLinkOk } from "../../lib/flags";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export default async function ClipSpacerCalculatorPage({ searchParams }: { searc
       title="How many clips and spacers do I" italic="need?"
       intro="Enter your tile size and area. We work out how many levelling clips, wedges and spacers you need, in the cheapest mix of the packs we sell, and you can add them to your quote in one click."
       tool={<ClipSpacerCalculator products={products} initialJoint={initialJoint as Joint | null} />} faqs={FAQS}
-      other={{ href: "/adhesive-calculator", label: "Adhesive calculator" }}
+      other={{ href: "/calculator", label: "Tile calculator" }}
       eyebrow="Free tool · Tiling"
       note="Estimates only, based on a spacer at every corner and a levelling clip about every 300 mm along each tile edge, plus your spare. Cuts, borders and how you lay change the real numbers. Add the products to your quote and we will check the quantities for you."
       links={[
@@ -49,7 +50,7 @@ export default async function ClipSpacerCalculatorPage({ searchParams }: { searc
         { href: "/adhesive-calculator", label: "Adhesive calculator" },
         { href: "/grout-calculator", label: "Grout calculator" },
         { href: "/shop/accessories?c=spacers-levelling", label: "Shop spacers & levelling", dark: true },
-      ]}
+      ].filter((l) => laticreteLinkOk(l.href))}
     />
   );
 }

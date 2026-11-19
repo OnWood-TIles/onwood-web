@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getBlog, getTaxonomy, listRanges } from "../lib/onbase/client";
 import { SUBURB_LIST, COLLECTION_LIST } from "../lib/content";
-import { SPECIALS_ENABLED } from "../lib/flags";
+import { SPECIALS_ENABLED, LATICRETE_ENABLED } from "../lib/flags";
 
 // Sitemap for onwoodtiles.com.au. Now that the site is LIVE this lists the full
 // public + indexable storefront: the marketing/utility pages, the blog + each
@@ -65,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/tiles`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/sunshine-coast`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/brands/marquis`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/adhesive-and-grout-guide`, changeFrequency: "monthly", priority: 0.7 },
+    ...(LATICRETE_ENABLED ? [{ url: `${BASE}/adhesive-and-grout-guide`, changeFrequency: "monthly" as const, priority: 0.7 }] : []),
     { url: `${BASE}/tile-shops-near-me`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/tile-shop`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.8 },
@@ -76,8 +76,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/contact`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/book`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/calculator`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/grout-calculator`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/adhesive-calculator`, changeFrequency: "monthly", priority: 0.7 },
+    ...(LATICRETE_ENABLED
+      ? [
+          { url: `${BASE}/grout-calculator`, changeFrequency: "monthly" as const, priority: 0.7 },
+          { url: `${BASE}/adhesive-calculator`, changeFrequency: "monthly" as const, priority: 0.7 },
+        ]
+      : []),
     { url: `${BASE}/clip-and-spacer-calculator`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/recommended-trades`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.6 },

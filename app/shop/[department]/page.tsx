@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import MarketingNav from "../../components/marketing/MarketingNav";
 import MarketingFooter from "../../components/marketing/MarketingFooter";
 import { getTaxonomy, getFilterGroups, listRanges } from "../../../lib/onbase/client";
 import { buildFilterGroupVMs, parseActiveFilters } from "../../../lib/shopFilters";
 import { getDepartmentSeo, SHOP } from "../../../lib/content";
 import { DepartmentShop } from "../../components/shop/DepartmentShop";
+import { LATICRETE_ENABLED } from "../../../lib/flags";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,8 @@ export default async function DepartmentPage({
   searchParams: Promise<Search>;
 }) {
   const { department } = await params;
+  // Tiling Supplies is all LATICRETE: off until a new supplier (lib/flags.ts).
+  if (department === "adhesives" && !LATICRETE_ENABLED) redirect("/shop");
   const { c, f } = await searchParams;
   const [taxonomy, allFilterGroups, seo] = await Promise.all([getTaxonomy(), getFilterGroups(), getDepartmentSeo(department)]);
   const dept = taxonomy.find((d) => d.slug === department);
@@ -84,7 +87,6 @@ export default async function DepartmentPage({
   // mega-menu "in focus" tile in lib/onbase/client.ts). No href = no "In focus" chip (tools, trims, wastes:
   // the photo is the whole kit or a styled scene, not one product).
   const FIXED_HERO: Record<string, { image: string; alt: string; name?: string; href?: string }> = {
-    adhesives: { image: "/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide", alt: "The LATICRETE adhesive and grout range on a pool terrace" },
     trims: { image: "/images/bat/trims/guide-hob.webp", alt: "Solid brass half round tile trim finishing a green tiled bath hob, with matching brass tapware" },
     wastes: { image: "/images/bat/wastes/round-insert-chrome.webp?v=2", alt: "A chrome round tile insert floor waste set flush in a tiled shower floor" },
     accessories: { image: "/images/bat/tools/range-tools.webp", alt: "Tiling tools on a freshly tiled floor: notched trowel, grout float, levelling clips and pliers, caulking gun, tile nippers, knee pads, sponge and grout clean-up bucket" },

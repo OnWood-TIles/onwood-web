@@ -638,7 +638,7 @@ export const DEPARTMENT_SEO: Record<string, DepartmentSeo> = {
     eyebrow: "Shop tools & accessories",
     h1: "Tiling Tools & Accessories",
     intro: [
-      "The tools a tiler reaches for every day: spacers and levelling clips for a flat, even floor, notched trowels matched to our LATICRETE adhesives, grout floats and sponges, a caulking gun that takes both silicone and fillet sausages, and diamond bits for drilling porcelain. Plus step treads, tactiles and cove skirting to finish stairs, paths and floors. Supplied from our Baringa showroom on the Sunshine Coast.",
+      "The tools a tiler reaches for every day: spacers and levelling clips for a flat, even floor, notched trowels for every tile size, grout floats and sponges, a caulking gun that takes both silicone and fillet sausages, and diamond bits for drilling porcelain. Plus step treads, tactiles and cove skirting to finish stairs, paths and floors. Supplied from our Baringa showroom on the Sunshine Coast.",
     ],
     metaTitle: "Tiling Tools Sunshine Coast | Spacers, Levelling Clips, Trowels",
     metaDescription:

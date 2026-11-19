@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import CalcPage from "../components/calc/CalcPage";
 import { GroutCalculator } from "../components/calc/LaticreteCalculators";
+import { redirect } from "next/navigation";
+import { LATICRETE_ENABLED } from "../../lib/flags";
 
 export const metadata: Metadata = {
   title: { absolute: "Grout Calculator | How Much Grout Do I Need? | OnWood Tiles" },
@@ -19,6 +21,7 @@ const FAQS = [
 ];
 
 export default function GroutCalculatorPage() {
+  if (!LATICRETE_ENABLED) redirect("/calculator");
   return (
     <CalcPage
       title="How much grout do I" italic="need?"

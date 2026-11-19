@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import CalcPage from "../components/calc/CalcPage";
 import { AdhesiveCalcWithPicker, type QuoteProduct } from "../components/calc/LaticreteCalculators";
 import { listRanges } from "../../lib/onbase/client";
+import { redirect } from "next/navigation";
+import { LATICRETE_ENABLED } from "../../lib/flags";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +24,7 @@ const FAQS = [
 ];
 
 export default async function AdhesiveCalculatorPage() {
+  if (!LATICRETE_ENABLED) redirect("/calculator");
   // Live products so each result can go straight onto the quote list.
   const products: Record<string, QuoteProduct> = {};
   try {

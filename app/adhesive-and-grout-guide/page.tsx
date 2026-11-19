@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { LATICRETE_ENABLED } from "../../lib/flags";
 import MarketingNav from "../components/marketing/MarketingNav";
 import MarketingFooter from "../components/marketing/MarketingFooter";
 import { RangeCard } from "../components/shop/shared";
@@ -221,6 +223,7 @@ function Steps({ title, steps }: { title: React.ReactNode; steps: string[][] }) 
 }
 
 export default async function AdhesiveGroutGuide() {
+  if (!LATICRETE_ENABLED) redirect("/shop");
   let ranges: WebsiteRange[] = [];
   try { ranges = await listRanges({ department: "adhesives" }); } catch { /* guide still renders */ }
   const hexes = (slug: string) => ranges.find((r) => r.slug === slug)?.swatches.map((s) => s.swatchHex).filter((h): h is string => !!h) ?? [];

@@ -9,3 +9,12 @@
 export const SPECIALS_ENABLED = false;
 
 
+// LATICRETE_ENABLED: master switch for the LATICRETE pages. LATICRETE declined to open an account
+// (2026-11-19), so the products were hidden in OnBase (onbase scripts/laticrete/hide-from-website.ts,
+// --restore puts them back) and these pages redirect: the adhesive & grout guide, the grout and
+// adhesive calculators and /shop/adhesives (Tiling Supplies). Links to them drop out of the footer,
+// sitemap, search and the clip & spacer calculator. Flip to `true` once a supplier is back.
+export const LATICRETE_ENABLED = false;
+export const LATICRETE_PATHS = ["/adhesive-and-grout-guide", "/grout-calculator", "/adhesive-calculator", "/shop/adhesives"];
+/** False for a link to a LATICRETE page while LATICRETE_ENABLED is off. */
+export const laticreteLinkOk = (href: string) => LATICRETE_ENABLED || !LATICRETE_PATHS.some((p) => href === p || href.startsWith(`${p}?`));

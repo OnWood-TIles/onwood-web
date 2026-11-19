@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FOOTER_COLUMNS } from "../../../lib/content";
+import { laticreteLinkOk } from "../../../lib/flags";
 
 // The footer directory columns (Shop / Explore / Help). On desktop they show in
 // full; on mobile each becomes a tappable accordion so the footer stays short.
@@ -21,7 +22,7 @@ export default function FooterColumns() {
               </svg>
             </button>
             <ul className={`fc-links ${isOpen ? "open" : ""}`}>
-              {col.links.map((l) => (
+              {col.links.filter((l) => laticreteLinkOk(l.href)).map((l) => (
                 <li key={`${col.title}-${l.label}`}>
                   <Link href={l.href} className="owf-link fc-link">{l.label}</Link>
                 </li>

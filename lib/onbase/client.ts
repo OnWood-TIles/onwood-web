@@ -475,12 +475,11 @@ const MENU_FOCUS_PICK: Record<string, string> = {
   basins: "marquis-wow-translucency-round-basin",
   mirrors: "marquis-mounted-mirror",
 };
-// Departments shown by one fixed range photo instead of a rotating product (Reagan 2026-11-10:
-// the LATICRETE range lined up by a pool), linking to the department's guide page. Tools (2026-11-17):
+// Departments shown by one fixed range photo instead of a rotating product (the LATICRETE pool shot
+// came off 2026-11-19 with the LATICRETE range). Tools (2026-11-17):
 // a group shot of the kit instead of an "in focus" product, linking to the department. Trims: the brass
 // half round bath hob from the trims guide, linking to the guide.
 const MENU_FOCUS_FIXED: Record<string, { image: string; name: string; href: string }> = {
-  adhesives: { image: "https://onwoodtiles.com.au/images/laticrete/range-pool.webp", name: "The LATICRETE range", href: "/adhesive-and-grout-guide" },
   accessories: { image: "https://onwoodtiles.com.au/images/bat/tools/range-tools.webp", name: "The tiling toolkit", href: "/shop/accessories" },
   trims: { image: "https://onwoodtiles.com.au/images/bat/trims/guide-hob.webp", name: "The tile trims guide", href: "/blog/tile-trims-guide" },
   wastes: { image: "https://onwoodtiles.com.au/images/bat/wastes/round-insert-chrome.webp?v=2", name: "Tile insert floor wastes", href: "/shop/wastes" },
