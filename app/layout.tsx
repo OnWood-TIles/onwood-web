@@ -9,6 +9,7 @@ import ShowroomBanner from "./components/marketing/ShowroomBanner";
 import PresenceBeacon from "./components/PresenceBeacon";
 import { Analytics } from "@vercel/analytics/next";
 import { getNav, getShopMenu } from "../lib/onbase/client";
+import { laticreteLinkOk } from "../lib/flags";
 import { GOOGLE_PROFILE_URL } from "../lib/content";
 
 // Headings / labels
@@ -116,7 +117,11 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   // /admin-designed navigation (cached ~5 min; [] -> built-in nav fallback) +
   // the shop taxonomy that drives the Shop mega-menu.
-  const [navItems, shopDepts] = await Promise.all([getNav(), getShopMenu()]);
+  const [rawNavItems, shopDepts] = await Promise.all([getNav(), getShopMenu()]);
+  // LATICRETE links come out here on the server, so they are not even in the page source (lib/flags.ts).
+  const navItems = rawNavItems
+    .filter((i) => laticreteLinkOk(i.href ?? ""))
+    .map((i) => (i.children ? { ...i, children: i.children.filter((c) => laticreteLinkOk(c.href)) } : i));
   return (
     <html
       lang="en-AU"
