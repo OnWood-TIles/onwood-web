@@ -441,7 +441,10 @@ export function listPairCandidates(): Promise<WebsiteRange[]> {
 /** One range (or standalone product) by slug. */
 export function getRange(slug: string): Promise<WebsiteRange | null> {
   return onbaseGet<WebsiteRange | null>(
-    `/api/v1/website/ranges/${encodeURIComponent(slug)}`,
+    // ?v=2 (2026-11-19) is a fresh cache key. Next only stores 200 responses, so when a product is
+    // hidden by a script (no OnBase save, so no revalidate ping) its 404 refetch never replaces the
+    // cached page and the product stays up. Bump v after a scripted hide, or save any product in OnBase.
+    `/api/v1/website/ranges/${encodeURIComponent(slug)}?v=2`,
     { revalidate: TTL_STOCK, tags: ["ranges", `range:${slug}`] },
     null,
   ).then((r) => (r ? normalizeRange(r) : null));
