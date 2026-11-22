@@ -30,8 +30,13 @@ const shortUrl = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\
 const abnText = (a: string) => (a.length === 11 ? `${a.slice(0, 2)} ${a.slice(2, 5)} ${a.slice(5, 8)} ${a.slice(8)}` : a);
 const initials = (n: string) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
 
-function TradeCard({ t, anchor }: { t: TradeListing; anchor: boolean }) {
+// The licence field takes a QBCC number or any other licence ("Electrical 123456"). Only a bare number on a
+// trade in a QBCC category gets the QBCC badge + register link; anything else shows as given.
+const isQbccNumber = (v: string) => /^\d{4,10}$/.test(v.replace(/\s/g, ""));
+
+function TradeCard({ t, anchor, qbccTrade }: { t: TradeListing; anchor: boolean; qbccTrade: boolean }) {
   const name = t.businessName || t.contactName || "";
+  const qbcc = !!t.qbccLicence && qbccTrade && isQbccNumber(t.qbccLicence);
   return (
     <article id={anchor ? t.slug : undefined} className="rt-card">
       <div className="rt-card-top">
@@ -43,7 +48,8 @@ function TradeCard({ t, anchor }: { t: TradeListing; anchor: boolean }) {
           <h3 className="rt-name">{name}</h3>
           {t.contactName && t.businessName && <p className="rt-contact">{t.contactName}</p>}
           <div className="rt-badges">
-            {t.qbccLicence && <a href={QBCC_SEARCH} target="_blank" rel="noopener noreferrer nofollow" className="rt-badge rt-badge-qbcc" title="Check this licence on the QBCC register">QBCC licence {t.qbccLicence}</a>}
+            {qbcc && <a href={QBCC_SEARCH} target="_blank" rel="noopener noreferrer nofollow" className="rt-badge rt-badge-qbcc" title="Check this licence on the QBCC register">QBCC licence {t.qbccLicence}</a>}
+            {t.qbccLicence && !qbcc && <span className="rt-badge">{isQbccNumber(t.qbccLicence) ? `Licence ${t.qbccLicence}` : t.qbccLicence}</span>}
             {t.abn && <span className="rt-badge">ABN {abnText(t.abn)}</span>}
           </div>
         </div>
@@ -69,6 +75,7 @@ export default async function RecommendedTradesPage() {
   const [groups, biz] = await Promise.all([getTrades().catch(() => []), getBusiness().catch(() => null)]);
   const seen = new Set<string>();
   const total = new Set(groups.flatMap((g) => g.trades.map((t) => t.slug))).size;
+  const qbccTrades = new Set(groups.filter((g) => g.qbccRequired).flatMap((g) => g.trades.map((t) => t.slug)));
 
   return (
     <div data-theme="terracotta" style={{ background: "var(--bg)", color: "var(--ink)" }}>
@@ -122,7 +129,7 @@ export default async function RecommendedTradesPage() {
                 {g.trades.map((t) => {
                   const anchor = !seen.has(t.slug);
                   seen.add(t.slug);
-                  return <TradeCard key={t.slug} t={t} anchor={anchor} />;
+                  return <TradeCard key={t.slug} t={t} anchor={anchor} qbccTrade={qbccTrades.has(t.slug)} />;
                 })}
               </div>
             </section>
