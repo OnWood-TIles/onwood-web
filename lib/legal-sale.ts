@@ -145,6 +145,18 @@ export const TERMS_OF_SALE: LegalDoc = {
       ],
     },
     {
+      id: "storage-and-uncollected-orders",
+      heading: "Storage and uncollected orders",
+      blocks: [
+        { type: "sub", text: "Our warehouse space is limited, so please collect your order promptly." },
+        { type: "p", text: "When your order is ready we will let you know. Please pay any balance owing and collect your order, or accept delivery, within 14 days of our notice. If you need us to hold your order for longer, ask us before you order or as soon as you know, and we will tell you whether we can and whether storage charges will apply." },
+        { type: "p", text: "Storage charges. If your order is not collected or delivered within 14 days of our notice, we may charge storage of $25 per pallet space, or part of one, for each week or part week that it stays with us after that date. We will remind you in writing before any storage charge starts. Storage charges must be paid before the goods are released." },
+        { type: "p", text: "Goods held for you. While we store goods for you after the 14 days, we will take reasonable care of them, but they are held at your risk. If your delivery is delayed at your request, or because you or your site were not ready, the same applies from the original delivery date." },
+        { type: "p", text: "Uncollected goods. If goods are still uncollected 90 days after our notice that they are ready, we may give you written notice that we intend to dispose of them. If you do not pay what is owing and collect them, or arrange delivery, within 30 days of that notice, we may sell or otherwise dispose of the goods, following any steps that Queensland law requires. We will apply the proceeds, and any deposit or payment you have made for those goods, to the amounts you owe us, including the price, storage charges and the reasonable costs of disposal, and refund any surplus to you." },
+        { type: "p", text: "Special and indent orders are bought in specifically for you (see clause 7), so this clause applies to them in the same way once they arrive at our warehouse." },
+      ],
+    },
+    {
       id: "breakage-and-minor-transit-damage",
       heading: "Breakage and minor transit damage",
       blocks: [
@@ -165,6 +177,30 @@ export const TERMS_OF_SALE: LegalDoc = {
       ],
     },
     {
+      id: "suitability-slip-resistance-and-compliance",
+      heading: "Suitability, slip resistance and compliance",
+      blocks: [
+        { type: "sub", text: "Choosing the right product for where it will be used is your responsibility." },
+        { type: "p", text: "Choosing a product that suits its location and use is your responsibility, together with your designer, architect, builder, certifier or installer. This includes slip resistance for bathrooms and other wet areas, outdoor areas, pool surrounds, ramps, stairs, entries and commercial spaces, as well as water absorption, frost, chemical, load and wear requirements, and compliance with the National Construction Code, your building approval and the relevant Australian Standards." },
+        { type: "p", text: "Slip resistance. Slip resistance ratings, such as P ratings under AS 4586, are published by the manufacturer from laboratory tests on new product. They are a guide only. Slip resistance on site depends on installation, water, soap and other contaminants, wear, cleaning and maintenance, and it can change over time. Polished, gloss and some smooth or decorative finishes are not suitable for wet or outdoor floors. Standards Australia handbook SA HB 198 gives guidance on the ratings recommended for different locations. If slip resistance matters for your project, confirm the required rating with your builder or certifier before you order, and ask us for the manufacturer's test report." },
+        { type: "p", text: "Pavers, pool and outdoor products. Outdoor and pool areas need products rated for that use, laid with suitable falls, drainage, movement joints, adhesives and grouts. Pool coping and surrounds must suit the pool's water chemistry, including salt water. Natural stone and some pavers need sealing outdoors and around pools." },
+        { type: "p", text: "Tactile indicators and stair nosings. Tactile ground surface indicators and stair nosings must be selected and installed to meet the National Construction Code and AS/NZS 1428.4.1, including luminance contrast, layout and fixing requirements. Whether an installation complies depends on how and where the product is installed, which is the responsibility of your designer, builder and installer." },
+        { type: "p", text: "Technical information. Ratings, test results, data sheets and other technical information come from the manufacturer. We pass them on in good faith, but we do not test products ourselves, and we do not certify that a product complies with any code, standard or approval for your particular project. Any guidance we give is general information only (see clause 15)." },
+        { type: "p", text: "Nothing in this clause limits your rights under the Australian Consumer Law, including where you tell us the particular purpose you need a product for and rely on our advice." },
+      ],
+    },
+    {
+      id: "drains-floor-wastes-and-waterproofing",
+      heading: "Drains, floor wastes and waterproofing",
+      blocks: [
+        { type: "p", text: "Floor wastes, linear and tile insert drains, puddle flanges, waterproofing membranes and kits, and similar products form part of a wet area's waterproofing and plumbing. They must be installed by appropriately licensed trades, following the manufacturer's instructions, AS 3740 (waterproofing of domestic wet areas), AS 3958 (ceramic tiling), the plumbing standards where they apply, and the National Construction Code. In Queensland, plumbing and drainage work must be carried out by a licensed plumber or drainer." },
+        { type: "p", text: "Choosing a drain or waste to suit your floor, falls, waterproofing system, tile thickness and expected water flow, and connecting it correctly to the membrane and the plumbing, is the responsibility of your installer or plumber." },
+        { type: "p", text: "Waterproofing products must be applied to a clean, sound and suitably prepared surface, at the coverage, thickness and curing times the manufacturer specifies, and must be compatible with the adhesive and other products used over them. Please check the waterproofing before tiling, including flood testing where required." },
+        { type: "p", text: "We are not responsible for leaks, water damage or rectification caused by installation, workmanship, incompatible products, or not following these requirements or the manufacturer's instructions. Nothing in this clause limits your rights under the Australian Consumer Law." },
+        { type: "p", text: "Care. Clean grates, inserts and waste baskets regularly so water drains freely. Chrome, coloured, brushed and stainless steel finishes need the care described by the manufacturer, and harsh, acidic or abrasive cleaners can damage them." },
+      ],
+    },
+    {
       id: "vanities-and-made-to-order-bathroom-furniture",
       heading: "Vanities, mirrors and made-to-order bathroom furniture",
       blocks: [
@@ -176,7 +212,35 @@ export const TERMS_OF_SALE: LegalDoc = {
         { type: "p", text: "Checking your goods. Please unpack and inspect your item on delivery or collection, before it is installed, and tell us about any damage, fault or incorrect item within 48 hours (see clause 12). Do not install an item that is damaged or not as ordered." },
         { type: "p", text: "Finishes and illustrations. Timber-grain, painted, stone and porcelain finishes can vary from samples, brochures and screens, and natural or engineered stone tops have their own variation in pattern and tone. A colour matched to a paint brand is matched as closely as the manufacturer can. Drawings and builders on our website are illustrations only, and photos may show options that are not included in the price." },
         { type: "p", text: "Installation. We supply only. Vanities and cabinetry must be installed by a licensed, qualified tradesperson, following the manufacturer's instructions; the manufacturer's warranty may not apply otherwise. Plumbing, tapware, wastes, wall brackets and installation are not included unless your quote says so." },
-        { type: "p", text: "Warranty. The manufacturer's warranty is passed on to you (see clause 18). Its length depends on the component, for example the cabinet, benchtop, basin, mirror and lighting can each have a different warranty period, and the manufacturer's terms and care instructions apply. These products are moisture resistant but not waterproof, so water should be wiped up promptly." },
+        { type: "p", text: "Warranty. The manufacturer's warranty is passed on to you (see clause 23). Its length depends on the component, for example the cabinet, benchtop, basin, mirror and lighting can each have a different warranty period, and the manufacturer's terms and care instructions apply. These products are moisture resistant but not waterproof, so water should be wiped up promptly." },
+      ],
+    },
+    {
+      id: "tile-trims-edging-and-metal-finishes",
+      heading: "Tile trims, edging and metal finishes",
+      blocks: [
+        { type: "p", text: "Tile trims, angles, edge profiles, stair nosings, transition strips and similar products are sold by the length or by the piece. Lengths are nominal and can vary slightly. Allow for cuts, mitres, joins and wastage when you order." },
+        { type: "p", text: "Choosing a trim. Choose the trim height to suit your tile thickness plus the adhesive bed, and the profile to suit where it will be used. Decorative and light-duty trims are not designed for floors, stair edges, or areas with heavy traffic or impact. Ask us if you are unsure." },
+        { type: "p", text: "Finishes vary between batches. Brushed (also called linished), anodised, powder coated, plated and painted finishes are made in production batches and can vary in tone, sheen and brushing from one batch to the next, and from samples, brochures and screens. If an exact match matters, order all the trims for your job at the same time. Brushed finishes show fine directional lines, which are part of the finish, not a fault." },
+        { type: "p", text: "Raw metals change over time. Solid brass and other raw metal trims are living finishes. Unless they are lacquered, they naturally darken and develop a patina over time, faster in wet areas, outdoors and near the coast. This is normal and is not a fault. Grade 304 stainless steel can develop light surface rust spots (tea staining) in coastal, pool and outdoor areas, so we recommend grade 316 (marine grade) in those locations." },
+        { type: "p", text: "Installation and care. Many trims come with a protective film. Leave it on while you install where practical, and remove it promptly afterwards, as film left on in the sun can bake on and mark the finish. Clean adhesive and grout off trims straight away, before it cures. Do not use acids, grout haze removers, abrasive pads, wire brushes or harsh cleaners on trims, as they can permanently etch, dull or strip the finish. Clean with warm water, a mild pH-neutral cleaner and a soft cloth." },
+        { type: "p", text: "Returns. Trims that have been cut, bent, installed or had their protective film removed cannot be returned for change of mind. Colours, finishes and sizes we do not normally stock are ordered in for you as special orders (see clause 7)." },
+        { type: "p", text: "Nothing in this clause limits your rights under the Australian Consumer Law." },
+      ],
+    },
+    {
+      id: "tools-equipment-and-consumables",
+      heading: "Tools, equipment and consumables",
+      blocks: [
+        { type: "sub", text: "Tools must be used safely and as the manufacturer intends." },
+        { type: "p", text: "Safe use. Read and follow the manufacturer's instructions and safety information before using any tool. Use the right personal protective equipment, including eye, hearing, hand and respiratory protection, and make sure anyone using a tool is trained and competent to use it. Check tools, leads and accessories before each use, and do not use a tool that is damaged." },
+        { type: "p", text: "Silica dust. Cutting, grinding, drilling, polishing or chasing tiles, stone, concrete and similar materials creates respirable crystalline silica dust, which can cause silicosis, lung cancer and other serious lung disease. Cut wet or use on-tool dust extraction, wear suitable respiratory protection, and follow Queensland work health and safety laws and codes of practice where they apply." },
+        { type: "p", text: "Blades, bits and accessories. Use diamond blades, cutting and scoring wheels, drill and core bits only on the materials they are made for, at or below their maximum rated speed, in the correct direction of rotation, and with water where they are designed for wet use. Overheating, forcing a cut or using the wrong blade can damage the blade and the tile, and can cause injury." },
+        { type: "p", text: "Consumables wear out. Blades, scoring wheels, drill and core bits, polishing and sanding pads, sponges, floats, trowels, mixing paddles, knife blades, brushes and roller covers wear with use. How long they last depends on the material, the pressure and speed used, cooling, and care. Wear from use is not a fault." },
+        { type: "p", text: "Manufacturer's warranty. Power tools, tile cutters and other equipment carry the manufacturer's warranty, which we pass on to you (see clause 23). Its length and conditions are set by the manufacturer, and we will give you a copy on request. A manufacturer's warranty usually does not cover normal wear, consumable parts, misuse, overloading, accidental damage, use with the wrong power supply or accessories, lack of maintenance, or repairs or changes made by anyone other than an authorised repairer. Tools used for hire or heavy commercial work may have different warranty terms. Please keep your proof of purchase." },
+        { type: "p", text: "Faulty tools. If a tool develops a fault, stop using it and contact us with your proof of purchase. We may need to send it to the manufacturer or an authorised service agent to be assessed. If the assessment finds no fault, or finds that the damage was caused by misuse, wear or an accident, any assessment and freight costs may be passed on to you, and we will tell you what they are before they are incurred." },
+        { type: "p", text: "Returns. Tools and equipment that have been used, or taken out of sealed packaging, cannot be returned for change of mind." },
+        { type: "p", text: "Nothing in this clause limits your rights under the Australian Consumer Law (see clause 22)." },
       ],
     },
     {
@@ -184,7 +248,7 @@ export const TERMS_OF_SALE: LegalDoc = {
       heading: "Returns and change of mind",
       blocks: [
         { type: "p", text: "We generally do not accept returns for change of mind, and you are not entitled to a refund or exchange simply because you have changed your mind." },
-        { type: "p", text: "If you ask to return a product for change of mind, whether we accept it is at our discretion. It will depend on whether our supplier will accept the return, and on the current stock levels of the batch being returned. Where we do agree to a change-of-mind return, it must be full, unopened boxes of current stock, in resaleable condition, with proof of purchase. We may withhold part of the amount paid to cover freight and handling, administration costs, and any restocking or return penalties charged by our supplier." },
+        { type: "p", text: "If you ask to return a product for change of mind, whether we accept it is at our discretion. It will depend on whether our supplier will accept the return, and on the current stock levels of the batch being returned. Where we do agree to a change-of-mind return, it must be current stock in its original, unopened packaging (full, unopened boxes for tiles), in resaleable condition, with proof of purchase. We may withhold part of the amount paid to cover freight and handling, administration costs, and any restocking or return penalties charged by our supplier." },
         { type: "p", text: "We cannot accept change-of-mind returns of special or indent orders, clearance or discontinued items, or products that have been opened, cut, used or installed." },
         { type: "p", text: "Batch, variation and availability issues. Where a concern arises about batch variation, matching or availability, we will look at it with you and, where relevant, with our supplier. We may offer a refund, credit, exchange or replacement. Which remedy we offer, if any, is at our discretion and may depend on our supplier's response - except where the Australian Consumer Law entitles you to a particular remedy, in which case that law applies." },
         { type: "p", text: "None of this limits your rights under the Australian Consumer Law." },
@@ -253,7 +317,7 @@ export const TERMS_OF_SALE: LegalDoc = {
           "If we do not enforce a right, that is not a waiver of it.",
           "These terms, together with your quote or order confirmation, are the entire agreement between us about your order and replace any earlier discussion or representation.",
           "You may not assign your rights under these terms without our written consent. We may assign ours in connection with a sale or restructure of our business.",
-          "Clauses 9, 18, 19, 20 and this clause 23 survive completion of your order.",
+          "Clauses 9, 13, 23, 24, 25 and this clause 28 survive completion of your order.",
           "These terms are governed by the laws of Queensland, Australia. You and we submit to the non-exclusive jurisdiction of the courts of Queensland and the courts entitled to hear appeals from them.",
         ] },
       ],

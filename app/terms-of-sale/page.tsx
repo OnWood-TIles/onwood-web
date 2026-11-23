@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function TermsOfSalePage() {
-  return <LegalPage doc={TERMS_OF_SALE} updated="4 November 2026" />;
+  return <LegalPage doc={TERMS_OF_SALE} updated="23 November 2026" />;
 }
