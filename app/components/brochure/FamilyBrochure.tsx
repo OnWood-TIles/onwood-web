@@ -115,7 +115,24 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
   const instHero = installed[1] ?? installed[0] ?? hero; // distinct from the cover hero
   const instThumbs = installed.slice(2, 4);
   // Bigger colourway swatches when there are few colours; shrink for large sets so they still fit the page.
-  const swatchH = colours.length <= 6 ? 150 : colours.length <= 9 ? 122 : 96;
+  const swatchFor = (n: number) => (n <= 6 ? 150 : n <= 9 ? 122 : 96);
+  const swatchH = swatchFor(colours.length);
+  // Big colour sets (e.g. trims in 25+ finishes) overflowed the fixed-height range page and
+  // were clipped. Estimate how many 3-across rows fit under the intro, and flow the rest onto
+  // their own "colourways continued" page(s). Heights are the CSS px of the layout below.
+  const rowH = swatchH + 13 + (colours.some((c) => c.sub) ? 20 : 0);
+  const introH = Math.max(69 + Math.ceil(rangeSummary.length / 45) * 25, Math.ceil(stats.length / 2) * 70);
+  const rangeRows = Math.max(1, Math.floor((1075 - 16 - (75 + introH + 57) + 13) / rowH));
+  const rangeColours = colours.slice(0, rangeRows * 3);
+  const CONT_PER_PAGE = 3 * Math.floor((1075 - 16 - 119 + 13) / (96 + 13 + (colours.some((c) => c.sub) ? 20 : 0)));
+  const colourPages: (typeof colours)[] = [];
+  for (let i = rangeColours.length; i < colours.length; i += CONT_PER_PAGE) colourPages.push(colours.slice(i, i + CONT_PER_PAGE));
+  const swatch = (c: (typeof colours)[number], i: number, h: number) => (
+    <div key={i}>
+      <div style={{ height: h, borderRadius: 12, border: "1px solid rgba(32,48,58,.12)", overflow: "hidden", background: c.hex || "#e7e2d6" }}><Img src={c.image} alt={c.name} caption={c.name} /></div>
+      {c.sub && <div style={{ marginTop: 6, font: "400 9.5px/1.3 'Space Mono',monospace", letterSpacing: ".1em", textTransform: "uppercase", color: MUTED }}>{c.sub}</div>}
+    </div>
+  );
   // Auto-shrink the cover headline so long names (e.g. "Harper Shower Channel Waste") don't run off the page.
   const L = familyName.length;
   const h1Size = L <= 11 ? 82 : L <= 15 ? 68 : L <= 20 ? 56 : L <= 26 ? 46 : L <= 34 ? 38 : 32;
@@ -190,16 +207,28 @@ export default function FamilyBrochure({ data, contact }: { data: BrochureData; 
           <div style={{ padding: "30px 52px 0" }}>
             <h3 className="h3d"><span style={{ width: 8, height: 8, background: TERRA, transform: "rotate(45deg)" }} />{colours.length} colourway{colours.length === 1 ? "" : "s"}</h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 13 }}>
-              {colours.map((c, i) => (
-                <div key={i}>
-                  <div style={{ height: swatchH, borderRadius: 12, border: "1px solid rgba(32,48,58,.12)", overflow: "hidden", background: c.hex || "#e7e2d6" }}><Img src={c.image} alt={c.name} caption={c.name} /></div>
-                  {c.sub && <div style={{ marginTop: 6, font: "400 9.5px/1.3 'Space Mono',monospace", letterSpacing: ".1em", textTransform: "uppercase", color: MUTED }}>{c.sub}</div>}
-                </div>
-              ))}
+              {rangeColours.map((c, i) => swatch(c, i, swatchH))}
             </div>
           </div>
           <Foot web={contact.website} mid="Colours vary with screen · confirm from a sample" n={pn()} />
         </div>
+
+        {/* ── COLOURWAYS CONTINUED (only when the range page can't hold them all) ── */}
+        {colourPages.map((pageCols, pi) => (
+          <div className="page" key={`cols-${pi}`}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "28px 52px 20px", borderBottom: `1px solid ${LINE}` }}>
+              <Logo h={17} />
+              <span style={{ font: "400 10px/1 'Space Mono',monospace", letterSpacing: ".16em", textTransform: "uppercase", color: MUTED }} className="clip">Colourways · {familyName}{colourPages.length > 1 ? ` (${pi + 1}/${colourPages.length})` : ""}</span>
+            </div>
+            <div style={{ padding: "26px 52px 0" }}>
+              <h3 className="h3d"><span style={{ width: 8, height: 8, background: TERRA, transform: "rotate(45deg)" }} />{colours.length} colourways, continued</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 13 }}>
+                {pageCols.map((c, i) => swatch(c, i, swatchFor(pageCols.length)))}
+              </div>
+            </div>
+            <Foot web={contact.website} mid="Colours vary with screen · confirm from a sample" n={pn()} />
+          </div>
+        ))}
 
         {/* ── P3 SEE IT INSTALLED (only when we have room photos) ── */}
         {installed.length > 0 && (
