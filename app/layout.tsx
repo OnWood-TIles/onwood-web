@@ -97,9 +97,16 @@ const jsonLd = {
   hasMap: GOOGLE_PROFILE_URL,
   priceRange: "$$",
   openingHoursSpecification: [
+    // Same as the Google Business Profile and OnBase (Admin > Business): Tue-Fri 10-5, Sat 10-4.
     {
       "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "10:00",
+      closes: "17:00",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Saturday",
       opens: "10:00",
       closes: "16:00",
     },
